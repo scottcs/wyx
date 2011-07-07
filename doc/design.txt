@@ -36,16 +36,47 @@ player:
    stats:
       attack
       defense
+      speed
       hp
       xp
 
    level up:
       + floor(level/2) attack
       + floor(level/2) defense
+      + 1 speed
       + level hp
 
-      to next level
-         1  6
+      to next level (5*mon_level + boss_level)
+          1:   6
+          2:  12
+          3:  18
+          4:  24
+          5:  31
+          6:  37
+          7:  43
+          8:  49
+          9:  55
+         10:  62
+         11:  68
+         12:  74
+         13:  80
+         14:  86
+         15:  93
+         16:  99
+         17: 105
+         18: 111
+         19: 117
+         20: 124
+         21: 130
+         22: 136
+         23: 142
+         24: 148
+         25: 155
+         26: 161
+         27: 167
+         28: 173
+         29: 179
+         30: 186
 
 monster:
    mon_level = dungeon level
@@ -57,12 +88,54 @@ boss:
    mon_defense = random(mon_level, 2*mon_level) + (ring effect)
    mon_attack = random(mon_level*1.5, 3*mon_level) + (ring effect)
 
+   boss level
+       1:  1
+       2:  2
+       3:  3
+       4:  4
+       5:  6
+       6:  7
+       7:  8
+       8:  9
+       9: 10
+      10: 12
+      11: 13
+      12: 14
+      13: 15
+      14: 16
+      15: 18
+      16: 19
+      17: 20
+      18: 21
+      19: 22
+      20: 24
+      21: 25
+      22: 26
+      23: 27
+      24: 28
+      25: 30
+      26: 31
+      27: 32
+      28: 33
+      29: 34
+      30: 36
+
 combat:
    attack + random(level/4) + random(weapon damage range) + (ring effect)
        vs. mon_defense + random(mon_level/4)
    defense + random(level/4) + (armor def) + (ring effect)
        vs. mon_attack + random(mon_level/4)
    xp = mon_level
+
+trap effects:
+   random teleport
+   -25% to -50% current hp
+   destroy potion or scroll
+   summon random monster
+   randomize dungeon (start level over)
+   slow (speed/2)
+   poison (take damage over time)
+   destroy ring, weapon or armor
 
 level structure:
    strings with glyphs as tiles
