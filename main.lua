@@ -1,3 +1,10 @@
+-- debug/profiling --
+-- debug = nil
+is_profile = nil ~= debug
+if is_profile then require 'lib.profiler' end
+local profiler
+
+
 -- global singleton (ish) objects
 Class = require 'lib.hump.class'
 Timer = require 'lib.hump.timer'
@@ -47,6 +54,12 @@ end)
 -- LÖVE --
 ----------
 function love.load()
+	-- start the profiler
+	if is_profile then
+		profiler = newProfiler()
+		profiler:start()
+	end
+
 	-- seed and prime the RNG
 	math.randomseed(os.time()) math.random() math.random()
 
@@ -80,4 +93,10 @@ function love.update(dt)
 end
 
 function love.quit()
+	if profiler then
+		profiler:stop()
+		local outfile = io.open('profile.txt', 'w+')
+		profiler:report(outfile)
+		outfile:close()
+	end
 end
