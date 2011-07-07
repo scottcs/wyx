@@ -104,8 +104,8 @@ function love.load()
 	}
 
 	Gamestate.registerEvents()
-	--Gamestate.switch(State.game)
-	Gamestate.switch(State.intro)
+	Gamestate.switch(State.play)
+	--Gamestate.switch(State.intro)
 end
 
 function love.update(dt)
