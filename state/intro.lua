@@ -12,6 +12,8 @@ function intro:update(dt)
 end
 
 function intro:draw()
+	love.graphics.setFont(GameFont.small)
+	love.graphics.print(love.timer.getFPS(), 0, 0)
 end
 
 function intro:keyreleased(key, unicode)
