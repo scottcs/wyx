@@ -50,6 +50,26 @@ Sound = Proxy(function(k)
 end)
 
 
+-- override love's color functions to enable use of float values --
+do
+	local sc = love.graphics.setColor
+	local sbg = love.graphics.setBackgroundColor
+
+	local function color(r, g, b, a)
+		if    r <= 1 and r > 0
+			and g <= 1 and g > 0
+			and b <= 1 and b > 0
+		then
+			r, g, b, a = 255*r, 255*g, 255*b, 255*(a or 1)
+		end
+		return r, g, b, a
+	end
+
+	function love.graphics.setColor(r,g,b,a) sc(color(r,g,b,a)) end
+	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
+end
+
+
 ----------
 -- LÖVE --
 ----------
