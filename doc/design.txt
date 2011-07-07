@@ -1,0 +1,170 @@
+Pud
+---
+
+each level contains:
+   5 monsters
+   1 boss
+   3 traps
+   
+   1 entrance
+   1 exit
+
+   1 weapon
+   1 body armor
+   1 scroll
+   1 potion
+
+   some doors (no locks)
+
+   boss drops a ring
+
+player:
+   item slots:
+      (no inventory, this is just on screen)
+      weapon
+      body armor
+      ring
+
+      usable:
+         scroll
+         scroll
+         scroll
+         potion
+         potion
+         potion
+
+   stats:
+      attack
+      defense
+      hp
+      xp
+
+   level up:
+      + floor(level/2) attack
+      + floor(level/2) defense
+      + level hp
+
+      to next level
+         1  6
+
+monster:
+   mon_level = dungeon level
+   mon_defense = random(mon_level, 2*mon_level)
+   mon_attack = random(mon_level*1.5, 3*mon_level)
+
+boss:
+   mon_level = dungeon level + floor(dungeon level * 0.2)
+   mon_defense = random(mon_level, 2*mon_level) + (ring effect)
+   mon_attack = random(mon_level*1.5, 3*mon_level) + (ring effect)
+
+combat:
+   attack + random(level/4) + random(weapon damage range) + (ring effect)
+       vs. mon_defense + random(mon_level/4)
+   defense + random(level/4) + (armor def) + (ring effect)
+       vs. mon_attack + random(mon_level/4)
+   xp = mon_level
+
+level structure:
+   strings with glyphs as tiles
+   1 to 1 mapping of glyphs (at least 95 available)
+
+   drawing map:
+      if wall then
+         draw wall[index]
+      if floor or feature then
+         draw floor[index]
+         if feature == trap then
+            draw trapA ? trapB : trapA   (with some dt)
+         else
+            draw feature
+      if torch then
+         draw torchA ? torchB : torchA   (with some dt)
+   drawing decorative layer:
+      randomly place decorations, not specified in map
+   drawing item, monster, players:
+      if item and (player or monster) then
+         draw player or monster
+         flag item for ground interface slot
+      else draw item
+
+interface:
+   main menu
+      new
+      load
+      options
+         sound on/off
+      help
+      quit
+
+   game menu
+      save
+      options
+         sound on/off
+      help
+      exit to main menu
+
+   gui elements needed:
+      frame (some way of grouping)
+      label (with image)
+      button (with image)
+      menu item (button?)
+      inventory slot (button?)
+      mouseover info panel
+
+resources needed:
+   art:
+      level:
+         wall - at least 3 base types, each with variations if possible
+         floor - at least 3 base types, with variations
+         door open
+         door closed
+         stairs up
+         stairs down
+         trap
+      monster:
+         normal and boss version of each:
+            goblin
+            orc
+            skeleton
+            zombie
+            dragon
+            etc...
+      player:
+         just the one player tile for now
+      items:
+         weapons: at least 10
+         armor: at least 10
+         ring: at least 10
+         scroll: at least 5
+         potion: at least 5
+      interface:
+         inventory slot
+            icon/background (1 for each: weapon, armor, ring, scroll, potion)
+            border
+         popup info panel
+            background
+            border
+         menu item
+            unselected (normal)
+            selected (hovered)
+            pressed
+         icons for stats: attack, defense, hp, (xp?), (level?)
+         mouse cursor
+         
+   sound:
+      clachiinnng - attack hit
+      whooosh - attack miss
+      oomph - player hit
+      rowr - monster hit (really? each monster would be different...)
+      monster death
+      player death
+      door open
+      trap sprung
+      stairs footsteps
+      glug glug - drink potion
+      read scroll
+   fonts:
+      just one probably
+
+
+
