@@ -1,27 +1,23 @@
-local intro = Gamestate.new()
+local st = Gamestate.new()
 
-function intro:init()
+function st:init()
 	print('init')
 end
 
-function intro:enter(prev)
+function st:enter(prev)
 	print('enter '..tostring(prev))
 end
 
-function intro:update(dt)
+function st:update(dt)
 end
 
-function intro:draw()
-	love.graphics.setFont(GameFont.small)
-	love.graphics.print(love.timer.getFPS(), 0, 0)
+function st:draw()
 end
 
-function intro:keyreleased(key, unicode)
+function st:keypressed(key, unicode)
 	case(key) {
 		escape = function() love.event.push('q') end,
-		s = function() love.audio.play(Sound.hit) end,
-		default = function() print(key) end,
 	}
 end
 
-return intro
+return st
