@@ -7,6 +7,7 @@
 
 local st = Gamestate.new()
 
+local RandomBag = require 'lib.pud.randombag'
 local RingBuffer = require 'lib.hump.ringbuffer'
 local string_char = string.char
 
@@ -16,6 +17,22 @@ local _bgmbuffer = RingBuffer()
 local _bgmchar
 local _bgmvolume = 1.0
 
+-- set up sound bag
+local _sounds = {
+	'door',
+	'hit',
+	'mdeath',
+	'miss',
+	'mouch',
+	'pdeath',
+	'pouch',
+	'quaff',
+	'stairs',
+	'trap',
+	'use',
+}
+local _sbag = RandomBag(1,#_sounds)
+local _sound
 
 for i=97,96+NUM_MUSIC do _bgmbuffer:append(i) end
 for i=1,math.random(NUM_MUSIC) do _bgmbuffer:next() end
@@ -34,6 +51,12 @@ local function _adjustBGMVolume(amt)
 	_bgm:setVolume(_bgmvolume)
 end
 
+local function _playRandomSound()
+	local sound = _sounds[_sbag:next()]
+	_sound = love.audio.play(Sound[sound])
+	_sound:setVolume(_bgmvolume)
+end
+
 function st:init()
 	_selectBGM(0)
 	_bgm = love.audio.play(Music[_bgmchar])
@@ -48,11 +71,15 @@ function st:draw()
 	love.graphics.setColor(0.9, 0.8, 0.6)
 	love.graphics.print('[n]ext [p]rev [s]top [g]o', 210, 42)
 	love.graphics.print('[+][-] volume', 210, 84)
+	love.graphics.print('[d]emo a sound', 210, 126)
 
 	love.graphics.setFont(GameFont.big)
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print(_bgmchar, 8, 40)
 	love.graphics.print(_bgmvolume, 8, 80)
+	if _sound and not _sound:isStopped() then
+		love.graphics.print(_sounds[_sbag:getLast()], 8, 120)
+	end
 end
 
 function st:keypressed(key, unicode)
@@ -72,7 +99,7 @@ function st:keypressed(key, unicode)
 			_bgm = love.audio.play(Music[_bgmchar])
 			_bgm:setVolume(_bgmvolume)
 		end,
-		d = function() love.audio.play(Sound.pdeath) end,
+		d = function() _playRandomSound() end,
 		['-']   = function() _adjustBGMVolume(-0.05) end,
 		['kp-'] = function() _adjustBGMVolume(-0.05) end,
 		['+']   = function() _adjustBGMVolume(0.05) end,
