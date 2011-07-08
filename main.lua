@@ -16,7 +16,6 @@ local profiler
 Class = require 'lib.hump.class'
 Timer = require 'lib.hump.timer'
 Gamestate = require 'lib.hump.gamestate'
-Camera = require 'lib.hump.camera'
 
 
          --[[--
@@ -172,7 +171,8 @@ function love.load()
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	Gamestate.switch(State.play)
+	Gamestate.switch(State.demo)
+	--Gamestate.switch(State.play)
 	--Gamestate.switch(State.intro)
 end
 

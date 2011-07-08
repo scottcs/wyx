@@ -1,8 +1,8 @@
 
          --[[--
-       PLAY STATE
+       DEMO STATE
           ----
-      Play the game.
+  Developer playground.
          --]]--
 
 local st = Gamestate.new()
