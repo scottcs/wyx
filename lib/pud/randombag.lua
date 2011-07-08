@@ -37,4 +37,9 @@ function RandomBag:refill()
 	end
 end
 
+function RandomBag:destroy()
+	self.bag = nil
+	self.interval = nil
+end
+
 return RandomBag
