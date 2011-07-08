@@ -151,35 +151,13 @@ function love.load()
 	-- save number of music files as global
 	NUM_MUSIC = 8
 
-	-- load normal fonts
-	for _,size in ipairs{14, 15, 16, 18, 20, 24} do
-		local f = Font[size]
-	end
-
-	-- load game fonts
-	GameFont = {
-		small = love.graphics.newImageFont('font/lofi_small.png',
-			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		big = love.graphics.newImageFont('font/lofi_big.png',
-			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-	}
-
-	-- load music
-	for i=97,96+NUM_MUSIC do local m = Music[string.char(i)] end
-
 	-- register all love events with gamestate
 	Gamestate.registerEvents()
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	Gamestate.switch(State.demo)
-	--Gamestate.switch(State.play)
-	--Gamestate.switch(State.intro)
+	Gamestate.switch(State.load)
 end
 
 function love.update(dt)
