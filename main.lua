@@ -14,8 +14,9 @@ local profiler
          --]]--
 
 Class = require 'lib.hump.class'
-Timer = require 'lib.hump.timer'
 Gamestate = require 'lib.hump.gamestate'
+cron = require 'lib.cron'
+tween = require 'lib.tween'
 
 
          --[[--
@@ -161,11 +162,16 @@ function love.load()
 end
 
 function love.update(dt)
-	Timer.update(dt)
-	love.audio.update()
+	if dt > 0 then
+		cron.update(dt)
+		tween.update(dt)
+		love.audio.update()
+	end
 end
 
 function love.quit()
+	tween.stopAll()
+
 	if profiler then
 		profiler:stop()
 		local outfile = io.open('profile.txt', 'w+')
