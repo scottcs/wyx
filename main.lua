@@ -1,3 +1,4 @@
+
          --[[--
      DEBUG/PROFILING
          --]]--
@@ -22,9 +23,7 @@ Camera = require 'lib.hump.camera'
         UTILITIES
          --]]--
 
---------------------------
--- handy case statement --
---------------------------
+-- handy case statement
 function case(x)
 	return function (of)
 		local what = of[x] or of.default
@@ -35,9 +34,7 @@ function case(x)
 	end
 end
 
----------------------------
--- loaders for resources --
----------------------------
+-- loaders for resources
 local function Proxy(loader)
 	return setmetatable({}, {__index = function(self, k)
 		local v = loader(k)
@@ -61,10 +58,7 @@ Sound = Proxy(function(k)
 		'static')
 end)
 
-
--------------------------------------------------------------------
--- override love's color functions to enable use of float values --
--------------------------------------------------------------------
+-- float values for colors
 do
 	local sc = love.graphics.setColor
 	local sbg = love.graphics.setBackgroundColor
@@ -83,9 +77,11 @@ do
 	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
 end
 
-------------------------------
--- minimalist sound manager --
-------------------------------
+
+         --[[--
+      SOUND MANAGER
+         --]]--
+
 do
 	-- will hold the currently playing sources
 	local sources = {}
@@ -142,6 +138,7 @@ function love.load()
 	-- seed and prime the RNG
 	math.randomseed(os.time()) math.random() math.random()
 
+	-- save window width and height as globals
 	WIDTH = love.graphics.getWidth()
 	HEIGHT = love.graphics.getHeight()
 
@@ -162,7 +159,12 @@ function love.load()
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
 
+	-- register all love events with gamestate
 	Gamestate.registerEvents()
+
+	-----------------------------------
+	-- "The real Pud starts here..." --
+	-----------------------------------
 	Gamestate.switch(State.play)
 	--Gamestate.switch(State.intro)
 end
