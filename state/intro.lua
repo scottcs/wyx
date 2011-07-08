@@ -1,3 +1,11 @@
+
+         --[[--
+       INTRO STATE
+          ----
+   Display the splash
+   screens with fading.
+         --]]--
+
 local st = Gamestate.new()
 
 function st:init()

@@ -1,3 +1,10 @@
+
+         --[[--
+       PLAY STATE
+          ----
+      Play the game.
+         --]]--
+
 local st = Gamestate.new()
 
 function st:draw()
