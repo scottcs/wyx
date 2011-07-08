@@ -8,7 +8,7 @@ end
 function st:keypressed(key, unicode)
 	case(key) {
 		escape = function() love.event.push('q') end,
-		s = function() love.audio.play(Sound.hit) end,
+		s = function() love.audio.play(Sound.pdeath) end,
 		default = function() print(key) end,
 	}
 end
