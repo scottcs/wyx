@@ -148,6 +148,9 @@ function love.load()
 	WIDTH = love.graphics.getWidth()
 	HEIGHT = love.graphics.getHeight()
 
+	-- save number of music files as global
+	NUM_MUSIC = 8
+
 	-- load normal fonts
 	for _,size in ipairs{14, 15, 16, 18, 20, 24} do
 		local f = Font[size]
@@ -164,6 +167,9 @@ function love.load()
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
+
+	-- load music
+	for i=97,96+NUM_MUSIC do local m = Music[string.char(i)] end
 
 	-- register all love events with gamestate
 	Gamestate.registerEvents()
