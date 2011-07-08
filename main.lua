@@ -57,6 +57,13 @@ Sound = Proxy(function(k)
 		love.sound.newSoundData('sound/'..k..'.ogg'),
 		'static')
 end)
+Music = Proxy(function(k)
+	local src = love.audio.newSource(
+		love.sound.newSoundData('music/'..k..'.ogg'),
+		'stream')
+	src:setLooping(true)
+	return src
+end)
 
 -- float values for colors
 do
