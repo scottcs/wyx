@@ -1,20 +1,30 @@
--- debug/profiling --
+         --[[--
+     DEBUG/PROFILING
+         --]]--
+
 -- debug = nil
 is_profile = nil ~= debug
 if is_profile then require 'lib.profiler' end
 local profiler
 
 
--- global singleton (ish) objects
+         --[[--
+    GLOBAL SINGLETONS
+         --]]--
+
 Class = require 'lib.hump.class'
 Timer = require 'lib.hump.timer'
 Gamestate = require 'lib.hump.gamestate'
 Camera = require 'lib.hump.camera'
 
----------------
--- UTILITIES --
----------------
+
+         --[[--
+        UTILITIES
+         --]]--
+
+--------------------------
 -- handy case statement --
+--------------------------
 function case(x)
 	return function (of)
 		local what = of[x] or of.default
@@ -25,7 +35,9 @@ function case(x)
 	end
 end
 
+---------------------------
 -- loaders for resources --
+---------------------------
 local function Proxy(loader)
 	return setmetatable({}, {__index = function(self, k)
 		local v = loader(k)
@@ -50,7 +62,9 @@ Sound = Proxy(function(k)
 end)
 
 
+-------------------------------------------------------------------
 -- override love's color functions to enable use of float values --
+-------------------------------------------------------------------
 do
 	local sc = love.graphics.setColor
 	local sbg = love.graphics.setBackgroundColor
@@ -70,9 +84,10 @@ do
 end
 
 
-----------
--- LÖVE --
-----------
+         --[[--
+       <3 LÖVE <3
+         --]]--
+
 function love.load()
 	-- start the profiler
 	if is_profile then
