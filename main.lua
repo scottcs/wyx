@@ -151,8 +151,9 @@ function love.load()
 	WIDTH = love.graphics.getWidth()
 	HEIGHT = love.graphics.getHeight()
 
-	-- save number of music files as global
+	-- save number of music and sound files as global
 	NUM_MUSIC = 8
+	NUM_SOUNDS = 11
 
 	-- register all love events with gamestate
 	Gamestate.registerEvents()
