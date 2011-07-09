@@ -7,11 +7,22 @@
 
 local st = GameState.new()
 
-local math_max, math_min, math_random, string_char
-		= math.max, math.min, math.random, string.char
+local math_max, math_min, math_random, math_floor, string_char
+		= math.max, math.min, math.random, math.floor, string.char
+local PI2 = math.pi * 2
 
 local RandomBag = require 'lib.pud.randombag'
 local RingBuffer = require 'lib.hump.ringbuffer'
+local Camera = require 'lib.hump.camera'
+local vector = require 'lib.hump.vector'
+
+-- camera
+local _cam
+local CAM_TRANSLATE = 16
+local CAM_ROTATE = 1/72
+local CAM_ZOOM = 3
+local CAM_ZOOMIN = 0.9
+local CAM_ZOOMOUT = 1.1
 
 -- set up background music track buffer
 local _bgm
@@ -65,19 +76,51 @@ local function _playRandomSound()
 	_sound:setVolume(_bgmvolume)
 end
 
-function st:enter()
-	_selectBGM(0)
+local function _drawWorld()
+	love.graphics.draw(Image.demobg, 0, 0)
 end
 
-function st:draw()
+local function _correctCam()
+	local wmin = math_floor((WIDTH/2)/_cam.zoom + 0.5)
+	local wmax = Image.demobg:getWidth() - wmin
+	if _cam.pos.x < wmin then _cam.pos.x = wmin end
+	if _cam.pos.x > wmax then _cam.pos.x = wmax end
+
+	local hmin = math_floor((HEIGHT/2)/_cam.zoom + 0.5)
+	local hmax = Image.demobg:getHeight() - hmin
+	if _cam.pos.y < hmin then _cam.pos.y = hmin end
+	if _cam.pos.y > hmax then _cam.pos.y = hmax end
+end
+
+local function _drawHUD()
+	local bt = HEIGHT-164
+	love.graphics.setBlendMode('multiplicative')
+	love.graphics.setColor(0, 0, 0.4, 0.7)
+	love.graphics.rectangle('fill', 4, 4, 612, 160)
+	love.graphics.rectangle('fill', 4, bt, 612, 160)
+	love.graphics.setBlendMode('alpha')
+
 	love.graphics.setFont(GameFont.small)
-	love.graphics.setColor(0.3, 0.3, 0.3)
+	love.graphics.setColor(0.5, 0.5, 0.5)
 	love.graphics.print('fps: '..tostring(love.timer.getFPS()), 8, 8)
 
+	local c = 'cam: '
+	local h = GameFont.small:getHeight()
+	local x, y = _cam.pos:unpack()
+	x, y = math_floor(x*100)/100, math_floor(y*100)/100
+	c = c..'('..x..','..y..')'
+	local r = math_floor(_cam.rot * 100) / 100
+	local z = math_floor(_cam.zoom * 100) / 100
+	love.graphics.print(c..', '..tostring(r)..', '..tostring(z), 8, bt+8)
+
 	love.graphics.setColor(0.9, 0.8, 0.6)
-	love.graphics.print('[n]ext [p]rev [s]top [g]o', 210, 46)
-	love.graphics.print('[+][-] volume', 210, 88)
-	love.graphics.print('[d]emo a sound', 210, 130)
+	love.graphics.print('[n]ext [p]rev [s]top [g]o', 210, 8+(4+h))
+	love.graphics.print('[+][-] volume', 210, 8+(4+h)*2)
+	love.graphics.print('[d]emo a sound', 210, 8+(4+h)*3)
+
+	love.graphics.print('[arrow keys] pan', 8, bt+8+(4+h))
+	love.graphics.print('[pgup][pgdn] zoom  [home] reset', 8, bt+8+(4+h)*2)
+	love.graphics.print('[ins][del] rotate', 8, bt+8+(4+h)*3)
 
 	love.graphics.setFont(GameFont.big)
 	local clr = {.1, .8, .1}
@@ -89,6 +132,24 @@ function st:draw()
 	if _sound and not _sound:isStopped() then
 		love.graphics.print(_sounds[_sbag:getLast()], 8, 124)
 	end
+end
+
+function st:init()
+	local w = math_floor(Image.demobg:getWidth()/2)
+	local h = math_floor(Image.demobg:getHeight()/2)
+	_cam = Camera(vector(w, h), CAM_ZOOM)
+end
+
+local _keyDelay, _keyInterval
+function st:enter()
+	_keyDelay, _keyInterval = love.keyboard.getKeyRepeat()
+	love.keyboard.setKeyRepeat(200, 25)
+	_selectBGM(0)
+end
+
+function st:draw()
+	_cam:draw(_drawWorld)
+	_drawHUD()
 end
 
 function st:keypressed(key, unicode)
@@ -111,7 +172,51 @@ function st:keypressed(key, unicode)
 		['kp-'] = function() _adjustBGMVolume(-0.05) end,
 		['+']   = function() _adjustBGMVolume(0.05) end,
 		['kp+'] = function() _adjustBGMVolume(0.05) end,
+
+		-- camera
+		left = function()
+			local amt = vector(-CAM_TRANSLATE/_cam.zoom, 0)
+			_cam:translate(amt)
+			_correctCam()
+		end,
+		right = function()
+			local amt = vector(CAM_TRANSLATE/_cam.zoom, 0)
+			_cam:translate(amt)
+			_correctCam()
+		end,
+		up = function()
+			local amt = vector(0, -CAM_TRANSLATE/_cam.zoom)
+			_cam:translate(amt)
+			_correctCam()
+		end,
+		down = function()
+			local amt = vector(0, CAM_TRANSLATE/_cam.zoom)
+			_cam:translate(amt)
+			_correctCam()
+		end,
+		insert = function() _cam:rotate(CAM_ROTATE*PI2) end,
+		delete = function() _cam:rotate(-CAM_ROTATE*PI2) end,
+		pageup = function()
+			_cam.zoom = math_max(1, _cam.zoom * CAM_ZOOMIN)
+			_correctCam()
+		end,
+		pagedown = function() 
+			_cam.zoom = math_min(10, _cam.zoom * CAM_ZOOMOUT)
+			_correctCam()
+		end,
+		home = function()
+			_cam.rot = 0
+			_cam.zoom = CAM_ZOOM
+			local w = math_floor(Image.demobg:getWidth()/2)
+			local h = math_floor(Image.demobg:getHeight()/2)
+			_cam.pos = vector(w,h)
+			_correctCam()
+		end,
 	}
+end
+
+function st:exit()
+	love.keyboard.setKeyRepeat(_keyDelay, _keyInterval)
 end
 
 return st
