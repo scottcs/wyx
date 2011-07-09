@@ -25,12 +25,28 @@ function st:init()
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
 
-	_x = WIDTH/2 - GameFont.big:getWidth(_loading)/2
-	_y = HEIGHT/2 - GameFont.big:getHeight()/2
 end
 
 function st:enter()
 	self.fadeColor = {0,0,0,1}
+	self.nextState = State.play
+	self.lines = self.lines or {
+		{
+			text = "Loading...",
+			font = GameFont.big,
+			color = {1, 0, 0},
+			x = WIDTH/2,
+			y = HEIGHT/2,
+		},
+		{
+			text = "(press d for demo mode)",
+			font = GameFont.small,
+			color = {.2, .2, .2},
+			x = WIDTH/2,
+			y = HEIGHT-GameFont.small:getHeight()/2,
+		},
+	}
+
 	tween(0.3, self.fadeColor, {0,0,0,0}, 'inSine',
 		self.load, self)
 end
@@ -57,9 +73,12 @@ function st:fadeout()
 end
 
 function st:draw()
-	love.graphics.setFont(GameFont.big)
-	love.graphics.setColor(255, 0, 0, 255)
-	love.graphics.print(_loading, _x, _y)
+	for _,l in ipairs(self.lines) do
+		love.graphics.setFont(l.font)
+		love.graphics.setColor(l.color)
+		love.graphics.print(l.text,
+			l.x - l.font:getWidth(l.text)/2, l.y-l.font:getHeight())
+	end
 
 	-- fader
 	if self.fadeColor[4] ~= 0 then
@@ -68,6 +87,10 @@ function st:draw()
 		love.graphics.rectangle('fill', 0, 0, WIDTH, HEIGHT)
 		love.graphics.setColor(r,g,b,a)
 	end
+end
+
+function st:keypressed(key, unicode)
+	if key == 'd' then self.nextState = State.demo end
 end
 
 return st
