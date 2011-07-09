@@ -7,6 +7,8 @@
 is_profile = nil ~= debug
 if is_profile then require 'lib.profiler' end
 local profiler
+NOFUNC = function() end
+inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 
 
          --[[--
