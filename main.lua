@@ -175,7 +175,7 @@ function love.load()
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	GameState.switch(State.load)
+	GameState.switch(State.intro)
 end
 
 function love.update(dt)

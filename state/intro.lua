@@ -9,11 +9,10 @@
 local st = GameState.new()
 
 function st:init()
-	print('init')
 end
 
 function st:enter(prev)
-	print('enter '..tostring(prev))
+	GameState.switch(State.load)
 end
 
 function st:update(dt)
@@ -23,9 +22,6 @@ function st:draw()
 end
 
 function st:keypressed(key, unicode)
-	case(key) {
-		escape = function() love.event.push('q') end,
-	}
 end
 
 return st
