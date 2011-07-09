@@ -7,6 +7,9 @@
 
 local st = GameState.new()
 
+local math_max, math_min, math_random
+		= math.max, math.min, math.random
+
 local RandomBag = require 'lib.pud.randombag'
 local RingBuffer = require 'lib.hump.ringbuffer'
 local string_char = string.char
@@ -35,7 +38,7 @@ local _sbag = RandomBag(1,#_sounds)
 local _sound
 
 for i=97,96+NUM_MUSIC do _bgmbuffer:append(i) end
-for i=1,math.random(NUM_MUSIC) do _bgmbuffer:next() end
+for i=1,math_random(NUM_MUSIC) do _bgmbuffer:next() end
 
 local function _selectBGM(direction)
 	local i = case(direction) {
@@ -47,7 +50,7 @@ local function _selectBGM(direction)
 end
 
 local function _adjustBGMVolume(amt)
-	_bgmvolume = math.max(0, math.min(1, _bgmvolume + amt))
+	_bgmvolume = math_max(0, math_min(1, _bgmvolume + amt))
 	_bgm:setVolume(_bgmvolume)
 end
 
