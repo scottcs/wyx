@@ -8,7 +8,7 @@
 local st = Gamestate.new()
 
 local _loading = 'Loading...'
-local x, y
+local _x, _y
 
 function st:init()
 	-- load game fonts
@@ -23,8 +23,8 @@ function st:init()
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
 
-	x = WIDTH/2 - GameFont.big:getWidth(_loading)/2
-	y = HEIGHT/2 - GameFont.big:getHeight()/2
+	_x = WIDTH/2 - GameFont.big:getWidth(_loading)/2
+	_y = HEIGHT/2 - GameFont.big:getHeight()/2
 end
 
 function st:enter()
@@ -57,7 +57,7 @@ end
 function st:draw()
 	love.graphics.setFont(GameFont.big)
 	love.graphics.setColor(255, 0, 0, 255)
-	love.graphics.print(_loading, x, y)
+	love.graphics.print(_loading, _x, _y)
 
 	-- fader
 	if self.fadeColor[4] ~= 0 then
