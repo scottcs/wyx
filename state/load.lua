@@ -5,7 +5,7 @@
    Load game resources.
          --]]--
 
-local st = Gamestate.new()
+local st = GameState.new()
 
 local _loading = 'Loading...'
 local _x, _y
@@ -48,7 +48,8 @@ function st:load()
 end
 
 function st:fadeout()
-	tween(1, self.fadeColor, {0,0,0,255}, 'outQuint', Gamestate.switch, State.demo)
+	tween(0.3, self.fadeColor, {0,0,0,1}, 'outQuint',
+		GameState.switch, self.nextState)
 end
 
 function st:draw()

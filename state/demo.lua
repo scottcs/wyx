@@ -5,7 +5,7 @@
   Developer playground.
          --]]--
 
-local st = Gamestate.new()
+local st = GameState.new()
 
 local RandomBag = require 'lib.pud.randombag'
 local RingBuffer = require 'lib.hump.ringbuffer'

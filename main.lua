@@ -16,7 +16,7 @@ inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
          --]]--
 
 Class = require 'lib.hump.class'
-Gamestate = require 'lib.hump.gamestate'
+GameState = require 'lib.hump.gamestate'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -169,12 +169,12 @@ function love.load()
 	NUM_SOUNDS = 11
 
 	-- register all love events with gamestate
-	Gamestate.registerEvents()
+	GameState.registerEvents()
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	Gamestate.switch(State.load)
+	GameState.switch(State.load)
 end
 
 function love.update(dt)

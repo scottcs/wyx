@@ -5,7 +5,7 @@
       Play the game.
          --]]--
 
-local st = Gamestate.new()
+local st = GameState.new()
 
 function st:init()
 end

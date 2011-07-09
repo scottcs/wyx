@@ -6,7 +6,7 @@
    screens with fading.
          --]]--
 
-local st = Gamestate.new()
+local st = GameState.new()
 
 function st:init()
 	print('init')
