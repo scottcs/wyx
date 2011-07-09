@@ -54,7 +54,9 @@ local function _adjustBGMVolume(amt)
 end
 
 local function _playMusic()
+	if _bgm and not _bgm:isStopped() then return end
 	_bgm = love.audio.play('music/'.._bgmchar..'.ogg', 'stream', true)
+	_bgm:setVolume(_bgmvolume)
 end
 
 local function _playRandomSound()
@@ -63,28 +65,29 @@ local function _playRandomSound()
 	_sound:setVolume(_bgmvolume)
 end
 
-function st:init()
+function st:enter()
 	_selectBGM(0)
-	_playMusic()
-	_bgm:setVolume(_bgmvolume)
 end
 
 function st:draw()
 	love.graphics.setFont(GameFont.small)
-	love.graphics.setColor(0.6, 0.6, 0.6)
+	love.graphics.setColor(0.3, 0.3, 0.3)
 	love.graphics.print('fps: '..tostring(love.timer.getFPS()), 8, 8)
 
 	love.graphics.setColor(0.9, 0.8, 0.6)
-	love.graphics.print('[n]ext [p]rev [s]top [g]o', 210, 42)
-	love.graphics.print('[+][-] volume', 210, 84)
-	love.graphics.print('[d]emo a sound', 210, 126)
+	love.graphics.print('[n]ext [p]rev [s]top [g]o', 210, 46)
+	love.graphics.print('[+][-] volume', 210, 88)
+	love.graphics.print('[d]emo a sound', 210, 130)
 
 	love.graphics.setFont(GameFont.big)
+	local clr = {.1, .8, .1}
+	if not _bgm or _bgm:isStopped() then clr = {.8, .1, .1} end
+	love.graphics.setColor(clr)
+	love.graphics.print(_bgmchar, 8, 44)
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.print(_bgmchar, 8, 40)
-	love.graphics.print(_bgmvolume, 8, 80)
+	love.graphics.print(_bgmvolume, 8, 84)
 	if _sound and not _sound:isStopped() then
-		love.graphics.print(_sounds[_sbag:getLast()], 8, 120)
+		love.graphics.print(_sounds[_sbag:getLast()], 8, 124)
 	end
 end
 
@@ -92,18 +95,16 @@ function st:keypressed(key, unicode)
 	case(key) {
 		escape = function() love.event.push('q') end,
 		s = function() love.audio.stop(_bgm) end,
-		g = function() love.audio.play(_bgm) end,
+		g = function() _playMusic() end,
 		n = function()
 			love.audio.stop(_bgm)
 			_selectBGM(1)
 			_playMusic()
-			_bgm:setVolume(_bgmvolume)
 		end,
 		p = function()
 			love.audio.stop(_bgm)
 			_selectBGM(-1)
 			_playMusic()
-			_bgm:setVolume(_bgmvolume)
 		end,
 		d = function() _playRandomSound() end,
 		['-']   = function() _adjustBGMVolume(-0.05) end,
