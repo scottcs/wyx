@@ -81,6 +81,25 @@ do
 	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
 end
 
+function resizeScreen(width, height)
+	local modes = love.graphics.getModes()
+	local w, h
+	for i=1,#modes do
+		w = modes[i].width
+		h = modes[i].height
+		if w <= width and h <= height then break end
+	end
+
+	if w ~= love.graphics.getWidth() and h ~= love.graphics.getHeight() then
+		assert(love.graphics.setMode(w, h))
+	end
+
+	-- global screen width/height
+	WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
+end
+
+
+
 
          --[[--
       SOUND MANAGER
@@ -139,12 +158,11 @@ function love.load()
 		profiler:start()
 	end
 
+	-- set graphics mode
+	resizeScreen(1024, 768)
+
 	-- seed and prime the RNG
 	math.randomseed(os.time()) math.random() math.random()
-
-	-- save window width and height as globals
-	WIDTH = love.graphics.getWidth()
-	HEIGHT = love.graphics.getHeight()
 
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
