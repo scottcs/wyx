@@ -51,6 +51,10 @@ local function _adjustBGMVolume(amt)
 	_bgm:setVolume(_bgmvolume)
 end
 
+local function _playMusic()
+	_bgm = love.audio.play('music/'.._bgmchar..'.ogg', 'stream', true)
+end
+
 local function _playRandomSound()
 	local sound = _sounds[_sbag:next()]
 	_sound = love.audio.play(Sound[sound])
@@ -59,7 +63,7 @@ end
 
 function st:init()
 	_selectBGM(0)
-	_bgm = love.audio.play(Music[_bgmchar])
+	_playMusic()
 	_bgm:setVolume(_bgmvolume)
 end
 
@@ -90,13 +94,13 @@ function st:keypressed(key, unicode)
 		n = function()
 			love.audio.stop(_bgm)
 			_selectBGM(1)
-			_bgm = love.audio.play(Music[_bgmchar])
+			_playMusic()
 			_bgm:setVolume(_bgmvolume)
 		end,
 		p = function()
 			love.audio.stop(_bgm)
 			_selectBGM(-1)
-			_bgm = love.audio.play(Music[_bgmchar])
+			_playMusic()
 			_bgm:setVolume(_bgmvolume)
 		end,
 		d = function() _playRandomSound() end,

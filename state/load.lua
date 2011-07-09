@@ -40,9 +40,6 @@ function st:load()
 		local f = Font[size]
 	end
 
-	-- load music
-	for i=97,96+NUM_MUSIC do local m = Music[string.char(i)] end
-
 	-- fade out to next state
 	-- load time is added to cron time because next update dt will be
 	-- close to stop - start
