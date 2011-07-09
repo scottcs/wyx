@@ -7,6 +7,8 @@
 
 local st = GameState.new()
 
+local math_max = math.max
+
 local _loading = 'Loading...'
 local _x, _y
 
@@ -45,7 +47,8 @@ function st:load()
 	-- load time is added to cron time because next update dt will be
 	-- close to stop - start
 	local stop = love.timer.getMicroTime()
-	cron.after(0.1 + (stop - start), self.fadeout, self)
+	local loadTime = math_max(1, stop - start)
+	cron.after(.1 + loadTime, self.fadeout, self)
 end
 
 function st:fadeout()
