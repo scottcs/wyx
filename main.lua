@@ -68,9 +68,10 @@ do
 	local function color(r, g, b, a)
 		if type(r) == 'table' then r,g,b,a = r[1],r[2],r[3],r[4] end
 
-		if    r <= 1 and r > 0
-			and g <= 1 and g > 0
-			and b <= 1 and b > 0
+		if    r <= 1 and r >= 0
+			and g <= 1 and g >= 0
+			and b <= 1 and b >= 0
+			and (not a or (a <= 1 and a >= 0))
 		then
 			r, g, b, a = 255*r, 255*g, 255*b, 255*(a or 1)
 		end

@@ -28,8 +28,9 @@ function st:init()
 end
 
 function st:enter()
-	self.fadeColor = {0,0,0,255}
-	tween(1, self.fadeColor, {0,0,0,0}, 'inSine', self.load, self)
+	self.fadeColor = {0,0,0,1}
+	tween(0.3, self.fadeColor, {0,0,0,0}, 'inSine',
+		self.load, self)
 end
 
 function st:load()
