@@ -104,7 +104,6 @@ function st:keypressed(key, unicode)
 		['kp-'] = function() _adjustBGMVolume(-0.05) end,
 		['+']   = function() _adjustBGMVolume(0.05) end,
 		['kp+'] = function() _adjustBGMVolume(0.05) end,
-		default = function() print(key) end,
 	}
 end
 
