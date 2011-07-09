@@ -7,12 +7,11 @@
 
 local st = GameState.new()
 
-local math_max, math_min, math_random
-		= math.max, math.min, math.random
+local math_max, math_min, math_random, string_char
+		= math.max, math.min, math.random, string.char
 
 local RandomBag = require 'lib.pud.randombag'
 local RingBuffer = require 'lib.hump.ringbuffer'
-local string_char = string.char
 
 -- set up background music track buffer
 local _bgm

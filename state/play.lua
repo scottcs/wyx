@@ -10,6 +10,10 @@ local st = GameState.new()
 function st:init()
 end
 
+function st:enter()
+	GameState.switch(State.demo)
+end
+
 function st:draw()
 end
 
