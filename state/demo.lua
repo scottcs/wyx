@@ -120,7 +120,7 @@ local function _drawHUD()
 
 	love.graphics.print('[arrow keys] pan', 8, bt+8+(4+h))
 	love.graphics.print('[pgup][pgdn] zoom  [home] reset', 8, bt+8+(4+h)*2)
-	love.graphics.print('[ins][del] rotate', 8, bt+8+(4+h)*3)
+	love.graphics.print('[,][.] rotate', 8, bt+8+(4+h)*3)
 
 	love.graphics.setFont(GameFont.big)
 	local clr = {.1, .8, .1}
@@ -194,8 +194,8 @@ function st:keypressed(key, unicode)
 			_cam:translate(amt)
 			_correctCam()
 		end,
-		insert = function() _cam:rotate(CAM_ROTATE*PI2) end,
-		delete = function() _cam:rotate(-CAM_ROTATE*PI2) end,
+		[','] = function() _cam:rotate(CAM_ROTATE*PI2) end,
+		['.'] = function() _cam:rotate(-CAM_ROTATE*PI2) end,
 		pageup = function()
 			_cam.zoom = math_max(1, _cam.zoom * CAM_ZOOMIN)
 			_correctCam()
