@@ -91,7 +91,7 @@ end
 
 if debug then
 	function st:keypressed(key, unicode)
-		if key == 'f3' then self.nextState = State.demo end
+		if 'f3' == key then self.nextState = State.demo end
 	end
 end
 

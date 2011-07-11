@@ -65,7 +65,7 @@ end
 function love.keypressed(key, unicode)
 	-- shift-F1 for debug mode
 	if debug
-		and key == 'f1'
+		and 'f1' == key
 		and love.keyboard.isDown('lshift', 'rshift')
 	then
 		debug.debug()
