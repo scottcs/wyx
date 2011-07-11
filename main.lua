@@ -26,7 +26,7 @@ tween = require 'lib.tween'
          --]]--
 
 -- common utilities used throughout the program
-require 'lib.pud.util'
+require 'pud.util'
 
 function love.load()
 	-- start the profiler
