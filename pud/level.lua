@@ -1,0 +1,5 @@
+-- level
+--
+-- has a level generator strategy
+-- has a map
+-- has entities
