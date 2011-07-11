@@ -3,7 +3,9 @@
         UTILITIES
          --]]--
 
--- handy case statement
+--------------------------
+-- handy case statement --
+--------------------------
 function case(x)
 	return function (of)
 		local what = of[x] or of.default
@@ -14,7 +16,34 @@ function case(x)
 	end
 end
 
--- loaders for resources
+--[[ EXAMPLES
+self.animation_offset = case(self.anim.position) {
+		[2] = vector(0,-1),
+		[3] = vector(1,-1),
+		[4] = vector(1,0),
+		default = vector(0,0),
+}
+
+local x = case (position) {
+		left    = 0, -- same as ['left'] = 0
+		center  = (love.graphics.getWidth() - self.width) / 2,
+		right   = love.graphics.getWidth() - self.width,
+		default = 100
+}
+
+-- function evaluation
+case (key) {
+		up    = function() player.move(0,-1) end,
+		down  = function() player.move(0,1) end,
+		left  = function() player.move(-1,0) end,
+		right = function() player.move(1,0) end,
+}
+--]]
+
+
+---------------------------
+-- loaders for resources --
+---------------------------
 local function Proxy(loader)
 	return setmetatable({}, {__index = function(self, k)
 		local v = loader(k)
@@ -38,7 +67,25 @@ Sound = Proxy(function(k)
 		'static')
 end)
 
--- float values for colors
+--[[ EXAMPLES
+-- now you are able to do this without prior loading of resources
+love.graphics.draw(Image.player, player.x, player.y, player.angle, 1,1
+									 Image.player:getWidth()/2, Image.player:getHeight()/2)
+
+love.graphics.setFont(Font[30])
+love.graphics.print("Hello, world!", 10,10)
+
+-- loads states/intro.lua which returns a gamestate.
+Gamestate.switch(State.intro)
+
+-- with the "audio manager" (see below)
+love.audio.play(Sound.explosion)
+--]]
+
+
+-----------------------------
+-- float values for colors --
+-----------------------------
 do
 	local sc = love.graphics.setColor
 	local sbg = love.graphics.setBackgroundColor
@@ -60,7 +107,14 @@ do
 	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
 end
 
--- get nearest power of two
+--[[ EXAMPLES
+love.graphics.setColor(0.4, 0.2, 0.2, 1) -- sets to dark greyish red
+--]]
+
+
+------------------------------
+-- get nearest power of two --
+------------------------------
 function nearestPO2(x)
 	local po2 = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096}
 
@@ -73,7 +127,15 @@ function nearestPO2(x)
 	return 2
 end
 
+--[[ EXAMPLES
+local fb = love.graphics.newFramebuffer(nearestPO2(love.graphics.getWidth()),
+																				nearestPO2(love.graphics.getHeight()))
+--]]
 
+
+-------------------
+-- resize screen --
+-------------------
 function resizeScreen(width, height)
 	local modes = love.graphics.getModes()
 	local w, h
@@ -93,7 +155,7 @@ end
 
 
          --[[--
-      SOUND MANAGER
+      AUDIO MANAGER
          --]]--
 
 do
