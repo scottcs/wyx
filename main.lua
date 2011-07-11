@@ -3,13 +3,13 @@
      DEBUG/PROFILING
          --]]--
 
--- debug = nil
+--debug = nil
 is_profile = nil ~= debug
 if is_profile then require 'lib.profiler' end
 local profiler
-NOFUNC = function() end
+NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
-
+assert = nil ~= debug and assert or NOFUNC
 
          --[[--
     GLOBAL SINGLETONS
