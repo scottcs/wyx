@@ -8,38 +8,57 @@
 local st = GameState.new()
 
 local TimeManager = require 'pud.timemanager'
+local TimedObject = require 'pud.timedobject'
 local _timeManager
 
 function st:init()
-	_timeManager = TimeManager()
+	_timeManager = TimeManager(0.001)
 end
 
 function st:enter()
 	--GameState.switch(State.demo)
-	local target = {name='Bless', rate=1, cost = 1}
-	local target2 = {name='Curse', rate=1, cost = 1}
-	local function rate(t)
-		return t.rate and t.rate or 1
+	local player = TimedObject()
+	local dragon = TimedObject()
+	local ifrit = TimedObject()
+
+	player.name = 'Player'
+	dragon.name = 'Dragon'
+	ifrit.name = 'Ifrit'
+
+	function player:getSpeed(ap) return 100 end
+	function player:doAction(ap)
+		print(self.name..'   ap: '..tostring(ap))
+		return 1
 	end
-	local function cost(t)
-		print(tostring(t.name))
-		_timeManager:releaseTimedEntity()
-		return t.cost and t.cost or 1
+
+	function dragon:getSpeed(ap) return 103 end
+	function dragon:doAction(ap)
+		print(self.name..'   ap: '..tostring(ap))
+		return 1
+	end
+
+	function ifrit:getSpeed(ap) return 127 end
+	function ifrit:doAction(ap)
+		print(self.name..'   ap: '..tostring(ap))
+		return 1
 	end
 
 	print('begin')
-	_timeManager:registerTimedEntity(400, target, rate, cost)
-	_timeManager:registerTimedEntity(200, target2, rate, cost)
+	_timeManager:register(player, 900)
+	_timeManager:register(dragon, 900)
+	_timeManager:register(ifrit, 900)
 end
 
 local _accum = 0
+local _count = 0
 function st:update(dt)
 	_accum = _accum + dt
-	if _accum >= 1 then
-		_accum = 0
-		print('tick')
+	if _accum > 1 then
+		_count = _count + 1
+		_accum = _accum - 1
+		print(_count)
 	end
-	_timeManager:progressTime(dt)
+	_timeManager:tick(dt)
 end
 
 function st:draw()
