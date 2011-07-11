@@ -24,6 +24,9 @@ local CAM_ZOOM = 3
 local CAM_ZOOMIN = 0.9
 local CAM_ZOOMOUT = 1.1
 
+-- set up frame buffers
+local _hudFB, _bgFB
+
 -- set up background music track buffer
 local _bgm
 local _bgmbuffer = RingBuffer()
@@ -76,8 +79,14 @@ local function _playRandomSound()
 	_sound:setVolume(_bgmvolume)
 end
 
-local function _drawWorld()
+local function _drawWorldFB()
+	love.graphics.setColor(1,1,1,1)
+	love.graphics.setBlendMode('alpha')
 	love.graphics.draw(Image.demobg, 0, 0)
+end
+
+local function _drawWorld()
+	love.graphics.draw(_bgFB)
 end
 
 local function _correctCam()
@@ -92,10 +101,9 @@ local function _correctCam()
 	if _cam.pos.y > hmax then _cam.pos.y = hmax end
 end
 
-local function _drawHUD()
+local function _drawHUDFB()
 	local bt = HEIGHT-164
-	love.graphics.setBlendMode('multiplicative')
-	love.graphics.setColor(0, 0, 0.4, 0.7)
+	love.graphics.setColor(0, 0, 0.4, 0.8)
 	love.graphics.rectangle('fill', 4, 4, 612, 160)
 	love.graphics.rectangle('fill', 4, bt, 612, 160)
 	love.graphics.setBlendMode('alpha')
@@ -134,22 +142,39 @@ local function _drawHUD()
 	end
 end
 
+local function _drawHUD()
+	love.graphics.draw(_hudFB)
+end
+
 function st:init()
 	local w = math_floor(Image.demobg:getWidth()/2)
 	local h = math_floor(Image.demobg:getHeight()/2)
 	_cam = Camera(vector(w, h), CAM_ZOOM)
+	_hudFB = love.graphics.newFramebuffer(nearestPO2(WIDTH), nearestPO2(HEIGHT))
+	_bgFB = love.graphics.newFramebuffer(nearestPO2(w*2), nearestPO2(h*2))
 end
 
-local _keyDelay, _keyInterval
+local _keyDelay, _keyInterval, _accum
 function st:enter()
 	_keyDelay, _keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(200, 25)
 	_selectBGM(0)
+	_bgFB:renderTo(_drawWorldFB)
+	_hudFB:renderTo(_drawHUDFB)
+	_accum = 0
 end
 
 function st:draw()
 	_cam:draw(_drawWorld)
 	_drawHUD()
+end
+
+function st:update(dt)
+	_accum = _accum + dt
+	if _accum >= 0.05 then
+		_accum = 0
+		_hudFB:renderTo(_drawHUDFB)
+	end
 end
 
 function st:keypressed(key, unicode)

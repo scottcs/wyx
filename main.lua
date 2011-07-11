@@ -82,6 +82,20 @@ do
 	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
 end
 
+-- get nearest power of two
+function nearestPO2(x)
+	local po2 = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096}
+
+	assert(x <= po2[#po2], 'higher than '..po2[#po2]..' is not supported')
+
+	for i=#po2-1,1,-1 do
+		if x > po2[i] then return po2[i+1] end
+	end
+
+	return 2
+end
+
+
 function resizeScreen(width, height)
 	local modes = love.graphics.getModes()
 	local w, h
