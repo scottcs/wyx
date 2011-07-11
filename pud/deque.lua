@@ -1,20 +1,4 @@
-
--- Node
--- Nodes are used internally in the Deque to form a linked list.
-local Node = Class{name='Node',
-	function(self, obj, left, right)
-		self.obj = obj or nil
-		self.left = left or nil
-		self.right = right or nil
-	end
-}
-
--- destructor
-function Node:destroy()
-	self.obj = nil
-	self.left = nil
-	self.right = nil
-end
+local Node = require 'pud.node'
 
 -- Deque
 -- A Deque is a container that allows items to be added and removed from both
