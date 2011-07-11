@@ -12,7 +12,7 @@ local TimedObject = require 'pud.timedobject'
 local _timeManager
 
 function st:init()
-	_timeManager = TimeManager(0.001)
+	_timeManager = TimeManager()
 end
 
 function st:enter()
@@ -25,28 +25,28 @@ function st:enter()
 	dragon.name = 'Dragon'
 	ifrit.name = 'Ifrit'
 
-	function player:getSpeed(ap) return 100 end
+	function player:getSpeed(ap) return 1 end
 	function player:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
-		return 1
+		return 2
 	end
 
-	function dragon:getSpeed(ap) return 103 end
+	function dragon:getSpeed(ap) return 1.03 end
 	function dragon:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
-		return 1
+		return 5
 	end
 
-	function ifrit:getSpeed(ap) return 127 end
+	function ifrit:getSpeed(ap) return 1.27 end
 	function ifrit:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
-		return 1
+		return 2
 	end
 
 	print('begin')
-	_timeManager:register(player, 900)
-	_timeManager:register(dragon, 900)
-	_timeManager:register(ifrit, 900)
+	_timeManager:register(player, 3)
+	_timeManager:register(dragon, 3)
+	_timeManager:register(ifrit, 3)
 end
 
 local _accum = 0
@@ -57,8 +57,8 @@ function st:update(dt)
 		_count = _count + 1
 		_accum = _accum - 1
 		print(_count)
+		_timeManager:tick()
 	end
-	_timeManager:tick(dt)
 end
 
 function st:draw()
