@@ -22,6 +22,7 @@ assert = nil ~= debug and assert or NOFUNC
 
 Class = require 'lib.hump.class'
 GameState = require 'lib.hump.gamestate'
+EventManager = require 'pud.eventmanager'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -50,6 +51,9 @@ function love.load()
 	-- register all love events with gamestate
 	GameState.registerEvents()
 
+	-- create an event manager for the entire game
+	GameEvent = EventManager()
+
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
@@ -76,6 +80,8 @@ end
 
 function love.quit()
 	tween.stopAll()
+
+	GameEvent:destroy()
 
 	if profiler then
 		profiler:stop()
