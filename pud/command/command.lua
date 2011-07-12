@@ -1,8 +1,5 @@
 -- Command class
-local Command = Class{name='Command',
-	function(self)
-	end
-}
+local Command = Class{name='Command'}
 
 -- set the callback to call when the command is completed
 function Command:setOnComplete(func)
