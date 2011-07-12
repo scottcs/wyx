@@ -1,22 +1,29 @@
+-- EventManager
+-- Provides a class that registers objects with itself, then notifies
+-- those object when events occur.
 
 local _E = require 'pud.events'
 local mt = {__mode = 'k'}
 
+-- EventManager class
 local EventManager = Class{name='EventManager',
 	function(self)
 		self._events = {}
 	end
 }
 
+-- validate that the given event is a defined event (in pud.events)
 local _validateEvent = function(e)
 	return assert(_E[e], 'unknown event: %s', e)
 end
 
+-- validate that the given object is an object or a function
 local _validateObj = function(obj)
 	return assert(obj and (type(obj) == 'table' or type(obj) == 'function'),
 		'expected an object or function (was %s)', type(obj))
 end
 
+-- destructor
 function EventManager:destroy()
 	for k,v in pairs(self._events) do
 		for l,w in pairs(self._events[k]) do
@@ -27,6 +34,7 @@ function EventManager:destroy()
 	self._events = nil
 end
 
+-- register an object to listen for the given events
 function EventManager:register(obj, ...)
 	_validateObj(obj)
 
@@ -43,6 +51,7 @@ function EventManager:register(obj, ...)
 	end
 end
 
+-- unregister an object from listening for the given events
 function EventManager:unregister(obj, ...)
 	_validateObj(obj)
 
@@ -55,6 +64,8 @@ function EventManager:unregister(obj, ...)
 	end
 end
 
+-- trigger a specific event, notifying all listeners of the event.
+-- note: it is recommended to use push() and flush() instead.
 function EventManager:trigger(event, ...)
 	local e = _validateEvent(event)
 
@@ -69,6 +80,7 @@ function EventManager:trigger(event, ...)
 	end
 end
 
+-- push an event into the event queue
 function EventManager:push(event, ...)
 	local e = _validateEvent(event)
 
@@ -76,6 +88,7 @@ function EventManager:push(event, ...)
 	self._queue[#self._queue + 1] = {event=e, args={...}}
 end
 
+-- flush all events in the event queue and notify their listeners
 function EventManager:flush()
 	if self._queue then
 		for i,q in ipairs(self._queue) do
@@ -86,6 +99,7 @@ function EventManager:flush()
 	self._queue = nil
 end
 
+-- return a list of events for which obj is registered
 function EventManager:getRegisteredEvents(obj)
 	_validateObj(obj)
 
@@ -98,4 +112,5 @@ function EventManager:getRegisteredEvents(obj)
 	return #events > 0 and events or nil
 end
 
+-- the module
 return EventManager
