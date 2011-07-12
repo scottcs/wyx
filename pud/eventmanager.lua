@@ -64,6 +64,19 @@ function EventManager:unregister(obj, ...)
 	end
 end
 
+-- register an object for all events
+function EventManager:registerAll(obj)
+	local all = {}
+	for e in pairs(_E) do all[#all + 1] = e end
+	self:register(obj, unpack(all))
+end
+
+-- unregister an object from all events
+function EventManager:unregisterAll(obj)
+	local e = self:getRegisteredEvents(obj)
+	if e then self:unregister(obj, unpack(e)) end
+end
+
 -- trigger a specific event, notifying all listeners of the event.
 -- note: it is recommended to use push() and flush() instead.
 function EventManager:trigger(event, ...)
