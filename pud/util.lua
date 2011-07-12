@@ -153,6 +153,21 @@ function resizeScreen(width, height)
 	WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
 end
 
+-----------------
+-- fast assert --
+-----------------
+do
+	local oldassert, format, select = assert, string.format, select
+	assert = function(condition, ...)
+		if condition then return condition end
+		if select('#', ...) > 0 then
+			oldassert(condition, format(...))
+		else
+			oldassert(condition)
+		end
+	end
+end
+
 
          --[[--
       AUDIO MANAGER

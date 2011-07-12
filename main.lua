@@ -1,4 +1,8 @@
 
+-- common utilities used throughout the program
+require 'pud.util'
+
+
          --[[--
      DEBUG/PROFILING
          --]]--
@@ -10,6 +14,7 @@ local profiler
 NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 assert = nil ~= debug and assert or NOFUNC
+
 
          --[[--
     GLOBAL SINGLETONS
@@ -24,9 +29,6 @@ tween = require 'lib.tween'
          --[[--
        <3 LÖVE <3
          --]]--
-
--- common utilities used throughout the program
-require 'pud.util'
 
 function love.load()
 	-- start the profiler
