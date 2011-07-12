@@ -1,7 +1,7 @@
 -- TimeManager
 
-local Deque = require 'pud.deque'
-local TimedObject = require 'pud.timedobject'
+local Deque = require 'pud.kit.deque'
+local TimedObject = require 'pud.time.timedobject'
 
 -- TimeManager class controls time
 local TimeManager = Class{name = 'TimeManager',

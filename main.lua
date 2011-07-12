@@ -22,7 +22,7 @@ assert = nil ~= debug and assert or NOFUNC
 
 Class = require 'lib.hump.class'
 GameState = require 'lib.hump.gamestate'
-EventManager = require 'pud.eventmanager'
+EventManager = require 'pud.event.eventmanager'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 

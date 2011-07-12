@@ -8,8 +8,8 @@
 local st = GameState.new()
 
 -- Time Manager
-local TimeManager = require 'pud.timemanager'
-local TimedObject = require 'pud.timedobject'
+local TimeManager = require 'pud.time.timemanager'
+local TimedObject = require 'pud.time.timedobject'
 local _timeManager
 
 function st:init()
