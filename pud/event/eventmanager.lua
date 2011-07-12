@@ -2,7 +2,7 @@
 -- Provides a class that registers objects with itself, then notifies
 -- those object when events occur.
 
-local _E = require 'pud.event.events'
+local _E = require 'pud.event.Events'
 local mt = {__mode = 'k'}
 
 -- EventManager class
@@ -12,7 +12,7 @@ local EventManager = Class{name='EventManager',
 	end
 }
 
--- validate that the given event is a defined event (in pud.event.events)
+-- validate that the given event is a defined event (in pud.event.Events)
 local _validateEvent = function(e)
 	return assert(_E[e], 'unknown event: %s', e)
 end

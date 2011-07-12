@@ -11,7 +11,7 @@ local math_max, math_min, math_random, math_floor, string_char
 		= math.max, math.min, math.random, math.floor, string.char
 local PI2 = math.pi * 2
 
-local RandomBag = require 'pud.kit.randombag'
+local RandomBag = require 'pud.kit.RandomBag'
 local RingBuffer = require 'lib.hump.ringbuffer'
 local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'

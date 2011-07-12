@@ -1,7 +1,7 @@
 -- TimeManager
 
-local Deque = require 'pud.kit.deque'
-local TimedObject = require 'pud.time.timedobject'
+local Deque = require 'pud.kit.Deque'
+local TimedObject = require 'pud.time.TimedObject'
 
 -- TimeManager class controls time
 local TimeManager = Class{name = 'TimeManager',
@@ -15,7 +15,10 @@ local TimeManager = Class{name = 'TimeManager',
 -- debt is the amount of action points that the obj needs to "burn off" before
 -- accumulating more action points at the object's speed.
 function TimeManager:register(obj, debt)
-	assert(obj:is_a(TimedObject))
+	assert(obj:is_a(TimedObject),
+		'object to register must be a TimedObject (was %s)',
+		nil ~= obj.is_a and tostring(obj) or type(obj))
+
 	debt = debt or 0
 	if debt < 0 then debt = -debt end
 

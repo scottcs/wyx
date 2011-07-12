@@ -1,4 +1,4 @@
-local Node = require 'pud.kit.node'
+local Node = require 'pud.kit.Node'
 
 -- Deque
 -- A Deque is a container that allows items to be added and removed from both
