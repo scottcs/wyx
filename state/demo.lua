@@ -54,7 +54,7 @@ for i=97,96+NUM_MUSIC do _bgmbuffer:append(i) end
 for i=1,math_random(NUM_MUSIC) do _bgmbuffer:next() end
 
 local function _selectBGM(direction)
-	local i = case(direction) {
+	local i = switch(direction) {
 		[-1] = function() return _bgmbuffer:prev() end,
 		[1]  = function() return _bgmbuffer:next() end,
 		default  = function() return _bgmbuffer:get() end,
@@ -178,7 +178,7 @@ function st:update(dt)
 end
 
 function st:keypressed(key, unicode)
-	case(key) {
+	switch(key) {
 		escape = function() love.event.push('q') end,
 		s = function() love.audio.stop(_bgm) end,
 		g = function() _playMusic() end,

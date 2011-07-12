@@ -4,9 +4,9 @@
          --]]--
 
 --------------------------
--- handy case statement --
+-- handy switch statement --
 --------------------------
-function case(x)
+function switch(x)
 	return function (of)
 		local what = of[x] or of.default
 		if type(what) == "function" then
@@ -17,14 +17,14 @@ function case(x)
 end
 
 --[[ EXAMPLES
-self.animation_offset = case(self.anim.position) {
+self.animation_offset = switch(self.anim.position) {
 		[2] = vector(0,-1),
 		[3] = vector(1,-1),
 		[4] = vector(1,0),
 		default = vector(0,0),
 }
 
-local x = case (position) {
+local x = switch (position) {
 		left    = 0, -- same as ['left'] = 0
 		center  = (love.graphics.getWidth() - self.width) / 2,
 		right   = love.graphics.getWidth() - self.width,
@@ -32,7 +32,7 @@ local x = case (position) {
 }
 
 -- function evaluation
-case (key) {
+switch (key) {
 		up    = function() player.move(0,-1) end,
 		down  = function() player.move(0,1) end,
 		left  = function() player.move(-1,0) end,

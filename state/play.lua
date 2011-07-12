@@ -104,7 +104,7 @@ function st:leave()
 end
 
 function st:keypressed(key, unicode)
-	case(key) {
+	switch(key) {
 		escape = function() love.event.push('q') end,
 	}
 end
