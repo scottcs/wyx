@@ -64,6 +64,9 @@ function love.update(dt)
 	if dt > 0 then
 		cron.update(dt)
 		tween.update(dt)
+
+		GameEvent:flush()
+
 		love.audio.update()
 	end
 end

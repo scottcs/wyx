@@ -84,18 +84,10 @@ function st:enter()
 end
 
 local _accum = 0
-local _flush = 0
 local _count = 0
 local TICK = 0.1
 function st:update(dt)
 	_accum = _accum + dt
-	_flush = _flush + dt
-	if _flush > TICK*10 then
-		print('-----flush')
-		GameEvent:flush()
-		print('-----flush')
-		_flush = _flush - TICK*10
-	end
 	if _accum > TICK then
 		_count = _count + 1
 		_accum = _accum - TICK
