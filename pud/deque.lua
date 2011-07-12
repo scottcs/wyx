@@ -30,7 +30,7 @@ end
 function Deque:size() return self._size end
 
 -- adds an object at the back of the Deque
-function Deque:push(obj)
+function Deque:push_back(obj)
 	local n = Node(obj)
 
 	if self._back then
@@ -46,7 +46,7 @@ function Deque:push(obj)
 end
 
 -- adds an object at the front of the Deque
-function Deque:unshift(obj)
+function Deque:push_front(obj)
 	local n = Node(obj)
 
 	if self._front then
@@ -62,7 +62,7 @@ function Deque:unshift(obj)
 end
 
 -- returns the back object of the Deque and removes it.
-function Deque:pop()
+function Deque:pop_back()
 	if not self._back then return end
 
 	local n = self._back
@@ -83,7 +83,7 @@ function Deque:pop()
 end
 
 -- returns the front object of the Deque and removes it.
-function Deque:shift()
+function Deque:pop_front()
 	if not self._front then return end
 
 	local n = self._front
@@ -114,20 +114,22 @@ function Deque:front()
 end
 
 -- rotates the front of the Deque to the back.
--- (or vice versa if reverse is true)
-function Deque:rotate(reverse)
+function Deque:rotate_forward()
 	if self._size > 1 then
-		if reverse then
-			self._back.left.right = nil
-			self._back.right = self._front
-			self._front.left, self._front = self._back, self._back
-			self._back, self._back.left = self._back.left, nil
-		else
-			self._front.right.left = nil
-			self._front.left = self._back
-			self._back.right, self._back = self._front, self._front
-			self._front, self._front.right = self._front.right, nil
-		end
+		self._front.right.left = nil
+		self._front.left = self._back
+		self._back.right, self._back = self._front, self._front
+		self._front, self._front.right = self._front.right, nil
+	end
+end
+
+-- rotates the back of the Deque to the front.
+function Deque:rotate_backward()
+	if self._size > 1 then
+		self._back.left.right = nil
+		self._back.right = self._front
+		self._front.left, self._front = self._back, self._back
+		self._back, self._back.left = self._back.left, nil
 	end
 end
 
