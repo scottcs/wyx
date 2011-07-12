@@ -35,14 +35,14 @@ function st:enter()
 	function dragon:getSpeed(ap) return 1.03 end
 	function dragon:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
-		GameEvent:queue('OPEN_DOOR', self.name)
+		GameEvent:push('OPEN_DOOR', self.name)
 		return 5
 	end
 
 	function ifrit:getSpeed(ap) return 1.27 end
 	function ifrit:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
-		GameEvent:queue('OPEN_DOOR', self.name)
+		GameEvent:push('OPEN_DOOR', self.name)
 		return 2
 	end
 

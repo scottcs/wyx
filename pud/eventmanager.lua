@@ -69,7 +69,7 @@ function EventManager:trigger(event, ...)
 	end
 end
 
-function EventManager:queue(event, ...)
+function EventManager:push(event, ...)
 	local e = _validateEvent(event)
 
 	self._queue = self._queue or {}
