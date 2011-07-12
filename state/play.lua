@@ -35,12 +35,14 @@ function st:enter()
 	function dragon:getSpeed(ap) return 1.03 end
 	function dragon:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
+		GameEvent:queue('OPEN_DOOR', self.name)
 		return 5
 	end
 
 	function ifrit:getSpeed(ap) return 1.27 end
 	function ifrit:doAction(ap)
 		print(self.name..'   ap: '..tostring(ap))
+		GameEvent:queue('OPEN_DOOR', self.name)
 		return 2
 	end
 
@@ -82,10 +84,18 @@ function st:enter()
 end
 
 local _accum = 0
+local _flush = 0
 local _count = 0
 local TICK = 0.1
 function st:update(dt)
 	_accum = _accum + dt
+	_flush = _flush + dt
+	if _flush > TICK*10 then
+		print('-----flush')
+		GameEvent:flush()
+		print('-----flush')
+		_flush = _flush - TICK*10
+	end
 	if _accum > TICK then
 		_count = _count + 1
 		_accum = _accum - TICK

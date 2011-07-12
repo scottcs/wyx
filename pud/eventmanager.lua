@@ -69,7 +69,24 @@ function EventManager:trigger(event, ...)
 	end
 end
 
-function EventManager:getEventsFor(obj)
+function EventManager:queue(event, ...)
+	local e = _validateEvent(event)
+
+	self._queue = self._queue or {}
+	self._queue[#self._queue + 1] = {event=e, args={...}}
+end
+
+function EventManager:flush()
+	if self._queue then
+		for i,q in ipairs(self._queue) do
+			self:trigger(q.event, unpack(q.args))
+		end
+	end
+
+	self._queue = nil
+end
+
+function EventManager:getRegisteredEvents(obj)
 	_validateObj(obj)
 
 	local events = {}
