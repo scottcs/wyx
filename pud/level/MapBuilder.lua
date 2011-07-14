@@ -8,7 +8,10 @@ local MapBuilder = Class{name='MapBuilder'}
 function MapBuilder:destroy() self._map = nil end
 
 -- initialize the builder
-function MapBuilder:init() self._map = Map() end
+function MapBuilder:init(w, h)
+	self._map = Map(0, 0, w, h)
+	self._map:clear()
+end
 
 -- generate rooms
 function MapBuilder:createRooms() end
