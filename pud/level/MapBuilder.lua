@@ -11,10 +11,10 @@ function MapBuilder:destroy() self._map = nil end
 function MapBuilder:init() self._map = Map() end
 
 -- generate rooms
-function MapBuilder:makeRooms() end
+function MapBuilder:createRooms() end
 
 -- generate wide open cavernous areas
-function MapBuilder:makeCaverns() end
+function MapBuilder:createCaverns() end
 
 -- connect rooms together
 function MapBuilder:connectRooms() end

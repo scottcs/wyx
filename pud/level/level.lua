@@ -8,7 +8,7 @@ function Level:generateStandard(builder)
 	assert(builder:is_a(MapBuilder))
 	
 	builder:init()
-	builder:makeRooms()
+	builder:createRooms()
 	builder:connectRooms()
 	builder:cleanup()
 
@@ -20,7 +20,7 @@ function Level:generateCavernous(builder)
 	assert(builder:is_a(MapBuilder))
 	
 	builder:init()
-	builder:makeCaverns()
+	builder:createCaverns()
 	builder:cleanup()
 
 	return builder:getMap()
