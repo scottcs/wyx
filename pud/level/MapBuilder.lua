@@ -7,7 +7,7 @@ local MapBuilder = Class{name='MapBuilder'}
 -- destructor
 function MapBuilder:destroy() self._map = nil end
 
--- initialize the map
+-- initialize the builder
 function MapBuilder:init() self._map = Map() end
 
 -- generate rooms
