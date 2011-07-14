@@ -64,6 +64,13 @@ function Rect:setCenter(x, y)
 	self._y = self._cy - (self._h/2)
 end
 
+-- get (no set) bounding box coordinates
+function Rect:getBBox()
+	local x, y = self:getPosition()
+	local w, h = self:getSize()
+	return x, y, x+w, y+h
+end
+
 -- get and set size
 function Rect:getWidth() return self._w end
 function Rect:setWidth(w)
