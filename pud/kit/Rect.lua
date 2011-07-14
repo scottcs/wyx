@@ -24,11 +24,6 @@ function Rect:destroy()
 	self._cy = nil
 end
 
--- private function to verify that the variable is a number
-local function _verifyNumber(n)
-	return assert(type(n) == 'number', 'number expected (was %s)', type(n))
-end
-
 -- private function to calculate and store the center coords
 local function _calcCenter(self)
 	if self._x and self._y and self._w and self._h then
@@ -40,29 +35,28 @@ end
 -- get and set position
 function Rect:getX() return self._x end
 function Rect:setX(x)
-	_verifyNumber(x)
+	verify('number', x)
 	self._x = x
 	_calcCenter(self)
 end
 
 function Rect:getY() return self._y end
 function Rect:setY(x)
-	_verifyNumber(x)
+	verify('number', x)
 	self._x = x
 	_calcCenter(self)
 end
 
-function self:getPosition() return self:getX(), self:getY() end
-function self:setPosition(x, y)
+function Rect:getPosition() return self:getX(), self:getY() end
+function Rect:setPosition(x, y)
 	self:setX(x)
 	self:setY(y)
 end
 
 -- get and set center coords
-function self:getCenter() return self._cx, self._cy end
-function self:setCenter(x, y)
-	_verifyNumber(x)
-	_verifyNumber(y)
+function Rect:getCenter() return self._cx, self._cy end
+function Rect:setCenter(x, y)
+	verify('number', x, y)
 	self._cx = x
 	self._cy = y
 
@@ -73,20 +67,20 @@ end
 -- get and set size
 function Rect:getWidth() return self._w end
 function Rect:setWidth(w)
-	_verifyNumber(w)
+	verify('number', w)
 	self._w = w
 	_calcCenter(self)
 end
 
 function Rect:getHeight() return self._h end
 function Rect:setHeight(h)
-	_verifyNumber(h)
+	verify('number', h)
 	self._h = h
 	_calcCenter(self)
 end
 
-function self:getSize() return self:getWidth(), self:getHeight() end
-function self:setSize(w, h)
+function Rect:getSize() return self:getWidth(), self:getHeight() end
+function Rect:setSize(w, h)
 	self:setWidth(w)
 	self:setHeight(h)
 end

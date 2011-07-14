@@ -168,6 +168,17 @@ do
 	end
 end
 
+-- assert helpers
+function verify(t, ...)
+	if nil ~= debug then
+		for i=1,select('#', ...) do
+			local x = select(i, ...)
+			assert(type(x) == t, '%s expected (was %s)', t, type(x))
+		end
+	end
+	return true
+end
+
 
          --[[--
       AUDIO MANAGER
