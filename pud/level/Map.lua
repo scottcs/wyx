@@ -1,6 +1,9 @@
+local MapNode = require 'pud.level.MapNode'
+
 -- Map
 local Map = Class{name='Map',
-	function()
+	function(self)
+		self._layout = {}
 	end
 }
 

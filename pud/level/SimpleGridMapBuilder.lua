@@ -1,5 +1,6 @@
 local Map = require 'pud.level.Map'
 local MapBuilder = require 'pud.level.MapBuilder'
+local MapNode = require 'pud.level.MapNode'
 
 -- MapBuilder
 local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',

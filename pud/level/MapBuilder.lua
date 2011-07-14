@@ -1,4 +1,5 @@
 local Map = require 'pud.level.Map'
+local MapNode = require 'pud.level.MapNode'
 
 -- MapBuilder
 local MapBuilder = Class{name='MapBuilder'}
