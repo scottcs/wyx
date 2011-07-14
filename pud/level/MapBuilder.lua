@@ -22,6 +22,9 @@ function MapBuilder:createCaverns() end
 -- connect rooms together
 function MapBuilder:connectRooms() end
 
+-- add doors to rooms
+function MapBuilder:addDoors() end
+
 -- perform any cleanup needed on the map
 function MapBuilder:cleanup() end
 
