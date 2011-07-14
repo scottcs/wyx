@@ -1,34 +1,40 @@
 local Map = require 'pud.level.Map'
+local MapBuilder = require 'pud.level.MapBuilder'
 
 -- MapBuilder
-local MapBuilder = Class{name='MapBuilder'}
+local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
+	inherits = MapBuilder,
+	function(self)
+		MapBuilder.construct(self)
+	end
+}
 
 -- destructor
-function MapBuilder:destroy()
+function SimpleGridMapBuilder:destroy()
 	self._map = nil
 end
 
 -- initialize the map
-function MapBuilder:init()
+function SimpleGridMapBuilder:init()
 	self._map = Map()
 end
 
 -- generate all the rooms
-function MapBuilder:makeRooms()
+function SimpleGridMapBuilder:makeRooms()
 end
 
 -- connect the rooms together
-function MapBuilder:connectRooms()
+function SimpleGridMapBuilder:connectRooms()
 end
 
 -- perform any cleanup needed on the map
-function MapBuilder:cleanup()
+function SimpleGridMapBuilder:cleanup()
 end
 
 -- get the created map
-function MapBuilder:getMap()
+function SimpleGridMapBuilder:getMap()
 	return self._map
 end
 
 -- the class
-return MapBuilder
+return SimpleGridMapBuilder
