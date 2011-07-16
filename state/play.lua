@@ -12,6 +12,10 @@ local TimeManager = require 'pud.time.TimeManager'
 local TimedObject = require 'pud.time.TimedObject'
 local _timeManager
 
+-- map builder
+local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
+local Level = require 'pud.level.Level'
+
 function st:init()
 	_timeManager = TimeManager()
 end
@@ -81,11 +85,19 @@ function st:enter()
 	_timeManager:register(player, 3)
 	_timeManager:register(dragon, 3)
 	_timeManager:register(ifrit, 3)
+
+	-- map test
+	local builder = SimpleGridMapBuilder()
+	builder:init()
+	local map = Level:generateStandard(builder)
+	print(tostring(map))
 end
+
 
 local _accum = 0
 local _count = 0
 local TICK = 0.1
+
 function st:update(dt)
 	_accum = _accum + dt
 	if _accum > TICK then
