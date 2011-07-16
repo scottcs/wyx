@@ -93,5 +93,12 @@ function Rect:setSize(w, h)
 	self:setHeight(h)
 end
 
+-- tostring
+function Rect:__tostring()
+	local x, y = self:getPosition()
+	local w, h = self:getSize()
+	return '('..x..','..y..') '..w..'x'..h
+end
+
 -- the class
 return Rect
