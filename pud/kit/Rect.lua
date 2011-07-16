@@ -1,5 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
+local round = function(x) return math.floor(x + 0.5) end
 
 -- Rect
 -- provides position and size of a rectangle
@@ -26,24 +27,14 @@ function Rect:destroy()
 	self._cy = nil
 end
 
--- private function to calculate and store the center coords
-local function _calcCenter(self)
-	if self._x and self._y and self._w and self._h then
-		self._cx = self._x + (self._w/2)
-		self._cy = self._y + (self._h/2)
-	end
-end
-
 -- get and set position
 function Rect:getX() return self._x end
 function Rect:setX(x)
 	verify('number', x)
 	self._x = x
-	_calcCenter(self)
 end
 
 function Rect:getY() return self._y end
-	_calcCenter(self)
 function Rect:setY(y)
 	verify('number', y)
 	self._y = y
@@ -55,15 +46,25 @@ function Rect:setPosition(x, y)
 	self:setY(y)
 end
 
--- get and set center coords
-function Rect:getCenter() return self._cx, self._cy end
-function Rect:setCenter(x, y)
-	verify('number', x, y)
-	self._cx = x
-	self._cy = y
+-- get and set center coords, rounding to nearest number if requested
+function Rect:getCenter(doRound)
+	local x, y = self:getPosition()
+	local w, h = self:getSize()
 
-	self._x = self._cx - (self._w/2)
-	self._y = self._cy - (self._h/2)
+	w = doRound and round(w/2) or w/2
+	h = doRound and round(h/2) or h/2
+
+	return x + w, y + h
+end
+function Rect:setCenter(x, y, doRound)
+	verify('number', x, y)
+
+	local w, h = self:getSize()
+	w = doRound and round(w/2) or w/2
+	h = doRound and round(h/2) or h/2
+
+	self:setX(x - w)
+	self:setY(y - h)
 end
 
 -- get (no set) bounding box coordinates
@@ -78,14 +79,12 @@ function Rect:getWidth() return self._w end
 function Rect:setWidth(w)
 	verify('number', w)
 	self._w = w
-	_calcCenter(self)
 end
 
 function Rect:getHeight() return self._h end
 function Rect:setHeight(h)
 	verify('number', h)
 	self._h = h
-	_calcCenter(self)
 end
 
 function Rect:getSize() return self:getWidth(), self:getHeight() end
