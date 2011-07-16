@@ -14,6 +14,7 @@ local math_floor = math.floor
 local CELLW, CELLH = 10, 10
 local MAPW, MAPH = 100, 100
 local MINROOMS, MAXROOMS = 25, 45
+local MINROOMSIZE, MAXROOMSIZE = 2, 6
 
 --------------------------
 -- SimpleGridMapBuilder --
@@ -27,41 +28,38 @@ local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	end
 }
 
--- set the correct flags and map type on a map node to make it a floor
-local _setFloor = function(node)
-	node:setMapType(MapType.floor)
-	node:setLit(true)
-	node:setAccessible(true)
-	node:setTransparent(true)
-end
-
--- set the correct flags and map type on a map node to make it a wall
-local _setWall = function(node)
-	node:setMapType(MapType.wall)
-	node:setLit(true)
-	node:setAccessible(false)
-	node:setTransparent(false)
-end
-
 -- initialize the builder
-function MapBuilder:init(w, h, minRooms, maxRooms, cellW, cellH)
-	w, h = w or MAPW, h or MAPH
-	MapBuilder.init(self, w, h)
+function SimpleGridMapBuilder:init(w, h, cellW, cellH)
+	local t = type(w) == 'table' and w or {
+		w = w,
+		h = h,
+		cellW = cellW,
+		cellH = cellH,
+	}
 
-	cellW = cellW or CELLW
-	cellH = cellH or CELLH
-	minRooms = minRooms or MINROOMS
-	maxRooms = maxRooms or MAXROOMS
-	verify('number', minRooms, maxRooms, cellW, cellH)
+	t.w, t.h = t.w or MAPW, t.h or MAPH
+	MapBuilder.init(self, t.w, t.h)
 
-	self._numRooms = random(minRooms, maxRooms)
-	self._cellW = cellW
-	self._cellH = cellH
+	t.minRooms = t.minRooms or MINROOMS
+	t.maxRooms = t.maxRooms or MAXROOMS
+	t.minRoomSize = t.minRoomSize or MINROOMSIZE
+	t.maxRoomSize = t.maxRoomSize or MAXROOMSIZE
+
+	t.cellW = t.cellW or CELLW
+	t.cellH = t.cellH or CELLH
+	verify('number', t.minRooms, t.maxRooms, t.minRoomSize, t.maxRoomSize,
+		t.cellW, t.cellH)
+
+	self._numRooms = random(t.minRooms, t.maxRooms)
+	self._minRoomSize = t.minRoomSize
+	self._maxRoomSize = t.maxRoomSize
+	self._cellW = t.cellW
+	self._cellH = t.cellH
 end
 
 -- generate all the rooms with random sizes between min and max
-function SimpleGridMapBuilder:createRooms(min, max)
-	verify('number', min, max)
+function SimpleGridMapBuilder:createRooms()
+	local min, max = self._minRoomSize, self._maxRoomSize
 
 	-- clear any existing rooms and grid
 	for i=1,#self._rooms do self._rooms[i] = nil end
@@ -96,11 +94,12 @@ function SimpleGridMapBuilder:createRooms(min, max)
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
-		local cx = x + math_floor(self._cellW/2)
-		local cy = y + math_floor(self._cellH/2)
+		local cx = x + self._cellW/2
+		local cy = y + self._cellH/2
 
 		-- add the room in the center of the grid cell
-		self._rooms[i]:setCenter(cx, cy)
+		self._rooms[i]:setCenter(cx, cy, true)
+		self._grid[x][y].room = self._rooms[i]
 	end
 
 	-- populate the map with the rooms
@@ -110,9 +109,11 @@ function SimpleGridMapBuilder:createRooms(min, max)
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
-					self._map:setLocation(x, y, _setWall(MapNode()))
+					local node = self._map:setNodeMapType(MapNode(), MapType.wall)
+					self._map:setLocation(x, y, node)
 				else
-					self._map:setLocation(x, y, _setFloor(MapNode()))
+					local node = self._map:setNodeMapType(MapNode(), MapType.floor)
+					self._map:setLocation(x, y, node)
 				end
 			end
 		end
@@ -124,9 +125,11 @@ function SimpleGridMapBuilder:connectRooms()
 	for i=2,self._numRooms do
 		local room1 = self._rooms[i-1]
 		local room2 = self._rooms[i]
-		local x1, y1, x2, y2 = room1:getCenter(), room2:getCenter()
-		local x, y = x1, y1
+		local x1, y1 = room1:getCenter(true)
+		local x2, y2 = room2:getCenter(true)
 		local xDir, yDir
+
+		local x, y = x1, y1
 
 		if x < x2 then xDir =  1 end
 		if x > x2 then xDir = -1 end
@@ -146,27 +149,37 @@ function SimpleGridMapBuilder:connectRooms()
 				if node:getMapType() == MapType.floor and wallFlag then break end
 
 				-- make the current location a floor
-				_setFloor(node)
+				self._map:setNodeMapType(node, MapType.floor)
 
 				-- if the location below this one is empty, make it a wall
 				node = self._map:getLocation(x, y1-1)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 
 				-- if the location above this one is empty, make it a wall
 				node = self._map:getLocation(x, y1+1)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 			until x == x2
 
 			-- check those corners
 			if yDir then
 				local node = self._map:getLocation(x+xDir, y1-yDir)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 
 				local node = self._map:getLocation(x, y1-yDir)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 
 				local node = self._map:getLocation(x+xDir, y1)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 			end
 		end
 
@@ -183,15 +196,19 @@ function SimpleGridMapBuilder:connectRooms()
 				if node:getMapType() == MapType.floor and wallFlag then break end
 
 				-- make the current tile a floor
-				_setFloor(node)
+				self._map:setNodeMapType(node, MapType.floor)
 
 				-- if the tile left of the current one is empty, make it a wall
 				node = self._map:getLocation(x-1, y)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 
 				-- if the tile right of the current one is empty, make it a wall
 				node = self._map:getLocation(x+1, y)
-				if node:getMapType() == MapType.empty then _setWall(node) end
+				if node:getMapType() == MapType.empty then
+					self._map:setNodeMapType(node, MapType.wall)
+				end
 			until y == y2
 		end
 	end
@@ -199,6 +216,33 @@ end
 
 -- add doors to some rooms
 function SimpleGridMapBuilder:addDoors()
+	for i=1,self._numRooms do
+		-- randomly add doors to every 3rd room
+		if random(3) == 1 then
+			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
+
+			-- walk along the room edges and plug holes with doors
+			for x=x1,x2 do
+				if x == x1 or x == x2 then
+					-- walk along the sides of the room
+					for y=y1,y2 do
+						local node = self._map:getLocation(x, y)
+						if node:getMapType() == MapType.floor then
+							self._map:setNodeMapType(node, MapType.doorC)
+						end
+					end
+				else
+					-- walk along the top and bottom of the room
+					for _,y in ipairs{y1, y2} do
+						local node = self._map:getLocation(x, y)
+						if node:getMapType() == MapType.floor then
+							self._map:setNodeMapType(node, MapType.doorC)
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 -- perform any cleanup needed on the map
