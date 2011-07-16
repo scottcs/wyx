@@ -64,9 +64,27 @@ context('Map', function()
 			assert_error(function() map:getLocation(0,1) end)
 			assert_error(function() map:getLocation(-3,3) end)
 		end)
-		test('should have a non-empty __tostring', function()
+		test('should have a correct __tostring', function()
+			local map = Map(0, 0, 10, 10)
+			local mapstr = ''
+			for j=1,10 do
+				for i=1,10 do
+					local node = map:getLocation(i, j)
+					local t = MapType.floor
+					if i%2 == 0 then
+						t = MapType.wall
+					elseif j%2 == 0 then
+						t = MapType.doorC
+					end
+
+					mapstr = mapstr .. t
+					map:setLocation(i, j, map:setNodeMapType(node, t))
+				end
+				mapstr = mapstr .. '\n'
+			end
+
 			assert_not_nil(tostring(map))
-			assert_not_equal(tostring(map), '')
+			assert_equal(tostring(map), mapstr)
 		end)
 	end)
 
@@ -103,6 +121,13 @@ context('Map', function()
 				assert_error(function() map:setNodeMapType(MapType.floor) end)
 				assert_error(function() map:setNodeMapType(node) end)
 				assert_error(function() map:setNodeMapType(node, MapType.zzzz) end)
+			end)
+			test('should return the given node', function()
+				local node = MapNode(MapType.doorC)
+				local node2 = map:setNodeMapType(node, MapType.floor)
+				assert_equal(node:getMapType(), MapType.floor)
+				assert_equal(node2:getMapType(), MapType.floor)
+				assert_equal(node, node2)
 			end)
 		end)
 	end)
