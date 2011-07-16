@@ -1,3 +1,4 @@
+local Class = require 'lib.hump.class'
 local MapBuilder = require 'pud.level.MapBuilder'
 
 -- Level

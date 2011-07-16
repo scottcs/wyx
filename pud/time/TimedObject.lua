@@ -1,3 +1,5 @@
+local Class = require 'lib.hump.class'
+
 -- TimedObject
 -- Provides an interface for objects to be used with the TimeManager.
 local TimedObject = Class{name='TimedObject',

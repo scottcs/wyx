@@ -1,3 +1,5 @@
+local Class = require 'lib.hump.class'
+
 -- TimeManager
 
 local Deque = require 'pud.kit.Deque'

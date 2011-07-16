@@ -1,3 +1,5 @@
+require 'pud.util'
+local Class = require 'lib.hump.class'
 
 -- Rect
 -- provides position and size of a rectangle

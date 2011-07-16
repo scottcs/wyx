@@ -1,3 +1,5 @@
+local Class = require 'lib.hump.class'
+
 -- Node
 -- Nodes are useful for linked lists.
 local Node = Class{name='Node',

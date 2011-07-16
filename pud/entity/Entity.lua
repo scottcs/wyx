@@ -1,3 +1,4 @@
+local Class = require 'lib.hump.class'
 
 local _id = 0
 

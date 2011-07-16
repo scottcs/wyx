@@ -1,3 +1,4 @@
+local Class = require 'lib.hump.class'
 local Node = require 'pud.kit.Node'
 
 -- Deque

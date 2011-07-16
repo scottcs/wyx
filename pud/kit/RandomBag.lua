@@ -1,3 +1,4 @@
+local Class = require 'lib.hump.class'
 
 -- RandomBag
 -- Provides a container for a range of numbers which can be randomly iterated

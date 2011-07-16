@@ -1,3 +1,5 @@
+local Class = require 'lib.hump.class'
+
 -- EventManager
 -- Provides a class that registers objects with itself, then notifies
 -- those object when events occur.

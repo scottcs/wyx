@@ -1,3 +1,5 @@
+local Class = require 'lib.hump.class'
+
 -- Command class
 local Command = Class{name='Command'}
 
