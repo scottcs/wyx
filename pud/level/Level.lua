@@ -8,7 +8,6 @@ local Level = Class{name='Level'}
 function Level:generateStandard(builder)
 	assert(builder:is_a(MapBuilder))
 	
-	builder:init()
 	builder:createRooms()
 	builder:connectRooms()
 	builder:cleanup()
@@ -20,7 +19,6 @@ end
 function Level:generateCavernous(builder)
 	assert(builder:is_a(MapBuilder))
 	
-	builder:init()
 	builder:createCaverns()
 	builder:cleanup()
 
