@@ -43,10 +43,10 @@ function Rect:setX(x)
 end
 
 function Rect:getY() return self._y end
-function Rect:setY(x)
-	verify('number', x)
-	self._x = x
 	_calcCenter(self)
+function Rect:setY(y)
+	verify('number', y)
+	self._y = y
 end
 
 function Rect:getPosition() return self:getX(), self:getY() end
