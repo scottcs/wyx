@@ -88,9 +88,9 @@ local function new(args)
 	-- syntactic sugar
 	local meta = {
 		__call = function(self, ...)
-			local obj = {}
+			local obj = setmetatable({}, self)
 			self.construct(obj, ...)
-			return setmetatable(obj, self)
+			return obj
 		end,
 		__tostring = function() return name end
 	}
