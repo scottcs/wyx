@@ -62,5 +62,53 @@ function Map:getLocation(x, y)
 	return self._layout[y][x]
 end
 
+-- functions for setting specific MapTypes and their associated attributes
+-- in the given node or coordinates
+function Map:setNodeMapType(node, maptype)
+	node:setMapType(maptype)
+
+	-- set attributes for specific types
+	if maptype == MapType.floor
+		or maptype == MapType.doorO
+	then
+		node:setLit(true)
+		node:setAccessible(true)
+		node:setTransparent(true)
+	elseif maptype == MapType.wall then
+		node:setLit(true)
+		node:setAccessible(false)
+		node:setTransparent(false)
+	elseif maptype == MapType.doorC
+		or maptype == MapType.stairU
+		or maptype == MapType.stairD
+	then
+		node:setLit(true)
+		node:setAccessible(true)
+		node:setTransparent(false)
+	elseif maptype == MapType.empty then
+		node:setLit(false)
+		node:setAccessible(false)
+		node:setTransparent(false)
+	else
+		error('incorrect MapType specified for setNodeMapType: '..maptype)
+	end
+
+	return node
+end
+
+-- easy print
+function Map:__tostring()
+	local str = ''
+	for y=1,self:getHeight() do
+		for x=1,self:getWidth() do
+			local node = self:getLocation(x, y)
+			local t = node:getMapType()
+			str = str .. t
+		end
+		str = str .. '\n'
+	end
+	return str
+end
+
 -- the class
 return Map
