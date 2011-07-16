@@ -1,5 +1,6 @@
 
 -- common utilities used throughout the program
+require 'pud.loveutil'
 require 'pud.util'
 
 
@@ -20,7 +21,6 @@ assert = nil ~= debug and assert or NOFUNC
     GLOBAL SINGLETONS
          --]]--
 
-Class = require 'lib.hump.class'
 GameState = require 'lib.hump.gamestate'
 EventManager = require 'pud.event.EventManager'
 cron = require 'lib.cron'
