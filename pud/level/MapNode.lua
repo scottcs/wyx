@@ -10,7 +10,7 @@ local MapNode = Class{name='MapNode',
 		self._isLit = false
 		self._isTransparent = false
 		self._wasSeen = false
-		self:setMapType(mapType)
+		self:setMapType(mapType or MapType.empty)
 	end
 }
 
@@ -49,8 +49,7 @@ end
 function MapNode:wasSeen() return self._wasSeen end
 
 function MapNode:setMapType(mapType)
-	assert(nil ~= MapType[mapType], 'invalid map type %s', mapType)
-	self._mapType = mapType
+	self._mapType = MapType[mapType]
 end
 function MapNode:getMapType() return self._mapType end
 
