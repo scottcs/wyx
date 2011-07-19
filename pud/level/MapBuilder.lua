@@ -13,17 +13,11 @@ function MapBuilder:init(w, h)
 	self._map = Map(0, 0, w, h)
 end
 
--- generate rooms
-function MapBuilder:createRooms() end
+-- generate map
+function MapBuilder:createMap() end
 
--- generate wide open cavernous areas
-function MapBuilder:createCaverns() end
-
--- connect rooms together
-function MapBuilder:connectRooms() end
-
--- add doors to rooms
-function MapBuilder:addDoors() end
+-- add features to the map
+function MapBuilder:addFeatures() end
 
 -- perform any cleanup needed on the map
 function MapBuilder:cleanup() end
