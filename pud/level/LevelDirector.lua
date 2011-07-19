@@ -1,13 +1,14 @@
 local Class = require 'lib.hump.class'
 local MapBuilder = require 'pud.level.MapBuilder'
 
--- Level
-local Level = Class{name='Level'}
+-- LevelDirector
+local LevelDirector = Class{name='LevelDirector'}
 
 -- generate a standard roguelike map with rooms connected via hallways.
-function Level:generateStandard(builder)
+function LevelDirector:generateStandard(builder, ...)
 	assert(builder:is_a(MapBuilder))
 	
+	builder:init(...)
 	builder:createRooms()
 	builder:connectRooms()
 	builder:cleanup()
@@ -16,9 +17,10 @@ function Level:generateStandard(builder)
 end
 
 -- generate a cavernous map with large open spaces and rough walls.
-function Level:generateCavernous(builder)
+function LevelDirector:generateCavernous(builder, ...)
 	assert(builder:is_a(MapBuilder))
 	
+	builder:init(...)
 	builder:createCaverns()
 	builder:cleanup()
 
@@ -26,7 +28,7 @@ function Level:generateCavernous(builder)
 end
 
 -- the class
-return Level
+return LevelDirector
 
 
 
