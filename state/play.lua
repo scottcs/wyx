@@ -13,7 +13,6 @@ local TimedObject = require 'pud.time.TimedObject'
 local _timeManager
 
 -- map builder
-local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
 local LevelDirector = require 'pud.level.LevelDirector'
 
 function st:init()
@@ -75,8 +74,15 @@ function st:enter()
 	_timeManager:register(ifrit, 3)
 
 	-- map test
+	--[[--
+	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
 	local builder = SimpleGridMapBuilder()
-	local map = LevelDirector:generateStandard(builder)
+	--]]--
+	---[[--
+	local FileMapBuilder = require 'pud.level.FileMapBuilder'
+	local builder = FileMapBuilder()
+	--]]--
+	local map = LevelDirector:generateStandard(builder, 'test')
 	print(tostring(map))
 end
 
