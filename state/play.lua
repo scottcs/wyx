@@ -76,7 +76,6 @@ function st:enter()
 
 	-- map test
 	local builder = SimpleGridMapBuilder()
-	builder:init()
 	local map = Level:generateStandard(builder)
 	print(tostring(map))
 end

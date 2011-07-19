@@ -5,9 +5,10 @@ local MapBuilder = require 'pud.level.MapBuilder'
 local Level = Class{name='Level'}
 
 -- generate a standard roguelike map with rooms connected via hallways.
-function Level:generateStandard(builder)
+function Level:generateStandard(builder, ...)
 	assert(builder:is_a(MapBuilder))
 	
+	builder:init(...)
 	builder:createRooms()
 	builder:connectRooms()
 	builder:cleanup()
@@ -16,9 +17,10 @@ function Level:generateStandard(builder)
 end
 
 -- generate a cavernous map with large open spaces and rough walls.
-function Level:generateCavernous(builder)
+function Level:generateCavernous(builder, ...)
 	assert(builder:is_a(MapBuilder))
 	
+	builder:init(...)
 	builder:createCaverns()
 	builder:cleanup()
 
