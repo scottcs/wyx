@@ -14,7 +14,7 @@ local _timeManager
 
 -- map builder
 local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
-local Level = require 'pud.level.Level'
+local LevelDirector = require 'pud.level.LevelDirector'
 
 function st:init()
 	_timeManager = TimeManager()
@@ -76,7 +76,7 @@ function st:enter()
 
 	-- map test
 	local builder = SimpleGridMapBuilder()
-	local map = Level:generateStandard(builder)
+	local map = LevelDirector:generateStandard(builder)
 	print(tostring(map))
 end
 
