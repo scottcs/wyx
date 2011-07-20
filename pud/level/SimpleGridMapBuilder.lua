@@ -58,7 +58,7 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH)
 end
 
 -- generate all the rooms with random sizes between min and max
-function SimpleGridMapBuilder:createRooms()
+function SimpleGridMapBuilder:createMap()
 	local min, max = self._minRoomSize, self._maxRoomSize
 
 	-- clear any existing rooms and grid
@@ -117,105 +117,104 @@ function SimpleGridMapBuilder:createRooms()
 				end
 			end
 		end
+		if i > 1 then
+			self:_connectRooms(self._rooms[i-1], self._rooms[i])
+		end
 	end
 end
 
 -- connect the rooms together
-function SimpleGridMapBuilder:connectRooms()
-	for i=2,self._numRooms do
-		local room1 = self._rooms[i-1]
-		local room2 = self._rooms[i]
-		local x1, y1 = room1:getCenter(true)
-		local x2, y2 = room2:getCenter(true)
-		local xDir, yDir
+function SimpleGridMapBuilder:_connectRooms(room1, room2)
+	local x1, y1 = room1:getCenter(true)
+	local x2, y2 = room2:getCenter(true)
+	local xDir, yDir
 
-		local x, y = x1, y1
+	local x, y = x1, y1
 
-		if x < x2 then xDir =  1 end
-		if x > x2 then xDir = -1 end
-		if y < y2 then yDir =  1 end
-		if y > y2 then yDir = -1 end
+	if x < x2 then xDir =  1 end
+	if x > x2 then xDir = -1 end
+	if y < y2 then yDir =  1 end
+	if y > y2 then yDir = -1 end
 
-		if xDir then
-			local wallFlag = false
-			repeat
-				x = x + xDir
+	if xDir then
+		local wallFlag = false
+		repeat
+			x = x + xDir
 
-				-- check if we've hit a wall
-				local node = self._map:getLocation(x, y1)
-				if node:getMapType() == MapType.wall then wallFlag = true end
+			-- check if we've hit a wall
+			local node = self._map:getLocation(x, y1)
+			if node:getMapType() == MapType.wall then wallFlag = true end
 
-				-- once we've tunneled through the wall and hit floor, break
-				if node:getMapType() == MapType.floor and wallFlag then break end
+			-- once we've tunneled through the wall and hit floor, break
+			if node:getMapType() == MapType.floor and wallFlag then break end
 
-				-- make the current location a floor
-				self._map:setNodeMapType(node, MapType.floor)
+			-- make the current location a floor
+			self._map:setNodeMapType(node, MapType.floor)
 
-				-- if the location below this one is empty, make it a wall
-				node = self._map:getLocation(x, y1-1)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
+			-- if the location below this one is empty, make it a wall
+			node = self._map:getLocation(x, y1-1)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
 
-				-- if the location above this one is empty, make it a wall
-				node = self._map:getLocation(x, y1+1)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
-			until x == x2
+			-- if the location above this one is empty, make it a wall
+			node = self._map:getLocation(x, y1+1)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
+		until x == x2
 
-			-- check those corners
-			if yDir then
-				local node = self._map:getLocation(x+xDir, y1-yDir)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
+		-- check those corners
+		if yDir then
+			local node = self._map:getLocation(x+xDir, y1-yDir)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
 
-				local node = self._map:getLocation(x, y1-yDir)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
+			local node = self._map:getLocation(x, y1-yDir)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
 
-				local node = self._map:getLocation(x+xDir, y1)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
+			local node = self._map:getLocation(x+xDir, y1)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
 			end
 		end
+	end
 
-		if yDir then
-			local wallFlag = false
-			repeat
-				y = y + yDir
+	if yDir then
+		local wallFlag = false
+		repeat
+			y = y + yDir
 
-				-- check if we've hit a wall
-				local node = self._map:getLocation(x, y)
-				if node:getMapType() == MapType.wall then wallFlag = true end
+			-- check if we've hit a wall
+			local node = self._map:getLocation(x, y)
+			if node:getMapType() == MapType.wall then wallFlag = true end
 
-				-- once we've tunneled through a wall and hit floor, break
-				if node:getMapType() == MapType.floor and wallFlag then break end
+			-- once we've tunneled through a wall and hit floor, break
+			if node:getMapType() == MapType.floor and wallFlag then break end
 
-				-- make the current tile a floor
-				self._map:setNodeMapType(node, MapType.floor)
+			-- make the current tile a floor
+			self._map:setNodeMapType(node, MapType.floor)
 
-				-- if the tile left of the current one is empty, make it a wall
-				node = self._map:getLocation(x-1, y)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
+			-- if the tile left of the current one is empty, make it a wall
+			node = self._map:getLocation(x-1, y)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
 
-				-- if the tile right of the current one is empty, make it a wall
-				node = self._map:getLocation(x+1, y)
-				if node:getMapType() == MapType.empty then
-					self._map:setNodeMapType(node, MapType.wall)
-				end
-			until y == y2
-		end
+			-- if the tile right of the current one is empty, make it a wall
+			node = self._map:getLocation(x+1, y)
+			if node:getMapType() == MapType.empty then
+				self._map:setNodeMapType(node, MapType.wall)
+			end
+		until y == y2
 	end
 end
 
 -- add doors to some rooms
-function SimpleGridMapBuilder:addDoors()
+function SimpleGridMapBuilder:addFeatures()
 	for i=1,self._numRooms do
 		-- randomly add doors to every 3rd room
 		if random(3) == 1 then

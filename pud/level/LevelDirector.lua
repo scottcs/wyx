@@ -9,19 +9,8 @@ function LevelDirector:generateStandard(builder, ...)
 	assert(builder:is_a(MapBuilder))
 	
 	builder:init(...)
-	builder:createRooms()
-	builder:connectRooms()
-	builder:cleanup()
-
-	return builder:getMap()
-end
-
--- generate a cavernous map with large open spaces and rough walls.
-function LevelDirector:generateCavernous(builder, ...)
-	assert(builder:is_a(MapBuilder))
-	
-	builder:init(...)
-	builder:createCaverns()
+	builder:createMap()
+	builder:addFeatures()
 	builder:cleanup()
 
 	return builder:getMap()
@@ -29,6 +18,3 @@ end
 
 -- the class
 return LevelDirector
-
-
-
