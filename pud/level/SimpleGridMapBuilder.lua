@@ -151,8 +151,10 @@ function SimpleGridMapBuilder:createMap()
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
-					local node = self._map:setNodeMapType(MapNode(), MapType.wall)
-					self._map:setLocation(x, y, node)
+					if self._map:getLocation(x, y):getMapType() == MapType.empty then
+						local node = self._map:setNodeMapType(MapNode(), MapType.wall)
+						self._map:setLocation(x, y, node)
+					end
 				else
 					local node = self._map:setNodeMapType(MapNode(), MapType.floor)
 					self._map:setLocation(x, y, node)
