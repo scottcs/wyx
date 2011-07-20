@@ -1,6 +1,6 @@
 local map = {}
 
-map.name = 'Tbone'
+map.name = 'Test1'
 map.author = 'scx'
 
 map.glyphs = {
