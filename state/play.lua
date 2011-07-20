@@ -84,6 +84,8 @@ function st:enter()
 	local builder = FileMapBuilder()
 	local map = LevelDirector:generateStandard(builder, 'test')
 	--]]--
+
+	builder:destroy()
 	print(tostring(map))
 end
 
