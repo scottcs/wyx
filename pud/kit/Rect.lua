@@ -85,6 +85,12 @@ function Rect:getBBox()
 	return x, y, x+w, y+h
 end
 
+-- check if a point falls within the Rect's bounding box
+function Rect:containsPoint(x, y)
+	local x1, y1, x2, y2 = self:getBBox()
+	return x >= x1 and x <= x2 and y >= y1 and y <= y2
+end
+
 -- get and set size
 function Rect:getWidth() return self._w end
 function Rect:setWidth(w)
