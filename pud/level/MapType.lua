@@ -17,6 +17,14 @@ local MapType = {
 	doorO = '-',
 	stairU = '<',
 	stairD = '>',
+	pointA = 'A',
+	pointB = 'B',
+	pointC = 'C',
+	pointD = 'D',
+	pointW = 'W',
+	pointX = 'X',
+	pointY = 'Y',
+	pointZ = 'Z',
 }
 
 -- add glyph as index to itself
