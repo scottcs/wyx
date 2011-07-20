@@ -121,8 +121,8 @@ function SimpleGridMapBuilder:createMap()
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
-		local cx = x + self._cellW/2
-		local cy = y + self._cellH/2
+		local cx = x*(self._cellW-1) + self._cellW/2
+		local cy = y*(self._cellH-1) + self._cellH/2
 
 		-- add the room in the center of the grid cell
 		self._rooms[i]:setCenter(cx, cy, true)
