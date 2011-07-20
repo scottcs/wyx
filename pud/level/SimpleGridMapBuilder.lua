@@ -97,15 +97,13 @@ end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
-	local min = MINROOMSIZE
-	local maxW, maxH = self._cellW-2, self._cellH-2
-
 	-- clear any existing rooms and grid
 	_clear(self)
 
 	-- generate the rooms
 	for i=1,self._numRooms do
-		self._rooms[i] = Rect(0, 0, random(min, maxW), random(min, maxH))
+		self._rooms[i] = Rect(0, 0,
+			random(MINROOMSIZE, self._cellW), random(MINROOMSIZE, self._cellH))
 	end
 
 	-- build a new grid
