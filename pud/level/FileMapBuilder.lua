@@ -47,8 +47,7 @@ function FileMapBuilder:createMap()
 	}
 	for k,v in pairs(map) do
 		if not known[k] then
-			io.stderr:write(string.format('Unknown map key "%s" in file: %s\n',
-				k, self._filename))
+			warning('Unknown map key "%s" in file: %s', k, self._filename)
 		end
 	end
 
