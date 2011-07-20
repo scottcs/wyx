@@ -92,7 +92,7 @@ function Map:setNodeMapType(node, maptype)
 		node:setAccessible(false)
 		node:setTransparent(false)
 	else
-		error('incorrect MapType specified for setNodeMapType: '..maptype)
+		warning('incorrect MapType specified for setNodeMapType: '..maptype)
 	end
 
 	return node

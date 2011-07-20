@@ -85,8 +85,7 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 	local gridW, gridH = math_floor(t.w/t.cellW), math_floor(t.h/t.cellH)
 	local gridSize = (gridW-2) * (gridH-2)
 	if t.maxRooms >= gridSize then
-		io.stderr:write(string.format('maxRooms (%d) is too big, setting to %d\n',
-			t.maxRooms, gridSize))
+		warning('maxRooms (%d) is too big, setting to %d', t.maxRooms, gridSize)
 		t.maxRooms = gridSize
 		t.minRooms = math.min(t.minRooms, gridSize)
 	end
