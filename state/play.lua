@@ -28,46 +28,45 @@ function st:enter()
 	dragon.name = 'Dragon'
 	ifrit.name = 'Ifrit'
 
+	function player:OPEN_DOOR(...)
+		print('player')
+		for i=1,select('#',...) do
+			print(i, select(i, ...))
+		end
+	end
+
+	function dragon:onEvent(e, ...)
+		print('dragon')
+		for i=1,select('#',...) do
+			print(i, select(i, ...))
+		end
+	end
+
+	function ifrit:onEvent(e, ...)
+		print('ifrit')
+	end
+
 	function player:getSpeed(ap) return 1 end
 	function player:doAction(ap)
-		GameEvent:trigger('OPEN_DOOR', self.name, 234, ap)
+		GameEvent:notify(Event.GameStart(), 234, ap)
 		return 2
 	end
 
 	function dragon:getSpeed(ap) return 1.03 end
 	function dragon:doAction(ap)
-		GameEvent:push('OPEN_DOOR', self.name)
+		GameEvent:push(Event.MapUpdateRequest())
 		return 5
 	end
 
 	function ifrit:getSpeed(ap) return 1.27 end
 	function ifrit:doAction(ap)
-		GameEvent:push('OPEN_DOOR', self.name)
+		GameEvent:push(Event.OpenDoor(self.name))
 		return 2
 	end
 
-	function player:OPEN_DOOR(...)
-		for i=1,select('#',...) do
-		end
-	end
-
-	function dragon:onEvent(e, ...)
-		for i=1,select('#',...) do
-		end
-	end
-
-	function ifrit:onEvent(e, ...)
-	end
-
-	local function testi(...)
-		for i=1,select('#',...) do
-		end
-	end
-
-	GameEvent:register(player, 'OPEN_DOOR')
-	GameEvent:register(dragon, 'OPEN_DOOR')
-	GameEvent:register(ifrit, 'OPEN_DOOR')
-	GameEvent:register(testi, 'OPEN_DOOR')
+	GameEvent:register(player.OPEN_DOOR, 'OpenDoor')
+	GameEvent:register(dragon, 'GameStart')
+	GameEvent:register(ifrit, 'MapUpdateRequest')
 
 	_timeManager:register(player, 3)
 	_timeManager:register(dragon, 3)
