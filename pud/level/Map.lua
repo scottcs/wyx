@@ -4,6 +4,8 @@ local MapNode = require 'pud.level.MapNode'
 local MapType = require 'pud.level.MapType'
 local Rect = require 'pud.kit.Rect'
 
+local table_concat = table.concat
+
 -- Map
 local Map = Class{name='Map', inherits=Rect,
 	function(self, ...)
@@ -98,16 +100,17 @@ end
 
 -- easy print
 function Map:__tostring()
-	local str = ''
+	local s = {}
 	for y=1,self:getHeight() do
+		local row = {}
 		for x=1,self:getWidth() do
 			local node = self:getLocation(x, y)
 			local t = node:getMapType()
-			str = str .. t
+			row[#row+1] = t
 		end
-		str = str .. '\n'
+		s[#s+1] = table_concat(row)
 	end
-	return str
+	return table_concat(s, '\n')
 end
 
 -- the class
