@@ -32,6 +32,7 @@ function FileMapBuilder:init(filename)
 	self._filename = filename
 end
 
+-- read the file and create the map
 function FileMapBuilder:createMap()
 	local map = assert(loadfile(self._filename))()
 	verify('string', map.map, map.name, map.author)
@@ -51,9 +52,11 @@ function FileMapBuilder:createMap()
 		height = height + 1
 	end
 
+	-- set the map size and empty all nodes
 	self._map:setSize(width, height)
 	self._map:clear()
 
+	-- build the map
 	local x, y = 0, 0
 	for row in string.gmatch(map.map, '%S+') do
 		y = y + 1
