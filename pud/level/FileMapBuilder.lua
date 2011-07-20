@@ -42,7 +42,7 @@ function FileMapBuilder:createMap()
 	for k,v in pairs(map.glyphs) do revGlyphs[v] = k end
 
 	-- determine width and height of map
-	local width = #(string.match(map.map, '.-\n'))
+	local width = #(string.match(map.map, '%S+'))
 	local height = 0
 	local i = 0
 	while true do
@@ -55,7 +55,7 @@ function FileMapBuilder:createMap()
 	self._map:clear()
 
 	local x, y = 0, 0
-	for row in string.gmatch(map.map, '.-\n') do
+	for row in string.gmatch(map.map, '%S+') do
 		y = y + 1
 
 		assert(#row == width, 'Map is unaligned. Expected width of %d for row '
