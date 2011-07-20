@@ -28,6 +28,27 @@ local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	end
 }
 
+-- private function to clear all rooms and the grid
+local _clear = function(self)
+	for i=1,#self._rooms do
+		self._rooms[i]:destroy()
+		self._rooms[i] = nil
+	end
+	for i=1,#self._grid do
+		self._grid[i]:destroy()
+		self._grid[i] = nil
+	end
+end
+
+-- destructor
+function SimpleGridMapBuilder:destroy()
+	_clear(self)
+	self._rooms = nil
+	self._grid = nil
+
+	MapBuilder.destroy(self)
+end
+
 -- initialize the builder
 function SimpleGridMapBuilder:init(w, h, cellW, cellH)
 	local t = type(w) == 'table' and w or {
@@ -62,14 +83,7 @@ function SimpleGridMapBuilder:createMap()
 	local min, max = self._minRoomSize, self._maxRoomSize
 
 	-- clear any existing rooms and grid
-	for i=1,#self._rooms do
-		self._rooms[i]:destroy()
-		self._rooms[i] = nil
-	end
-	for i=1,#self._grid do
-		self._grid[i]:destroy()
-		self._grid[i] = nil
-	end
+	_clear(self)
 
 	-- generate the rooms
 	for i=1,self._numRooms do
