@@ -21,6 +21,8 @@ local MapType = {
 
 -- add glyph as index to itself
 -- for ease of use in conditions
-for k,v in pairs(MapType) do MapType[v] = v end
+local t = {}
+for k,v in pairs(MapType) do t[v] = v end
+for k,v in pairs(t) do MapType[k] = v end
 
 return setmetatable(MapType, mt)
