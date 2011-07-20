@@ -38,6 +38,20 @@ function FileMapBuilder:createMap()
 	verify('string', map.map, map.name, map.author)
 	verify('table', map.glyphs)
 
+	-- notify when map includes unknown keys
+	local known = {
+		map = 'map',
+		glyphs = 'glyphs',
+		name = 'name',
+		author = 'author',
+	}
+	for k,v in pairs(map) do
+		if not known[k] then
+			io.stderr(string.format('Unknown map key "%s" in file: %s',
+				k, self._filename))
+		end
+	end
+
 	-- build a reverse glyph table to easily lookup MapType
 	local revGlyphs = {}
 	for k,v in pairs(map.glyphs) do revGlyphs[v] = k end
