@@ -135,10 +135,10 @@ function SimpleGridMapBuilder:createMap()
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
-		local cx, cy = self._grid[x][y]:getCenter(true)
+		local cx, cy = self._grid[x][y]:getCenter('floor')
 
 		-- add the room in the center of the grid cell
-		self._rooms[i]:setCenter(cx, cy, true)
+		self._rooms[i]:setCenter(cx, cy, 'floor')
 		self._grid[x][y].room = self._rooms[i]
 	end
 
@@ -162,6 +162,8 @@ function SimpleGridMapBuilder:createMap()
 				end
 			end
 		end
+
+		-- connect this room to the previous room
 		if i > 1 then
 			self:_connectRooms(self._rooms[i-1], self._rooms[i])
 		end
@@ -170,8 +172,8 @@ end
 
 -- connect the rooms together
 function SimpleGridMapBuilder:_connectRooms(room1, room2)
-	local x1, y1 = room1:getCenter(true)
-	local x2, y2 = room2:getCenter(true)
+	local x1, y1 = room1:getCenter('floor')
+	local x2, y2 = room2:getCenter('floor')
 	local xDir, yDir
 
 	local x, y = x1, y1
@@ -188,7 +190,11 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			local node = self._map:getLocation(x, y1)
-			if node:getMapType() == MapType.wall then wallFlag = true end
+			if room2:containsPoint(x, y1)
+				and node:getMapType() == MapType.wall
+			then
+				wallFlag = true
+			end
 
 			-- once we've tunneled through the wall and hit floor, break
 			if node:getMapType() == MapType.floor and wallFlag then break end
@@ -235,7 +241,11 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			local node = self._map:getLocation(x, y)
-			if node:getMapType() == MapType.wall then wallFlag = true end
+			if room2:containsPoint(x, y)
+				and node:getMapType() == MapType.wall
+			then
+				wallFlag = true
+			end
 
 			-- once we've tunneled through a wall and hit floor, break
 			if node:getMapType() == MapType.floor and wallFlag then break end
@@ -264,6 +274,9 @@ function SimpleGridMapBuilder:addFeatures()
 		-- randomly add doors to every 3rd room
 		if random(3) == 1 then
 			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
+
+			-- reduce the max coords by one for easy iteration
+			x2, y2 = x2 - 1, y2 - 1
 
 			-- walk along the room edges and plug holes with doors
 			for x=x1,x2 do
