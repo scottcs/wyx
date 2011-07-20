@@ -74,15 +74,18 @@ function st:enter()
 	_timeManager:register(ifrit, 3)
 
 	-- map test
-	--[[--
+	---[[--
 	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
 	local builder = SimpleGridMapBuilder()
+	local map = LevelDirector:generateStandard(builder, 100,100, 10,10, 20,35)
 	--]]--
-	---[[--
+	--[[--
 	local FileMapBuilder = require 'pud.level.FileMapBuilder'
 	local builder = FileMapBuilder()
-	--]]--
 	local map = LevelDirector:generateStandard(builder, 'test')
+	--]]--
+
+	builder:destroy()
 	print(tostring(map))
 end
 

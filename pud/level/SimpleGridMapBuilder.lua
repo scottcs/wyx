@@ -14,7 +14,7 @@ local math_floor = math.floor
 local CELLW, CELLH = 10, 10
 local MAPW, MAPH = 100, 100
 local MINROOMS, MAXROOMS = 25, 45
-local MINROOMSIZE, MAXROOMSIZE = 2, 6
+local MINROOMSIZE = 4
 
 --------------------------
 -- SimpleGridMapBuilder --
@@ -28,13 +28,43 @@ local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	end
 }
 
+-- private function to clear all rooms and the grid
+local _clear = function(self)
+	for i=1,#self._rooms do
+		if self._rooms[i].destroy then
+			self._rooms[i]:destroy()
+		end
+		self._rooms[i] = nil
+	end
+	for i=1,#self._grid do
+		for j=1,#(self._grid[i]) do
+			if self._grid[i][j].destroy then
+				self._grid[i][j]:destroy()
+			end
+			self._grid[i][j] = nil
+		end
+		self._grid[i] = nil
+	end
+end
+
+-- destructor
+function SimpleGridMapBuilder:destroy()
+	_clear(self)
+	self._rooms = nil
+	self._grid = nil
+
+	MapBuilder.destroy(self)
+end
+
 -- initialize the builder
-function SimpleGridMapBuilder:init(w, h, cellW, cellH)
+function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 	local t = type(w) == 'table' and w or {
 		w = w,
 		h = h,
 		cellW = cellW,
 		cellH = cellH,
+		minRooms = minRooms,
+		maxRooms = maxRooms,
 	}
 
 	t.w, t.h = t.w or MAPW, t.h or MAPH
@@ -42,32 +72,41 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH)
 
 	t.minRooms = t.minRooms or MINROOMS
 	t.maxRooms = t.maxRooms or MAXROOMS
-	t.minRoomSize = t.minRoomSize or MINROOMSIZE
-	t.maxRoomSize = t.maxRoomSize or MAXROOMSIZE
 
 	t.cellW = t.cellW or CELLW
 	t.cellH = t.cellH or CELLH
-	verify('number', t.minRooms, t.maxRooms, t.minRoomSize, t.maxRoomSize,
-		t.cellW, t.cellH)
+	verify('number', t.minRooms, t.maxRooms, t.cellW, t.cellH)
+
+	-- make sure minRooms is <= maxRooms
+	t.minRooms, t.maxRooms
+		= math.min(t.minRooms, t.maxRooms), math.max(t.minRooms, t.maxRooms)
+
+	-- check that the number of rooms will fit within the grid
+	local gridW, gridH = math_floor(t.w/t.cellW), math_floor(t.h/t.cellH)
+	local gridSize = (gridW-2) * (gridH-2)
+	if t.maxRooms >= gridSize then
+		io.stderr:write(string.format('maxRooms (%d) is too big, setting to %d\n',
+			t.maxRooms, gridSize))
+		t.maxRooms = gridSize
+		t.minRooms = math.min(t.minRooms, gridSize)
+	end
 
 	self._numRooms = random(t.minRooms, t.maxRooms)
-	self._minRoomSize = t.minRoomSize
-	self._maxRoomSize = t.maxRoomSize
 	self._cellW = t.cellW
 	self._cellH = t.cellH
 end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
-	local min, max = self._minRoomSize, self._maxRoomSize
+	local min = MINROOMSIZE
+	local maxW, maxH = self._cellW-2, self._cellH-2
 
 	-- clear any existing rooms and grid
-	for i=1,#self._rooms do self._rooms[i] = nil end
-	for i=1,#self._grid do self._grid[i] = nil end
+	_clear(self)
 
 	-- generate the rooms
 	for i=1,self._numRooms do
-		self._rooms[i] = Rect(0, 0, random(min, max), random(min, max))
+		self._rooms[i] = Rect(0, 0, random(min, maxW), random(min, maxH))
 	end
 
 	-- build a new grid
@@ -87,6 +126,8 @@ function SimpleGridMapBuilder:createMap()
 	-- add rooms to the grid
 	for i = 1,self._numRooms do
 		-- find an empty spot in the grid
+		-- this assumes that numRooms is fairly small compared to grid size
+		-- (and will become much slower as numRooms is increased)
 		local x, y
 		repeat
 			x = random(2, w-1)
@@ -94,11 +135,10 @@ function SimpleGridMapBuilder:createMap()
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
-		local cx = x + self._cellW/2
-		local cy = y + self._cellH/2
+		local cx, cy = self._grid[x][y]:getCenter('floor')
 
 		-- add the room in the center of the grid cell
-		self._rooms[i]:setCenter(cx, cy, true)
+		self._rooms[i]:setCenter(cx, cy, 'floor')
 		self._grid[x][y].room = self._rooms[i]
 	end
 
@@ -106,6 +146,11 @@ function SimpleGridMapBuilder:createMap()
 	for i=1,self._numRooms do
 		local room = self._rooms[i]
 		local x1, y1, x2, y2 = room:getBBox()
+		
+		-- reduce the max coords by one for easy iteration
+		x2, y2 = x2 - 1, y2 - 1
+
+		-- iterate over the bounding box of the room and add nodes
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
@@ -117,6 +162,8 @@ function SimpleGridMapBuilder:createMap()
 				end
 			end
 		end
+
+		-- connect this room to the previous room
 		if i > 1 then
 			self:_connectRooms(self._rooms[i-1], self._rooms[i])
 		end
@@ -125,8 +172,8 @@ end
 
 -- connect the rooms together
 function SimpleGridMapBuilder:_connectRooms(room1, room2)
-	local x1, y1 = room1:getCenter(true)
-	local x2, y2 = room2:getCenter(true)
+	local x1, y1 = room1:getCenter('floor')
+	local x2, y2 = room2:getCenter('floor')
 	local xDir, yDir
 
 	local x, y = x1, y1
@@ -143,7 +190,11 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			local node = self._map:getLocation(x, y1)
-			if node:getMapType() == MapType.wall then wallFlag = true end
+			if room2:containsPoint(x, y1)
+				and node:getMapType() == MapType.wall
+			then
+				wallFlag = true
+			end
 
 			-- once we've tunneled through the wall and hit floor, break
 			if node:getMapType() == MapType.floor and wallFlag then break end
@@ -190,7 +241,11 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			local node = self._map:getLocation(x, y)
-			if node:getMapType() == MapType.wall then wallFlag = true end
+			if room2:containsPoint(x, y)
+				and node:getMapType() == MapType.wall
+			then
+				wallFlag = true
+			end
 
 			-- once we've tunneled through a wall and hit floor, break
 			if node:getMapType() == MapType.floor and wallFlag then break end
@@ -219,6 +274,9 @@ function SimpleGridMapBuilder:addFeatures()
 		-- randomly add doors to every 3rd room
 		if random(3) == 1 then
 			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
+
+			-- reduce the max coords by one for easy iteration
+			x2, y2 = x2 - 1, y2 - 1
 
 			-- walk along the room edges and plug holes with doors
 			for x=x1,x2 do
