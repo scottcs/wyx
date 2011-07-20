@@ -85,8 +85,7 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 	local gridW, gridH = math_floor(t.w/t.cellW), math_floor(t.h/t.cellH)
 	local gridSize = (gridW-2) * (gridH-2)
 	if t.maxRooms >= gridSize then
-		io.stderr:write(string.format('maxRooms (%d) is too big, setting to %d\n',
-			t.maxRooms, gridSize))
+		warning('maxRooms (%d) is too big, setting to %d', t.maxRooms, gridSize)
 		t.maxRooms = gridSize
 		t.minRooms = math.min(t.minRooms, gridSize)
 	end
@@ -98,15 +97,13 @@ end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
-	local min = MINROOMSIZE
-	local maxW, maxH = self._cellW-2, self._cellH-2
-
 	-- clear any existing rooms and grid
 	_clear(self)
 
 	-- generate the rooms
 	for i=1,self._numRooms do
-		self._rooms[i] = Rect(0, 0, random(min, maxW), random(min, maxH))
+		self._rooms[i] = Rect(0, 0,
+			random(MINROOMSIZE, self._cellW), random(MINROOMSIZE, self._cellH))
 	end
 
 	-- build a new grid
@@ -154,8 +151,10 @@ function SimpleGridMapBuilder:createMap()
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
-					local node = self._map:setNodeMapType(MapNode(), MapType.wall)
-					self._map:setLocation(x, y, node)
+					if self._map:getLocation(x, y):getMapType() == MapType.empty then
+						local node = self._map:setNodeMapType(MapNode(), MapType.wall)
+						self._map:setLocation(x, y, node)
+					end
 				else
 					local node = self._map:setNodeMapType(MapNode(), MapType.floor)
 					self._map:setLocation(x, y, node)
@@ -168,6 +167,9 @@ function SimpleGridMapBuilder:createMap()
 			self:_connectRooms(self._rooms[i-1], self._rooms[i])
 		end
 	end
+
+	-- connect the last room to the first room
+	self:_connectRooms(self._rooms[1], self._rooms[self._numRooms])
 end
 
 -- connect the rooms together
@@ -187,10 +189,10 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 		local wallFlag = false
 		repeat
 			x = x + xDir
+			local node = self._map:getLocation(x, y1)
 
 			-- check if we've hit a wall
-			local node = self._map:getLocation(x, y1)
-			if room2:containsPoint(x, y1)
+			if not room1:containsPoint(x, y1)
 				and node:getMapType() == MapType.wall
 			then
 				wallFlag = true
@@ -238,10 +240,10 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 		local wallFlag = false
 		repeat
 			y = y + yDir
+			local node = self._map:getLocation(x, y)
 
 			-- check if we've hit a wall
-			local node = self._map:getLocation(x, y)
-			if room2:containsPoint(x, y)
+			if not room1:containsPoint(x, y)
 				and node:getMapType() == MapType.wall
 			then
 				wallFlag = true
