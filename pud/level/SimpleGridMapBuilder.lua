@@ -165,6 +165,9 @@ function SimpleGridMapBuilder:createMap()
 			self:_connectRooms(self._rooms[i-1], self._rooms[i])
 		end
 	end
+
+	-- connect the last room to the first room
+	self:_connectRooms(self._rooms[1], self._rooms[self._numRooms])
 end
 
 -- connect the rooms together
@@ -184,10 +187,10 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 		local wallFlag = false
 		repeat
 			x = x + xDir
+			local node = self._map:getLocation(x, y1)
 
 			-- check if we've hit a wall
-			local node = self._map:getLocation(x, y1)
-			if room2:containsPoint(x, y1)
+			if not room1:containsPoint(x, y1)
 				and node:getMapType() == MapType.wall
 			then
 				wallFlag = true
@@ -235,10 +238,10 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 		local wallFlag = false
 		repeat
 			y = y + yDir
+			local node = self._map:getLocation(x, y)
 
 			-- check if we've hit a wall
-			local node = self._map:getLocation(x, y)
-			if room2:containsPoint(x, y)
+			if not room1:containsPoint(x, y)
 				and node:getMapType() == MapType.wall
 			then
 				wallFlag = true
