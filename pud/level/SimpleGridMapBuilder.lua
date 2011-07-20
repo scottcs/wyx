@@ -62,8 +62,14 @@ function SimpleGridMapBuilder:createMap()
 	local min, max = self._minRoomSize, self._maxRoomSize
 
 	-- clear any existing rooms and grid
-	for i=1,#self._rooms do self._rooms[i] = nil end
-	for i=1,#self._grid do self._grid[i] = nil end
+	for i=1,#self._rooms do
+		self._rooms[i]:destroy()
+		self._rooms[i] = nil
+	end
+	for i=1,#self._grid do
+		self._grid[i]:destroy()
+		self._grid[i] = nil
+	end
 
 	-- generate the rooms
 	for i=1,self._numRooms do
