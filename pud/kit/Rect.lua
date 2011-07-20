@@ -46,25 +46,36 @@ function Rect:setPosition(x, y)
 	self:setY(y)
 end
 
+-- valid center calculation flags
+local _calc = {
+	round = function(x) return math.floor(x+0.5) end,
+	floor = function(x) return math.floor(x) end,
+	ceil = function(x) return math.ceil(x) end,
+	default = function(x) return x end,
+}
+
+local _getCalc = function(flag)
+	flag = flag or 'default'
+	assert(nil ~= _calc[flag], 'unknown flag for center calculation (%s)', flag)
+	return _calc[flag]
+end
+
 -- get and set center coords, rounding to nearest number if requested
-function Rect:getCenter(doRound)
+function Rect:getCenter(flag)
 	local x, y = self:getPosition()
 	local w, h = self:getSize()
+	local calc = _getCalc(flag)
 
-	w = doRound and round(w/2) or w/2
-	h = doRound and round(h/2) or h/2
-
-	return x + w, y + h
+	return x + calc(w/2), y + calc(h/2)
 end
-function Rect:setCenter(x, y, doRound)
+function Rect:setCenter(x, y, flag)
 	verify('number', x, y)
 
+	local calc = _getCalc(flag)
 	local w, h = self:getSize()
-	w = doRound and round(w/2) or w/2
-	h = doRound and round(h/2) or h/2
 
-	self:setX(x - w)
-	self:setY(y - h)
+	self:setX(x - calc(w/2))
+	self:setY(y - calc(h/2))
 end
 
 -- get (no set) bounding box coordinates
