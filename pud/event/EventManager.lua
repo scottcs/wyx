@@ -4,7 +4,7 @@ local Class = require 'lib.hump.class'
 -- Provides a class that registers objects with itself, then notifies
 -- those object when events occur.
 
-local _E = require 'pud.event.Events'
+local Event = require 'pud.event.Event'
 local mt = {__mode = 'k'}
 
 -- EventManager class
@@ -14,9 +14,19 @@ local EventManager = Class{name='EventManager',
 	end
 }
 
--- validate that the given event is a defined event (in pud.event.Events)
+-- validate that the given event is a defined event (in pud.event.Event)
 local _validateEvent = function(e)
-	return assert(_E[e], 'unknown event: %s', e)
+	assert(e, 'event is nil')
+	local condition = false
+
+	if type(e) == 'table' then
+		condition = e.is_a and e:is_a(Event.Event)
+	else
+		condition = type(e) == 'string' and Event[e]
+	end
+
+	assert(condition, 'unknown event: %s', tostring(e))
+	return e
 end
 
 -- validate that the given object is an object or a function
@@ -40,16 +50,21 @@ end
 function EventManager:register(obj, ...)
 	_validateObj(obj)
 
-	local hasOnEvent = type(obj) == 'function' or (obj.onEvent
-		and type(obj.onEvent) == 'function')
+	assert(type(obj) == 'function'
+		or (obj.onEvent and type(obj.onEvent) == 'function'),
+		'no event handler exists on the specified object: %s', tostring(obj))
 
 	for i=1,select('#',...) do
 		local e = _validateEvent(select(i, ...))
-		assert(hasOnEvent or obj[e] and type(obj[e]) == 'function',
-			'no event handler exists on the specified object for event: %s', e)
+		local name
+		if type(e) == 'table' then
+			name = e:getKey()
+		else
+			name = e
+		end
 
-		self._events[e] = self._events[e] or {}
-		self._events[e][obj] = true
+		self._events[name] = self._events[name] or {}
+		self._events[name][obj] = true
 	end
 end
 
@@ -59,18 +74,24 @@ function EventManager:unregister(obj, ...)
 
 	for i=1,select('#',...) do
 		local e = _validateEvent(select(i, ...))
+		local name
+		if type(e) == 'table' then
+			name = e:getKey()
+		else
+			name = e
+		end
 
-		if self._events[e] and self._events[e][obj] then
-			self._events[e][obj] = nil
+		if self._events[name] and self._events[name][obj] then
+			self._events[name][obj] = nil
 		end
 	end
 end
 
 -- register an object for all events
 function EventManager:registerAll(obj)
-	local all = {}
-	for e in pairs(_E) do all[#all + 1] = e end
-	self:register(obj, unpack(all))
+	local t = {}
+	for _,e in pairs(Event) do t[#t+1] = e:getKey() end
+	self:register(obj, unpack(t))
 end
 
 -- unregister an object from all events
@@ -79,16 +100,15 @@ function EventManager:unregisterAll(obj)
 	if e then self:unregister(obj, unpack(e)) end
 end
 
--- trigger a specific event, notifying all listeners of the event.
+-- notify a specific event, notifying all listeners of the event.
 -- note: it is recommended to use push() and flush() instead.
-function EventManager:trigger(event, ...)
+function EventManager:notify(event, ...)
 	local e = _validateEvent(event)
+	local name = e:getKey()
 
-	for obj in pairs(self._events[e]) do
+	for obj in pairs(self._events[name]) do
 		if type(obj) == 'function' then
 			obj(e, ...)
-		elseif obj[e] and type(obj[e]) == 'function' then
-			obj[e](obj, ...)
 		elseif obj.onEvent and type(obj.onEvent) == 'function' then
 			obj:onEvent(e, ...)
 		end
@@ -106,12 +126,23 @@ end
 -- flush all events in the event queue and notify their listeners
 function EventManager:flush()
 	if self._queue then
+		-- copy the queue to a local table in case notifying an event pushes
+		-- more events on the queue
+		local queue = {}
 		for i,q in ipairs(self._queue) do
-			self:trigger(q.event, unpack(q.args))
+			queue[i] = q
+			self._queue[i] = nil
+		end
+		self._queue = nil
+
+		-- iterate through the copy of the queue and notify events
+		for i,q in ipairs(queue) do
+			self:notify(q.event, unpack(q.args))
+			q.event:destroy()
+			q.event = nil
+			q.args = nil
 		end
 	end
-
-	self._queue = nil
 end
 
 -- return a list of events for which obj is registered
@@ -120,8 +151,10 @@ function EventManager:getRegisteredEvents(obj)
 
 	local events = {}
 
-	for e,objs in pairs(self._events) do
-		if objs[obj] then events[#events+1] = e end
+	for name,objs in pairs(self._events) do
+		if objs[obj] then
+			events[#events+1] = name
+		end
 	end
 
 	return #events > 0 and events or nil

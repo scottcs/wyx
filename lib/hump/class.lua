@@ -90,6 +90,7 @@ local function new(args)
 		__call = function(self, ...)
 			local obj = setmetatable({}, self)
 			self.construct(obj, ...)
+			obj.__class = self
 			return obj
 		end,
 		__tostring = function() return name end
