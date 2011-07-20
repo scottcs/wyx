@@ -43,8 +43,8 @@ end
 -- set the given map location to the given map node
 function Map:setLocation(x, y, node)
 	verify('number', x, y)
-	assert(x >= 1 and x <= self:getWidth(), 'getLocation x is out of range')
-	assert(y >= 1 and y <= self:getHeight(), 'getLocation y is out of range')
+	assert(x >= 1 and x <= self:getWidth(), 'setLocation x is out of range')
+	assert(y >= 1 and y <= self:getHeight(), 'setLocation y is out of range')
 	assert(node and node.is_a and node:is_a(MapNode),
 		'attempt to call setLocation without a MapNode (was %s)',
 		node and node.is_a and tostring(node) or type(node))
