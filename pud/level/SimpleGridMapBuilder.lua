@@ -57,12 +57,14 @@ function SimpleGridMapBuilder:destroy()
 end
 
 -- initialize the builder
-function SimpleGridMapBuilder:init(w, h, cellW, cellH)
+function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 	local t = type(w) == 'table' and w or {
 		w = w,
 		h = h,
 		cellW = cellW,
 		cellH = cellH,
+		minRooms = minRooms,
+		maxRooms = maxRooms,
 	}
 
 	t.w, t.h = t.w or MAPW, t.h or MAPH

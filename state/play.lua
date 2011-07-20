@@ -77,7 +77,7 @@ function st:enter()
 	---[[--
 	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
 	local builder = SimpleGridMapBuilder()
-	local map = LevelDirector:generateStandard(builder)
+	local map = LevelDirector:generateStandard(builder, 100,100, 10,10, 20,35)
 	--]]--
 	--[[--
 	local FileMapBuilder = require 'pud.level.FileMapBuilder'
