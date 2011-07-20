@@ -31,11 +31,18 @@ local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 -- private function to clear all rooms and the grid
 local _clear = function(self)
 	for i=1,#self._rooms do
-		self._rooms[i]:destroy()
+		if self._rooms[i].destroy then
+			self._rooms[i]:destroy()
+		end
 		self._rooms[i] = nil
 	end
 	for i=1,#self._grid do
-		self._grid[i]:destroy()
+		for j=1,#(self._grid[i]) do
+			if self._grid[i][j].destroy then
+				self._grid[i][j]:destroy()
+			end
+			self._grid[i][j] = nil
+		end
 		self._grid[i] = nil
 	end
 end
