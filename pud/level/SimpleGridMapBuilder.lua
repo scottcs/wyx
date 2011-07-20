@@ -14,7 +14,7 @@ local math_floor = math.floor
 local CELLW, CELLH = 10, 10
 local MAPW, MAPH = 100, 100
 local MINROOMS, MAXROOMS = 25, 45
-local MINROOMSIZE, MAXROOMSIZE = 2, 6
+local MINROOMSIZE = 4
 
 --------------------------
 -- SimpleGridMapBuilder --
@@ -70,31 +70,41 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH)
 
 	t.minRooms = t.minRooms or MINROOMS
 	t.maxRooms = t.maxRooms or MAXROOMS
-	t.minRoomSize = t.minRoomSize or MINROOMSIZE
-	t.maxRoomSize = t.maxRoomSize or MAXROOMSIZE
 
 	t.cellW = t.cellW or CELLW
 	t.cellH = t.cellH or CELLH
-	verify('number', t.minRooms, t.maxRooms, t.minRoomSize, t.maxRoomSize,
-		t.cellW, t.cellH)
+	verify('number', t.minRooms, t.maxRooms, t.cellW, t.cellH)
+
+	-- make sure minRooms is <= maxRooms
+	t.minRooms, t.maxRooms
+		= math.min(t.minRooms, t.maxRooms), math.max(t.minRooms, t.maxRooms)
+
+	-- check that the number of rooms will fit within the grid
+	local gridW, gridH = math_floor(t.w/t.cellW), math_floor(t.h/t.cellH)
+	local gridSize = (gridW-2) * (gridH-2)
+	if t.maxRooms >= gridSize then
+		io.stderr:write(string.format('maxRooms (%d) is too big, setting to %d\n',
+			t.maxRooms, gridSize))
+		t.maxRooms = gridSize
+		t.minRooms = math.min(t.minRooms, gridSize)
+	end
 
 	self._numRooms = random(t.minRooms, t.maxRooms)
-	self._minRoomSize = t.minRoomSize
-	self._maxRoomSize = t.maxRoomSize
 	self._cellW = t.cellW
 	self._cellH = t.cellH
 end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
-	local min, max = self._minRoomSize, self._maxRoomSize
+	local min = MINROOMSIZE
+	local maxW, maxH = self._cellW-2, self._cellH-2
 
 	-- clear any existing rooms and grid
 	_clear(self)
 
 	-- generate the rooms
 	for i=1,self._numRooms do
-		self._rooms[i] = Rect(0, 0, random(min, max), random(min, max))
+		self._rooms[i] = Rect(0, 0, random(min, maxW), random(min, maxH))
 	end
 
 	-- build a new grid
@@ -114,6 +124,8 @@ function SimpleGridMapBuilder:createMap()
 	-- add rooms to the grid
 	for i = 1,self._numRooms do
 		-- find an empty spot in the grid
+		-- this assumes that numRooms is fairly small compared to grid size
+		-- (and will become much slower as numRooms is increased)
 		local x, y
 		repeat
 			x = random(2, w-1)
@@ -132,6 +144,11 @@ function SimpleGridMapBuilder:createMap()
 	for i=1,self._numRooms do
 		local room = self._rooms[i]
 		local x1, y1, x2, y2 = room:getBBox()
+		
+		-- reduce the max coords by one for easy iteration
+		x2, y2 = x2 - 1, y2 - 1
+
+		-- iterate over the bounding box of the room and add nodes
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
