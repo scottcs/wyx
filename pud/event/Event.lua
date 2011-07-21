@@ -1,5 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
+local Map = require 'pud.level.Map'
 
 local format = string.format
 
@@ -71,6 +72,8 @@ Event.GameOver = Class{name='Event.GameOver',
 	end
 }
 
+function Event.GameOver:getReason() return self._reason end
+
 -- Game Exit - fires when the game has nothing more to do
 Event.GameExit = Class{name='Event.GameExit',
 	inherits=Event.Event,
@@ -85,18 +88,30 @@ Event.GameExit = Class{name='Event.GameExit',
 -- Map Update Request - fires when the map needs to be updated
 Event.MapUpdateRequest = Class{name='Event.MapUpdateRequest',
 	inherits=Event.Event,
-	function(self)
+	function(self, map)
+		assert(map and map.is_a and map:is_a(Map),
+			self:_msg('map must be a Map (not %s (%s))', type(map), tostring(map)))
 		Event.Event.construct(self, 'Map Update Request')
+
+		self._map = map
 	end
 }
+
+function Event.MapUpdateRequest:getMap() return self._map end
 
 -- Map Update Finished - fires after the map is done being updated
 Event.MapUpdateFinished = Class{name='Event.MapUpdateFinished',
 	inherits=Event.Event,
-	function(self)
+	function(self, map)
+		assert(map and map.is_a and map:is_a(Map),
+			self:_msg('map must be a Map (not %s (%s))', type(map), tostring(map)))
 		Event.Event.construct(self, 'Map Update Finished')
+
+		self._map = map
 	end
 }
+
+function Event.MapUpdateFinished:getMap() return self._map end
 
 --------------------------
 -- INTERACTIVE EVENTS ----
