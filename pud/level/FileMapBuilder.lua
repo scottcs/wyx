@@ -79,8 +79,8 @@ function FileMapBuilder:createMap()
 
 		for col in string.gmatch(row, '%C') do
 			x = x + 1
-			local mapType = MapType[revGlyphs[col]]
-			if MapType.empty ~= mapType then
+			local mapType = MapType(revGlyphs[col])
+			if not mapType:isType('empty') then
 				local node = self._map:setNodeMapType(MapNode(), mapType)
 				self._map:setLocation(x, y, node)
 			end
