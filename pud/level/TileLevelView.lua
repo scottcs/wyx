@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local LevelView = require 'pud.level.LevelView'
-local MapType = require 'pud.level.MapType'
 
 -- TileLevelView
 -- draws tiles for each node in the level map to a framebuffer, which is then
@@ -31,14 +30,51 @@ function TileLevelView:destroy()
 end
 
 -- make a quad from the given tile position
-function TileLevelView:_makeQuad(x, y)
-	return love.graphics.newQuad(
+function TileLevelView:_makeQuad(mapType, variation, x, y)
+	variation = tostring(variation)
+	self._quads[mapType] = self._quads[mapType] or {}
+	self._quads[mapType][variation] = love.graphics.newQuad(
 		self._tileW*(x-1),
 		self._tileH*(y-1),
 		self._tileW,
 		self._tileH,
 		self._set:getWidth(),
 		self._set:getHeight())
+end
+
+function TileLevelView:_getQuad(node)
+	if self._quads then
+		local mapType = node:getMapType()
+		if not mapType:isType('empty') then
+			local mtype, variation = mapType:get()
+			if not variation then
+				if mapType:isType('wall') then
+					mtype = 'wall'
+					variation = 'V1'
+				elseif mapType:isType('floor') then
+					mtype = 'floor'
+					variation = '1'
+				elseif mapType:isType('torch') then
+					mtype = 'torch'
+					variation = 'A'
+				elseif mapType:isType('trap') then
+					mtype = 'trap'
+					variation = 'A'
+				elseif mapType:isType('stairUp')
+					or mapType:isType('stairDown')
+					or mapType:isType('doorOpen')
+					or mapType:isType('doorClosed')
+				then
+					variation = 1
+				end
+			end
+
+			if self._quads[mtype] then
+				return self._quads[mtype][variation]
+			end
+		end
+	end
+	return nil
 end
 
 -- clear the quads table
@@ -50,33 +86,30 @@ function TileLevelView:_clearQuads()
 end
 
 -- set up the quads
--- TODO: this isn't going to work, because MapType resolves to its char
 function TileLevelView:_setupQuads()
 	self:_clearQuads()
 	self._quads = {}
 	for i=1,4 do
-		self._quads[MapType['wallH'..i]] = self:_makeQuad(1, i)
-		self._quads[MapType['wallHWorn'..i]] = self:_makeQuad(2, i)
-		self._quads[MapType['wallV'..i]] = self:_makeQuad(3, i)
-		self._quads[MapType['torchA'..i]] = self:_makeQuad(4, i)
-		self._quads[MapType['torchB'..i]] = self:_makeQuad(5, i)
-		self._quads[MapType['floor'..i]] = self:_makeQuad(6, i)
-		self._quads[MapType['floorWorn'..i]] = self:_makeQuad(7, i)
-		self._quads[MapType['floorX'..i]] = self:_makeQuad(8, i)
-		self._quads[MapType['floorRug'..i]] = self:_makeQuad(9, i)
-		self._quads[MapType['stairU'..i]] = self:_makeQuad(10, i)
-		self._quads[MapType['stairD'..i]] = self:_makeQuad(11, i)
+		self:_makeQuad('wall',     'H'..i,  1, i)
+		self:_makeQuad('wall', 'HWorn'..i,  2, i)
+		self:_makeQuad('wall',     'V'..i,  3, i)
+		self:_makeQuad('torch',    'A'..i,  4, i)
+		self:_makeQuad('torch',    'B'..i,  5, i)
+		self:_makeQuad('floor',         i,  6, i)
+		self:_makeQuad('floor', 'Worn'..i,  7, i)
+		self:_makeQuad('floor',    'X'..i,  8, i)
+		self:_makeQuad('floor',  'Rug'..i,  9, i)
+		self:_makeQuad('stairUp',       i, 10, i)
+		self:_makeQuad('stairDown',     i, 11, i)
 	end
 	for i=1,5 do
-		self._quads[MapType['doorC'..i]] = self:_makeQuad(12, i+(i-1))
-		self._quads[MapType['doorO'..i]] = self:_makeQuad(12, i*2)
+		self:_makeQuad('doorClosed',    i, 12, i+(i-1))
+		self:_makeQuad('doorOpen',      i, 12, i*2)
 	end
 	for i=1,6 do
-		self._quads[MapType['trapA'..i]] = self:_makeQuad(13, i+(i-1))
-		self._quads[MapType['trapB'..i]] = self:_makeQuad(13, i*2)
+		self:_makeQuad('trap',     'A'..i, 13, i+(i-1))
+		self:_makeQuad('trap',     'B'..i, 13, i*2)
 	end
-
-	-- for compatibility
 end
 
 
@@ -106,7 +139,7 @@ function TileLevelView:drawToFB(map)
 			local drawY = (y-1)*self._tileH
 			for x=1,map:getWidth() do
 				local node = map:getLocation(x, y)
-				local quad = self._quads[node:getMapType()]
+				local quad = self:_getQuad(node)
 				if quad then
 					local drawX = (x-1)*self._tileW
 					love.graphics.drawq(self._set, quad, drawX, drawY)

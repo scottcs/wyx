@@ -88,6 +88,7 @@ function st:enter()
 	--]]--
 
 	builder:destroy()
+	print(self._map)
 end
 
 
