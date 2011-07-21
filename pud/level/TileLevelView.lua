@@ -57,16 +57,16 @@ function TileLevelView:_getQuad(node)
 					variation = '1'
 				elseif mapType:isType('torch') then
 					mtype = 'torch'
-					variation = 'A'
+					variation = 'A1'
 				elseif mapType:isType('trap') then
 					mtype = 'trap'
-					variation = 'A'
+					variation = 'A1'
 				elseif mapType:isType('stairUp')
 					or mapType:isType('stairDown')
 					or mapType:isType('doorOpen')
 					or mapType:isType('doorClosed')
 				then
-					variation = 1
+					variation = '1'
 				end
 			end
 
@@ -104,12 +104,12 @@ function TileLevelView:_setupQuads()
 		self:_makeQuad('stairDown',     i, 11, i)
 	end
 	for i=1,5 do
-		self:_makeQuad('doorClosed',    i, 12, i+(i-1))
-		self:_makeQuad('doorOpen',      i, 12, i*2)
+		self:_makeQuad('doorClosed',    i, i+(i-1), 5)
+		self:_makeQuad('doorOpen',      i, i*2, 5)
 	end
 	for i=1,6 do
-		self:_makeQuad('trap',     'A'..i, 13, i+(i-1))
-		self:_makeQuad('trap',     'B'..i, 13, i*2)
+		self:_makeQuad('trap',     'A'..i, i+(i-1), 6)
+		self:_makeQuad('trap',     'B'..i, i*2, 6)
 	end
 end
 
@@ -144,6 +144,8 @@ function TileLevelView:drawToFB(map)
 				if quad then
 					local drawX = (x-1)*self._tileW
 					love.graphics.drawq(self._set, quad, drawX, drawY)
+				elseif not node:getMapType():isType('empty') then
+					warning('no quad found for %s', tostring(node:getMapType()))
 				end
 			end
 		end
