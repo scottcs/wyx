@@ -5,12 +5,12 @@ local MapType = require 'pud.level.MapType'
 -- MapNode
 -- represents a single map position
 local MapNode = Class{name='MapNode',
-	function(self, mapType)
+	function(self, ...)
 		self._isAccessible = false
 		self._isLit = false
 		self._isTransparent = false
 		self._wasSeen = false
-		self:setMapType(mapType or MapType.empty)
+		self:setMapType(...)
 	end
 }
 
@@ -20,6 +20,8 @@ function MapNode:destroy()
 	self._isLit = nil
 	self._isTransparent = nil
 	self._wasSeen = nil
+
+	self._mapType:destroy()
 	self._mapType = nil
 end
 
@@ -48,8 +50,8 @@ function MapNode:setSeen(b)
 end
 function MapNode:wasSeen() return self._wasSeen end
 
-function MapNode:setMapType(mapType)
-	self._mapType = MapType[mapType]
+function MapNode:setMapType(...)
+	self._mapType = MapType(...)
 end
 function MapNode:getMapType() return self._mapType end
 
