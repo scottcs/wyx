@@ -1,103 +1,75 @@
--- table of valid map types
-local mt = {
-	__index = function(t, k)
-		k = k or 'nil'
-		error('invalid map type ['..k..']')
-	end,
-	__newindex = function(t, k, v)
-		error('attempt to add maptype '..k..' at runtime')
-	end,
+local Class = require 'lib.hump.class'
+
+-- table of all map types
+local _allMapTypes = {
+	empty = true,
+	wall = true,
+	torch = true,
+	floor = true,
+	doorClosed = true,
+	doorOpen = true,
+	stairUp = true,
+	stairDown = true,
+	trap = true,
+	point = true,
 }
 
-local MapType = {
-	empty = ' ',
-	wall = '#',
-	wallH1 = '#',
-	wallH2 = '#',
-	wallH3 = '#',
-	wallH4 = '#',
-	wallHWorn1 = '#',
-	wallHWorn2 = '#',
-	wallHWorn3 = '#',
-	wallHWorn4 = '#',
-	wallV1 = '#',
-	wallV2 = '#',
-	wallV3 = '#',
-	wallV4 = '#',
-	torchA1 = '#',
-	torchA2 = '#',
-	torchA3 = '#',
-	torchA4 = '#',
-	torchB1 = '#',
-	torchB2 = '#',
-	torchB3 = '#',
-	torchB4 = '#',
-	floor = '.',
-	floor1 = '.',
-	floor2 = '.',
-	floor3 = '.',
-	floor4 = '.',
-	floorWorn1 = '.',
-	floorWorn2 = '.',
-	floorWorn3 = '.',
-	floorWorn4 = '.',
-	floorX1 = '.',
-	floorX2 = '.',
-	floorX3 = '.',
-	floorX4 = '.',
-	floorRug1 = '.',
-	floorRug2 = '.',
-	floorRug3 = '.',
-	floorRug4 = '.',
-	doorC = '+',
-	doorC1 = '+',
-	doorC2 = '+',
-	doorC3 = '+',
-	doorC4 = '+',
-	doorC5 = '+',
-	doorO = '-',
-	doorO1 = '-',
-	doorO2 = '-',
-	doorO3 = '-',
-	doorO4 = '-',
-	doorO5 = '-',
-	stairU = '<',
-	stairU1 = '<',
-	stairU2 = '<',
-	stairU3 = '<',
-	stairU4 = '<',
-	stairD = '>',
-	stairD1 = '>',
-	stairD2 = '>',
-	stairD3 = '>',
-	stairD4 = '>',
-	trap = '^',
-	trapA1 = '^',
-	trapA2 = '^',
-	trapA3 = '^',
-	trapA4 = '^',
-	trapA5 = '^',
-	trapA6 = '^',
-	trapB1 = '^',
-	trapB2 = '^',
-	trapB3 = '^',
-	trapB4 = '^',
-	trapB5 = '^',
-	trapB6 = '^',
-	pointA = 'A',
-	pointB = 'B',
-	pointC = 'C',
-	pointD = 'D',
-	pointW = 'W',
-	pointX = 'X',
-	pointY = 'Y',
-	pointZ = 'Z',
+-- private class function to validate a given map type
+local _validateMapType = function(mapType)
+	assert(mapType
+		and ((type(mapType) == 'string' and nil ~= _allMapTypes[mapType])
+		or (type(mapType) == 'table' and mapType.is_a and mapType.is_a(MapType))),
+		'invalid map type: %s', tostring(mapType))
+end
+
+-- MapType
+--   mapType - the actual type of this node
+--   variation - can be anything the user needs
+local MapType = Class{name='MapType',
+	function(self, mapType, variation)
+		self:set(mapType, variation)
+	end
 }
 
--- add glyph as index to itself
--- for ease of use in conditions
-local t = {}
-for k,v in pairs(MapType) do t[v] = v end
-for k,v in pairs(t) do MapType[k] = v end
+-- destructor
+function MapType:destroy()
+	self._mapType = nil
+	self._variation = nil
+end
 
-return setmetatable(MapType, mt)
+-- set the type and variation of this MapType.
+-- mapType can be a string or a MapType object (if an object, the passed in
+-- variation is ignored).
+function MapType:set(mapType, variation)
+	_validateMapType(mapType)
+
+	if type(mapType) == 'string' then
+		self._type = mapType
+		self._variation = variation
+	else
+		self._type, self._variation = mapType:get()
+	end
+end
+
+-- get the type and variation
+function MapType:get() return self._type, self._variation end
+
+-- return true if this type is a mapType or if this variation is the specified
+-- variation (if any).
+-- mapType can be a string or a MapType object (if an object, the passed in
+-- variation is ignored).
+function MapType:isType(mapType, variation)
+	_validateMapType(mapType)
+
+	if type(mapType) == 'table' then
+		mapType, variation = mapType:get()
+	end
+
+	local isType = self._type == mapType
+	if variation then isType = isType and self._variation == variation end
+
+	return isType
+end
+
+-- the class
+return MapType
