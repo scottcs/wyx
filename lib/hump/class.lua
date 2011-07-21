@@ -38,6 +38,10 @@ local function inherit(class, interface, ...)
 	end
 	for super in pairs(interface.__is_a) do
 		class.__is_a[super] = true
+		-- call superclass hook
+		if super.inherited and type(super.inherited) == 'function' then
+			super:inherited(class)
+		end
 	end
 
 	inherit(class, ...)

@@ -5,7 +5,6 @@ local Class = require 'lib.hump.class'
 -- those object when events occur.
 
 local Event = require 'pud.event.Event'
-local mt = {__mode = 'k'}
 
 -- EventManager class
 local EventManager = Class{name='EventManager',
@@ -17,21 +16,12 @@ local EventManager = Class{name='EventManager',
 -- validate that the given event is a defined event (in pud.event.Event)
 local _validateEvent = function(e)
 	assert(e, 'event is nil')
-	local condition = false
-
-	if type(e) == 'table' then
-		condition = e.is_a and e:is_a(Event.Event)
-	else
-		condition = type(e) == 'string' and Event[e]
-	end
-
-	assert(condition, 'unknown event: %s', tostring(e))
-	return e
+	assert(e.is_a and e:is_a(Event), 'invalid event: %s', tostring(e))
 end
 
 -- validate that the given object is an object or a function
 local _validateObj = function(obj)
-	return assert(obj and (type(obj) == 'table' or type(obj) == 'function'),
+	assert(obj and (type(obj) == 'table' or type(obj) == 'function'),
 		'expected an object or function (was %s)', type(obj))
 end
 
@@ -47,92 +37,100 @@ function EventManager:destroy()
 end
 
 -- register an object to listen for the given events
-function EventManager:register(obj, ...)
+-- obj can be:
+--   a function
+--   an object with a method that has the same name as the event
+--   an object with an onEvent method
+function EventManager:register(obj, events)
 	_validateObj(obj)
 
-	assert(type(obj) == 'function'
-		or (obj.onEvent and type(obj.onEvent) == 'function'),
-		'no event handler exists on the specified object: %s', tostring(obj))
+	local hasOnEvent = type(obj) == 'function'
+		or obj.onEvent and type(obj.onEvent) == 'function'
 
-	for i=1,select('#',...) do
-		local event = select(i, ...)
-		if type(event) ~= 'table' then
-			event = {event}
-		end
-		for _,e in ipairs(event) do
-			_validateEvent(e)
-			local name
-			if type(e) == 'table' then
-				name = e:getKey()
-			else
-				name = e
-			end
+	if events.is_a then
+		events = {events}
+	end
+	for _,event in ipairs(events) do
+		_validateEvent(event)
+		local keyStr = tostring(event:getKey())
+		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
+			'object "%s" is missing event callback method for event "%s"',
+			tostring(obj), keyStr)
 
-			self._events[name] = self._events[name] or {}
-			self._events[name][obj] = true
-		end
+		local key = event:getKey()
+		self._events[key] = self._events[key] or {}
+		self._events[key][obj] = true
 	end
 end
 
 -- unregister an object from listening for the given events
-function EventManager:unregister(obj, ...)
+function EventManager:unregister(obj, events)
 	_validateObj(obj)
 
-	for i=1,select('#',...) do
-		local event = select(i, ...)
-		if type(event) ~= 'table' then
-			event = {event}
-		end
-		for _,e in ipairs(event) do
-			_validateEvent(e)
-			local name
-			if type(e) == 'table' then
-				name = e:getKey()
-			else
-				name = e
-			end
+	if type(events) ~= 'table' then
+		events = {events}
+	end
+	for _,event in ipairs(events) do
+		_validateEvent(event)
+		local key = event:getKey()
 
-			if self._events[name] and self._events[name][obj] then
-				self._events[name][obj] = nil
-			end
+		if self._events[key] and self._events[key][obj] then
+			self._events[key][obj] = nil
 		end
 	end
 end
 
 -- register an object for all events
 function EventManager:registerAll(obj)
-	local t = {}
-	for _,e in pairs(Event) do t[#t+1] = e:getKey() end
-	self:register(obj, t)
+	self:register(obj, Event:getAllEvents())
 end
 
 -- unregister an object from all events
 function EventManager:unregisterAll(obj)
-	local e = self:getRegisteredEvents(obj)
-	if e then self:unregister(obj, e) end
+	local events = self:getRegisteredEvents(obj)
+	if events then self:unregister(obj, events) end
+end
+
+-- return a list of events for which obj is registered
+function EventManager:getRegisteredEvents(obj)
+	_validateObj(obj)
+	local events = {}
+
+	for event,objs in pairs(self._events) do
+		if objs[obj] then
+			events[#events+1] = event
+		end
+	end
+
+	return #events > 0 and events or nil
 end
 
 -- notify a specific event, notifying all listeners of the event.
--- note: it is recommended to use push() and flush() instead.
-function EventManager:notify(event, ...)
-	local e = _validateEvent(event)
-	local name = e:getKey()
+-- note: it is recommended to use push() and flush() rather than call notify()
+-- directly.
+function EventManager:notify(event)
+	_validateEvent(event)
+	local key = event:getKey()
 
-	for obj in pairs(self._events[name]) do
-		if type(obj) == 'function' then
-			obj(e, ...)
-		elseif obj.onEvent and type(obj.onEvent) == 'function' then
-			obj:onEvent(e, ...)
+	if self._events[key] then
+		for obj in pairs(self._events[key]) do
+			if type(obj) == 'function' then                     -- function()
+				obj(event)
+			else
+				local keyStr = tostring(event:getKey())
+				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
+				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
+			end
 		end
 	end
 end
 
 -- push an event into the event queue
-function EventManager:push(event, ...)
-	local e = _validateEvent(event)
+function EventManager:push(event)
+	_validateEvent(event)
 
 	self._queue = self._queue or {}
-	self._queue[#self._queue + 1] = {event=e, args={...}}
+	self._queue[#self._queue + 1] = event
 end
 
 -- flush all events in the event queue and notify their listeners
@@ -141,35 +139,18 @@ function EventManager:flush()
 		-- copy the queue to a local table in case notifying an event pushes
 		-- more events on the queue
 		local queue = {}
-		for i,q in ipairs(self._queue) do
-			queue[i] = q
+		for i,event in ipairs(self._queue) do
+			queue[i] = event
 			self._queue[i] = nil
 		end
 		self._queue = nil
 
 		-- iterate through the copy of the queue and notify events
-		for i,q in ipairs(queue) do
-			self:notify(q.event, unpack(q.args))
-			q.event:destroy()
-			q.event = nil
-			q.args = nil
+		for _,event in ipairs(queue) do
+			self:notify(event)
+			event:destroy()
 		end
 	end
-end
-
--- return a list of events for which obj is registered
-function EventManager:getRegisteredEvents(obj)
-	_validateObj(obj)
-
-	local events = {}
-
-	for name,objs in pairs(self._events) do
-		if objs[obj] then
-			events[#events+1] = name
-		end
-	end
-
-	return #events > 0 and events or nil
 end
 
 -- the module

@@ -18,6 +18,11 @@ local LevelDirector = require 'pud.level.LevelDirector'
 -- level view
 local TileLevelView = require 'pud.level.TileLevelView'
 
+-- events
+local OpenDoorEvent = require 'pud.event.OpenDoorEvent'
+local GameStartEvent = require 'pud.event.GameStartEvent'
+local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
+
 function st:init()
 	_timeManager = TimeManager()
 	self._view = TileLevelView(100, 100)
@@ -33,27 +38,32 @@ function st:enter()
 	dragon.name = 'Dragon'
 	ifrit.name = 'Ifrit'
 
-	function player:OPEN_DOOR(...)
-		--print('player')
-		for i=1,select('#',...) do
-			--print(i, select(i, ...))
+	local test = false
+
+	function player:OpenDoorEvent(e)
+		if test then
+			print('player')
+			print(tostring(e))
 		end
 	end
 
-	function dragon:onEvent(e, ...)
-		--print('dragon')
-		for i=1,select('#',...) do
-			--print(i, select(i, ...))
+	function dragon:onEvent(e)
+		if test then
+			print('dragon')
+			print(tostring(e))
 		end
 	end
 
-	function ifrit:onEvent(e, ...)
-		--print('ifrit')
+	function ifrit:onEvent(e)
+		if test then
+			print('ifrit')
+			print(tostring(e))
+		end
 	end
 
 	function player:getSpeed(ap) return 1 end
 	function player:doAction(ap)
-		GameEvent:notify(Event.GameStart(), 234, ap)
+		GameEvent:notify(GameStartEvent(), 234, ap)
 		return 2
 	end
 
@@ -64,12 +74,17 @@ function st:enter()
 
 	function ifrit:getSpeed(ap) return 1.27 end
 	function ifrit:doAction(ap)
-		GameEvent:push(Event.OpenDoor(self.name))
+		GameEvent:push(OpenDoorEvent(self.name))
 		return 2
 	end
 
-	GameEvent:register(player.OPEN_DOOR, 'OpenDoor')
-	GameEvent:register(dragon, 'GameStart')
+	local function ifritOpenDoorCB(e)
+		ifrit:onEvent(e)
+	end
+
+	GameEvent:register(player, OpenDoorEvent)
+	GameEvent:register(ifritOpenDoorCB, OpenDoorEvent)
+	GameEvent:register(dragon, GameStartEvent)
 
 	_timeManager:register(player, 3)
 	_timeManager:register(dragon, 3)
@@ -103,7 +118,7 @@ function st:update(dt)
 		_accum = _accum - TICK
 		_timeManager:tick()
 		if _count % 100 == 0 and self._map then
-			GameEvent:push(Event.MapUpdateFinished(self._map))
+			GameEvent:push(MapUpdateFinishedEvent(self._map))
 		end
 	end
 end

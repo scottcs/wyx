@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local LevelView = require 'pud.level.LevelView'
+local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 
 -- TileLevelView
 -- draws tiles for each node in the level map to a framebuffer, which is then
@@ -116,16 +117,16 @@ end
 -- register for events that will cause this view to redraw
 function TileLevelView:registerEvents()
 	local events = {
-		'MapUpdateFinished',
+		MapUpdateFinishedEvent,
 	}
 	GameEvent:register(self, events)
 end
 
 -- handle registered events as they are fired
 function TileLevelView:onEvent(e, ...)
-	switch(e:getKey()) {
-		MapUpdateFinished = function() self:drawToFB(e:getMap()) end,
-	}
+	if e:is_a(MapUpdateFinishedEvent) then
+		self:drawToFB(e:getMap())
+	end
 end
 
 -- draw to the framebuffer
