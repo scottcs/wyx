@@ -45,7 +45,7 @@ function EventManager:register(obj, events)
 			'object "%s" is missing an onEvent method', tostring(obj))
 	end
 
-	if type(events) ~= 'table' then
+	if events.is_a then
 		events = {events}
 	end
 	for _,event in ipairs(events) do
