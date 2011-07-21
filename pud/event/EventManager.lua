@@ -55,16 +55,22 @@ function EventManager:register(obj, ...)
 		'no event handler exists on the specified object: %s', tostring(obj))
 
 	for i=1,select('#',...) do
-		local e = _validateEvent(select(i, ...))
-		local name
-		if type(e) == 'table' then
-			name = e:getKey()
-		else
-			name = e
+		local event = select(i, ...)
+		if type(event) ~= 'table' then
+			event = {event}
 		end
+		for _,e in ipairs(event) do
+			_validateEvent(e)
+			local name
+			if type(e) == 'table' then
+				name = e:getKey()
+			else
+				name = e
+			end
 
-		self._events[name] = self._events[name] or {}
-		self._events[name][obj] = true
+			self._events[name] = self._events[name] or {}
+			self._events[name][obj] = true
+		end
 	end
 end
 
@@ -73,16 +79,22 @@ function EventManager:unregister(obj, ...)
 	_validateObj(obj)
 
 	for i=1,select('#',...) do
-		local e = _validateEvent(select(i, ...))
-		local name
-		if type(e) == 'table' then
-			name = e:getKey()
-		else
-			name = e
+		local event = select(i, ...)
+		if type(event) ~= 'table' then
+			event = {event}
 		end
+		for _,e in ipairs(event) do
+			_validateEvent(e)
+			local name
+			if type(e) == 'table' then
+				name = e:getKey()
+			else
+				name = e
+			end
 
-		if self._events[name] and self._events[name][obj] then
-			self._events[name][obj] = nil
+			if self._events[name] and self._events[name][obj] then
+				self._events[name][obj] = nil
+			end
 		end
 	end
 end
@@ -91,13 +103,13 @@ end
 function EventManager:registerAll(obj)
 	local t = {}
 	for _,e in pairs(Event) do t[#t+1] = e:getKey() end
-	self:register(obj, unpack(t))
+	self:register(obj, t)
 end
 
 -- unregister an object from all events
 function EventManager:unregisterAll(obj)
 	local e = self:getRegisteredEvents(obj)
-	if e then self:unregister(obj, unpack(e)) end
+	if e then self:unregister(obj, e) end
 end
 
 -- notify a specific event, notifying all listeners of the event.
