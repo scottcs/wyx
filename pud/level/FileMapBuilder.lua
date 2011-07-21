@@ -34,28 +34,45 @@ end
 
 -- read the file and create the map
 function FileMapBuilder:createMap()
-	local map = assert(loadfile(self._filename))()
-	verify('string', map.map, map.name, map.author)
-	verify('table', map.glyphs)
+	local map = self:_loadMap()
+	self:_newMap(map)
+	self:_buildMap(map)
+end
 
-	-- notify when map includes unknown keys
+-- notify when map includes unknown keys
+function FileMapBuilder:_checkMapKeys(map)
 	local known = {
 		map = 'map',
 		glyphs = 'glyphs',
 		name = 'name',
 		author = 'author',
 	}
+
 	for k,v in pairs(map) do
 		if not known[k] then
 			warning('Unknown map key "%s" in file: %s', k, self._filename)
 		end
 	end
+end
 
-	-- build a reverse glyph table to easily lookup MapType
+
+function FileMapBuilder:_loadMap()
+	local map = assert(loadfile(self._filename))()
+	verify('string', map.map, map.name, map.author)
+	verify('table', map.glyphs)
+	self:_checkMapKeys(map)
+	return map
+end
+
+-- build a reverse glyph table to easily lookup MapType
+function FileMapBuilder:_reverseGlyphs(map)
 	local revGlyphs = {}
 	for k,v in pairs(map.glyphs) do revGlyphs[v] = k end
+	return revGlyphs
+end
 
-	-- determine width and height of map
+-- determine width and height of map
+function FileMapBuilder:_getMapSize(map)
 	local width = #(string.match(map.map, '%S+'))
 	local height = 0
 	local i = 0
@@ -64,13 +81,22 @@ function FileMapBuilder:createMap()
 		if nil == i then break end
 		height = height + 1
 	end
+	return width, height
+end
 
-	-- set the map size and empty all nodes
+-- set the map size and empty all nodes
+function FileMapBuilder:_newMap(map)
+	local width, height = self:_getMapSize(map)
 	self._map:setSize(width, height)
 	self._map:clear()
+end
 
-	-- build the map
+-- build the map
+function FileMapBuilder:_buildMap(map)
 	local x, y = 0, 0
+	local width, height = self._map:getSize()
+	local revGlyphs = self:_reverseGlyphs(map)
+
 	for row in string.gmatch(map.map, '%S+') do
 		y = y + 1
 
@@ -79,8 +105,8 @@ function FileMapBuilder:createMap()
 
 		for col in string.gmatch(row, '%C') do
 			x = x + 1
-			local mapType = MapType[revGlyphs[col]]
-			if MapType.empty ~= mapType then
+			local mapType = MapType(revGlyphs[col])
+			if not mapType:isType('empty') then
 				local node = self._map:setNodeMapType(MapNode(), mapType)
 				self._map:setLocation(x, y, node)
 			end

@@ -1,7 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local MapNode = require 'pud.level.MapNode'
-local MapType = require 'pud.level.MapType'
 local Rect = require 'pud.kit.Rect'
 
 local table_concat = table.concat
@@ -30,11 +29,11 @@ function Map:destroy()
 	Rect.destroy(self)
 end
 
--- clear the entire map, setting all nodes to MapType.empty
+-- clear the entire map, setting all nodes to empty
 function Map:clear()
 	for x=1,self:getWidth() do
 		for y=1,self:getHeight() do
-			local node = MapNode(MapType.empty)
+			local node = MapNode()
 			self:setLocation(x, y, node)
 		end
 	end
@@ -66,33 +65,39 @@ end
 
 -- functions for setting specific MapTypes and their associated attributes
 -- in the given node or coordinates
-function Map:setNodeMapType(node, maptype)
-	node:setMapType(maptype)
+function Map:setNodeMapType(node, mapType, variation)
+	node:setMapType(mapType, variation)
+	mapType = node:getMapType()
 
 	-- set attributes for specific types
-	if maptype == MapType.floor
-		or maptype == MapType.doorO
+	if mapType:isType('floor')
+		or mapType:isType('doorOpen')
 	then
 		node:setLit(true)
 		node:setAccessible(true)
 		node:setTransparent(true)
-	elseif maptype == MapType.wall then
+
+	elseif mapType:isType('wall')
+		or mapType:isType('doorClosed')
+	then
 		node:setLit(true)
 		node:setAccessible(false)
 		node:setTransparent(false)
-	elseif maptype == MapType.doorC
-		or maptype == MapType.stairU
-		or maptype == MapType.stairD
+
+	elseif mapType:isType('stairUp')
+		or mapType:isType('stairDown')
 	then
 		node:setLit(true)
 		node:setAccessible(true)
 		node:setTransparent(false)
-	elseif maptype == MapType.empty then
+
+	elseif mapType:isType('empty') then
 		node:setLit(false)
 		node:setAccessible(false)
 		node:setTransparent(false)
 	else
-		warning('incorrect MapType specified for setNodeMapType: '..maptype)
+		warning('incorrect MapType specified for setNodeMapType: %s',
+			tostring(mapType))
 	end
 
 	return node
@@ -101,12 +106,31 @@ end
 -- easy print
 function Map:__tostring()
 	local s = {}
+	local glyph = {
+		empty = ' ',
+		wall = '#',
+		torch = '~',
+		floor = '.',
+		doorClosed = '+',
+		doorOpen = '-',
+		stairUp = '<',
+		stairDown = '>',
+		trap = '^',
+	}
+
 	for y=1,self:getHeight() do
 		local row = {}
 		for x=1,self:getWidth() do
 			local node = self:getLocation(x, y)
-			local t = node:getMapType()
-			row[#row+1] = t
+			local mapType = node:getMapType()
+			local t,v = mapType:get()
+			if glyph[t] then
+				row[#row+1] = glyph[t]
+			elseif t == 'point' and v then
+				row[#row+1] = tostring(v):sub(1,1)
+			else
+				row[#row+1] = '`'
+			end
 		end
 		s[#s+1] = table_concat(row)
 	end
