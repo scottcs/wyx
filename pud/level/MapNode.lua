@@ -50,8 +50,12 @@ function MapNode:setSeen(b)
 end
 function MapNode:wasSeen() return self._wasSeen end
 
-function MapNode:setMapType(...)
-	self._mapType = MapType(...)
+function MapNode:setMapType(mapType, variation)
+	if mapType and mapType.is_a and mapType:is_a(MapType) then
+		self._mapType = mapType
+	else
+		self._mapType = MapType(mapType, variation)
+	end
 end
 function MapNode:getMapType() return self._mapType end
 
