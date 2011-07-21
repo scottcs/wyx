@@ -27,6 +27,7 @@ end
 --   variation - can be anything the user needs
 local MapType = Class{name='MapType',
 	function(self, mapType, variation)
+		mapType = mapType or 'empty'
 		self:set(mapType, variation)
 	end
 }
