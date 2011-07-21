@@ -1,7 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local MapBuilder = require 'pud.level.MapBuilder'
-local MapType = require 'pud.level.MapType'
 local MapNode = require 'pud.level.MapNode'
 local Rect = require 'pud.kit.Rect'
 
@@ -151,12 +150,12 @@ function SimpleGridMapBuilder:createMap()
 		for x=x1,x2 do
 			for y=y1,y2 do
 				if x == x1 or x == x2 or y == y1 or y == y2 then
-					if self._map:getLocation(x, y):getMapType() == MapType.empty then
-						local node = self._map:setNodeMapType(MapNode(), MapType.wall)
+					if self._map:getLocation(x, y):getMapType():isType('empty') then
+						local node = self._map:setNodeMapType(MapNode(), 'wall')
 						self._map:setLocation(x, y, node)
 					end
 				else
-					local node = self._map:setNodeMapType(MapNode(), MapType.floor)
+					local node = self._map:setNodeMapType(MapNode(), 'floor')
 					self._map:setLocation(x, y, node)
 				end
 			end
@@ -193,45 +192,45 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			if not room1:containsPoint(x, y1)
-				and node:getMapType() == MapType.wall
+				and node:getMapType():isType('wall')
 			then
 				wallFlag = true
 			end
 
 			-- once we've tunneled through the wall and hit floor, break
-			if node:getMapType() == MapType.floor and wallFlag then break end
+			if node:getMapType():isType('floor') and wallFlag then break end
 
 			-- make the current location a floor
-			self._map:setNodeMapType(node, MapType.floor)
+			self._map:setNodeMapType(node, 'floor')
 
 			-- if the location below this one is empty, make it a wall
 			node = self._map:getLocation(x, y1-1)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 
 			-- if the location above this one is empty, make it a wall
 			node = self._map:getLocation(x, y1+1)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 		until x == x2
 
 		-- check those corners
 		if yDir then
 			local node = self._map:getLocation(x+xDir, y1-yDir)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 
 			local node = self._map:getLocation(x, y1-yDir)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 
 			local node = self._map:getLocation(x+xDir, y1)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 		end
 	end
@@ -244,27 +243,27 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 
 			-- check if we've hit a wall
 			if not room1:containsPoint(x, y)
-				and node:getMapType() == MapType.wall
+				and node:getMapType():isType('wall')
 			then
 				wallFlag = true
 			end
 
 			-- once we've tunneled through a wall and hit floor, break
-			if node:getMapType() == MapType.floor and wallFlag then break end
+			if node:getMapType():isType('floor') and wallFlag then break end
 
 			-- make the current tile a floor
-			self._map:setNodeMapType(node, MapType.floor)
+			self._map:setNodeMapType(node, 'floor')
 
 			-- if the tile left of the current one is empty, make it a wall
 			node = self._map:getLocation(x-1, y)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 
 			-- if the tile right of the current one is empty, make it a wall
 			node = self._map:getLocation(x+1, y)
-			if node:getMapType() == MapType.empty then
-				self._map:setNodeMapType(node, MapType.wall)
+			if node:getMapType():isType('empty') then
+				self._map:setNodeMapType(node, 'wall')
 			end
 		until y == y2
 	end
@@ -286,16 +285,16 @@ function SimpleGridMapBuilder:addFeatures()
 					-- walk along the sides of the room
 					for y=y1,y2 do
 						local node = self._map:getLocation(x, y)
-						if node:getMapType() == MapType.floor then
-							self._map:setNodeMapType(node, MapType.doorC)
+						if node:getMapType():isType('floor') then
+							self._map:setNodeMapType(node, 'doorClosed')
 						end
 					end
 				else
 					-- walk along the top and bottom of the room
 					for _,y in ipairs{y1, y2} do
 						local node = self._map:getLocation(x, y)
-						if node:getMapType() == MapType.floor then
-							self._map:setNodeMapType(node, MapType.doorC)
+						if node:getMapType():isType('floor') then
+							self._map:setNodeMapType(node, 'doorClosed')
 						end
 					end
 				end
