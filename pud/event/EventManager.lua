@@ -37,19 +37,26 @@ function EventManager:destroy()
 end
 
 -- register an object to listen for the given events
+-- obj can be:
+--   a function
+--   an object with a method that has the same name as the event
+--   an object with an onEvent method
 function EventManager:register(obj, events)
 	_validateObj(obj)
 
-	if type(obj) == 'table' then
-		assert(obj.onEvent and type(obj.onEvent) == 'function',
-			'object "%s" is missing an onEvent method', tostring(obj))
-	end
+	local hasOnEvent = type(obj) == 'function'
+		or obj.onEvent and type(obj.onEvent) == 'function'
 
 	if events.is_a then
 		events = {events}
 	end
 	for _,event in ipairs(events) do
 		_validateEvent(event)
+		local keyStr = tostring(event:getKey())
+		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
+			'object "%s" is missing event callback method for event "%s"',
+			tostring(obj), keyStr)
+
 		local key = event:getKey()
 		self._events[key] = self._events[key] or {}
 		self._events[key][obj] = true
@@ -99,16 +106,21 @@ function EventManager:getRegisteredEvents(obj)
 end
 
 -- notify a specific event, notifying all listeners of the event.
--- note: it is recommended to use push() and flush() instead.
+-- note: it is recommended to use push() and flush() rather than call notify()
+-- directly.
 function EventManager:notify(event)
 	_validateEvent(event)
 	local key = event:getKey()
 
-	for obj in pairs(self._events[key]) do
-		if type(obj) == 'function' then
-			obj(event)
-		elseif obj.onEvent and type(obj.onEvent) == 'function' then
-			obj:onEvent(event)
+	if self._events[key] then
+		for obj in pairs(self._events[key]) do
+			if type(obj) == 'function' then                     -- function()
+				obj(event)
+			else
+				local keyStr = tostring(event:getKey())
+				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
+				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
+			end
 		end
 	end
 end
