@@ -28,7 +28,7 @@ local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 }
 
 -- private function to clear all rooms and the grid
-local _clear = function(self)
+function SimpleGridMapBuilder:_clear()
 	for i=1,#self._rooms do
 		if self._rooms[i].destroy then
 			self._rooms[i]:destroy()
@@ -48,7 +48,7 @@ end
 
 -- destructor
 function SimpleGridMapBuilder:destroy()
-	_clear(self)
+	self:_clear()
 	self._rooms = nil
 	self._grid = nil
 
@@ -96,19 +96,32 @@ end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
-	-- clear any existing rooms and grid
-	_clear(self)
+	self:_clear()
+	self:_generateRooms()
+	self:_buildGrid()
+	self:_populateGrid()
+	self:_populateMap()
+end
 
-	-- generate the rooms
+-- generate the rooms
+function SimpleGridMapBuilder:_generateRooms()
 	for i=1,self._numRooms do
 		self._rooms[i] = Rect(0, 0,
 			random(MINROOMSIZE, self._cellW), random(MINROOMSIZE, self._cellH))
 	end
+end
 
-	-- build a new grid
+-- get width and height of grid in cells
+function SimpleGridMapBuilder:_getGridSize()
 	local w, h = self._map:getSize()
-	w, h = math_floor(w/self._cellW), math_floor(h/self._cellH)
+	return math_floor(w/self._cellW), math_floor(h/self._cellH)
+end
+
+-- build a new grid
+function SimpleGridMapBuilder:_buildGrid()
+	local w, h = self:_getGridSize()
 	local gx, gy = 1, 1
+
 	for i=1,w do
 		self._grid[i] = {}
 		for j = 1,h do
@@ -118,8 +131,12 @@ function SimpleGridMapBuilder:createMap()
 		gy = 1
 		gx = gx + self._cellW
 	end
+end
 
-	-- add rooms to the grid
+-- add rooms to the grid
+function SimpleGridMapBuilder:_populateGrid()
+	local w, h = self:_getGridSize()
+
 	for i = 1,self._numRooms do
 		-- find an empty spot in the grid
 		-- this assumes that numRooms is fairly small compared to grid size
@@ -137,8 +154,10 @@ function SimpleGridMapBuilder:createMap()
 		self._rooms[i]:setCenter(cx, cy, 'floor')
 		self._grid[x][y].room = self._rooms[i]
 	end
+end
 
-	-- populate the map with the rooms
+-- populate the map with the rooms
+function SimpleGridMapBuilder:_populateMap()
 	for i=1,self._numRooms do
 		local room = self._rooms[i]
 		local x1, y1, x2, y2 = room:getBBox()
