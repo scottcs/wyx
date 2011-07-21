@@ -72,5 +72,12 @@ function MapType:isType(mapType, variation)
 	return isType
 end
 
+-- tostring
+function MapType:__tostring()
+	local str = self._type
+	if self._variation then str = str..' ('..tostring(self._variation)..')' end
+	return str
+end
+
 -- the class
 return MapType
