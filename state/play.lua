@@ -149,7 +149,7 @@ function st:update(dt)
 		_count = _count + 1
 		_accum = _accum - TICK
 		self._timeManager:tick()
-		if _count % 100 == 0 and self._map then
+		if _count % 25 == 0 and self._map then
 			GameEvent:push(MapUpdateFinishedEvent(self._map))
 		end
 	end
