@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local LevelView = require 'pud.level.LevelView'
+local Map = require 'pud.level.Map'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 
 -- TileLevelView
@@ -126,7 +127,9 @@ end
 
 -- draw to the framebuffer
 function TileLevelView:drawToFB(map)
-	if self._fb and self._set and map then
+	if self._fb and self._set
+		and map and map.is_a and map:is_a(Map) and map:getHeight()
+	then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb)
 		love.graphics.setColor(1,1,1)
