@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local LevelView = require 'pud.level.LevelView'
+local Map = require 'pud.level.Map'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 
 -- TileLevelView
@@ -27,14 +28,15 @@ local TileLevelView = Class{name='TileLevelView',
 function TileLevelView:destroy()
 	self:_clearQuads()
 	self._set = nil
+	GameEvent:unregisterAll(self)
 	LevelView.destroy(self)
 end
 
 -- make a quad from the given tile position
-function TileLevelView:_makeQuad(mapType, variation, x, y)
-	variation = tostring(variation)
+function TileLevelView:_makeQuad(mapType, variant, x, y)
+	variant = tostring(variant)
 	self._quads[mapType] = self._quads[mapType] or {}
-	self._quads[mapType][variation] = love.graphics.newQuad(
+	self._quads[mapType][variant] = love.graphics.newQuad(
 		self._tileW*(x-1),
 		self._tileH*(y-1),
 		self._tileW,
@@ -47,31 +49,25 @@ function TileLevelView:_getQuad(node)
 	if self._quads then
 		local mapType = node:getMapType()
 		if not mapType:isType('empty') then
-			local mtype, variation = mapType:get()
-			if not variation then
+			local mtype, variant = mapType:get()
+			if not variant then
 				if mapType:isType('wall') then
 					mtype = 'wall'
-					variation = 'V1'
-				elseif mapType:isType('floor') then
-					mtype = 'floor'
-					variation = '1'
+					variant = 'V'
 				elseif mapType:isType('torch') then
 					mtype = 'torch'
-					variation = 'A1'
+					variant = 'A'
 				elseif mapType:isType('trap') then
 					mtype = 'trap'
-					variation = 'A1'
-				elseif mapType:isType('stairUp')
-					or mapType:isType('stairDown')
-					or mapType:isType('doorOpen')
-					or mapType:isType('doorClosed')
-				then
-					variation = '1'
+					variant = 'A'
 				end
 			end
 
+			variant = variant or ''
+			variant = variant .. '1'
+
 			if self._quads[mtype] then
-				return self._quads[mtype][variation]
+				return self._quads[mtype][variant]
 			end
 		end
 	end
@@ -131,7 +127,9 @@ end
 
 -- draw to the framebuffer
 function TileLevelView:drawToFB(map)
-	if self._fb and self._set and map then
+	if self._fb and self._set
+		and map and map.is_a and map:is_a(Map) and map:getHeight()
+	then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb)
 		love.graphics.setColor(1,1,1)

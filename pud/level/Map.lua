@@ -17,8 +17,8 @@ local Map = Class{name='Map', inherits=Rect,
 
 -- destructor
 function Map:destroy()
-	for x=1,self:getWidth() do
-		for y=1,self:getHeight() do
+	for y=1,self:getHeight() do
+		for x=1,self:getWidth() do
 			if self._layout[y][x] then self._layout[y][x]:destroy() end
 			self._layout[y][x] = nil
 		end
@@ -65,8 +65,8 @@ end
 
 -- functions for setting specific MapTypes and their associated attributes
 -- in the given node or coordinates
-function Map:setNodeMapType(node, mapType, variation)
-	node:setMapType(mapType, variation)
+function Map:setNodeMapType(node, mapType, variant)
+	node:setMapType(mapType, variant)
 	mapType = node:getMapType()
 
 	-- set attributes for specific types

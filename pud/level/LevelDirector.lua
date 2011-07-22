@@ -5,10 +5,9 @@ local MapBuilder = require 'pud.level.MapBuilder'
 local LevelDirector = Class{name='LevelDirector'}
 
 -- generate a standard roguelike map with rooms connected via hallways.
-function LevelDirector:generateStandard(builder, ...)
+function LevelDirector:generateStandard(builder)
 	assert(builder:is_a(MapBuilder))
 	
-	builder:init(...)
 	builder:createMap()
 	builder:addFeatures()
 	builder:cleanup()

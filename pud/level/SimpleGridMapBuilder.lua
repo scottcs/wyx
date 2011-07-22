@@ -20,10 +20,11 @@ local MINROOMSIZE = 4
 --------------------------
 local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	inherits = MapBuilder,
-	function(self)
-		MapBuilder.construct(self)
+	function(self, ...)
 		self._grid = {}
 		self._rooms = {}
+		-- construct calls self:init(...)
+		MapBuilder.construct(self, ...)
 	end
 }
 
@@ -324,6 +325,37 @@ end
 
 -- perform any cleanup needed on the map
 function SimpleGridMapBuilder:cleanup()
+	-- go through the whole map and add variations
+	local w, h = self._map:getSize()
+	for y=1,h do
+		for x=1,w do
+			local node = self._map:getLocation(x, y)
+			local mapType = node:getMapType()
+			if mapType:isType('floor') and random(1,10) == 1 then
+				mapType:set('floor', 'Worn')
+			elseif mapType:isType('wall') then
+				local change = false
+				if y == h then
+					change = true
+				else
+					local below = self._map:getLocation(x, y+1)
+					local bMapType = below:getMapType()
+					change = bMapType:isType('floor') or bMapType:isType('empty')
+				end
+				if change then
+					if random(1,10) == 1 then
+						mapType:set('wall', 'HWorn')
+					elseif random(1,10) == 1 then
+						mapType:set('torch', 'A')
+					else
+						mapType:set('wall', 'H')
+					end
+				else
+					mapType:set('wall', 'V')
+				end
+			end
+		end
+	end
 end
 
 -- the class
