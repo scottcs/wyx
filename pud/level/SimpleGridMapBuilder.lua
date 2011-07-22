@@ -289,12 +289,47 @@ function SimpleGridMapBuilder:_connectRooms(room1, room2)
 	end
 end
 
+
+-- determine if a door should be placed in this node, then place it
+function SimpleGridMapBuilder:_placeDoor(x, y)
+	local node = self._map:getLocation(x, y)
+	local ok = true
+
+	if node:getMapType():isType('floor') then
+		-- check top and bottom neighbors for floor
+		local top = self._map:getLocation(x, y-1)
+		local bottom = self._map:getLocation(x, y+1)
+		if not top:getMapType():isType('floor')
+			and not bottom:getMapType():isType('floor')
+		then
+			placeDoor = true
+		else
+			-- top or bottom was floor, so now check sides
+			local left = self._map:getLocation(x-1, y)
+			local right = self._map:getLocation(x+1, y)
+			if not left:getMapType():isType('floor')
+				and not right:getMapType():isType('floor')
+			then
+				placeDoor = true
+			else
+				ok = false
+			end
+		end
+
+		if placeDoor then
+			self._map:setNodeMapType(node, 'doorClosed')
+		end
+	end
+	return ok
+end
+
 -- add doors to some rooms
 function SimpleGridMapBuilder:addFeatures()
 	for i=1,self._numRooms do
 		-- randomly add doors to every 3rd room
 		if random(3) == 1 then
 			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
+			local enclosed = true
 
 			-- reduce the max coords by one for easy iteration
 			x2, y2 = x2 - 1, y2 - 1
@@ -304,17 +339,28 @@ function SimpleGridMapBuilder:addFeatures()
 				if x == x1 or x == x2 then
 					-- walk along the sides of the room
 					for y=y1,y2 do
-						local node = self._map:getLocation(x, y)
-						if node:getMapType():isType('floor') then
-							self._map:setNodeMapType(node, 'doorClosed')
+						if not self:_placeDoor(x, y) then
+							enclosed = false
 						end
 					end
 				else
 					-- walk along the top and bottom of the room
 					for _,y in ipairs{y1, y2} do
+						if not self:_placeDoor(x, y) then
+							enclosed = false
+						end
+					end
+				end
+			end
+
+			-- now change floor if the room is completely enclosed by doors
+			if enclosed then
+				for x=x1+1,x2-1 do
+					for y=y1+1,y2-1 do
 						local node = self._map:getLocation(x, y)
-						if node:getMapType():isType('floor') then
-							self._map:setNodeMapType(node, 'doorClosed')
+						local mapType = node:getMapType()
+						if mapType:isType('floor') then
+							mapType:set('floor', 'X')
 						end
 					end
 				end
@@ -331,9 +377,14 @@ function SimpleGridMapBuilder:cleanup()
 		for x=1,w do
 			local node = self._map:getLocation(x, y)
 			local mapType = node:getMapType()
-			if mapType:isType('floor') and random(1,10) == 1 then
-				mapType:set('floor', 'Worn')
-			elseif mapType:isType('wall') then
+			local _,variant = mapType:get()
+			if mapType:isType('floor') and random(1,12) == 1 then
+				if not variant then
+					mapType:set('floor', 'Worn')
+				elseif variant == 'X' then
+					mapType:set('floor', 'Rug')
+				end
+			elseif mapType:isType('wall') and not variant then
 				local change = false
 				if y == h then
 					change = true
@@ -343,9 +394,9 @@ function SimpleGridMapBuilder:cleanup()
 					change = bMapType:isType('floor') or bMapType:isType('empty')
 				end
 				if change then
-					if random(1,10) == 1 then
+					if random(1,12) == 1 then
 						mapType:set('wall', 'HWorn')
-					elseif random(1,10) == 1 then
+					elseif random(1,12) == 1 then
 						mapType:set('torch', 'A')
 					else
 						mapType:set('wall', 'H')
