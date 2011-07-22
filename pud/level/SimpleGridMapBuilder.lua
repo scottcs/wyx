@@ -389,7 +389,7 @@ function SimpleGridMapBuilder:cleanup()
 					if random(1,20) > 1 then
 						mapType:set('floor', 'Worn')
 					else
-						mapType:set('trap', 'A')
+						mapType:set('trap')
 					end
 				elseif variant == 'X' then
 					mapType:set('floor', 'Rug')

@@ -46,8 +46,14 @@ local _randomAB = function()
 end
 
 -- swap an A with a B
+local _count = 0
 local _swapAB = function(which)
-	return which == 'A' and 'B' or 'A'
+	_count = _count + 1
+	if _count > 10 then
+		_count = 0
+		return which == 'A' and 'B' or 'A'
+	end
+	return which
 end
 
 -- make a quad from the given tile position
