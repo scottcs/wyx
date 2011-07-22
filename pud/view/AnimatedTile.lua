@@ -21,6 +21,7 @@ function AnimatedTile:destroy()
 	self._numFrames = nil
 	self._frame = nil
 	self._fb = nil
+	self._constructed = nil
 	Rect.destroy(self)
 end
 
@@ -48,11 +49,12 @@ function AnimatedTile:setHeight(...)
 end
 
 -- draw to the framebuffer
-function AnimatedTile:_drawToFB(frame, tileset, quad)
-	if self._numFrames > 0 and self._fb[frame] and tileset and quad then
+function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
+	if self._numFrames > 0 and self._fb[frame] and tileset then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb[frame])
 		love.graphics.setColor(1,1,1)
+		if bgquad then love.graphics.drawq(tileset, bgquad, 0, 0) end
 		love.graphics.drawq(tileset, quad, 0, 0)
 		love.graphics.setRenderTarget()
 		self._isDrawing = false
@@ -76,12 +78,12 @@ function AnimatedTile:advance()
 end
 
 -- set the next available frame to the given tileset and quad
-function AnimatedTile:setNextFrame(tileset, quad)
+function AnimatedTile:setNextFrame(tileset, quad, bgquad)
 	self._numFrames = self._numFrames and self._numFrames + 1 or 1
 
 	local w, h = self:getSize()
 	self._fb[self._numFrames] = love.graphics.newFramebuffer(w, h)
-	self:_drawToFB(self._numFrames, tileset, quad)
+	self:_drawToFB(self._numFrames, tileset, quad, bgquad)
 end
 
 -- clear all frames
