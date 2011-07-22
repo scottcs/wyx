@@ -58,7 +58,7 @@ end
 
 
 function FileMapBuilder:_loadMap()
-	local map = assert(loadfile(self._filename))()
+	local map = assert(love.filesystem.load(self._filename))()
 	verify('string', map.map, map.name, map.author)
 	verify('table', map.glyphs)
 	self:_checkMapKeys(map)
