@@ -3,6 +3,7 @@ local LevelView = require 'pud.view.LevelView'
 local Map = require 'pud.level.Map'
 local MapNode = require 'pud.level.MapNode'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
+local AnimatedTile = require 'pud.view.AnimatedTile'
 
 local random = math.random
 
@@ -26,41 +27,57 @@ local TileLevelView = Class{name='TileLevelView',
 
 		self._tileVariant = tostring(random(1,4))
 		self._doorVariant = tostring(random(1,5))
-		self._trapVariant = tostring(random(1,6))
-		self._lastTorch = 'A'
-		self._lastTrap = 'A'
+		self._torches = {}
+		self._traps = {}
 
 		self:_setupQuads()
+		self:_extractAnimatedTiles()
+		self._animID = cron.every(0.25, self._updateAnimatedTiles, self)
 	end
 }
 
 -- destructor
 function TileLevelView:destroy()
 	self:_clearQuads()
+	cron.cancel(self._animID)
+	self._animID = nil
 	self._set = nil
+	self._tileW = nil
+	self._tileH = nil
+	self._fb = nil
+	self._map = nil
+	self._tileVariant = nil
+	self._doorVariant = nil
+	for i in ipairs(self._torches) do self._torches[i] = nil end
+	for i in ipairs(self._traps) do self._traps[i] = nil end
+	self._torches = nil
+	self._traps = nil
 	GameEvent:unregisterAll(self)
 	LevelView.destroy(self)
-end
-
--- random A or B
-local _randomAB = function()
-	return random(1,100) > 10 and 'A' or 'B'
-end
-
--- swap an A with a B
-local _count = 0
-local _swapAB = function(which)
-	_count = _count + 1
-	if _count > 10 then
-		_count = 0
-		return which == 'A' and 'B' or 'A'
-	end
-	return which
 end
 
 -- return current tile size
 function TileLevelView:getTileSize()
 	return self._tileW, self._tileH
+end
+
+-- update the animated tiles
+function TileLevelView:_updateAnimatedTiles()
+	for _,torch in ipairs(self._torches) do
+		if torch._flicker then
+			torch._flicker = nil
+			torch:advance()
+		else
+			if random(1,100) <= 3 then
+				torch:advance()
+				torch._flicker = true
+			end
+		end
+	end
+
+	for _,trap in ipairs(self._traps) do
+		trap:advance()
+	end
 end
 
 -- make a quad from the given tile position
@@ -89,15 +106,9 @@ function TileLevelView:_getQuad(node)
 
 			variant = variant or ''
 
-			if mapType:isType('trap') then
-				variant = self._lastTrap .. self._trapVariant
-				self._lastTrap = _swapAB(self._lastTrap)
-			elseif mapType:isType('torch') then
-				variant = self._lastTorch .. self._tileVariant
-				self._lastTorch = _randomAB()
-			elseif mapType:isType('doorClosed') or mapType:isType('doorOpen') then
+			if mapType:isType('doorClosed') or mapType:isType('doorOpen') then
 				variant = variant .. self._doorVariant
-			else
+			elseif not (mapType:isType('torch') or mapType:isType('trap')) then
 				variant = variant .. self._tileVariant
 			end
 
@@ -144,6 +155,46 @@ function TileLevelView:_setupQuads()
 	end
 end
 
+function TileLevelView:_createAnimatedTile(...)
+	local at = AnimatedTile()
+
+	for i=1,select('#', ...) do
+		local node = select(i, ...)
+		local quad = self:_getQuad(node)
+		at:setNextFrame(self._set, quad)
+	end
+
+	return at
+end
+
+function TileLevelView:_extractAnimatedTiles()
+	local torchA = MapNode('torch', 'A'..self._tileVariant)
+	local torchB = MapNode('torch', 'B'..self._tileVariant)
+	local trapA = MapNode()
+	local trapB = MapNode()
+
+	for y=1,self._map:getHeight() do
+		for x=1,self._map:getWidth() do
+			local node = self._map:getLocation(x, y)
+			local mapType = node:getMapType()
+
+			if mapType:isType('torch') or mapType:isType('trap') then
+				if mapType:isType('torch') then
+					local at = self:_createAnimatedTile(torchA, torchB)
+					at:setPosition(x, y)
+					self._torches[#self._torches+1] = at
+				elseif mapType:isType('trap') then
+					local variant = random(1,6)
+					trapA:setMapType('trap', 'A'..tostring(variant))
+					trapB:setMapType('trap', 'B'..tostring(variant))
+					local at = self:_createAnimatedTile(trapA, trapB)
+					at:setPosition(x, y)
+					self._traps[#self._traps+1] = at
+				end
+			end
+		end
+	end
+end
 
 -- register for events that will cause this view to redraw
 function TileLevelView:registerEvents()
@@ -167,10 +218,15 @@ function TileLevelView:_drawFloorIfNeeded(node, x, y)
 		or mapType:isType('wall')
 		or mapType:isType('torch'))
 	then
-		local quad = self:_getQuad(MapNode('floor'))
-		if quad then
-			love.graphics.drawq(self._set, quad, x, y)
-		end
+		self:_drawFloor(x, y)
+	end
+end
+
+-- draw a floor tile
+function TileLevelView:_drawFloor(x, y)
+	local quad = self:_getQuad(MapNode('floor'))
+	if quad then
+		love.graphics.drawq(self._set, quad, x, y)
 	end
 end
 
@@ -185,13 +241,16 @@ function TileLevelView:drawToFB()
 			local drawY = (y-1)*self._tileH
 			for x=1,self._map:getWidth() do
 				local node = self._map:getLocation(x, y)
-				local quad = self:_getQuad(node)
-				if quad then
-					local drawX = (x-1)*self._tileW
-					self:_drawFloorIfNeeded(node, drawX, drawY)
-					love.graphics.drawq(self._set, quad, drawX, drawY)
-				elseif not node:getMapType():isType('empty') then
-					warning('no quad found for %s', tostring(node:getMapType()))
+				local mapType = node:getMapType()
+				if not (mapType:isType('torch') or mapType:isType('trap')) then
+					local quad = self:_getQuad(node)
+					if quad then
+						local drawX = (x-1)*self._tileW
+						self:_drawFloorIfNeeded(node, drawX, drawY)
+						love.graphics.drawq(self._set, quad, drawX, drawY)
+					elseif not node:getMapType():isType('empty') then
+						warning('no quad found for %s', tostring(node:getMapType()))
+					end
 				end
 			end
 		end
@@ -206,6 +265,21 @@ function TileLevelView:draw()
 	if self._fb and self._isDrawing == false then
 		love.graphics.setColor(1,1,1)
 		love.graphics.draw(self._fb)
+
+		for _,torch in ipairs(self._torches) do
+			local x, y = torch:getPosition()
+			local drawY = (y-1)*self._tileH
+			local drawX = (x-1)*self._tileW
+			torch:draw(drawX, drawY)
+		end
+
+		for _,trap in ipairs(self._traps) do
+			local x, y = trap:getPosition()
+			local drawY = (y-1)*self._tileH
+			local drawX = (x-1)*self._tileW
+			self:_drawFloor(drawX, drawY)
+			trap:draw(drawX, drawY)
+		end
 	end
 end
 
