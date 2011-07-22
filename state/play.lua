@@ -37,6 +37,9 @@ function st:init()
 end
 
 function st:enter()
+	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
+	love.keyboard.setKeyRepeat(200, 25)
+
 	self._timeManager = TimeManager()
 
 	local player = TimedObject()
@@ -126,10 +129,13 @@ function st:_generateMap(fromFile)
 	self._view = TileLevelView(w, h)
 	self._view:registerEvents()
 
-	self._startVector = vector(math_floor(_mapTileW/2), math_floor(_mapTileH/2))
+	local startX = math_floor(w/2+0.5)*TILESIZE - math_floor(TILESIZE/2)
+	local startY = math_floor(h/2+0.5)*TILESIZE - math_floor(TILESIZE/2)
+	self._startVector = vector(startX, startY)
 	if not self._cam then
 		self._cam = Camera(self._startVector, 1)
 	end
+	self._cam.pos = self._startVector
 	self:_correctCam()
 end
 
@@ -153,9 +159,17 @@ function st:draw()
 	self._cam:predraw()
 	self._view:draw()
 	self._cam:postdraw()
+
+	-- temporary center square
+	local size = self._cam.zoom * TILESIZE
+	local x = math_floor(WIDTH/2)-math_floor(size/2)
+	local y = math_floor(HEIGHT/2)-math_floor(size/2)
+	love.graphics.setColor(0, 1, 0)
+	love.graphics.rectangle('line', x, y, size, size)
 end
 
 function st:leave()
+	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
 	self._timeManager:destroy()
 	self._timeManager = nil
 	self._view:destroy()
@@ -164,12 +178,12 @@ end
 
 -- correct the camera values after moving
 function st:_correctCam()
-	local wmin = math_floor((WIDTH/2)/self._cam.zoom + 0.5)
+	local wmin = math_floor(TILESIZE/2)
 	local wmax = _mapTileW - wmin
 	if self._cam.pos.x > wmax then self._cam.pos.x = wmax end
 	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
 
-	local hmin = math_floor((HEIGHT/2)/self._cam.zoom + 0.5)
+	local hmin = wmin
 	local hmax = _mapTileH - hmin
 	if self._cam.pos.y > hmax then self._cam.pos.y = hmax end
 	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
