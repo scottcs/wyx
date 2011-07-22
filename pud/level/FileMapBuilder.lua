@@ -7,8 +7,9 @@ local MapNode = require 'pud.level.MapNode'
 -- FileMapBuilder
 local FileMapBuilder = Class{name='FileMapBuilder',
 	inherits=MapBuilder,
-	function(self)
-		MapBuilder.construct(self)
+	function(self, ...)
+		-- construct calls self:init(...)
+		MapBuilder.construct(self, ...)
 	end
 }
 

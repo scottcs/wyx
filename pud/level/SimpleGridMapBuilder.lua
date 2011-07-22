@@ -20,10 +20,11 @@ local MINROOMSIZE = 4
 --------------------------
 local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	inherits = MapBuilder,
-	function(self)
-		MapBuilder.construct(self)
+	function(self, ...)
 		self._grid = {}
 		self._rooms = {}
+		-- construct calls self:init(...)
+		MapBuilder.construct(self, ...)
 	end
 }
 
