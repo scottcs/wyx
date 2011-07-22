@@ -65,11 +65,32 @@ function FileMapBuilder:_loadMap()
 	return map
 end
 
--- build a reverse glyph table to easily lookup MapType
-function FileMapBuilder:_reverseGlyphs(map)
-	local revGlyphs = {}
-	for k,v in pairs(map.glyphs) do revGlyphs[v] = k end
-	return revGlyphs
+local _findVariant = function(mtype, n)
+	local variants
+	if mtype == 'floor' then
+		variants = {nil, 'Worn', 'X', 'Rug'}
+	elseif mtype == 'wall' then
+		variants = {'H', 'HWorn', 'V'}
+	end
+
+	return variants and variants[n] or nil
+end
+
+-- get MapType from glyph
+function FileMapBuilder:_glyphToMapType(allGlyphs, glyph)
+	local mtype
+	for k,v in pairs(allGlyphs) do
+		if type(v) == 'table' then
+			for i,g in ipairs(v) do
+				if glyph == g then
+					mtype = MapType(k, _findVariant(k,i))
+				end
+			end
+		elseif glyph == v then
+			mtype = MapType(k)
+		end
+	end
+	return mtype
 end
 
 -- determine width and height of map
@@ -96,7 +117,6 @@ end
 function FileMapBuilder:_buildMap(map)
 	local x, y = 0, 0
 	local width, height = self._map:getSize()
-	local revGlyphs = self:_reverseGlyphs(map)
 
 	for row in string.gmatch(map.map, '%S+') do
 		y = y + 1
@@ -106,7 +126,7 @@ function FileMapBuilder:_buildMap(map)
 
 		for col in string.gmatch(row, '%C') do
 			x = x + 1
-			local mapType = MapType(revGlyphs[col])
+			local mapType = self:_glyphToMapType(map.glyphs, col)
 			if not mapType:isType('empty') then
 				local node = self._map:setNodeMapType(MapNode(), mapType)
 				self._map:setLocation(x, y, node)
