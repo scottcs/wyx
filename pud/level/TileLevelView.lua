@@ -42,7 +42,7 @@ end
 
 -- random A or B
 local _randomAB = function()
-	return random(1,100) > 50 and 'A' or 'B'
+	return random(1,100) > 10 and 'A' or 'B'
 end
 
 -- swap an A with a B
