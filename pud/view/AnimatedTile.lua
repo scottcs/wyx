@@ -7,48 +7,52 @@ local AnimatedTile = Class{name='AnimatedTile',
 		width = width or 32
 		height = height or 32
 		Rect.construct(self, 0, 0, width, height)
-		self._tilesets = {}
-		self._quads = {}
-		self:_resizeFrameBuffer()
+		self._constructed = true
+		self._fb = {}
+		self._numFrames = 0
+		self._frame = 1
 	end
 }
 
 -- destructor
 function AnimatedTile:destroy()
-	self._fb = nil
-	self._isDrawing = nil
 	self:clearFrames()
+	self._isDrawing = nil
+	self._numFrames = nil
+	self._frame = nil
+	self._fb = nil
 	Rect.destroy(self)
 end
 
--- overload Rect size functions to also resize framebuffer
-function AnimatedTile:setWidth(width)
-	Rect.setWidth(self, width)
-	self:_resizeFramebuffer()
+-- don't allow resizing
+function AnimatedTile:setSize(...)
+	if self._constructed then
+		error('Cannot resize AnimatedTile. Please destroy and create a new one.')
+	else
+		Rect.setSize(self, ...)
+	end
 end
-function AnimatedTile:setHeight(height)
-	Rect.setHeight(self, height)
-	self:_resizeFramebuffer()
+function AnimatedTile:setWidth(...)
+	if self._constructed then
+		error('Cannot resize AnimatedTile. Please destroy and create a new one.')
+	else
+		Rect.setWidth(self, ...)
+	end
 end
-function AnimatedTile:setSize(width, height)
-	Rect.setSize(self, width, height)
-	self:_resizeFramebuffer()
-end
-
--- resize the framebuffer after size has changed
-function AnimatedTile:_resizeFramebuffer()
-	local w, h = self:getSize()
-	self._fb = love.graphics.newFramebuffer(w, h)
-	self:_drawToFB()
+function AnimatedTile:setHeight(...)
+	if self._constructed then
+		error('Cannot resize AnimatedTile. Please destroy and create a new one.')
+	else
+		Rect.setHeight(self, ...)
+	end
 end
 
 -- draw to the framebuffer
-function AnimatedTile:_drawToFB()
-	if self._fb and self._frame then
+function AnimatedTile:_drawToFB(frame, tileset, quad)
+	if self._numFrames > 0 and self._fb[frame] and tileset and quad then
 		self._isDrawing = true
-		local tileset = self._tilesets[self._frame]
-		local quad = self._quads[self._frame]
-		love.graphics.setRenderTarget(self._fb)
+		love.graphics.setRenderTarget(self._fb[frame])
+		love.graphics.setColor(1,1,1)
 		love.graphics.drawq(tileset, quad, 0, 0)
 		love.graphics.setRenderTarget()
 		self._isDrawing = false
@@ -56,16 +60,14 @@ function AnimatedTile:_drawToFB()
 end
 
 -- draw the framebuffer
-function AnimatedTile:draw()
-	if self._fb and self._isDrawing == false then
-		love.graphics.draw(self._fb, self:getX(), self:getY())
+function AnimatedTile:draw(x, y)
+	if self._numFrames > 0 and self._isDrawing == false then
+		love.graphics.draw(self._fb[self._frame], x, y)
 	end
 end
 
 -- advance the current frame to the next frame
-function AnimatedTile:_advanceFrame()
-	if not self._frame then return end
-
+function AnimatedTile:advance()
 	if self._frame >= self._numFrames then
 		self._frame = 1
 	else
@@ -75,29 +77,18 @@ end
 
 -- set the next available frame to the given tileset and quad
 function AnimatedTile:setNextFrame(tileset, quad)
-	verify('table', tileset, quad)
-
-	self._frame = self._frame or 1
 	self._numFrames = self._numFrames and self._numFrames + 1 or 1
 
-	self._tilesets[self._numFrames] = tileset
-	self._quads[self._numFrames] = quad
+	local w, h = self:getSize()
+	self._fb[self._numFrames] = love.graphics.newFramebuffer(w, h)
+	self:_drawToFB(self._numFrames, tileset, quad)
 end
 
 -- clear all frames
 function AnimatedTile:clearFrames()
-	self._frame = nil
-	self._numFrames = nil
-	for i in ipairs(self._tilesets) do self._tilesets[i] = nil end
-	for i in ipairs(self._quads) do self._quads[i] = nil end
-	self._tilesets = nil
-	self._quads = nil
-end
-
--- advance to the next frame and redraw
-function AnimatedTile:update()
-	self:_advanceFrame()
-	self:_drawToFB()
+	self._frame = 1
+	self._numFrames = 0
+	for i in ipairs(self._fb) do self._fb[i] = nil end
 end
 
 -- the class
