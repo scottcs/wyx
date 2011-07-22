@@ -71,6 +71,7 @@ function Map:setNodeMapType(node, mapType, variant)
 
 	-- set attributes for specific types
 	if mapType:isType('floor')
+		or mapType:isType('trap')
 		or mapType:isType('doorOpen')
 	then
 		node:setLit(true)
@@ -78,6 +79,7 @@ function Map:setNodeMapType(node, mapType, variant)
 		node:setTransparent(true)
 
 	elseif mapType:isType('wall')
+		or mapType:isType('torch')
 		or mapType:isType('doorClosed')
 	then
 		node:setLit(true)
