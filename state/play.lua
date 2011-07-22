@@ -31,18 +31,13 @@ local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 -- some defaults
 local TILESIZE = 32
 local MAPW, MAPH = 100, 100
-local FBW, FBH = MAPW * TILESIZE, MAPH * TILESIZE
+local _fbW, _fbH
 
 function st:init()
 end
 
 function st:enter()
 	self._timeManager = TimeManager()
-	self._view = TileLevelView(MAPW, MAPH)
-	self._view:registerEvents()
-
-	self._startVector = vector(math_floor(FBW/2), math_floor(FBH/2))
-	self._cam = Camera(self._startVector, 1)
 
 	local player = TimedObject()
 	local dragon = TimedObject()
@@ -104,25 +99,38 @@ function st:enter()
 	self._timeManager:register(dragon, 3)
 	self._timeManager:register(ifrit, 3)
 
-	self:_generateMap()
+	self:_generateMap(true)
 end
 
-function st:_generateMap()
+function st:_generateMap(fromFile)
 	if self._map then self._map:destroy() end
+	local builder
 
-	---[[--
-	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
-	local builder = SimpleGridMapBuilder()
-	self._map = LevelDirector:generateStandard(builder, 100,100, 10,10, 20,35)
-	--]]--
-	--[[--
-	local FileMapBuilder = require 'pud.level.FileMapBuilder'
-	local builder = FileMapBuilder()
-	self._map = LevelDirector:generateStandard(builder, 'test')
-	--]]--
+	if fromFile then
+		local FileMapBuilder = require 'pud.level.FileMapBuilder'
+		local mapfiles = {'test'}
+		local mapfile = mapfiles[math.random(1,#mapfiles)]
+		builder = FileMapBuilder(mapfile)
+	else
+		local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
+		builder = SimpleGridMapBuilder(MAPW,MAPH, 10,10, 20,35)
+	end
 
+	self._map = LevelDirector:generateStandard(builder)
 	builder:destroy()
 	print(self._map)
+
+	local w, h = self._map:getSize()
+	_fbW, _fbH = w*TILESIZE, h*TILESIZE
+	if self._view then self._view:destroy() end
+	self._view = TileLevelView(w, h)
+	self._view:registerEvents()
+
+	self._startVector = vector(math_floor(_fbW/2), math_floor(_fbH/2))
+	if not self._cam then
+		self._cam = Camera(self._startVector, 1)
+	end
+	self:_correctCam()
 end
 
 local _accum = 0
@@ -157,51 +165,59 @@ end
 -- correct the camera values after moving
 function st:_correctCam()
 	local wmin = math_floor((WIDTH/2)/self._cam.zoom + 0.5)
-	local wmax = FBW - wmin
-	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
+	local wmax = _fbW - wmin
 	if self._cam.pos.x > wmax then self._cam.pos.x = wmax end
+	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
 
 	local hmin = math_floor((HEIGHT/2)/self._cam.zoom + 0.5)
-	local hmax = FBH - hmin
-	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
+	local hmax = _fbH - hmin
 	if self._cam.pos.y > hmax then self._cam.pos.y = hmax end
+	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
 end
 
 function st:keypressed(key, unicode)
 	switch(key) {
 		escape = function() love.event.push('q') end,
 		m = function() self:_generateMap() end,
+		f = function() self:_generateMap(true) end,
 
 		-- camera
 		left = function()
+			if not self._cam then return end
 			local amt = vector(-TILESIZE/self._cam.zoom, 0)
 			self._cam:translate(amt)
 			self:_correctCam()
 		end,
 		right = function()
+			if not self._cam then return end
 			local amt = vector(TILESIZE/self._cam.zoom, 0)
 			self._cam:translate(amt)
 			self:_correctCam()
 		end,
 		up = function()
+			if not self._cam then return end
 			local amt = vector(0, -TILESIZE/self._cam.zoom)
 			self._cam:translate(amt)
 			self:_correctCam()
 		end,
 		down = function()
+			if not self._cam then return end
 			local amt = vector(0, TILESIZE/self._cam.zoom)
 			self._cam:translate(amt)
 			self:_correctCam()
 		end,
 		pageup = function()
+			if not self._cam then return end
 			self._cam.zoom = math_max(0.25, self._cam.zoom * (1/2))
 			self:_correctCam()
 		end,
 		pagedown = function() 
+			if not self._cam then return end
 			self._cam.zoom = math_min(1, self._cam.zoom * 2)
 			self:_correctCam()
 		end,
 		home = function()
+			if not self._cam then return end
 			self._cam.zoom = 1
 			self._cam.pos = self._startVector
 			self:_correctCam()
