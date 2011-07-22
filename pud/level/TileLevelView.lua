@@ -40,6 +40,11 @@ function TileLevelView:destroy()
 	LevelView.destroy(self)
 end
 
+-- random A or B
+local _randomAB = function()
+	return random(1,100) > 50 and 'A' or 'B'
+end
+
 -- swap an A with a B
 local _swapAB = function(which)
 	return which == 'A' and 'B' or 'A'
@@ -76,7 +81,7 @@ function TileLevelView:_getQuad(node)
 				self._lastTrap = _swapAB(self._lastTrap)
 			elseif mapType:isType('torch') then
 				variant = self._lastTorch .. self._tileVariant
-				self._lastTorch = _swapAB(self._lastTorch)
+				self._lastTorch = _randomAB()
 			elseif mapType:isType('doorClosed') or mapType:isType('doorOpen') then
 				variant = variant .. self._doorVariant
 			else
