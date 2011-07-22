@@ -240,7 +240,7 @@ function st:keypressed(key, unicode)
 	}
 end
 
-function st:exit()
+function st:leave()
 	love.keyboard.setKeyRepeat(_keyDelay, _keyInterval)
 end
 

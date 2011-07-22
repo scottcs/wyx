@@ -38,6 +38,10 @@ local function inherit(class, interface, ...)
 	end
 	for super in pairs(interface.__is_a) do
 		class.__is_a[super] = true
+		-- call superclass hook
+		if super.inherited and type(super.inherited) == 'function' then
+			super:inherited(class)
+		end
 	end
 
 	inherit(class, ...)
@@ -90,6 +94,7 @@ local function new(args)
 		__call = function(self, ...)
 			local obj = setmetatable({}, self)
 			self.construct(obj, ...)
+			obj.__class = self
 			return obj
 		end,
 		__tostring = function() return name end

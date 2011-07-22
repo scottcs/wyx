@@ -87,3 +87,12 @@ function verify(t, ...)
 	end
 	return true
 end
+
+-------------
+-- warning --
+-------------
+function warning(msg, ...)
+	msg = msg or 'unknown warning'
+	msg = 'Warning: '..msg..'\n'
+	io.stderr:write(string.format(msg, ...))
+end
