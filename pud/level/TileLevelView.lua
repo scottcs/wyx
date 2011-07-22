@@ -52,24 +52,18 @@ function TileLevelView:_getQuad(node)
 			if not variation then
 				if mapType:isType('wall') then
 					mtype = 'wall'
-					variation = 'V1'
-				elseif mapType:isType('floor') then
-					mtype = 'floor'
-					variation = '1'
+					variation = 'V'
 				elseif mapType:isType('torch') then
 					mtype = 'torch'
-					variation = 'A1'
+					variation = 'A'
 				elseif mapType:isType('trap') then
 					mtype = 'trap'
-					variation = 'A1'
-				elseif mapType:isType('stairUp')
-					or mapType:isType('stairDown')
-					or mapType:isType('doorOpen')
-					or mapType:isType('doorClosed')
-				then
-					variation = '1'
+					variation = 'A'
 				end
 			end
+
+			variation = variation or ''
+			variation = variation .. '1'
 
 			if self._quads[mtype] then
 				return self._quads[mtype][variation]
