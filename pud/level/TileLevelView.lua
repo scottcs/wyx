@@ -40,6 +40,11 @@ function TileLevelView:destroy()
 	LevelView.destroy(self)
 end
 
+-- swap an A with a B
+local _swapAB = function(which)
+	return which == 'A' and 'B' or 'A'
+end
+
 -- make a quad from the given tile position
 function TileLevelView:_makeQuad(mapType, variant, x, y)
 	variant = tostring(variant)
@@ -60,19 +65,23 @@ function TileLevelView:_getQuad(node)
 			local mtype, variant = mapType:get()
 			if not variant then
 				if mapType:isType('wall') then
-					mtype = 'wall'
 					variant = 'V'
-				elseif mapType:isType('torch') then
-					mtype = 'torch'
-					variant = 'A'
-				elseif mapType:isType('trap') then
-					mtype = 'trap'
-					variant = 'A'
 				end
 			end
 
 			variant = variant or ''
-			variant = variant .. '1'
+
+			if mapType:isType('trap') then
+				variant = self._lastTrap .. self._trapVariant
+				self._lastTrap = _swapAB(self._lastTrap)
+			elseif mapType:isType('torch') then
+				variant = self._lastTorch .. self._tileVariant
+				self._lastTorch = _swapAB(self._lastTorch)
+			elseif mapType:isType('doorClosed') or mapType:isType('doorOpen') then
+				variant = variant .. self._doorVariant
+			else
+				variant = variant .. self._tileVariant
+			end
 
 			if self._quads[mtype] then
 				return self._quads[mtype][variant]
