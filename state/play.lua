@@ -31,7 +31,7 @@ local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 -- some defaults
 local TILESIZE = 32
 local MAPW, MAPH = 100, 100
-local _fbW, _fbH
+local _mapTileW, _mapTileH
 
 function st:init()
 end
@@ -121,12 +121,12 @@ function st:_generateMap(fromFile)
 	print(self._map)
 
 	local w, h = self._map:getSize()
-	_fbW, _fbH = w*TILESIZE, h*TILESIZE
+	_mapTileW, _mapTileH = w*TILESIZE, h*TILESIZE
 	if self._view then self._view:destroy() end
 	self._view = TileLevelView(w, h)
 	self._view:registerEvents()
 
-	self._startVector = vector(math_floor(_fbW/2), math_floor(_fbH/2))
+	self._startVector = vector(math_floor(_mapTileW/2), math_floor(_mapTileH/2))
 	if not self._cam then
 		self._cam = Camera(self._startVector, 1)
 	end
@@ -165,12 +165,12 @@ end
 -- correct the camera values after moving
 function st:_correctCam()
 	local wmin = math_floor((WIDTH/2)/self._cam.zoom + 0.5)
-	local wmax = _fbW - wmin
+	local wmax = _mapTileW - wmin
 	if self._cam.pos.x > wmax then self._cam.pos.x = wmax end
 	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
 
 	local hmin = math_floor((HEIGHT/2)/self._cam.zoom + 0.5)
-	local hmax = _fbH - hmin
+	local hmax = _mapTileH - hmin
 	if self._cam.pos.y > hmax then self._cam.pos.y = hmax end
 	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
 end
