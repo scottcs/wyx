@@ -155,14 +155,14 @@ function TileLevelView:_setupQuads()
 	end
 end
 
-function TileLevelView:_createAnimatedTile(...)
+function TileLevelView:_createAnimatedTile(nodeA, nodeB, bgquad)
 	local at = AnimatedTile()
 
-	for i=1,select('#', ...) do
-		local node = select(i, ...)
-		local quad = self:_getQuad(node)
-		at:setNextFrame(self._set, quad)
-	end
+	local quadA = self:_getQuad(nodeA)
+	local quadB = self:_getQuad(nodeB)
+
+	at:setNextFrame(self._set, quadA, bgquad)
+	at:setNextFrame(self._set, quadB, bgquad)
 
 	return at
 end
@@ -172,6 +172,7 @@ function TileLevelView:_extractAnimatedTiles()
 	local torchB = MapNode('torch', 'B'..self._tileVariant)
 	local trapA = MapNode()
 	local trapB = MapNode()
+	local floorquad = self:_getQuad(MapNode('floor'))
 
 	for y=1,self._map:getHeight() do
 		for x=1,self._map:getWidth() do
@@ -187,7 +188,7 @@ function TileLevelView:_extractAnimatedTiles()
 					local variant = random(1,6)
 					trapA:setMapType('trap', 'A'..tostring(variant))
 					trapB:setMapType('trap', 'B'..tostring(variant))
-					local at = self:_createAnimatedTile(trapA, trapB)
+					local at = self:_createAnimatedTile(trapA, trapB, floorquad)
 					at:setPosition(x, y)
 					self._traps[#self._traps+1] = at
 				end
@@ -277,7 +278,6 @@ function TileLevelView:draw()
 			local x, y = trap:getPosition()
 			local drawY = (y-1)*self._tileH
 			local drawX = (x-1)*self._tileW
-			self:_drawFloor(drawX, drawY)
 			trap:draw(drawX, drawY)
 		end
 	end
