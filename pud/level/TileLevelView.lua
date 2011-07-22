@@ -1,7 +1,10 @@
 local Class = require 'lib.hump.class'
 local LevelView = require 'pud.level.LevelView'
 local Map = require 'pud.level.Map'
+local MapNode = require 'pud.level.MapNode'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
+
+local random = math.random
 
 -- TileLevelView
 -- draws tiles for each node in the level map to a framebuffer, which is then
@@ -19,6 +22,11 @@ local TileLevelView = Class{name='TileLevelView',
 		local w, h = nearestPO2(mapW*self._tileW), nearestPO2(mapH*self._tileH)
 		self._fb = love.graphics.newFramebuffer(w, h)
 
+		self._tileVariant = tostring(random(1,4))
+		self._doorVariant = tostring(random(1,5))
+		self._trapVariant = tostring(random(1,6))
+		self._lastTorch = 'A'
+		self._lastTrap = 'A'
 
 		self:_setupQuads()
 	end
@@ -125,6 +133,20 @@ function TileLevelView:onEvent(e, ...)
 	end
 end
 
+-- draw a floor tile if needed
+function TileLevelView:_drawFloorIfNeeded(node, x, y)
+	local mapType = node:getMapType()
+	if not (mapType:isType('floor')
+		or mapType:isType('wall')
+		or mapType:isType('torch'))
+	then
+		local quad = self:_getQuad(MapNode('floor'))
+		if quad then
+			love.graphics.drawq(self._set, quad, x, y)
+		end
+	end
+end
+
 -- draw to the framebuffer
 function TileLevelView:drawToFB(map)
 	if self._fb and self._set
@@ -141,6 +163,7 @@ function TileLevelView:drawToFB(map)
 				local quad = self:_getQuad(node)
 				if quad then
 					local drawX = (x-1)*self._tileW
+					self:_drawFloorIfNeeded(node, drawX, drawY)
 					love.graphics.drawq(self._set, quad, drawX, drawY)
 				elseif not node:getMapType():isType('empty') then
 					warning('no quad found for %s', tostring(node:getMapType()))
