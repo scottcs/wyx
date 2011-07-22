@@ -24,50 +24,50 @@ end
 
 -- MapType
 --   mapType - the actual type of this node
---   variation - can be anything the user needs
+--   variant - can be anything the user needs
 local MapType = Class{name='MapType',
-	function(self, mapType, variation)
+	function(self, mapType, variant)
 		mapType = mapType or 'empty'
-		self:set(mapType, variation)
+		self:set(mapType, variant)
 	end
 }
 
 -- destructor
 function MapType:destroy()
 	self._mapType = nil
-	self._variation = nil
+	self._variant = nil
 end
 
--- set the type and variation of this MapType.
+-- set the type and variant of this MapType.
 -- mapType can be a string or a MapType object (if an object, the passed in
--- variation is ignored).
-function MapType:set(mapType, variation)
+-- variant is ignored).
+function MapType:set(mapType, variant)
 	_validateMapType(mapType)
 
 	if type(mapType) == 'string' then
 		self._type = mapType
-		self._variation = variation
+		self._variant = variant
 	else
-		self._type, self._variation = mapType:get()
+		self._type, self._variant = mapType:get()
 	end
 end
 
--- get the type and variation
-function MapType:get() return self._type, self._variation end
+-- get the type and variant
+function MapType:get() return self._type, self._variant end
 
--- return true if this type is a mapType or if this variation is the specified
--- variation (if any).
+-- return true if this type is a mapType or if this variant is the specified
+-- variant (if any).
 -- mapType can be a string or a MapType object (if an object, the passed in
--- variation is ignored).
-function MapType:isType(mapType, variation)
+-- variant is ignored).
+function MapType:isType(mapType, variant)
 	_validateMapType(mapType)
 
 	if type(mapType) == 'table' then
-		mapType, variation = mapType:get()
+		mapType, variant = mapType:get()
 	end
 
 	local isType = self._type == mapType
-	if variation then isType = isType and self._variation == variation end
+	if variant then isType = isType and self._variant == variant end
 
 	return isType
 end
@@ -75,7 +75,7 @@ end
 -- tostring
 function MapType:__tostring()
 	local str = self._type
-	if self._variation then str = str..' ('..tostring(self._variation)..')' end
+	if self._variant then str = str..' ('..tostring(self._variant)..')' end
 	return str
 end
 

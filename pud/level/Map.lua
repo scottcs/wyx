@@ -65,8 +65,8 @@ end
 
 -- functions for setting specific MapTypes and their associated attributes
 -- in the given node or coordinates
-function Map:setNodeMapType(node, mapType, variation)
-	node:setMapType(mapType, variation)
+function Map:setNodeMapType(node, mapType, variant)
+	node:setMapType(mapType, variant)
 	mapType = node:getMapType()
 
 	-- set attributes for specific types

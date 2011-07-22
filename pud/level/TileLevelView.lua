@@ -32,10 +32,10 @@ function TileLevelView:destroy()
 end
 
 -- make a quad from the given tile position
-function TileLevelView:_makeQuad(mapType, variation, x, y)
-	variation = tostring(variation)
+function TileLevelView:_makeQuad(mapType, variant, x, y)
+	variant = tostring(variant)
 	self._quads[mapType] = self._quads[mapType] or {}
-	self._quads[mapType][variation] = love.graphics.newQuad(
+	self._quads[mapType][variant] = love.graphics.newQuad(
 		self._tileW*(x-1),
 		self._tileH*(y-1),
 		self._tileW,
@@ -48,25 +48,25 @@ function TileLevelView:_getQuad(node)
 	if self._quads then
 		local mapType = node:getMapType()
 		if not mapType:isType('empty') then
-			local mtype, variation = mapType:get()
-			if not variation then
+			local mtype, variant = mapType:get()
+			if not variant then
 				if mapType:isType('wall') then
 					mtype = 'wall'
-					variation = 'V'
+					variant = 'V'
 				elseif mapType:isType('torch') then
 					mtype = 'torch'
-					variation = 'A'
+					variant = 'A'
 				elseif mapType:isType('trap') then
 					mtype = 'trap'
-					variation = 'A'
+					variant = 'A'
 				end
 			end
 
-			variation = variation or ''
-			variation = variation .. '1'
+			variant = variant or ''
+			variant = variant .. '1'
 
 			if self._quads[mtype] then
-				return self._quads[mtype][variation]
+				return self._quads[mtype][variant]
 			end
 		end
 	end
