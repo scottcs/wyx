@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local LevelView = require 'pud.level.LevelView'
+local LevelView = require 'pud.view.LevelView'
 local Map = require 'pud.level.Map'
 local MapNode = require 'pud.level.MapNode'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'

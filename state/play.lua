@@ -17,7 +17,7 @@ local vector = require 'lib.hump.vector'
 local LevelDirector = require 'pud.level.LevelDirector'
 
 -- level view
-local TileLevelView = require 'pud.level.TileLevelView'
+local TileLevelView = require 'pud.view.TileLevelView'
 
 -- events
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
