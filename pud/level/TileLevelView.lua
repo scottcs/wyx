@@ -27,6 +27,7 @@ local TileLevelView = Class{name='TileLevelView',
 function TileLevelView:destroy()
 	self:_clearQuads()
 	self._set = nil
+	GameEvent:unregisterAll(self)
 	LevelView.destroy(self)
 end
 
