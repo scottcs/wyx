@@ -11,15 +11,17 @@ local random = math.random
 -- drawn to screen
 local TileLevelView = Class{name='TileLevelView',
 	inherits=LevelView,
-	function(self, mapW, mapH)
+	function(self, map)
 		LevelView.construct(self)
 
-		verify('number', mapW, mapH)
+		assert(map and map.is_a and map:is_a(Map))
+		self._map = map
 
 		self._tileW, self._tileH = 32, 32
 		self._set = Image.dungeon
 
-		local w, h = nearestPO2(mapW*self._tileW), nearestPO2(mapH*self._tileH)
+		local w = nearestPO2(map:getWidth() * self._tileW)
+		local h = nearestPO2(map:getHeight() * self._tileH)
 		self._fb = love.graphics.newFramebuffer(w, h)
 
 		self._tileVariant = tostring(random(1,4))
@@ -54,6 +56,11 @@ local _swapAB = function(which)
 		return which == 'A' and 'B' or 'A'
 	end
 	return which
+end
+
+-- return current tile size
+function TileLevelView:getTileSize()
+	return self._tileW, self._tileH
 end
 
 -- make a quad from the given tile position
@@ -168,18 +175,16 @@ function TileLevelView:_drawFloorIfNeeded(node, x, y)
 end
 
 -- draw to the framebuffer
-function TileLevelView:drawToFB(map)
-	if self._fb and self._set
-		and map and map.is_a and map:is_a(Map) and map:getHeight()
-	then
+function TileLevelView:drawToFB()
+	if self._fb and self._set and self._map then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb)
 		love.graphics.setColor(1,1,1)
 
-		for y=1,map:getHeight() do
+		for y=1,self._map:getHeight() do
 			local drawY = (y-1)*self._tileH
-			for x=1,map:getWidth() do
-				local node = map:getLocation(x, y)
+			for x=1,self._map:getWidth() do
+				local node = self._map:getLocation(x, y)
 				local quad = self:_getQuad(node)
 				if quad then
 					local drawX = (x-1)*self._tileW
