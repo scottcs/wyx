@@ -17,8 +17,8 @@ local Map = Class{name='Map', inherits=Rect,
 
 -- destructor
 function Map:destroy()
-	for x=1,self:getWidth() do
-		for y=1,self:getHeight() do
+	for y=1,self:getHeight() do
+		for x=1,self:getWidth() do
 			if self._layout[y][x] then self._layout[y][x]:destroy() end
 			self._layout[y][x] = nil
 		end
