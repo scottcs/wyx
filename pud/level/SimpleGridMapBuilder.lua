@@ -296,34 +296,43 @@ function SimpleGridMapBuilder:_placeDoor(x, y)
 	local ok = true
 
 	if node:getMapType():isType('floor') then
-		-- check top and bottom neighbors for floor
 		local top = self._map:getLocation(x, y-1)
 		local bottom = self._map:getLocation(x, y+1)
+		local left = self._map:getLocation(x-1, y)
+		local right = self._map:getLocation(x+1, y)
+
 		local topMT = top:getMapType()
 		local bottomMT = bottom:getMapType()
+		local leftMT = left:getMapType()
+		local rightMT = right:getMapType()
 
-		if not (topMT:isType('floor') or topMT:isType('doorClosed'))
-			and not (bottomMT:isType('floor') or bottomMT:isType('doorClosed'))
+		-- make sure no adjacent node is a door
+		if not (topMT:isType('doorClosed') or bottomMT:isType('doorClosed')
+			or leftMT:isType('doorClosed') or rightMT:isType('doorClosed'))
 		then
-			placeDoor = true
-		else
-			-- top or bottom was floor, so now check sides
-			local left = self._map:getLocation(x-1, y)
-			local right = self._map:getLocation(x+1, y)
-			local leftMT = left:getMapType()
-			local rightMT = right:getMapType()
+			local placeDoor = false
 
-			if not (leftMT:isType('floor') or leftMT:isType('doorClosed'))
-				and not (rightMT:isType('floor') or rightMT:isType('doorClosed'))
+			-- check top and bottom neighbors for floor
+			if (topMT:isType('wall') or topMT:isType('torch'))
+				and (bottomMT:isType('wall') or bottomMT:isType('torch'))
 			then
 				placeDoor = true
 			else
-				ok = false
+				-- top or bottom was floor, so now check sides
+				if (leftMT:isType('wall') or leftMT:isType('torch'))
+					and (rightMT:isType('wall') or rightMT:isType('torch'))
+				then
+					placeDoor = true
+				else
+					ok = false
+				end
 			end
-		end
 
-		if placeDoor then
-			self._map:setNodeMapType(node, 'doorClosed')
+			if placeDoor then
+				self._map:setNodeMapType(node, 'doorClosed')
+			end
+		else
+			ok = false
 		end
 	end
 	return ok
