@@ -1,4 +1,0 @@
-* fix animation of torches and traps
-* make GameCam
-* make Controller / HumanController and use Events and Commands
-* only draw what's visible through the camera
