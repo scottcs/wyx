@@ -299,16 +299,22 @@ function SimpleGridMapBuilder:_placeDoor(x, y)
 		-- check top and bottom neighbors for floor
 		local top = self._map:getLocation(x, y-1)
 		local bottom = self._map:getLocation(x, y+1)
-		if not top:getMapType():isType('floor')
-			and not bottom:getMapType():isType('floor')
+		local topMT = top:getMapType()
+		local bottomMT = bottom:getMapType()
+
+		if not (topMT:isType('floor') or topMT:isType('doorClosed'))
+			and not (bottomMT:isType('floor') or bottomMT:isType('doorClosed'))
 		then
 			placeDoor = true
 		else
 			-- top or bottom was floor, so now check sides
 			local left = self._map:getLocation(x-1, y)
 			local right = self._map:getLocation(x+1, y)
-			if not left:getMapType():isType('floor')
-				and not right:getMapType():isType('floor')
+			local leftMT = left:getMapType()
+			local rightMT = right:getMapType()
+
+			if not (leftMT:isType('floor') or leftMT:isType('doorClosed'))
+				and not (rightMT:isType('floor') or rightMT:isType('doorClosed'))
 			then
 				placeDoor = true
 			else
