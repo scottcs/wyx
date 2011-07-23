@@ -10,7 +10,7 @@ local st = GameState.new()
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 
 -- Camera
-local Camera = require 'lib.hump.camera'
+local GameCam = require 'pud.view.GameCam'
 local vector = require 'lib.hump.vector'
 
 -- map builder
@@ -57,27 +57,30 @@ function st:_generateMap(builder)
 end
 
 function st:_createView(viewClass)
-	local w, h = self._map:getSize()
-
 	if self._view then self._view:destroy() end
 	self._view = TileLevelView(self._map)
 
-	local tileW, tileH = self._view:getTileSize()
-	self._mapTileW, self._mapTileH = w*tileW, h*tileH
 	self._view:registerEvents()
 end
 
 function st:_createCamera()
-	local w, h = self._map:getSize()
+	local mapW, mapH = self._map:getSize()
 	local tileW, tileH = self._view:getTileSize()
-	local startX = math_floor(w/2+0.5)*tileW - math_floor(tileW/2)
-	local startY = math_floor(h/2+0.5)*tileH - math_floor(tileH/2)
-	self._startVector = vector(startX, startY)
-	if not self._cam then
-		self._cam = Camera(self._startVector, 1)
+	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
+	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
+	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
+	local zoom = 1
+
+	if self._cam then
+		zoom = self._cam:getZoom()
+		self._cam:destroy()
 	end
-	self._cam.pos = self._startVector
-	self:_correctCam()
+
+	self._cam = GameCam(vector(startX, startY), zoom)
+
+	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
+	local max = vector(mapTileW - min.x, mapTileH - min.y)
+	self._cam:setLimits(min, max)
 end
 
 local _accum = 0
@@ -97,7 +100,8 @@ function st:draw()
 
 	-- temporary center square
 	local tileW = self._view:getTileSize()
-	local size = self._cam.zoom * tileW
+	local _,zoomAmt = self._cam:getZoom()
+	local size = zoomAmt * tileW
 	local x = math_floor(WIDTH/2)-math_floor(size/2)
 	local y = math_floor(HEIGHT/2)-math_floor(size/2)
 	love.graphics.setColor(0, 1, 0)
@@ -110,22 +114,9 @@ function st:leave()
 	self._view = nil
 end
 
--- correct the camera values after moving
-function st:_correctCam()
-	local tileW, tileH = self._view:getTileSize()
-	local wmin = math_floor(tileW/2)
-	local wmax = self._mapTileW - wmin
-	if self._cam.pos.x > wmax then self._cam.pos.x = wmax end
-	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
-
-	local hmin = math_floor(tileH/2)
-	local hmax = self._mapTileH - hmin
-	if self._cam.pos.y > hmax then self._cam.pos.y = hmax end
-	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
-end
-
 function st:keypressed(key, unicode)
 	local tileW, tileH = self._view:getTileSize()
+	local _,zoomAmt = self._cam:getZoom()
 
 	switch(key) {
 		escape = function() love.event.push('q') end,
@@ -141,46 +132,13 @@ function st:keypressed(key, unicode)
 		end,
 
 		-- camera
-		left = function()
-			if not self._cam then return end
-			local amt = vector(-tileW/self._cam.zoom, 0)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		right = function()
-			if not self._cam then return end
-			local amt = vector(tileW/self._cam.zoom, 0)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		up = function()
-			if not self._cam then return end
-			local amt = vector(0, -tileH/self._cam.zoom)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		down = function()
-			if not self._cam then return end
-			local amt = vector(0, tileH/self._cam.zoom)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		pageup = function()
-			if not self._cam then return end
-			self._cam.zoom = math_max(0.25, self._cam.zoom * (1/2))
-			self:_correctCam()
-		end,
-		pagedown = function() 
-			if not self._cam then return end
-			self._cam.zoom = math_min(1, self._cam.zoom * 2)
-			self:_correctCam()
-		end,
-		home = function()
-			if not self._cam then return end
-			self._cam.zoom = 1
-			self._cam.pos = self._startVector
-			self:_correctCam()
-		end,
+		left = function() self._cam:translate(vector(-tileW/zoomAmt, 0)) end,
+		right = function() self._cam:translate(vector(tileW/zoomAmt, 0)) end,
+		up = function() self._cam:translate(vector(0, -tileH/zoomAmt)) end,
+		down = function() self._cam:translate(vector(0, tileH/zoomAmt)) end,
+		pageup = function() self._cam:zoomOut() end,
+		pagedown = function() self._cam:zoomIn() end,
+		home = function() self._cam:home() end,
 	}
 end
 
