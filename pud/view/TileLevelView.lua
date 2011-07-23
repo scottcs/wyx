@@ -208,7 +208,10 @@ end
 -- handle registered events as they are fired
 function TileLevelView:onEvent(e, ...)
 	if e:is_a(MapUpdateFinishedEvent) then
-		self:drawToFB(e:getMap())
+		local map = e:getMap()
+		if map == self._map then
+			self:drawToFB()
+		end
 	end
 end
 
