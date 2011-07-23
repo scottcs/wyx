@@ -10,148 +10,86 @@ local st = GameState.new()
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 
 -- Camera
-local Camera = require 'lib.hump.camera'
+local GameCam = require 'pud.view.GameCam'
 local vector = require 'lib.hump.vector'
-
--- Time Manager
-local TimeManager = require 'pud.time.TimeManager'
-local TimedObject = require 'pud.time.TimedObject'
 
 -- map builder
 local LevelDirector = require 'pud.level.LevelDirector'
 
 -- level view
-local TileLevelView = require 'pud.level.TileLevelView'
+local TileLevelView = require 'pud.view.TileLevelView'
 
 -- events
-local OpenDoorEvent = require 'pud.event.OpenDoorEvent'
-local GameStartEvent = require 'pud.event.GameStartEvent'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 
--- some defaults
-local TILESIZE = 32
-local MAPW, MAPH = 100, 100
-local _mapTileW, _mapTileH
-
-function st:init()
-end
 
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(200, 25)
 
-	self._timeManager = TimeManager()
-
-	local player = TimedObject()
-	local dragon = TimedObject()
-	local ifrit = TimedObject()
-
-	player.name = 'Player'
-	dragon.name = 'Dragon'
-	ifrit.name = 'Ifrit'
-
-	local test = false
-
-	function player:OpenDoorEvent(e)
-		if test then
-			print('player')
-			print(tostring(e))
-		end
-	end
-
-	function dragon:onEvent(e)
-		if test then
-			print('dragon')
-			print(tostring(e))
-		end
-	end
-
-	function ifrit:onEvent(e)
-		if test then
-			print('ifrit')
-			print(tostring(e))
-		end
-	end
-
-	function player:getSpeed(ap) return 1 end
-	function player:doAction(ap)
-		GameEvent:notify(GameStartEvent(), 234, ap)
-		return 2
-	end
-
-	function dragon:getSpeed(ap) return 1.03 end
-	function dragon:doAction(ap)
-		return 5
-	end
-
-	function ifrit:getSpeed(ap) return 1.27 end
-	function ifrit:doAction(ap)
-		GameEvent:push(OpenDoorEvent(self.name))
-		return 2
-	end
-
-	local function ifritOpenDoorCB(e)
-		ifrit:onEvent(e)
-	end
-
-	GameEvent:register(player, OpenDoorEvent)
-	GameEvent:register(ifritOpenDoorCB, OpenDoorEvent)
-	GameEvent:register(dragon, GameStartEvent)
-
-	self._timeManager:register(player, 3)
-	self._timeManager:register(dragon, 3)
-	self._timeManager:register(ifrit, 3)
-
-	self:_generateMap(true)
+	self:_generateMapFromFile()
+	self:_createView()
+	self:_createCamera()
+	GameEvent:push(MapUpdateFinishedEvent(self._map))
 end
 
-function st:_generateMap(fromFile)
+function st:_generateMapFromFile()
+	local FileMapBuilder = require 'pud.level.FileMapBuilder'
+	local mapfiles = {'test'}
+	local mapfile = mapfiles[math.random(1,#mapfiles)]
+	local builder = FileMapBuilder(mapfile)
+
+	self:_generateMap(builder)
+end
+
+function st:_generateMapRandomly()
+	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
+	local builder = SimpleGridMapBuilder(100,100, 10,10, 20,35)
+
+	self:_generateMap(builder)
+end
+
+function st:_generateMap(builder)
 	if self._map then self._map:destroy() end
-	local builder
-
-	if fromFile then
-		local FileMapBuilder = require 'pud.level.FileMapBuilder'
-		local mapfiles = {'test'}
-		local mapfile = mapfiles[math.random(1,#mapfiles)]
-		builder = FileMapBuilder(mapfile)
-	else
-		local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
-		builder = SimpleGridMapBuilder(MAPW,MAPH, 10,10, 20,35)
-	end
-
 	self._map = LevelDirector:generateStandard(builder)
 	builder:destroy()
-	print(self._map)
+	GameEvent:push(MapUpdateFinishedEvent(self._map))
+end
 
-	local w, h = self._map:getSize()
-	_mapTileW, _mapTileH = w*TILESIZE, h*TILESIZE
+function st:_createView(viewClass)
 	if self._view then self._view:destroy() end
-	self._view = TileLevelView(w, h)
-	self._view:registerEvents()
+	self._view = TileLevelView(self._map)
 
-	local startX = math_floor(w/2+0.5)*TILESIZE - math_floor(TILESIZE/2)
-	local startY = math_floor(h/2+0.5)*TILESIZE - math_floor(TILESIZE/2)
-	self._startVector = vector(startX, startY)
-	if not self._cam then
-		self._cam = Camera(self._startVector, 1)
+	self._view:registerEvents()
+end
+
+function st:_createCamera()
+	local mapW, mapH = self._map:getSize()
+	local tileW, tileH = self._view:getTileSize()
+	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
+	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
+	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
+	local zoom = 1
+
+	if self._cam then
+		zoom = self._cam:getZoom()
+		self._cam:destroy()
 	end
-	self._cam.pos = self._startVector
-	self:_correctCam()
+
+	self._cam = GameCam(vector(startX, startY), zoom)
+
+	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
+	local max = vector(mapTileW - min.x, mapTileH - min.y)
+	self._cam:setLimits(min, max)
 end
 
 local _accum = 0
-local _count = 0
 local TICK = 0.01
 
 function st:update(dt)
 	_accum = _accum + dt
 	if _accum > TICK then
-		_count = _count + 1
 		_accum = _accum - TICK
-		self._timeManager:tick()
-		if _count % 25 == 0 and self._map then
-			GameEvent:push(MapUpdateFinishedEvent(self._map))
-		end
 	end
 end
 
@@ -161,7 +99,9 @@ function st:draw()
 	self._cam:postdraw()
 
 	-- temporary center square
-	local size = self._cam.zoom * TILESIZE
+	local tileW = self._view:getTileSize()
+	local _,zoomAmt = self._cam:getZoom()
+	local size = zoomAmt * tileW
 	local x = math_floor(WIDTH/2)-math_floor(size/2)
 	local y = math_floor(HEIGHT/2)-math_floor(size/2)
 	love.graphics.setColor(0, 1, 0)
@@ -170,72 +110,35 @@ end
 
 function st:leave()
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
-	self._timeManager:destroy()
-	self._timeManager = nil
 	self._view:destroy()
 	self._view = nil
 end
 
--- correct the camera values after moving
-function st:_correctCam()
-	local wmin = math_floor(TILESIZE/2)
-	local wmax = _mapTileW - wmin
-	if self._cam.pos.x > wmax then self._cam.pos.x = wmax end
-	if self._cam.pos.x < wmin then self._cam.pos.x = wmin end
-
-	local hmin = wmin
-	local hmax = _mapTileH - hmin
-	if self._cam.pos.y > hmax then self._cam.pos.y = hmax end
-	if self._cam.pos.y < hmin then self._cam.pos.y = hmin end
-end
-
 function st:keypressed(key, unicode)
+	local tileW, tileH = self._view:getTileSize()
+	local _,zoomAmt = self._cam:getZoom()
+
 	switch(key) {
 		escape = function() love.event.push('q') end,
-		m = function() self:_generateMap() end,
-		f = function() self:_generateMap(true) end,
+		m = function()
+			self:_generateMapRandomly()
+			self:_createView()
+			self:_createCamera()
+		end,
+		f = function()
+			self:_generateMapFromFile()
+			self:_createView()
+			self:_createCamera()
+		end,
 
 		-- camera
-		left = function()
-			if not self._cam then return end
-			local amt = vector(-TILESIZE/self._cam.zoom, 0)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		right = function()
-			if not self._cam then return end
-			local amt = vector(TILESIZE/self._cam.zoom, 0)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		up = function()
-			if not self._cam then return end
-			local amt = vector(0, -TILESIZE/self._cam.zoom)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		down = function()
-			if not self._cam then return end
-			local amt = vector(0, TILESIZE/self._cam.zoom)
-			self._cam:translate(amt)
-			self:_correctCam()
-		end,
-		pageup = function()
-			if not self._cam then return end
-			self._cam.zoom = math_max(0.25, self._cam.zoom * (1/2))
-			self:_correctCam()
-		end,
-		pagedown = function() 
-			if not self._cam then return end
-			self._cam.zoom = math_min(1, self._cam.zoom * 2)
-			self:_correctCam()
-		end,
-		home = function()
-			if not self._cam then return end
-			self._cam.zoom = 1
-			self._cam.pos = self._startVector
-			self:_correctCam()
-		end,
+		left = function() self._cam:translate(vector(-tileW/zoomAmt, 0)) end,
+		right = function() self._cam:translate(vector(tileW/zoomAmt, 0)) end,
+		up = function() self._cam:translate(vector(0, -tileH/zoomAmt)) end,
+		down = function() self._cam:translate(vector(0, tileH/zoomAmt)) end,
+		pageup = function() self._cam:zoomOut() end,
+		pagedown = function() self._cam:zoomIn() end,
+		home = function() self._cam:home() end,
 	}
 end
 
