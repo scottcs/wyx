@@ -21,7 +21,9 @@ Font  = Proxy(function(k)
 	return love.graphics.newFont('font/dejavu.ttf', k)
 end)
 Image = Proxy(function(k)
-	return love.graphics.newImage('image/'..k..'.png')
+	local img = love.graphics.newImage('image/'..k..'.png')
+	img:setFilter('nearest', 'nearest')
+	return img
 end)
 Sound = Proxy(function(k)
 	return love.audio.newSource(
