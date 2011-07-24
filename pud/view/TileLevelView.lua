@@ -78,6 +78,8 @@ function TileLevelView:_updateAnimatedTiles()
 	for _,trap in ipairs(self._traps) do
 		trap:advance()
 	end
+
+	self:drawToFB()
 end
 
 -- make a quad from the given tile position
@@ -256,17 +258,6 @@ function TileLevelView:drawToFB()
 			end
 		end
 
-		love.graphics.setRenderTarget()
-		self._isDrawing = false
-	end
-end
-
--- draw the framebuffer to the screen
-function TileLevelView:draw()
-	if self._fb and self._isDrawing == false then
-		love.graphics.setColor(1,1,1)
-		love.graphics.draw(self._fb)
-
 		for _,torch in ipairs(self._torches) do
 			local x, y = torch:getPosition()
 			local drawY = (y-1)*self._tileH
@@ -280,6 +271,17 @@ function TileLevelView:draw()
 			local drawX = (x-1)*self._tileW
 			trap:draw(drawX, drawY)
 		end
+
+		love.graphics.setRenderTarget()
+		self._isDrawing = false
+	end
+end
+
+-- draw the framebuffer to the screen
+function TileLevelView:draw()
+	if self._fb and self._isDrawing == false then
+		love.graphics.setColor(1,1,1)
+		love.graphics.draw(self._fb)
 	end
 end
 
