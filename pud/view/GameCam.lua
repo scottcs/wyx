@@ -29,15 +29,10 @@ local GameCam = Class{name='GameCam',
 
 -- destructor
 function GameCam:destroy()
+	self:unfollowTarget()
 	self._cam = nil
 	self._home = nil
 	self._zoom = nil
-	self._target = nil
-	self._targetFuncs.setX = nil
-	self._targetFuncs.setY = nil
-	self._targetFuncs.setCenter = nil
-	self._targetFuncs.setPosition = nil
-	self._targetFuncs = nil
 	for k,v in pairs(self._limits) do self._limits[k] = nil end
 	self._limits = nil
 end
@@ -140,6 +135,7 @@ function GameCam:unfollowTarget()
 		self._targetFuncs.setY = nil
 		self._targetFuncs.setPosition = nil
 		self._targetFuncs.setCenter = nil
+		self._targetFuncs = nil
 		self._target = nil
 	end
 end
