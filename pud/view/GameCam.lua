@@ -6,12 +6,24 @@ local Rect = require 'pud.kit.Rect'
 
 local _zoomLevels = {1, 0.5, 0.25}
 
+local _isVector = function(...)
+	local n = select('#',...)
+	for i=1,n do
+		local v = select(i,...)
+		assert(vector.isvector(v), 'vector expected, got %s (%s)',
+			tostring(v), type(v))
+	end
+	return n > 0
+end
+
 local GameCam = Class{name='GameCam',
 	function(self, v, zoom)
 		v = v or vector(0,0)
-		self._zoom = math.max(1, math.min(#_zoomLevels, zoom or 1))
-		self._home = v
-		self._cam = Camera(v, _zoomLevels[self._zoom])
+		if _isVector(v) then
+			self._zoom = math.max(1, math.min(#_zoomLevels, zoom or 1))
+			self._home = v
+			self._cam = Camera(v, _zoomLevels[self._zoom])
+		end
 	end
 }
 
@@ -21,17 +33,31 @@ function GameCam:destroy()
 	self._home = nil
 	self._zoom = nil
 	self._target = nil
-	self._targetSetX = nil
-	self._targetSetY = nil
+	self._targetFuncs.setX = nil
+	self._targetFuncs.setY = nil
+	self._targetFuncs.setCenter = nil
+	self._targetFuncs.setPosition = nil
+	self._targetFuncs = nil
 	for k,v in pairs(self._limits) do self._limits[k] = nil end
-	self._bounday = nil
+	self._limits = nil
+end
+
+function GameCam:_setAnimating(b)
+	verify('boolean', b)
+	self._isAnimating = b
+end
+
+function GameCam:isAnimating()
+	return self._isAnimating == true
 end
 
 -- zoom in smoothly
 function GameCam:zoomIn()
-	if self._zoom > 1 then
+	if self._zoom > 1 and not self:isAnimating() then
 		self._zoom = self._zoom - 1
-		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack')
+		self:_setAnimating(true)
+		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
+			self._setAnimating, self, false)
 	else
 		self:_bumpZoom(1.1)
 	end
@@ -39,9 +65,11 @@ end
 
 -- zoom out smoothly
 function GameCam:zoomOut()
-	if self._zoom < #_zoomLevels then
+	if self._zoom < #_zoomLevels and not self:isAnimating() then
 		self._zoom = self._zoom + 1
-		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack')
+		self:_setAnimating(true)
+		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
+			self._setAnimating, self, false)
 	else
 		self:_bumpZoom(0.9)
 	end
@@ -49,8 +77,12 @@ end
 
 -- bump the zoom but don't change it
 function GameCam:_bumpZoom(mult)
-	tween(0.1, self._cam, {zoom = _zoomLevels[self._zoom] * mult}, 'inQuad',
-		tween, 0.1, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outQuad')
+	if not self:isAnimating() then
+		self:_setAnimating(true)
+		tween(0.1, self._cam, {zoom = _zoomLevels[self._zoom] * mult}, 'inQuad',
+			tween, 0.1, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outQuad',
+			self._setAnimating, self, false)
+	end
 end
 
 -- return zoom level
@@ -64,75 +96,91 @@ function GameCam:followTarget(rect)
 		'GameCam can only follow a Rect (tried to follow %s)', tostring(rect))
 
 	self._target = rect
-	self._targetSetX = rect.setX
-	self._targetSetY = rect.setY
+	self._targetFuncs = {
+		setX = rect.setX,
+		setY = rect.setY,
+		setPosition = rect.setPosition,
+		setCenter = rect.setCenter,
+	}
 
-	rect.setX = function(theRect, x)
-		self._targetSetX(theRect, x)
-		local cx, cy = theRect:getCenter('floor')
-		self:_setPos(cx, cy)
+	local function _follow(self, theRect)
+		self._cam.pos = theRect:getCenterVector()
 		self:_correctCam()
 	end
 
+	rect.setX = function(theRect, x)
+		self._targetFuncs.setX(theRect, x)
+		_follow(self, theRect)
+	end
+
 	rect.setY = function(theRect, y)
-		self._targetSetY(theRect, y)
-		local cx, cy = theRect:getCenter('floor')
-		self:_setPos(cx, cy)
-		self:_correctCam()
+		self._targetFuncs.setY(theRect, y)
+		_follow(self, theRect)
+	end
+
+	rect.setPosition = function(theRect, x, y)
+		self._targetFuncs.setPosition(theRect, x, y)
+		_follow(self, theRect)
+	end
+
+	rect.setCenter = function(theRect, x, y, flag)
+		self._targetFuncs.setCenter(theRect, x, y, flag)
+		_follow(self, theRect)
 	end
 end
 
 -- unfollow a target Rect
 function GameCam:unfollowTarget()
 	if self._target then
-		self._target.setX = self._targetSetX
-		self._target.setY = self._targetSetY
-		self._targetSetX = nil
-		self._targetSetY = nil
+		self._target.setX = self._targetFuncs.setX
+		self._target.setY = self._targetFuncs.setY
+		self._target.setPosition = self._targetFuncs.setPosition
+		self._target.setCenter = self._targetFuncs.setCenter
+		self._targetFuncs.setX = nil
+		self._targetFuncs.setY = nil
+		self._targetFuncs.setPosition = nil
+		self._targetFuncs.setCenter = nil
 		self._target = nil
 	end
-end
-
--- set position
-function GameCam:_setPos(x, y)
-	if type(x) == 'table' then
-		x, y = x.x, x.y
-	end
-	verify('number', x, y)
-	self._cam.pos.x = x
-	self._cam.pos.y = y
 end
 
 -- center on initial vector
 function GameCam:home()
 	self:unfollowTarget()
-	self:_setPos(self._home)
+	self._cam.pos = self._home
 	self:_correctCam()
 end
 
 -- change home vector
-function GameCam:setHome(x, y)
-	local v = x
-	if type(x) == 'number' then v = vector(x, y) end
-	self._home = v
+function GameCam:setHome(home)
+	if _isVector(home) then
+		self._home = home
+	end
 end
 
--- translate along x and y
-function GameCam:translate(x, y)
-	local v = x
-	if type(x) == 'number' then v = vector(x, y) end
-	self._cam:translate(v)
-	self:_correctCam()
+-- translate along v
+function GameCam:translate(v)
+	if _isVector(v) and not self:isAnimating() then
+		local target = self._cam.pos + v
+		if self:_shouldTranslate(v) then
+			self:_setAnimating(true)
+			tween(0.15, self._cam.pos, target, 'outQuint',
+				self._setAnimating, self, false)
+		end
+	end
+end
+
+function GameCam:_shouldTranslate(v)
+	local pos = self._cam.pos + v
+	return not (pos.x > self._limits.max.x or pos.x < self._limits.min.x
+		or pos.y > self._limits.max.y or pos.y < self._limits.min.y)
 end
 
 -- set x and y limits for camera
-function GameCam:setLimits(minX, minY, maxX, maxY)
-	local minV, maxV = minX, minY
-	if type(minX) == 'number' then
-		minV = vector(minX, minY)
-		maxV = vector(maxX, maxY)
+function GameCam:setLimits(minV, maxV)
+	if _isVector(minV, maxV) then
+		self._limits = {min = minV, max = maxV}
 	end
-	self._limits = {min = minV, max = maxV}
 end
 
 -- correct the camera position if it is beyond the limits

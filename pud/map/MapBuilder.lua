@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
-local Map = require 'pud.level.Map'
-local MapNode = require 'pud.level.MapNode'
+local Map = require 'pud.map.Map'
+local MapNode = require 'pud.map.MapNode'
 
 -- MapBuilder
 local MapBuilder = Class{name='MapBuilder',

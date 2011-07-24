@@ -1,7 +1,7 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapBuilder = require 'pud.level.MapBuilder'
-local MapNode = require 'pud.level.MapNode'
+local MapBuilder = require 'pud.map.MapBuilder'
+local MapNode = require 'pud.map.MapNode'
 local Rect = require 'pud.kit.Rect'
 
 local random = math.random
