@@ -1,6 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapType = require 'pud.level.MapType'
+local MapType = require 'pud.map.MapType'
 
 -- MapNode
 -- represents a single map position

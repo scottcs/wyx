@@ -14,7 +14,7 @@ local GameCam = require 'pud.view.GameCam'
 local vector = require 'lib.hump.vector'
 
 -- map builder
-local LevelDirector = require 'pud.level.LevelDirector'
+local MapDirector = require 'pud.map.MapDirector'
 
 -- level view
 local TileLevelView = require 'pud.view.TileLevelView'
@@ -34,7 +34,7 @@ function st:enter()
 end
 
 function st:_generateMapFromFile()
-	local FileMapBuilder = require 'pud.level.FileMapBuilder'
+	local FileMapBuilder = require 'pud.map.FileMapBuilder'
 	local mapfiles = {'test'}
 	local mapfile = mapfiles[math.random(1,#mapfiles)]
 	local builder = FileMapBuilder(mapfile)
@@ -43,7 +43,7 @@ function st:_generateMapFromFile()
 end
 
 function st:_generateMapRandomly()
-	local SimpleGridMapBuilder = require 'pud.level.SimpleGridMapBuilder'
+	local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
 	local builder = SimpleGridMapBuilder(100,100, 10,10, 20,35)
 
 	self:_generateMap(builder)
@@ -51,7 +51,7 @@ end
 
 function st:_generateMap(builder)
 	if self._map then self._map:destroy() end
-	self._map = LevelDirector:generateStandard(builder)
+	self._map = MapDirector:generateStandard(builder)
 	builder:destroy()
 	GameEvent:push(MapUpdateFinishedEvent(self._map))
 end
