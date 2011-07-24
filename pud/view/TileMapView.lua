@@ -24,6 +24,7 @@ local TileMapView = Class{name='TileMapView',
 		local w = nearestPO2(map:getWidth() * self._tileW)
 		local h = nearestPO2(map:getHeight() * self._tileH)
 		self._fb = love.graphics.newFramebuffer(w, h)
+		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
 
 		self._tileVariant = tostring(random(1,4))
 		self._doorVariant = tostring(random(1,5))
@@ -33,6 +34,14 @@ local TileMapView = Class{name='TileMapView',
 		self:_setupQuads()
 		self:_extractAnimatedTiles()
 		self._animID = cron.every(0.25, self._updateAnimatedTiles, self)
+
+		-- make static floor tile
+		local quad = self:_getQuad(MapNode('floor'))
+		if quad then
+			self._floorfb:renderTo(function()
+				love.graphics.drawq(self._set, quad, 0, 0)
+			end)
+		end
 	end
 }
 
@@ -45,6 +54,7 @@ function TileMapView:destroy()
 	self._tileW = nil
 	self._tileH = nil
 	self._fb = nil
+	self._floorfb = nil
 	self._map = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
@@ -230,9 +240,8 @@ end
 
 -- draw a floor tile
 function TileMapView:_drawFloor(x, y)
-	local quad = self:_getQuad(MapNode('floor'))
-	if quad then
-		love.graphics.drawq(self._set, quad, x, y)
+	if self._floorfb then
+		love.graphics.draw(self._floorfb, x, y)
 	end
 end
 
