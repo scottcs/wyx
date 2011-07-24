@@ -118,9 +118,9 @@ function TileMapView:_getQuad(node)
 
 			variant = variant or ''
 
-			if mapType:isType('doorClosed') or mapType:isType('doorOpen') then
+			if mapType:isType('doorClosed', 'doorOpen') then
 				variant = variant .. self._doorVariant
-			elseif not (mapType:isType('torch') or mapType:isType('trap')) then
+			elseif not mapType:isType('torch', 'trap') then
 				variant = variant .. self._tileVariant
 			end
 
@@ -191,19 +191,17 @@ function TileMapView:_extractAnimatedTiles()
 			local node = self._map:getLocation(x, y)
 			local mapType = node:getMapType()
 
-			if mapType:isType('torch') or mapType:isType('trap') then
-				if mapType:isType('torch') then
-					local at = self:_createAnimatedTile(torchA, torchB)
-					at:setPosition(x, y)
-					self._torches[#self._torches+1] = at
-				elseif mapType:isType('trap') then
-					local variant = random(1,6)
-					trapA:setMapType('trap', 'A'..tostring(variant))
-					trapB:setMapType('trap', 'B'..tostring(variant))
-					local at = self:_createAnimatedTile(trapA, trapB, floorquad)
-					at:setPosition(x, y)
-					self._traps[#self._traps+1] = at
-				end
+			if mapType:isType('torch') then
+				local at = self:_createAnimatedTile(torchA, torchB)
+				at:setPosition(x, y)
+				self._torches[#self._torches+1] = at
+			elseif mapType:isType('trap') then
+				local variant = random(1,6)
+				trapA:setMapType('trap', 'A'..tostring(variant))
+				trapB:setMapType('trap', 'B'..tostring(variant))
+				local at = self:_createAnimatedTile(trapA, trapB, floorquad)
+				at:setPosition(x, y)
+				self._traps[#self._traps+1] = at
 			end
 		end
 	end
@@ -230,10 +228,7 @@ end
 -- draw a floor tile if needed
 function TileMapView:_drawFloorIfNeeded(node, x, y)
 	local mapType = node:getMapType()
-	if not (mapType:isType('floor')
-		or mapType:isType('wall')
-		or mapType:isType('torch'))
-	then
+	if not mapType:isType('floor', 'wall', 'torch') then
 		self:_drawFloor(x, y)
 	end
 end
@@ -257,7 +252,7 @@ function TileMapView:drawToFB()
 			for x=1,self._map:getWidth() do
 				local node = self._map:getLocation(x, y)
 				local mapType = node:getMapType()
-				if not (mapType:isType('torch') or mapType:isType('trap')) then
+				if not mapType:isType('torch', 'trap') then
 					local quad = self:_getQuad(node)
 					if quad then
 						local drawX = (x-1)*self._tileW

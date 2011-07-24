@@ -16,9 +16,7 @@ local _allMapTypes = {
 
 -- private class function to validate a given map type
 local _validateMapType = function(mapType)
-	assert(mapType
-		and ((type(mapType) == 'string' and nil ~= _allMapTypes[mapType])
-		or (type(mapType) == 'table' and mapType.is_a and mapType.is_a(MapType))),
+	assert(type(mapType) == 'string' and nil ~= _allMapTypes[mapType],
 		'invalid map type: %s', tostring(mapType))
 end
 
@@ -39,8 +37,7 @@ function MapType:destroy()
 end
 
 -- set the type and variant of this MapType.
--- mapType can be a string or a MapType object (if an object, the passed in
--- variant is ignored).
+-- mapType is a string
 function MapType:set(mapType, variant)
 	_validateMapType(mapType)
 
@@ -59,17 +56,15 @@ function MapType:get() return self._type, self._variant end
 -- variant (if any).
 -- mapType can be a string or a MapType object (if an object, the passed in
 -- variant is ignored).
-function MapType:isType(mapType, variant)
-	_validateMapType(mapType)
+function MapType:isType(...)
+	for i=1,select('#',...) do
+		local mapType = select(i,...)
+		_validateMapType(mapType)
 
-	if type(mapType) == 'table' then
-		mapType, variant = mapType:get()
+		if self._type == mapType then return true end
 	end
 
-	local isType = self._type == mapType
-	if variant then isType = isType and self._variant == variant end
-
-	return isType
+	return false
 end
 
 -- tostring
