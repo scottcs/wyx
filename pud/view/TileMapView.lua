@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local LevelView = require 'pud.view.LevelView'
+local MapView = require 'pud.view.MapView'
 local Map = require 'pud.map.Map'
 local MapNode = require 'pud.map.MapNode'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
@@ -7,13 +7,13 @@ local AnimatedTile = require 'pud.view.AnimatedTile'
 
 local random = math.random
 
--- TileLevelView
+-- TileMapView
 -- draws tiles for each node in the level map to a framebuffer, which is then
 -- drawn to screen
-local TileLevelView = Class{name='TileLevelView',
-	inherits=LevelView,
+local TileMapView = Class{name='TileMapView',
+	inherits=MapView,
 	function(self, map)
-		LevelView.construct(self)
+		MapView.construct(self)
 
 		assert(map and map.is_a and map:is_a(Map))
 		self._map = map
@@ -24,6 +24,7 @@ local TileLevelView = Class{name='TileLevelView',
 		local w = nearestPO2(map:getWidth() * self._tileW)
 		local h = nearestPO2(map:getHeight() * self._tileH)
 		self._fb = love.graphics.newFramebuffer(w, h)
+		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
 
 		self._tileVariant = tostring(random(1,4))
 		self._doorVariant = tostring(random(1,5))
@@ -33,11 +34,19 @@ local TileLevelView = Class{name='TileLevelView',
 		self:_setupQuads()
 		self:_extractAnimatedTiles()
 		self._animID = cron.every(0.25, self._updateAnimatedTiles, self)
+
+		-- make static floor tile
+		local quad = self:_getQuad(MapNode('floor'))
+		if quad then
+			self._floorfb:renderTo(function()
+				love.graphics.drawq(self._set, quad, 0, 0)
+			end)
+		end
 	end
 }
 
 -- destructor
-function TileLevelView:destroy()
+function TileMapView:destroy()
 	self:_clearQuads()
 	cron.cancel(self._animID)
 	self._animID = nil
@@ -45,6 +54,7 @@ function TileLevelView:destroy()
 	self._tileW = nil
 	self._tileH = nil
 	self._fb = nil
+	self._floorfb = nil
 	self._map = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
@@ -53,16 +63,16 @@ function TileLevelView:destroy()
 	self._torches = nil
 	self._traps = nil
 	GameEvent:unregisterAll(self)
-	LevelView.destroy(self)
+	MapView.destroy(self)
 end
 
 -- return current tile size
-function TileLevelView:getTileSize()
+function TileMapView:getTileSize()
 	return self._tileW, self._tileH
 end
 
 -- update the animated tiles
-function TileLevelView:_updateAnimatedTiles()
+function TileMapView:_updateAnimatedTiles()
 	for _,torch in ipairs(self._torches) do
 		if torch._flicker then
 			torch._flicker = nil
@@ -83,7 +93,7 @@ function TileLevelView:_updateAnimatedTiles()
 end
 
 -- make a quad from the given tile position
-function TileLevelView:_makeQuad(mapType, variant, x, y)
+function TileMapView:_makeQuad(mapType, variant, x, y)
 	variant = tostring(variant)
 	self._quads[mapType] = self._quads[mapType] or {}
 	self._quads[mapType][variant] = love.graphics.newQuad(
@@ -95,7 +105,7 @@ function TileLevelView:_makeQuad(mapType, variant, x, y)
 		self._set:getHeight())
 end
 
-function TileLevelView:_getQuad(node)
+function TileMapView:_getQuad(node)
 	if self._quads then
 		local mapType = node:getMapType()
 		if not mapType:isType('empty') then
@@ -123,7 +133,7 @@ function TileLevelView:_getQuad(node)
 end
 
 -- clear the quads table
-function TileLevelView:_clearQuads()
+function TileMapView:_clearQuads()
 	if self._quads then
 		for k,v in pairs(self._quads) do self._quads[k] = nil end
 		self._quads = nil
@@ -131,7 +141,7 @@ function TileLevelView:_clearQuads()
 end
 
 -- set up the quads
-function TileLevelView:_setupQuads()
+function TileMapView:_setupQuads()
 	self:_clearQuads()
 	self._quads = {}
 	for i=1,4 do
@@ -157,7 +167,7 @@ function TileLevelView:_setupQuads()
 	end
 end
 
-function TileLevelView:_createAnimatedTile(nodeA, nodeB, bgquad)
+function TileMapView:_createAnimatedTile(nodeA, nodeB, bgquad)
 	local at = AnimatedTile()
 
 	local quadA = self:_getQuad(nodeA)
@@ -169,7 +179,7 @@ function TileLevelView:_createAnimatedTile(nodeA, nodeB, bgquad)
 	return at
 end
 
-function TileLevelView:_extractAnimatedTiles()
+function TileMapView:_extractAnimatedTiles()
 	local torchA = MapNode('torch', 'A'..self._tileVariant)
 	local torchB = MapNode('torch', 'B'..self._tileVariant)
 	local trapA = MapNode()
@@ -200,7 +210,7 @@ function TileLevelView:_extractAnimatedTiles()
 end
 
 -- register for events that will cause this view to redraw
-function TileLevelView:registerEvents()
+function TileMapView:registerEvents()
 	local events = {
 		MapUpdateFinishedEvent,
 	}
@@ -208,7 +218,7 @@ function TileLevelView:registerEvents()
 end
 
 -- handle registered events as they are fired
-function TileLevelView:onEvent(e, ...)
+function TileMapView:onEvent(e, ...)
 	if e:is_a(MapUpdateFinishedEvent) then
 		local map = e:getMap()
 		if map == self._map then
@@ -218,7 +228,7 @@ function TileLevelView:onEvent(e, ...)
 end
 
 -- draw a floor tile if needed
-function TileLevelView:_drawFloorIfNeeded(node, x, y)
+function TileMapView:_drawFloorIfNeeded(node, x, y)
 	local mapType = node:getMapType()
 	if not (mapType:isType('floor')
 		or mapType:isType('wall')
@@ -229,15 +239,14 @@ function TileLevelView:_drawFloorIfNeeded(node, x, y)
 end
 
 -- draw a floor tile
-function TileLevelView:_drawFloor(x, y)
-	local quad = self:_getQuad(MapNode('floor'))
-	if quad then
-		love.graphics.drawq(self._set, quad, x, y)
+function TileMapView:_drawFloor(x, y)
+	if self._floorfb then
+		love.graphics.draw(self._floorfb, x, y)
 	end
 end
 
 -- draw to the framebuffer
-function TileLevelView:drawToFB()
+function TileMapView:drawToFB()
 	if self._fb and self._set and self._map then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb)
@@ -281,7 +290,7 @@ function TileLevelView:drawToFB()
 end
 
 -- draw the framebuffer to the screen
-function TileLevelView:draw()
+function TileMapView:draw()
 	if self._fb and self._isDrawing == false then
 		love.graphics.setColor(1,1,1)
 		love.graphics.draw(self._fb)
@@ -289,4 +298,4 @@ function TileLevelView:draw()
 end
 
 -- the class
-return TileLevelView
+return TileMapView
