@@ -187,20 +187,23 @@ function TileMapView:_extractAnimatedTiles()
 	local floorquad = self:_getQuad(MapNode('floor'))
 
 	for y=1,self._map:getHeight() do
+		local drawY = (y-1)*self._tileH
 		for x=1,self._map:getWidth() do
+			local drawX = (x-1)*self._tileW
 			local node = self._map:getLocation(x, y)
 			local mapType = node:getMapType()
 
+
 			if mapType:isType('torch') then
 				local at = self:_createAnimatedTile(torchA, torchB)
-				at:setPosition(x, y)
+				at:setPosition(drawX, drawY)
 				self._torches[#self._torches+1] = at
 			elseif mapType:isType('trap') then
 				local variant = random(1,6)
 				trapA:setMapType('trap', 'A'..tostring(variant))
 				trapB:setMapType('trap', 'B'..tostring(variant))
 				local at = self:_createAnimatedTile(trapA, trapB, floorquad)
-				at:setPosition(x, y)
+				at:setPosition(drawX, drawY)
 				self._traps[#self._traps+1] = at
 			end
 		end
@@ -265,19 +268,8 @@ function TileMapView:drawToFB()
 			end
 		end
 
-		for _,torch in ipairs(self._torches) do
-			local x, y = torch:getPosition()
-			local drawY = (y-1)*self._tileH
-			local drawX = (x-1)*self._tileW
-			torch:draw(drawX, drawY)
-		end
-
-		for _,trap in ipairs(self._traps) do
-			local x, y = trap:getPosition()
-			local drawY = (y-1)*self._tileH
-			local drawX = (x-1)*self._tileW
-			trap:draw(drawX, drawY)
-		end
+		for _,torch in ipairs(self._torches) do torch:draw() end
+		for _,trap in ipairs(self._traps) do trap:draw() end
 
 		love.graphics.setRenderTarget()
 		self._isDrawing = false

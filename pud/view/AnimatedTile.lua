@@ -62,8 +62,9 @@ function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
 end
 
 -- draw the framebuffer
-function AnimatedTile:draw(x, y)
+function AnimatedTile:draw()
 	if self._numFrames > 0 and self._isDrawing == false then
+		local x, y = self:getPosition()
 		love.graphics.draw(self._fb[self._frame], x, y)
 	end
 end
