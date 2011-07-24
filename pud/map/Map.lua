@@ -1,6 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.level.MapNode'
+local MapNode = require 'pud.map.MapNode'
 local Rect = require 'pud.kit.Rect'
 
 local table_concat = table.concat

@@ -1,6 +1,6 @@
-local Map = require 'pud.level.Map'
-local MapNode = require 'pud.level.MapNode'
-local MapType = require 'pud.level.MapType'
+local Map = require 'pud.map.Map'
+local MapNode = require 'pud.map.MapNode'
+local MapType = require 'pud.map.MapType'
 local Rect = require 'pud.kit.Rect'
 
 context('Map', function()

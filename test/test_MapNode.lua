@@ -1,5 +1,5 @@
-local MapNode = require 'pud.level.MapNode'
-local MapType = require 'pud.level.MapType'
+local MapNode = require 'pud.map.MapNode'
+local MapType = require 'pud.map.MapType'
 
 context('MapNode', function()
 	context('When instantiated with no arguments', function()
