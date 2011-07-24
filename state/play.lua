@@ -17,7 +17,7 @@ local vector = require 'lib.hump.vector'
 local MapDirector = require 'pud.map.MapDirector'
 
 -- level view
-local TileLevelView = require 'pud.view.TileLevelView'
+local TileMapView = require 'pud.view.TileMapView'
 
 -- events
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
@@ -60,7 +60,7 @@ end
 
 function st:_createView(viewClass)
 	if self._view then self._view:destroy() end
-	self._view = TileLevelView(self._map)
+	self._view = TileMapView(self._map)
 
 	self._view:registerEvents()
 end
