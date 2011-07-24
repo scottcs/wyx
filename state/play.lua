@@ -99,8 +99,8 @@ function st:update(dt)
 	_accum = _accum + dt
 	if _accum > TICK then
 		_accum = _accum - TICK
-		self:_drawHUDfb()
 	end
+	self:_drawHUDfb()
 end
 
 function st:_drawHUD()
