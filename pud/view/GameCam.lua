@@ -4,6 +4,8 @@ local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
 local Rect = require 'pud.kit.Rect'
 
+local math_max, math_min = math.max, math.min
+
 local _zoomLevels = {1, 0.5, 0.25}
 
 local _isVector = function(...)
@@ -20,7 +22,7 @@ local GameCam = Class{name='GameCam',
 	function(self, v, zoom)
 		v = v or vector(0,0)
 		if _isVector(v) then
-			self._zoom = math.max(1, math.min(#_zoomLevels, zoom or 1))
+			self._zoom = math_max(1, math_min(#_zoomLevels, zoom or 1))
 			self._home = v
 			self._cam = Camera(v, _zoomLevels[self._zoom])
 		end
@@ -47,24 +49,36 @@ function GameCam:isAnimating()
 end
 
 -- zoom in smoothly
-function GameCam:zoomIn()
+function GameCam:zoomIn(...)
 	if self._zoom > 1 and not self:isAnimating() then
 		self._zoom = self._zoom - 1
 		self:_setAnimating(true)
 		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
-			self._setAnimating, self, false)
+			function(self, ...)
+				self:_setAnimating(false)
+				if select('#', ...) > 0 then
+					local callback = select(1, ...)
+					callback(select(2, ...))
+				end
+			end, self, ...)
 	else
 		self:_bumpZoom(1.1)
 	end
 end
 
 -- zoom out smoothly
-function GameCam:zoomOut()
+function GameCam:zoomOut(...)
 	if self._zoom < #_zoomLevels and not self:isAnimating() then
 		self._zoom = self._zoom + 1
 		self:_setAnimating(true)
 		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
-			self._setAnimating, self, false)
+			function(self, ...)
+				self:_setAnimating(false)
+				if select('#', ...) > 0 then
+					local callback = select(1, ...)
+					callback(select(2, ...))
+				end
+			end, self, ...)
 	else
 		self:_bumpZoom(0.9)
 	end
@@ -141,10 +155,14 @@ function GameCam:unfollowTarget()
 end
 
 -- center on initial vector
-function GameCam:home()
+function GameCam:home(...)
 	self:unfollowTarget()
 	self._cam.pos = self._home
 	self:_correctCam()
+	if select('#', ...) > 0 then
+		local callback = select(1, ...)
+		callback(select(2, ...))
+	end
 end
 
 -- change home vector
@@ -155,13 +173,19 @@ function GameCam:setHome(home)
 end
 
 -- translate along v
-function GameCam:translate(v)
+function GameCam:translate(v, ...)
 	if _isVector(v) and not self:isAnimating() then
 		local target = self._cam.pos + v
 		if self:_shouldTranslate(v) then
 			self:_setAnimating(true)
 			tween(0.15, self._cam.pos, target, 'outQuint',
-				self._setAnimating, self, false)
+				function(self, ...)
+					self:_setAnimating(false)
+					if select('#', ...) > 0 then
+						local callback = select(1, ...)
+						callback(select(2, ...))
+					end
+				end, self, ...)
 		end
 	end
 end
@@ -200,6 +224,28 @@ end
 function GameCam:predraw() self._cam:predraw() end
 function GameCam:postdraw() self._cam:postdraw() end
 function GameCam:draw(...) self._cam:draw(...) end
+
+function GameCam:toWorldCoords(campos, zoom, p)
+	local p = vector((p.x-WIDTH/2) / zoom, (p.y-HEIGHT/2) / zoom)
+	return p + campos
+end
+
+-- get a rect representing the camera viewport
+function GameCam:getViewport(translate, zoom)
+	translate = translate or vector(0,0)
+	zoom = self._zoom + (zoom or 0)
+	zoom = math_max(1, math_min(#_zoomLevels, zoom))
+
+	-- pretend to translate and zoom
+	local pos = self._cam.pos:clone()
+	pos = pos + translate
+	zoom = _zoomLevels[zoom]
+
+	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
+	local vp1 = self:toWorldCoords(pos, zoom, tl)
+	local vp2 = self:toWorldCoords(pos, zoom, br)
+	return Rect(vp1, vp2-vp1)
+end
 
 -- the class
 return GameCam

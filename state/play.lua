@@ -82,6 +82,7 @@ function st:_createCamera()
 	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
+	self._view:setViewport(self._cam:getViewport())
 end
 
 function st:_createHUD()
@@ -148,6 +149,12 @@ function st:leave()
 	self._view = nil
 end
 
+function st:_translateCam(x, y)
+	local translate = vector(x, y)
+	self._view:setViewport(self._cam:getViewport(translate))
+	self._cam:translate(vector(x, y))
+end
+
 function st:keypressed(key, unicode)
 	local tileW, tileH = self._view:getTileSize()
 	local _,zoomAmt = self._cam:getZoom()
@@ -166,13 +173,22 @@ function st:keypressed(key, unicode)
 		end,
 
 		-- camera
-		left = function() self._cam:translate(vector(-tileW/zoomAmt, 0)) end,
-		right = function() self._cam:translate(vector(tileW/zoomAmt, 0)) end,
-		up = function() self._cam:translate(vector(0, -tileH/zoomAmt)) end,
-		down = function() self._cam:translate(vector(0, tileH/zoomAmt)) end,
-		pageup = function() self._cam:zoomOut() end,
-		pagedown = function() self._cam:zoomIn() end,
-		home = function() self._cam:home() end,
+		left = function() self:_translateCam(-tileW/zoomAmt, 0) end,
+		right = function() self:_translateCam(tileW/zoomAmt, 0) end,
+		up = function() self:_translateCam(0, -tileH/zoomAmt) end,
+		down = function() self:_translateCam(0, tileH/zoomAmt) end,
+		pageup = function()
+			self._view:setViewport(self._cam:getViewport(nil, 1))
+			self._cam:zoomOut()
+		end,
+		pagedown = function()
+			self._view:setViewport(self._cam:getViewport(nil, -1))
+			self._cam:zoomIn()
+		end,
+		home = function()
+			self._view:setViewport(self._cam:getViewport())
+			self._cam:home()
+		end,
 	}
 end
 

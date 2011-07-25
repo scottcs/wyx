@@ -1,4 +1,5 @@
 local Class = require 'lib.hump.class'
+local Rect = require 'pud.kit.Rect'
 local MapView = require 'pud.view.MapView'
 local Map = require 'pud.map.Map'
 local MapNode = require 'pud.map.MapNode'
@@ -6,6 +7,8 @@ local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 local AnimatedTile = require 'pud.view.AnimatedTile'
 
 local random = math.random
+local math_floor = math.floor
+local math_min, math_max = math.min, math.max
 
 -- TileMapView
 -- draws tiles for each node in the level map to a framebuffer, which is then
@@ -21,9 +24,9 @@ local TileMapView = Class{name='TileMapView',
 		self._tileW, self._tileH = 32, 32
 		self._set = Image.dungeon
 
-		local w = nearestPO2(map:getWidth() * self._tileW)
-		local h = nearestPO2(map:getHeight() * self._tileH)
-		self._fb = love.graphics.newFramebuffer(w, h)
+		local p2w = nearestPO2(map:getWidth() * self._tileW)
+		local p2h = nearestPO2(map:getHeight() * self._tileH)
+		self._fb = love.graphics.newFramebuffer(p2w, p2h)
 		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
 
 		self._tileVariant = tostring(random(1,4))
@@ -62,8 +65,30 @@ function TileMapView:destroy()
 	for i in ipairs(self._traps) do self._traps[i] = nil end
 	self._torches = nil
 	self._traps = nil
+	if self._mapViewport then self._mapViewport:destroy() end
+	self._mapViewport = nil
 	GameEvent:unregisterAll(self)
 	MapView.destroy(self)
+end
+
+-- set the viewport
+function TileMapView:setViewport(rect)
+	assert(rect and rect.is_a and rect:is_a(Rect),
+		'viewport must be a Rect (was %s (%s))', tostring(rect), type(rect))
+
+	if self._mapViewport then self._mapViewport:destroy() end
+
+	local pos = rect:getPositionVector()
+	local size = rect:getSizeVector()
+
+	pos.x = math_max(1, math_floor(pos.x/self._tileW))
+	pos.y = math_max(1, math_floor(pos.y/self._tileH))
+	size.x = math_min(self._map:getWidth(), math_floor(size.x/self._tileW)+2)
+	size.y = math_min(self._map:getHeight(), math_floor(size.y/self._tileH)+2)
+
+	self._mapViewport = Rect(pos, size)
+
+	self:_drawToFB()
 end
 
 -- return current tile size
@@ -256,14 +281,21 @@ end
 
 -- draw to the framebuffer
 function TileMapView:_drawToFB()
-	if self._fb and self._set and self._map then
+	if self._fb and self._set and self._map and self._mapViewport then
 		self._isDrawing = true
+		local tl, br = self._mapViewport:getBBoxVectors()
+		local mtl, mbr = self._map:getBBoxVectors()
+		if tl.x < mtl.x then tl.x = mtl.x end
+		if tl.y < mtl.y then tl.y = mtl.y end
+		if br.x > mbr.x then br.x = mbr.x end
+		if br.y > mbr.y then br.y = mbr.y end
+
 		love.graphics.setRenderTarget(self._fb)
 		love.graphics.setColor(1,1,1)
 
-		for y=1,self._map:getHeight() do
+		for y=tl.y,br.y do
 			local drawY = (y-1)*self._tileH
-			for x=1,self._map:getWidth() do
+			for x=tl.x,br.x do
 				local node = self._map:getLocation(x, y)
 				local mapType = node:getMapType()
 				if not mapType:isType('torch', 'trap') then
