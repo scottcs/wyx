@@ -75,15 +75,15 @@ function TileMapView:setViewport(rect)
 	assert(rect and rect.is_a and rect:is_a(Rect),
 		'viewport must be a Rect (was %s (%s))', tostring(rect), type(rect))
 
-	if self._mapViewport then self._mapViewport:destroy() end
+	local x1, y1, x2, y2 = rect:getBBox()
+	x1 = math_max(1, math_floor(x1/self._tileW)-2)
+	y1 = math_max(1, math_floor(y1/self._tileH)-2)
+	x2 = math_min(self._map:getWidth(), math_floor(x2/self._tileW)+2)
+	y2 = math_min(self._map:getHeight(), math_floor(y2/self._tileH)+2)
 
-	local tl, br = rect:getBBoxVectors()
-	tl.x = math_max(1, math_floor(tl.x/self._tileW)-2)
-	tl.y = math_max(1, math_floor(tl.y/self._tileH)-2)
-	br.x = math_min(self._map:getWidth(), math_floor(br.x/self._tileW)+2)
-	br.y = math_min(self._map:getHeight(), math_floor(br.y/self._tileH)+2)
-
-	self._mapViewport = Rect(tl, br-tl)
+	if not self._mapViewport then self._mapViewport = Rect() end
+	self._mapViewport:setPosition(x1, y1)
+	self._mapViewport:setSize(x2-x1, y2-y1)
 
 	self:_drawToFB()
 end
@@ -294,9 +294,9 @@ function TileMapView:_drawFloor(x, y)
 end
 
 function TileMapView:_drawIfInViewport(tile)
-	local pos = tile:getPositionVector()
-	if self._mapViewport:containsPoint(pos)
-		and self._map:containsPoint(pos)
+	local x, y = tile:getPosition()
+	if self._mapViewport:containsPoint(x, y)
+		and self._map:containsPoint(x, y)
 	then
 		tile:draw()
 	end

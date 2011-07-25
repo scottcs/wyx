@@ -78,11 +78,11 @@ function st:_createCamera()
 		self._cam:destroy()
 	end
 
-	self._cam = GameCam(vector(startX, startY), zoom)
+	self._cam = GameCam(startX, startY, zoom)
 
-	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
-	local max = vector(mapTileW - min.x, mapTileH - min.y)
-	self._cam:setLimits(min, max)
+	local minX, minY = math_floor(tileW/2), math_floor(tileH/2)
+	local maxX, maxY = mapTileW - minX, mapTileH - minY
+	self._cam:setLimits(minX, minY, maxX, maxY)
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -151,9 +151,8 @@ function st:leave()
 end
 
 function st:_translateCam(x, y)
-	local translate = vector(x, y)
-	self._view:setViewport(self._cam:getViewport(translate))
-	self._cam:translate(vector(x, y))
+	self._view:setViewport(self._cam:getViewport(x, y))
+	self._cam:translate(x, y)
 end
 
 function st:keypressed(key, unicode)
@@ -179,11 +178,11 @@ function st:keypressed(key, unicode)
 		up = function() self:_translateCam(0, -tileH/zoomAmt) end,
 		down = function() self:_translateCam(0, tileH/zoomAmt) end,
 		pageup = function()
-			self._view:setViewport(self._cam:getViewport(nil, 1))
+			self._view:setViewport(self._cam:getViewport(nil, nil, 1))
 			self._cam:zoomOut()
 		end,
 		pagedown = function()
-			local vp = self._cam:getViewport(nil, -1)
+			local vp = self._cam:getViewport(nil, nil, -1)
 			self._cam:zoomIn(self._view.setViewport, self._view, vp)
 		end,
 		home = function()
