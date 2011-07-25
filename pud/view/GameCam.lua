@@ -8,11 +8,24 @@ local math_max, math_min = math.max, math.min
 
 local _zoomLevels = {1, 0.5, 0.25}
 
+local _isVector = function(...)
+	local n = select('#',...)
+	for i=1,n do
+		local v = select(i,...)
+		assert(vector.isvector(v), 'vector expected, got %s (%s)',
+			tostring(v), type(v))
+	end
+	return n > 0
+end
+
 local GameCam = Class{name='GameCam',
-	function(self, homeX, homeY, zoom)
-		self._zoom = math_max(1, math_min(#_zoomLevels, zoom or 1))
-		self:setHome(homeX, homeY)
-		self._cam = Camera(vector(homeX, homeY), _zoomLevels[self._zoom])
+	function(self, v, zoom)
+		v = v or vector(0,0)
+		if _isVector(v) then
+			self._zoom = math_max(1, math_min(#_zoomLevels, zoom or 1))
+			self._home = v
+			self._cam = Camera(v, _zoomLevels[self._zoom])
+		end
 	end
 }
 
@@ -20,8 +33,7 @@ local GameCam = Class{name='GameCam',
 function GameCam:destroy()
 	self:unfollowTarget()
 	self._cam = nil
-	self._homeX = nil
-	self._homeY = nil
+	self._home = nil
 	self._zoom = nil
 	for k,v in pairs(self._limits) do self._limits[k] = nil end
 	self._limits = nil
@@ -100,11 +112,13 @@ function GameCam:followTarget(rect)
 	self._targetFuncs = {
 		setX = rect.setX,
 		setY = rect.setY,
+		setPosition = rect.setPosition,
+		setCenter = rect.setCenter,
 	}
 
 	local function _follow(self, theRect)
-		local cx, cy = theRect:getCenter()
-		self._cam.pos.x, self._cam.pos.y = self:_correctPos(cx, cy)
+		self._cam.pos = theRect:getCenterVector()
+		self:_correctPos(self._cam.pos)
 	end
 
 	rect.setX = function(theRect, x)
@@ -116,6 +130,16 @@ function GameCam:followTarget(rect)
 		self._targetFuncs.setY(theRect, y)
 		_follow(self, theRect)
 	end
+
+	rect.setPosition = function(theRect, x, y)
+		self._targetFuncs.setPosition(theRect, x, y)
+		_follow(self, theRect)
+	end
+
+	rect.setCenter = function(theRect, x, y, flag)
+		self._targetFuncs.setCenter(theRect, x, y, flag)
+		_follow(self, theRect)
+	end
 end
 
 -- unfollow a target Rect
@@ -123,66 +147,79 @@ function GameCam:unfollowTarget()
 	if self._target then
 		self._target.setX = self._targetFuncs.setX
 		self._target.setY = self._targetFuncs.setY
+		self._target.setPosition = self._targetFuncs.setPosition
+		self._target.setCenter = self._targetFuncs.setCenter
 		self._targetFuncs.setX = nil
 		self._targetFuncs.setY = nil
+		self._targetFuncs.setPosition = nil
+		self._targetFuncs.setCenter = nil
 		self._targetFuncs = nil
 		self._target = nil
 	end
 end
 
--- center on initial point
+-- center on initial vector
 function GameCam:home()
 	self:unfollowTarget()
-	local x, y = self._homeX, self._homeY
-	self._cam.pos.x, self._cam.pos.y = self:_correctPos(x, y)
+	self._cam.pos = self._home
+	self:_correctPos(self._cam.pos)
 end
 
--- change home point
-function GameCam:setHome(homeX, homeY)
-	verify('number', homeX, homeY)
-	self._homeX = homeX
-	self._homeY = homeY
+-- change home vector
+function GameCam:setHome(home)
+	if _isVector(home) then
+		self._home = home
+	end
 end
 
 -- translate along v
 -- allows a callback to be passed in that will be called after the animation
 -- is complete.
-function GameCam:translate(x, y, ...)
-	if not self:isAnimating() and self:_shouldTranslate(x, y) then
-		local targetX = self._cam.pos.x + x
-		local targetY = self._cam.pos.y + y
-		self:_setAnimating(true)
-		tween(0.15, self._cam.pos, {x = targetX, y = targetY}, 'outQuint',
-			function(self, ...)
-				self:_setAnimating(false)
-				if select('#', ...) > 0 then
-					local callback = select(1, ...)
-					callback(select(2, ...))
-				end
-			end, self, ...)
+function GameCam:translate(v, ...)
+	if _isVector(v) and not self:isAnimating() then
+		local target = self._cam.pos + v
+		if self:_shouldTranslate(v) then
+			self:_setAnimating(true)
+			tween(0.15, self._cam.pos, target, 'outQuint',
+				function(self, ...)
+					self:_setAnimating(false)
+					if select('#', ...) > 0 then
+						local callback = select(1, ...)
+						callback(select(2, ...))
+					end
+				end, self, ...)
+		end
 	end
 end
 
-function GameCam:_shouldTranslate(x, y)
-	x = x + self._cam.pos.x
-	y = y + self._cam.pos.y
-	return not (x > self._limits.maxX or x < self._limits.minX
-		or y > self._limits.maxY or y < self._limits.minY)
+function GameCam:_shouldTranslate(v)
+	local pos = self._cam.pos + v
+	return not (pos.x > self._limits.max.x or pos.x < self._limits.min.x
+		or pos.y > self._limits.max.y or pos.y < self._limits.min.y)
 end
 
 -- set x and y limits for camera
-function GameCam:setLimits(minX, minY, maxX, maxY)
-	verify('number', minX, minY, maxX, maxY)
-	self._limits = {minX = minX, minY = minY, maxX = maxX, maxY = maxY}
+function GameCam:setLimits(minV, maxV)
+	if _isVector(minV, maxV) then
+		self._limits = {min = minV, max = maxV}
+	end
 end
 
 -- correct the camera position if it is beyond the limits
-function GameCam:_correctPos(x, y)
-	if x > self._limits.maxX then x = self._limits.maxX end
-	if x < self._limits.minX then x = self._limits.minX end
-	if y > self._limits.maxY then y = self._limits.maxY end
-	if y < self._limits.minY then y = self._limits.minY end
-	return x, y
+function GameCam:_correctPos(p)
+	if p.x > self._limits.max.x then
+		p.x = self._limits.max.x
+	end
+	if p.x < self._limits.min.x then
+		p.x = self._limits.min.x
+	end
+
+	if p.y > self._limits.max.y then
+		p.y = self._limits.max.y
+	end
+	if p.y < self._limits.min.y then
+		p.y = self._limits.min.y
+	end
 end
 
 -- camera draw callbacks
@@ -190,27 +227,27 @@ function GameCam:predraw() self._cam:predraw() end
 function GameCam:postdraw() self._cam:postdraw() end
 function GameCam:draw(...) self._cam:draw(...) end
 
-function GameCam:toWorldCoords(camX, camY, zoom, x, y)
-	local wx, wy = (x-WIDTH/2) / zoom, (y-HEIGHT/2) / zoom
-	return wx + camX, wy + camY
+function GameCam:toWorldCoords(campos, zoom, p)
+	local p = vector((p.x-WIDTH/2) / zoom, (p.y-HEIGHT/2) / zoom)
+	return p + campos
 end
 
 -- get a rect representing the camera viewport
-function GameCam:getViewport(tx, ty, zoom)
-	tx = tx or 0
-	ty = ty or 0
+function GameCam:getViewport(translate, zoom)
+	translate = translate or vector(0,0)
 	zoom = self._zoom + (zoom or 0)
 	zoom = math_max(1, math_min(#_zoomLevels, zoom))
 
 	-- pretend to translate and zoom
-	local x, y = self._cam.pos.x, self._cam.pos.y
-	x, y = self:_correctPos(x + tx, y + ty)
+	local pos = self._cam.pos:clone()
+	pos = pos + translate
+	self:_correctPos(pos)
 	zoom = _zoomLevels[zoom]
 
-	local x1, y1, x2, y2 = 0, 0, WIDTH, HEIGHT
-	local vpx1, vpy1 = self:toWorldCoords(x, y, zoom, x1, y1)
-	local vpx2, vpy2 = self:toWorldCoords(x, y, zoom, x2, y2)
-	return Rect(vpx1, vpy1, vpx2-vpx1, vpy2-vpy1)
+	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
+	local vp1 = self:toWorldCoords(pos, zoom, tl)
+	local vp2 = self:toWorldCoords(pos, zoom, br)
+	return Rect(vp1, vp2-vp1)
 end
 
 -- the class
