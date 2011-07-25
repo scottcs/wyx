@@ -55,12 +55,13 @@ end
 
 -- retrieve the map node of a given location
 function Map:getLocation(x, y)
-	verify('number', x, y)
-	assert(x >= 1 and x <= self:getWidth(), 'getLocation x is out of range')
-	assert(y >= 1 and y <= self:getHeight(), 'getLocation y is out of range')
-
-	if not (self._layout[y] and self._layout[y][x]) then return nil end
-	return self._layout[y][x]
+	if x >= 1 and x <= self:getWidth()
+		and y >= 1 and y <= self:getHeight()
+		and self._layout[y] and self._layout[y][x]
+	then
+		return self._layout[y][x]
+	end
+	return nil
 end
 
 -- functions for setting specific MapTypes and their associated attributes
