@@ -49,6 +49,8 @@ function GameCam:isAnimating()
 end
 
 -- zoom in smoothly
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
 function GameCam:zoomIn(...)
 	if self._zoom > 1 and not self:isAnimating() then
 		self._zoom = self._zoom - 1
@@ -67,6 +69,8 @@ function GameCam:zoomIn(...)
 end
 
 -- zoom out smoothly
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
 function GameCam:zoomOut(...)
 	if self._zoom < #_zoomLevels and not self:isAnimating() then
 		self._zoom = self._zoom + 1
@@ -155,14 +159,10 @@ function GameCam:unfollowTarget()
 end
 
 -- center on initial vector
-function GameCam:home(...)
+function GameCam:home()
 	self:unfollowTarget()
 	self._cam.pos = self._home
 	self:_correctPos(self._cam.pos)
-	if select('#', ...) > 0 then
-		local callback = select(1, ...)
-		callback(select(2, ...))
-	end
 end
 
 -- change home vector
@@ -173,6 +173,8 @@ function GameCam:setHome(home)
 end
 
 -- translate along v
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
 function GameCam:translate(v, ...)
 	if _isVector(v) and not self:isAnimating() then
 		local target = self._cam.pos + v
