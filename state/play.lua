@@ -99,8 +99,8 @@ function st:update(dt)
 	_accum = _accum + dt
 	if _accum > TICK then
 		_accum = _accum - TICK
-		self:_drawHUDfb()
 	end
+	self:_drawHUDfb()
 end
 
 function st:_drawHUD()
@@ -182,8 +182,8 @@ function st:keypressed(key, unicode)
 			self._cam:zoomOut()
 		end,
 		pagedown = function()
-			self._view:setViewport(self._cam:getViewport(nil, -1))
-			self._cam:zoomIn()
+			local vp = self._cam:getViewport(nil, -1)
+			self._cam:zoomIn(self._view.setViewport, self._view, vp)
 		end,
 		home = function()
 			self._view:setViewport(self._cam:getViewport())
