@@ -32,7 +32,6 @@ function st:enter()
 	self:_createCamera()
 	self:_createHUD()
 	self:_drawHUDfb()
-	GameEvent:push(MapUpdateFinishedEvent(self._map))
 end
 
 function st:_generateMapFromFile()
@@ -93,18 +92,18 @@ function st:_createHUD()
 end
 
 local _accum = 0
-local TICK = 0.01
+local TICK = 0.001
 
 function st:update(dt)
 	_accum = _accum + dt
 	if _accum > TICK then
 		_accum = _accum - TICK
+		self:_drawHUDfb()
 	end
-	self:_drawHUDfb()
 end
 
 function st:_drawHUD()
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self._HUDfb)
 end
 
@@ -117,13 +116,20 @@ function st:_drawHUDfb()
 	local size = zoomAmt * tileW
 	local x = math_floor(WIDTH/2)-math_floor(size/2)
 	local y = math_floor(HEIGHT/2)-math_floor(size/2)
-	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.setColor(0, 1, 0)
 	love.graphics.rectangle('line', x, y, size, size)
 
 	if debug then
 		love.graphics.setFont(GameFont.small)
-		love.graphics.setColor(0.5, 0.5, 0.5, 1)
-		love.graphics.print('fps: '..tostring(love.timer.getFPS()), 8, 8)
+		local fps = love.timer.getFPS()
+		local color = {1, 1, 1}
+		if fps < 20 then
+			color = {1, 0, 0}
+		elseif fps < 60 then
+			color = {1, .9, 0}
+		end
+		love.graphics.setColor(color)
+		love.graphics.print('fps: '..tostring(fps), 8, 8)
 	end
 
 	love.graphics.setRenderTarget()
