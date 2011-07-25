@@ -89,7 +89,7 @@ function TileMapView:_updateAnimatedTiles()
 		trap:advance()
 	end
 
-	self:drawToFB()
+	self:_drawToFB()
 end
 
 -- make a quad from the given tile position
@@ -105,31 +105,38 @@ function TileMapView:_makeQuad(mapType, variant, x, y)
 		self._set:getHeight())
 end
 
+local quadresults = setmetatable({}, {__mode = 'v'})
 function TileMapView:_getQuad(node)
-	if self._quads then
-		local mapType = node:getMapType()
-		if not mapType:isType('empty') then
-			local mtype, variant = mapType:get()
-			if not variant then
-				if mapType:isType('wall') then
-					variant = 'V'
+	local quad = quadresults[node]
+	if quad == nil then
+		quad = 0
+		if self._quads then
+			local mapType = node:getMapType()
+			if not mapType:isType('empty') then
+				local mtype, variant = mapType:get()
+				if not variant then
+					if mapType:isType('wall') then
+						variant = 'V'
+					end
+				end
+
+				variant = variant or ''
+
+				if mapType:isType('doorClosed', 'doorOpen') then
+					variant = variant .. self._doorVariant
+				elseif not mapType:isType('torch', 'trap') then
+					variant = variant .. self._tileVariant
+				end
+
+				if self._quads[mtype] then
+					quad = self._quads[mtype][variant]
 				end
 			end
 
-			variant = variant or ''
-
-			if mapType:isType('doorClosed', 'doorOpen') then
-				variant = variant .. self._doorVariant
-			elseif not mapType:isType('torch', 'trap') then
-				variant = variant .. self._tileVariant
-			end
-
-			if self._quads[mtype] then
-				return self._quads[mtype][variant]
-			end
+			quadresults[node] = quad
 		end
 	end
-	return nil
+	return quad ~= 0 and quad or nil
 end
 
 -- clear the quads table
@@ -223,17 +230,21 @@ function TileMapView:onEvent(e, ...)
 	if e:is_a(MapUpdateFinishedEvent) then
 		local map = e:getMap()
 		if map == self._map then
-			self:drawToFB()
+			self:_drawToFB()
 		end
 	end
 end
 
 -- draw a floor tile if needed
-function TileMapView:_drawFloorIfNeeded(node, x, y)
-	local mapType = node:getMapType()
-	if not mapType:isType('floor', 'wall', 'torch') then
-		self:_drawFloor(x, y)
+local floorcache = setmetatable({}, {__mode = 'v'})
+function TileMapView:_shouldDrawFloor(node)
+	local should = floorcache[node]
+	if should == nil then
+		local mapType = node:getMapType()
+		should = not mapType:isType('floor', 'wall', 'torch')
+		floorcache[node] = should
 	end
+	return should
 end
 
 -- draw a floor tile
@@ -244,7 +255,7 @@ function TileMapView:_drawFloor(x, y)
 end
 
 -- draw to the framebuffer
-function TileMapView:drawToFB()
+function TileMapView:_drawToFB()
 	if self._fb and self._set and self._map then
 		self._isDrawing = true
 		love.graphics.setRenderTarget(self._fb)
@@ -259,7 +270,9 @@ function TileMapView:drawToFB()
 					local quad = self:_getQuad(node)
 					if quad then
 						local drawX = (x-1)*self._tileW
-						self:_drawFloorIfNeeded(node, drawX, drawY)
+						if self:_shouldDrawFloor(node) then
+							self:_drawFloor(drawX, drawY)
+						end
 						love.graphics.drawq(self._set, quad, drawX, drawY)
 					elseif not node:getMapType():isType('empty') then
 						warning('no quad found for %s', tostring(node:getMapType()))

@@ -1,5 +1,7 @@
 local Class = require 'lib.hump.class'
 
+local table_concat = table.concat
+
 -- table of all map types
 local _allMapTypes = {
 	empty = true,
@@ -15,9 +17,15 @@ local _allMapTypes = {
 }
 
 -- private class function to validate a given map type
-local _validateMapType = function(mapType)
-	assert(type(mapType) == 'string' and nil ~= _allMapTypes[mapType],
-		'invalid map type: %s', tostring(mapType))
+local vresults = setmetatable({}, {__mode = 'v'})
+local _isValidMapType = function(mapType)
+	local isValid = vresults[mapType]
+	if isValid == nil then
+		isValid = assert(type(mapType) == 'string' and nil ~= _allMapTypes[mapType],
+			'invalid map type: %s', tostring(mapType))
+		vresults[mapType] = isValid
+	end
+	return isValid
 end
 
 -- MapType
@@ -39,13 +47,13 @@ end
 -- set the type and variant of this MapType.
 -- mapType is a string
 function MapType:set(mapType, variant)
-	_validateMapType(mapType)
-
-	if type(mapType) == 'string' then
-		self._type = mapType
-		self._variant = variant
-	else
-		self._type, self._variant = mapType:get()
+	if _isValidMapType(mapType) then
+		if type(mapType) == 'string' then
+			self._type = mapType
+			self._variant = variant
+		else
+			self._type, self._variant = mapType:get()
+		end
 	end
 end
 
@@ -56,15 +64,20 @@ function MapType:get() return self._type, self._variant end
 -- variant (if any).
 -- mapType can be a string or a MapType object (if an object, the passed in
 -- variant is ignored).
+local iresults = setmetatable({}, {__mode = 'v'})
 function MapType:isType(...)
+	local isType = false
 	for i=1,select('#',...) do
 		local mapType = select(i,...)
-		_validateMapType(mapType)
-
-		if self._type == mapType then return true end
+		local key = self._type..'-'..mapType
+		isType = iresults[key]
+		if isType == nil then
+			isType = _isValidMapType(mapType) and self._type == mapType
+			iresults[key] = isType
+		end
+		if isType then break end
 	end
-
-	return false
+	return isType
 end
 
 -- tostring
