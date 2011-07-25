@@ -78,15 +78,13 @@ function TileMapView:setViewport(rect)
 
 	if self._mapViewport then self._mapViewport:destroy() end
 
-	local pos = rect:getPositionVector()
-	local size = rect:getSizeVector()
+	local tl, br = rect:getBBoxVectors()
+	tl.x = math_max(1, math_floor(tl.x/self._tileW)-2)
+	tl.y = math_max(1, math_floor(tl.y/self._tileH)-2)
+	br.x = math_min(self._map:getWidth(), math_floor(br.x/self._tileW)+2)
+	br.y = math_min(self._map:getHeight(), math_floor(br.y/self._tileH)+2)
 
-	pos.x = math_max(1, math_floor(pos.x/self._tileW))
-	pos.y = math_max(1, math_floor(pos.y/self._tileH))
-	size.x = math_min(self._map:getWidth(), math_floor(size.x/self._tileW)+2)
-	size.y = math_min(self._map:getHeight(), math_floor(size.y/self._tileH)+2)
-
-	self._mapViewport = Rect(pos, size)
+	self._mapViewport = Rect(tl, br-tl)
 
 	self:_drawToFB()
 end

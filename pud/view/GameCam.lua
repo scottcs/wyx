@@ -114,7 +114,7 @@ function GameCam:followTarget(rect)
 
 	local function _follow(self, theRect)
 		self._cam.pos = theRect:getCenterVector()
-		self:_correctCam()
+		self:_correctPos(self._cam.pos)
 	end
 
 	rect.setX = function(theRect, x)
@@ -158,7 +158,7 @@ end
 function GameCam:home(...)
 	self:unfollowTarget()
 	self._cam.pos = self._home
-	self:_correctCam()
+	self:_correctPos(self._cam.pos)
 	if select('#', ...) > 0 then
 		local callback = select(1, ...)
 		callback(select(2, ...))
@@ -204,19 +204,19 @@ function GameCam:setLimits(minV, maxV)
 end
 
 -- correct the camera position if it is beyond the limits
-function GameCam:_correctCam()
-	if self._cam.pos.x > self._limits.max.x then
-		self._cam.pos.x = self._limits.max.x
+function GameCam:_correctPos(p)
+	if p.x > self._limits.max.x then
+		p.x = self._limits.max.x
 	end
-	if self._cam.pos.x < self._limits.min.x then
-		self._cam.pos.x = self._limits.min.x
+	if p.x < self._limits.min.x then
+		p.x = self._limits.min.x
 	end
 
-	if self._cam.pos.y > self._limits.max.y then
-		self._cam.pos.y = self._limits.max.y
+	if p.y > self._limits.max.y then
+		p.y = self._limits.max.y
 	end
-	if self._cam.pos.y < self._limits.min.y then
-		self._cam.pos.y = self._limits.min.y
+	if p.y < self._limits.min.y then
+		p.y = self._limits.min.y
 	end
 end
 
@@ -239,6 +239,7 @@ function GameCam:getViewport(translate, zoom)
 	-- pretend to translate and zoom
 	local pos = self._cam.pos:clone()
 	pos = pos + translate
+	self:_correctPos(pos)
 	zoom = _zoomLevels[zoom]
 
 	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
