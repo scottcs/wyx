@@ -36,6 +36,7 @@ local TileMapView = Class{name='TileMapView',
 		self._tiles = {}
 		self._animatedTiles = {}
 		self._drawTiles = {}
+		self._doAnimate = true
 
 		self:_setupQuads()
 		self:_setupTiles()
@@ -108,10 +109,19 @@ function TileMapView:getTileSize()
 	return self._tileW, self._tileH
 end
 
+function TileMapView:setAnimate(b)
+	verify('boolean', b)
+	self._doAnimate = b
+end
+
+function TileMapView:isAnimate() return self._doAnimate == true end
+
 -- update the animated tiles
 function TileMapView:_updateAnimatedTiles()
+	if self._doAnimate then
 		for _,t in ipairs(self._drawTiles) do
 			if t.update then t:update() end
+		end
 		self:_drawFB()
 	end
 end

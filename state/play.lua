@@ -151,9 +151,18 @@ function st:leave()
 end
 
 function st:_translateCam(x, y)
-	local translate = vector(x, y)
-	self._view:setViewport(self._cam:getViewport(translate))
-	self._cam:translate(vector(x, y))
+	if not self._cam:isAnimating() then
+		self._view:setAnimate(false)
+		local translate = vector(x, y)
+		self._view:setViewport(self._cam:getViewport(translate))
+		self._cam:translate(vector(x, y),
+			self._view.setAnimate, self._view, true)
+	end
+end
+
+function st:_postZoomIn(vp)
+	self._view:setViewport(vp)
+	self._view:setAnimate(true)
 end
 
 function st:keypressed(key, unicode)
@@ -179,16 +188,23 @@ function st:keypressed(key, unicode)
 		up = function() self:_translateCam(0, -tileH/zoomAmt) end,
 		down = function() self:_translateCam(0, tileH/zoomAmt) end,
 		pageup = function()
-			self._view:setViewport(self._cam:getViewport(nil, 1))
-			self._cam:zoomOut()
+			if not self._cam:isAnimating() then
+				self._view:setAnimate(false)
+				self._view:setViewport(self._cam:getViewport(nil, 1))
+				self._cam:zoomOut(self._view.setAnimate, self._view, true)
+			end
 		end,
 		pagedown = function()
-			local vp = self._cam:getViewport(nil, -1)
-			self._cam:zoomIn(self._view.setViewport, self._view, vp)
+			if not self._cam:isAnimating() then
+				local vp = self._cam:getViewport(nil, -1)
+				self._cam:zoomIn(self._postZoomIn, self, vp)
+			end
 		end,
 		home = function()
-			self._view:setViewport(self._cam:getViewport())
-			self._cam:home()
+			if not self._cam:isAnimating() then
+				self._view:setViewport(self._cam:getViewport())
+				self._cam:home()
+			end
 		end,
 	}
 end
