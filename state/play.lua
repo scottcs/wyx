@@ -71,19 +71,18 @@ function st:_createCamera()
 	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
 	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
 	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
-	local zoom = 1
 
-	if self._cam then
-		zoom = self._cam:getZoom()
-		self._cam:destroy()
+	if not self._cam then
+		self._cam = GameCam(vector(startX, startY), zoom)
+	else
+		self._cam:setHome(vector(startX, startY))
 	end
-
-	self._cam = GameCam(vector(startX, startY), zoom)
 
 	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._view:setViewport(self._cam:getViewport())
+	self._cam:home()
 end
 
 function st:_createHUD()
