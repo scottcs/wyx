@@ -276,8 +276,14 @@ function TileMapView:_setupTiles()
 			else
 				local quad = self:_getQuad(node)
 				if quad then
-					local t = TileMapNodeView(node)
-					t:setTile(self._set, quad, bgquad)
+					local v = self._tileVariant
+					if mapType:isType('doorClosed', 'doorOpen') then
+						v = self._doorVariant
+					end
+					local mt, mv = mapType:get()
+					mv = (mv or '') .. v
+					local t = TileMapNodeView()
+					t:setTile(mt..mv, self._set, quad, bgquad)
 					t:setPosition(x, y)
 					self._tiles[#self._tiles+1] = t
 				end
