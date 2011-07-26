@@ -1,7 +1,7 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapBuilder = require 'pud.level.MapBuilder'
-local MapNode = require 'pud.level.MapNode'
+local MapBuilder = require 'pud.map.MapBuilder'
+local MapNode = require 'pud.map.MapNode'
 local Rect = require 'pud.kit.Rect'
 
 local random = math.random
@@ -412,7 +412,7 @@ function SimpleGridMapBuilder:cleanup()
 				else
 					local below = self._map:getLocation(x, y+1)
 					local bMapType = below:getMapType()
-					change = bMapType:isType('floor') or bMapType:isType('empty')
+					change = bMapType:isType('floor', 'empty')
 				end
 				if change then
 					if random(1,12) == 1 then

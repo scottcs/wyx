@@ -1,9 +1,13 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local round = function(x) return math.floor(x + 0.5) end
+local vector = require 'lib.hump.vector'
+
+local math_floor, math_ceil = math.floor, math.ceil
+local round = function(x) return math_floor(x + 0.5) end
 
 -- Rect
 -- provides position and size of a rectangle
+-- can call as Rect(x, y, w, h) or Rect(positionVector, sizeVector)
 -- Note: coordinates are not floored or rounded and may be floats
 local Rect = Class{name='Rect',
 	function(self, x, y, w, h)
@@ -12,102 +16,136 @@ local Rect = Class{name='Rect',
 		w = w or 0
 		h = h or 0
 
-		self:setPosition(x, y)
-		self:setSize(w, h)
+		local pos, size = x, y
+
+		if not vector.isvector(pos) then
+			pos = vector(x, y)
+			size = vector(w, h)
+		end
+
+		self:setSize(size)
+		self:setPosition(pos)
 	end
 }
 
 -- destructor
 function Rect:destroy()
-	self._x = nil
-	self._y = nil
-	self._w = nil
-	self._h = nil
-	self._cx = nil
-	self._cy = nil
+	self._pos = nil
+	self._size = nil
 end
 
 -- get and set position
-function Rect:getX() return self._x end
+function Rect:getX() return self._pos.x end
 function Rect:setX(x)
 	verify('number', x)
-	self._x = x
+	self._pos.x = x
 end
 
-function Rect:getY() return self._y end
+function Rect:getY() return self._pos.y end
 function Rect:setY(y)
 	verify('number', y)
-	self._y = y
+	self._pos.y = y
 end
 
-function Rect:getPosition() return self:getX(), self:getY() end
-function Rect:setPosition(x, y)
-	self:setX(x)
-	self:setY(y)
+function Rect:getPosition() return self._pos:unpack() end
+function Rect:getPositionVector() return self._pos:clone() end
+-- call as setPosition(x, y) or setPosition(vector)
+function Rect:setPosition(pos, y)
+	if not vector.isvector(pos) then
+		verify('number', pos, y)
+		pos = vector(pos, y)
+	end
+	self._pos = pos
 end
 
--- valid center calculation flags
-local _calc = {
-	round = function(x) return math.floor(x+0.5) end,
-	floor = function(x) return math.floor(x) end,
-	ceil = function(x) return math.ceil(x) end,
-	default = function(x) return x end,
+-- valid center adjusment flags
+local _adjust = {
+	round = function(v)
+		v.x = math_floor(v.x+0.5)
+		v.y = math_floor(v.y+0.5)
+		return v
+	end,
+	floor = function(v)
+		v.x = math_floor(v.x)
+		v.y = math_floor(v.y)
+		return v
+	end,
+	ceil = function(v)
+		v.x = math_ceil(v.x)
+		v.y = math_ceil(v.y)
+		return v
+	end,
+	default = function(v) return v end,
 }
 
-local _getCalc = function(flag)
+local _getAdjust = function(flag)
 	flag = flag or 'default'
-	assert(nil ~= _calc[flag], 'unknown flag for center calculation (%s)', flag)
-	return _calc[flag]
+	assert(nil ~= _adjust[flag], 'unknown flag for center adjustment (%s)', flag)
+	return _adjust[flag]
 end
 
 -- get and set center coords, rounding to nearest number if requested
-function Rect:getCenter(flag)
-	local x, y = self:getPosition()
-	local w, h = self:getSize()
-	local calc = _getCalc(flag)
-
-	return x + calc(w/2), y + calc(h/2)
+function Rect:getCenter(flag) return self:getCenterVector(flag):unpack() end
+function Rect:getCenterVector(flag)
+	local adjust = _getAdjust(flag)
+	return self._pos + adjust(self._size/2)
 end
-function Rect:setCenter(x, y, flag)
-	verify('number', x, y)
 
-	local calc = _getCalc(flag)
-	local w, h = self:getSize()
+-- call as setCenter(x, y, flag) or setCenter(vector, flag)
+function Rect:setCenter(center, y, flag)
+	if not vector.isvector(center) then
+		verify('number', center, y)
+		center = vector(center, y)
+	else
+		flag = y
+	end
 
-	self:setX(x - calc(w/2))
-	self:setY(y - calc(h/2))
+	local adjust = _getAdjust(flag)
+	self:setPosition(center - adjust(self._size/2))
 end
 
 -- get (no set) bounding box coordinates
 function Rect:getBBox()
-	local x, y = self:getPosition()
-	local w, h = self:getSize()
-	return x, y, x+w, y+h
+	local tl, br = self:getBBoxVectors()
+	return tl.x, tl.y, br.x, br.y
+end
+function Rect:getBBoxVectors()
+	return self._pos, self._pos + self._size
 end
 
 -- check if a point falls within the Rect's bounding box
-function Rect:containsPoint(x, y)
-	local x1, y1, x2, y2 = self:getBBox()
-	return x >= x1 and x <= x2 and y >= y1 and y <= y2
+-- call as contains(x, y) or contains(vector)
+function Rect:containsPoint(p, y)
+	if not vector.isvector(p) then
+		verify('number', p, y)
+		p = vector(p, y)
+	end
+	local tl, br = self:getBBoxVectors()
+	return p >= tl and p <= br
 end
 
 -- get and set size
-function Rect:getWidth() return self._w end
+function Rect:getWidth() return self._size.x end
 function Rect:setWidth(w)
 	verify('number', w)
-	self._w = w
+	self._size.x = w
 end
 
-function Rect:getHeight() return self._h end
+function Rect:getHeight() return self._size.y end
 function Rect:setHeight(h)
 	verify('number', h)
-	self._h = h
+	self._size.y = h
 end
 
-function Rect:getSize() return self:getWidth(), self:getHeight() end
-function Rect:setSize(w, h)
-	self:setWidth(w)
-	self:setHeight(h)
+function Rect:getSize() return self._size:unpack() end
+function Rect:getSizeVector() return self._size:clone() end
+-- call as setSize(w, h) or setSize(vector)
+function Rect:setSize(size, h)
+	if not vector.isvector(size) then
+		verify('number', size, h)
+		size = vector(size, h)
+	end
+	self._size = size
 end
 
 -- tostring

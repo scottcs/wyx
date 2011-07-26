@@ -1,7 +1,7 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local Event = require 'pud.event.Event'
-local Map = require 'pud.level.Map'
+local Map = require 'pud.map.Map'
 
 -- Map Update Finished - fires after the map is done being updated
 local MapUpdateFinishedEvent = Class{name='MapUpdateFinishedEvent',

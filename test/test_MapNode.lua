@@ -1,5 +1,5 @@
-local MapNode = require 'pud.level.MapNode'
-local MapType = require 'pud.level.MapType'
+local MapNode = require 'pud.map.MapNode'
+local MapType = require 'pud.map.MapType'
 
 context('MapNode', function()
 	context('When instantiated with no arguments', function()
@@ -54,7 +54,7 @@ context('MapNode', function()
 		end)
 		test('should have correct MapType', function()
 			node:setMapType('doorClosed', 'A3')
-			assert_true(node:getMapType():isType('doorClosed', 'A3'))
+			assert_true(node:getMapType():isType('doorClosed'))
 		end)
 		test('should error when given incorrect values', function()
 			assert_error(function() node:setMapType(23) end)

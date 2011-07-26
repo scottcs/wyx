@@ -36,8 +36,14 @@ local function new(x,y)
 	return v
 end
 
+local isv = setmetatable({}, {__mode = 'v'})
 local function isvector(v)
-	return getmetatable(v) == vector
+	local is = isv[v]
+	if nil == is then
+		is = getmetatable(v) == vector
+		isv[v] = is
+	end
+	return is
 end
 
 function vector:clone()

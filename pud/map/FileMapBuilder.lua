@@ -1,8 +1,8 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapBuilder = require 'pud.level.MapBuilder'
-local MapType = require 'pud.level.MapType'
-local MapNode = require 'pud.level.MapNode'
+local MapBuilder = require 'pud.map.MapBuilder'
+local MapType = require 'pud.map.MapType'
+local MapNode = require 'pud.map.MapNode'
 
 -- FileMapBuilder
 local FileMapBuilder = Class{name='FileMapBuilder',
