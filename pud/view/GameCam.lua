@@ -4,6 +4,8 @@ local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
 local Rect = require 'pud.kit.Rect'
 
+local math_max, math_min = math.max, math.min
+
 local _zoomLevels = {1, 0.5, 0.25}
 
 local _isVector = function(...)
@@ -20,7 +22,7 @@ local GameCam = Class{name='GameCam',
 	function(self, v, zoom)
 		v = v or vector(0,0)
 		if _isVector(v) then
-			self._zoom = math.max(1, math.min(#_zoomLevels, zoom or 1))
+			self._zoom = math_max(1, math_min(#_zoomLevels, zoom or 1))
 			self._home = v
 			self._cam = Camera(v, _zoomLevels[self._zoom])
 		end
@@ -47,24 +49,40 @@ function GameCam:isAnimating()
 end
 
 -- zoom in smoothly
-function GameCam:zoomIn()
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
+function GameCam:zoomIn(...)
 	if self._zoom > 1 and not self:isAnimating() then
 		self._zoom = self._zoom - 1
 		self:_setAnimating(true)
 		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
-			self._setAnimating, self, false)
+			function(self, ...)
+				self:_setAnimating(false)
+				if select('#', ...) > 0 then
+					local callback = select(1, ...)
+					callback(select(2, ...))
+				end
+			end, self, ...)
 	else
 		self:_bumpZoom(1.1)
 	end
 end
 
 -- zoom out smoothly
-function GameCam:zoomOut()
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
+function GameCam:zoomOut(...)
 	if self._zoom < #_zoomLevels and not self:isAnimating() then
 		self._zoom = self._zoom + 1
 		self:_setAnimating(true)
 		tween(0.25, self._cam, {zoom = _zoomLevels[self._zoom]}, 'outBack',
-			self._setAnimating, self, false)
+			function(self, ...)
+				self:_setAnimating(false)
+				if select('#', ...) > 0 then
+					local callback = select(1, ...)
+					callback(select(2, ...))
+				end
+			end, self, ...)
 	else
 		self:_bumpZoom(0.9)
 	end
@@ -100,7 +118,7 @@ function GameCam:followTarget(rect)
 
 	local function _follow(self, theRect)
 		self._cam.pos = theRect:getCenterVector()
-		self:_correctCam()
+		self:_correctPos(self._cam.pos)
 	end
 
 	rect.setX = function(theRect, x)
@@ -144,7 +162,7 @@ end
 function GameCam:home()
 	self:unfollowTarget()
 	self._cam.pos = self._home
-	self:_correctCam()
+	self:_correctPos(self._cam.pos)
 end
 
 -- change home vector
@@ -155,21 +173,41 @@ function GameCam:setHome(home)
 end
 
 -- translate along v
-function GameCam:translate(v)
+-- allows a callback to be passed in that will be called after the animation
+-- is complete.
+function GameCam:translate(v, ...)
 	if _isVector(v) and not self:isAnimating() then
-		local target = self._cam.pos + v
-		if self:_shouldTranslate(v) then
+		self:_checkLimits(v)
+		if v:len2() ~= 0 then
+			local target = self._cam.pos + v
 			self:_setAnimating(true)
 			tween(0.15, self._cam.pos, target, 'outQuint',
-				self._setAnimating, self, false)
+				function(self, ...)
+					self:_setAnimating(false)
+					if select('#', ...) > 0 then
+						local callback = select(1, ...)
+						callback(select(2, ...))
+					end
+				end, self, ...)
 		end
 	end
 end
 
-function GameCam:_shouldTranslate(v)
+function GameCam:_checkLimits(v)
 	local pos = self._cam.pos + v
-	return not (pos.x > self._limits.max.x or pos.x < self._limits.min.x
-		or pos.y > self._limits.max.y or pos.y < self._limits.min.y)
+
+	if pos.x > self._limits.max.x then
+		v.x = self._limits.max.x - self._cam.pos.x
+	end
+	if pos.x < self._limits.min.x then
+		v.x = self._limits.min.x - self._cam.pos.x
+	end
+	if pos.y > self._limits.max.y then
+		v.y = self._limits.max.y - self._cam.pos.y
+	end
+	if pos.y < self._limits.min.y then
+		v.y = self._limits.min.y - self._cam.pos.y
+	end
 end
 
 -- set x and y limits for camera
@@ -180,19 +218,19 @@ function GameCam:setLimits(minV, maxV)
 end
 
 -- correct the camera position if it is beyond the limits
-function GameCam:_correctCam()
-	if self._cam.pos.x > self._limits.max.x then
-		self._cam.pos.x = self._limits.max.x
+function GameCam:_correctPos(p)
+	if p.x > self._limits.max.x then
+		p.x = self._limits.max.x
 	end
-	if self._cam.pos.x < self._limits.min.x then
-		self._cam.pos.x = self._limits.min.x
+	if p.x < self._limits.min.x then
+		p.x = self._limits.min.x
 	end
 
-	if self._cam.pos.y > self._limits.max.y then
-		self._cam.pos.y = self._limits.max.y
+	if p.y > self._limits.max.y then
+		p.y = self._limits.max.y
 	end
-	if self._cam.pos.y < self._limits.min.y then
-		self._cam.pos.y = self._limits.min.y
+	if p.y < self._limits.min.y then
+		p.y = self._limits.min.y
 	end
 end
 
@@ -200,6 +238,29 @@ end
 function GameCam:predraw() self._cam:predraw() end
 function GameCam:postdraw() self._cam:postdraw() end
 function GameCam:draw(...) self._cam:draw(...) end
+
+function GameCam:toWorldCoords(campos, zoom, p)
+	local p = vector((p.x-WIDTH/2) / zoom, (p.y-HEIGHT/2) / zoom)
+	return p + campos
+end
+
+-- get a rect representing the camera viewport
+function GameCam:getViewport(translate, zoom)
+	translate = translate or vector(0,0)
+	zoom = self._zoom + (zoom or 0)
+	zoom = math_max(1, math_min(#_zoomLevels, zoom))
+
+	-- pretend to translate and zoom
+	local pos = self._cam.pos:clone()
+	pos = pos + translate
+	self:_correctPos(pos)
+	zoom = _zoomLevels[zoom]
+
+	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
+	local vp1 = self:toWorldCoords(pos, zoom, tl)
+	local vp2 = self:toWorldCoords(pos, zoom, br)
+	return Rect(vp1, vp2-vp1)
+end
 
 -- the class
 return GameCam
