@@ -177,8 +177,9 @@ end
 -- is complete.
 function GameCam:translate(v, ...)
 	if _isVector(v) and not self:isAnimating() then
-		local target = self._cam.pos + v
-		if self:_shouldTranslate(v) then
+		self:_checkLimits(v)
+		if v:len2() ~= 0 then
+			local target = self._cam.pos + v
 			self:_setAnimating(true)
 			tween(0.15, self._cam.pos, target, 'outQuint',
 				function(self, ...)
@@ -192,10 +193,21 @@ function GameCam:translate(v, ...)
 	end
 end
 
-function GameCam:_shouldTranslate(v)
+function GameCam:_checkLimits(v)
 	local pos = self._cam.pos + v
-	return not (pos.x > self._limits.max.x or pos.x < self._limits.min.x
-		or pos.y > self._limits.max.y or pos.y < self._limits.min.y)
+
+	if pos.x > self._limits.max.x then
+		v.x = self._limits.max.x - self._cam.pos.x
+	end
+	if pos.x < self._limits.min.x then
+		v.x = self._limits.min.x - self._cam.pos.x
+	end
+	if pos.y > self._limits.max.y then
+		v.y = self._limits.max.y - self._cam.pos.y
+	end
+	if pos.y < self._limits.min.y then
+		v.y = self._limits.min.y - self._cam.pos.y
+	end
 end
 
 -- set x and y limits for camera
