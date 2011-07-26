@@ -27,7 +27,8 @@ local TileMapView = Class{name='TileMapView',
 
 		local p2w = nearestPO2(map:getWidth() * self._tileW)
 		local p2h = nearestPO2(map:getHeight() * self._tileH)
-		self._fb = love.graphics.newFramebuffer(p2w, p2h)
+		self._frontfb = love.graphics.newFramebuffer(p2w, p2h)
+		self._backfb = love.graphics.newFramebuffer(p2w, p2h)
 		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
 
 		self._tileVariant = tostring(random(1,4))
@@ -57,7 +58,8 @@ function TileMapView:destroy()
 	self._set = nil
 	self._tileW = nil
 	self._tileH = nil
-	self._fb = nil
+	self._frontfb = nil
+	self._backfb = nil
 	self._floorfb = nil
 	self._map = nil
 	self._tileVariant = nil
@@ -304,24 +306,25 @@ end
 
 -- draw to the framebuffer
 function TileMapView:_drawToFB()
-	if self._fb and self._set and self._map and self._mapViewport then
-		self._isDrawing = true
-		love.graphics.setRenderTarget(self._fb)
+	if self._backfb and self._set and self._map and self._mapViewport then
+		love.graphics.setRenderTarget(self._backfb)
 
 		love.graphics.setColor(1,1,1)
 		for _,t in ipairs(self._tiles) do self:_drawIfInViewport(t) end
 		for _,at in ipairs(self._animatedTiles) do self:_drawIfInViewport(at) end
 
 		love.graphics.setRenderTarget()
-		self._isDrawing = false
+
+		-- flip back and front frame buffers
+		self._frontfb, self._backfb = self._backfb, self._frontfb
 	end
 end
 
 -- draw the framebuffer to the screen
 function TileMapView:draw()
-	if self._fb and self._isDrawing == false then
+	if self._frontfb then
 		love.graphics.setColor(1,1,1)
-		love.graphics.draw(self._fb)
+		love.graphics.draw(self._frontfb)
 	end
 end
 
