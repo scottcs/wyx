@@ -171,11 +171,13 @@ function st:keypressed(key, unicode)
 	switch(key) {
 		escape = function() love.event.push('q') end,
 		m = function()
+			self._view:setAnimate(false)
 			self:_generateMapRandomly()
 			self:_createView()
 			self:_createCamera()
 		end,
 		f = function()
+			self._view:setAnimate(false)
 			self:_generateMapFromFile()
 			self:_createView()
 			self:_createCamera()
