@@ -92,14 +92,8 @@ function st:_createHUD()
 	end
 end
 
-local _accum = 0
-local TICK = 0.001
-
 function st:update(dt)
-	_accum = _accum + dt
-	if _accum > TICK then
-		_accum = _accum - TICK
-	end
+	if self._view then self._view:update(dt) end
 	self:_drawHUDfb()
 end
 

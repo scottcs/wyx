@@ -38,9 +38,11 @@ local TileMapView = Class{name='TileMapView',
 		self._drawTiles = {}
 		self._doAnimate = true
 
+		self._animTick = 0.25
+		self._dt = 0
+
 		self:_setupQuads()
 		self:_setupTiles()
-		self._animID = cron.every(0.25, self._updateAnimatedTiles, self)
 
 		-- make static floor tile
 		local quad = self:_getQuad(MapNode('floor'))
@@ -55,7 +57,6 @@ local TileMapView = Class{name='TileMapView',
 -- destructor
 function TileMapView:destroy()
 	self:_clearQuads()
-	cron.cancel(self._animID)
 	self._animID = nil
 	self._set = nil
 	self._tileW = nil
@@ -64,6 +65,8 @@ function TileMapView:destroy()
 	self._backfb = nil
 	self._floorfb = nil
 	self._map = nil
+	self._animTick = nil
+	self._dt = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
 	for i in ipairs(self._tiles) do self._tiles[i] = nil end
@@ -117,8 +120,10 @@ end
 function TileMapView:isAnimate() return self._doAnimate == true end
 
 -- update the animated tiles
-function TileMapView:_updateAnimatedTiles()
-	if self._doAnimate then
+function TileMapView:update(dt)
+	self._dt = self._dt + dt
+	if self._doAnimate and self._dt > self._animTick then
+		self._dt = self._dt - self._animTick
 		for _,t in ipairs(self._drawTiles) do
 			if t.update then t:update() end
 		end
