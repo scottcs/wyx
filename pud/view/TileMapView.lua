@@ -35,6 +35,7 @@ local TileMapView = Class{name='TileMapView',
 		self._doorVariant = tostring(random(1,5))
 		self._tiles = {}
 		self._animatedTiles = {}
+		self._drawTiles = {}
 
 		self:_setupQuads()
 		self:_setupTiles()
@@ -64,8 +65,12 @@ function TileMapView:destroy()
 	self._map = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
+	for i in ipairs(self._tiles) do self._tiles[i] = nil end
+	self._tiles = nil
 	for i in ipairs(self._animatedTiles) do self._animatedTiles[i] = nil end
 	self._animatedTiles = nil
+	for i in ipairs(self._drawTiles) do self._drawTiles[i] = nil end
+	self._drawTiles = nil
 	if self._mapViewport then self._mapViewport:destroy() end
 	self._mapViewport = nil
 	GameEvent:unregisterAll(self)
@@ -87,7 +92,15 @@ function TileMapView:setViewport(rect)
 
 	self._mapViewport = Rect(tl, br-tl)
 
-	self:_drawToFB()
+	for i in ipairs(self._drawTiles) do self._drawTiles[i] = nil end
+	for _,t in ipairs(self._tiles) do
+		if self:_shouldDraw(t) then self._drawTiles[#self._drawTiles+1] = t end
+	end
+	for _,t in ipairs(self._animatedTiles) do
+		if self:_shouldDraw(t) then self._drawTiles[#self._drawTiles+1] = t end
+	end
+
+	self:_drawFB()
 end
 
 -- return current tile size
@@ -97,10 +110,10 @@ end
 
 -- update the animated tiles
 function TileMapView:_updateAnimatedTiles()
-	for _,at in ipairs(self._animatedTiles) do
-		at:update()
+		for _,t in ipairs(self._drawTiles) do
+			if t.update then t:update() end
+		self:_drawFB()
 	end
-	self:_drawToFB()
 end
 
 -- make a quad from the given tile position
@@ -271,7 +284,7 @@ function TileMapView:onEvent(e, ...)
 	if e:is_a(MapUpdateFinishedEvent) then
 		local map = e:getMap()
 		if map == self._map then
-			self:_drawToFB()
+			self:_drawFB()
 		end
 	end
 end
@@ -295,23 +308,23 @@ function TileMapView:_drawFloor(x, y)
 	end
 end
 
-function TileMapView:_drawIfInViewport(tile)
+function TileMapView:_shouldDraw(tile)
 	local pos = tile:getPositionVector()
 	if self._mapViewport:containsPoint(pos)
 		and self._map:containsPoint(pos)
 	then
-		tile:draw()
+		return true
 	end
+	return false
 end
 
 -- draw to the framebuffer
-function TileMapView:_drawToFB()
+function TileMapView:_drawFB()
 	if self._backfb and self._set and self._map and self._mapViewport then
 		love.graphics.setRenderTarget(self._backfb)
 
 		love.graphics.setColor(1,1,1)
-		for _,t in ipairs(self._tiles) do self:_drawIfInViewport(t) end
-		for _,at in ipairs(self._animatedTiles) do self:_drawIfInViewport(at) end
+		for _,t in ipairs(self._drawTiles) do t:draw() end
 
 		love.graphics.setRenderTarget()
 
