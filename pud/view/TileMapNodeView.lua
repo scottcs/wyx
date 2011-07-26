@@ -16,6 +16,7 @@ local TileMapNodeView = Class{name='TileMapNodeView',
 -- destructor
 function TileMapNodeView:destroy()
 	MapNodeView.destroy(self)
+	self._fb = nil
 end
 
 local fbcache = setmetatable({}, {__mode = 'v'})

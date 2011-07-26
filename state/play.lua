@@ -81,8 +81,8 @@ function st:_createCamera()
 	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
-	self._view:setViewport(self._cam:getViewport())
 	self._cam:home()
+	self._view:setViewport(self._cam:getViewport())
 end
 
 function st:_createHUD()
