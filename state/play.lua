@@ -8,6 +8,7 @@
 local st = GameState.new()
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
+local random = Random
 
 -- Camera
 local GameCam = require 'pud.view.GameCam'
@@ -38,7 +39,7 @@ end
 function st:_generateMapFromFile()
 	local FileMapBuilder = require 'pud.map.FileMapBuilder'
 	local mapfiles = {'test'}
-	local mapfile = mapfiles[math.random(1,#mapfiles)]
+	local mapfile = mapfiles[random(1,#mapfiles)]
 	local builder = FileMapBuilder(mapfile)
 
 	self:_generateMap(builder)
