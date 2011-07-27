@@ -6,11 +6,13 @@ local EntityView = require 'pud.view.EntityView'
 local HeroView = Class{name='HeroView',
 	inherits=EntityView,
 	function(self)
+		EntityView.construct(self)
 	end
 }
 
 -- destructor
 function HeroView:destroy()
+	EntityView.destroy(self)
 end
 
 
