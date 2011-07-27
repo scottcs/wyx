@@ -2,6 +2,7 @@
 -- common utilities used throughout the program
 require 'pud.loveutil'
 require 'pud.util'
+require 'random'
 
 
          --[[--
@@ -41,12 +42,12 @@ function love.load()
 	-- set graphics mode
 	resizeScreen(1024, 768)
 
-	-- seed and prime the RNG
-	math.randomseed(os.time()) math.random() math.random()
-
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
 	NUM_SOUNDS = 11
+
+	-- global random number generator instance
+	Random = random.new()
 
 	-- register all love events with gamestate
 	GameState.registerEvents()

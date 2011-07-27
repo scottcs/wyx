@@ -4,7 +4,7 @@ local MapBuilder = require 'pud.map.MapBuilder'
 local MapNode = require 'pud.map.MapNode'
 local Rect = require 'pud.kit.Rect'
 
-local random = math.random
+local random = Random
 local math_floor = math.floor
 
 --------------

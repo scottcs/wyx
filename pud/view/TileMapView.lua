@@ -7,7 +7,7 @@ local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 local TileMapNodeView = require 'pud.view.TileMapNodeView'
 local AnimatedTile = require 'pud.view.AnimatedTile'
 
-local random = math.random
+local random = Random
 local math_floor = math.floor
 local math_min, math_max = math.min, math.max
 
