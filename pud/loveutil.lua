@@ -21,7 +21,9 @@ Font  = Proxy(function(k)
 	return love.graphics.newFont('font/dejavu.ttf', k)
 end)
 Image = Proxy(function(k)
-	return love.graphics.newImage('image/'..k..'.png')
+	local img = love.graphics.newImage('image/'..k..'.png')
+	img:setFilter('nearest', 'nearest')
+	return img
 end)
 Sound = Proxy(function(k)
 	return love.audio.newSource(
@@ -53,7 +55,7 @@ do
 	local sbg = love.graphics.setBackgroundColor
 
 	local function color(r, g, b, a)
-		if type(r) == 'table' then r,g,b,a = r[1],r[2],r[3],r[4] end
+		if type(r) == 'table' then r,g,b,a = unpack(r) end
 
 		if    r <= 1 and r >= 0
 			and g <= 1 and g >= 0

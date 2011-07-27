@@ -23,8 +23,8 @@ local Rect = Class{name='Rect',
 			size = vector(w, h)
 		end
 
-		self:setPosition(pos)
 		self:setSize(size)
+		self:setPosition(pos)
 	end
 }
 

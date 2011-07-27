@@ -22,6 +22,10 @@ function AnimatedTile:destroy()
 	self._frame = nil
 	self._fb = nil
 	self._constructed = nil
+	if self._updateCB then
+		for k in pairs(self._updateCB) do self._updateCB[k] = nil end
+		self._updateCB = nil
+	end
 	Rect.destroy(self)
 end
 
@@ -61,10 +65,17 @@ function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
 	end
 end
 
+function AnimatedTile:setPosition(x, y)
+	Rect.setPosition(self, x, y)
+	x, y = self:getPosition()
+	self._drawX = (x-1)*self:getWidth()
+	self._drawY = (y-1)*self:getHeight()
+end
+
 -- draw the framebuffer
-function AnimatedTile:draw(x, y)
+function AnimatedTile:draw()
 	if self._numFrames > 0 and self._isDrawing == false then
-		love.graphics.draw(self._fb[self._frame], x, y)
+		love.graphics.draw(self._fb[self._frame], self._drawX, self._drawY)
 	end
 end
 
@@ -74,6 +85,20 @@ function AnimatedTile:advance()
 		self._frame = 1
 	else
 		self._frame = self._frame + 1
+	end
+end
+
+-- set the callback to be called when update() is called
+function AnimatedTile:setUpdateCallback(callback, ...)
+	assert(callback and type(callback) == 'function',
+		'setUpdateCallback expects a function (was %s)', type(callback))
+
+	self._updateCB = {callback=callback, args={...}}
+end
+
+function AnimatedTile:update()
+	if self._updateCB then
+		self._updateCB.callback(unpack(self._updateCB.args))
 	end
 end
 

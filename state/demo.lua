@@ -7,8 +7,9 @@
 
 local st = GameState.new()
 
-local math_max, math_min, math_random, math_floor, string_char
-		= math.max, math.min, math.random, math.floor, string.char
+local math_max, math_min, math_floor, string_char
+		= math.max, math.min, math.floor, string.char
+local random = Random
 local PI2 = math.pi * 2
 
 local RandomBag = require 'pud.kit.RandomBag'
@@ -51,7 +52,7 @@ local _sbag = RandomBag(1,#_sounds)
 local _sound
 
 for i=97,96+NUM_MUSIC do _bgmbuffer:append(i) end
-for i=1,math_random(NUM_MUSIC) do _bgmbuffer:next() end
+for i=1,random(NUM_MUSIC) do _bgmbuffer:next() end
 
 local function _selectBGM(direction)
 	local i = switch(direction) {
