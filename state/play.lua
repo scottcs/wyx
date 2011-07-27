@@ -47,7 +47,7 @@ end
 
 function st:_generateMapRandomly()
 	local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
-	local builder = SimpleGridMapBuilder(100,100, 10,10, 20,35)
+	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16)
 
 	self:_generateMap(builder)
 end
