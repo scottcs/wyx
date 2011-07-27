@@ -56,7 +56,7 @@ function st:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
 	builder:destroy()
-	GameEvent:push(MapUpdateFinishedEvent(self._map))
+	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
 
 function st:_createView(viewClass)

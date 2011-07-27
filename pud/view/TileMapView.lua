@@ -77,7 +77,7 @@ function TileMapView:destroy()
 	self._drawTiles = nil
 	if self._mapViewport then self._mapViewport:destroy() end
 	self._mapViewport = nil
-	GameEvent:unregisterAll(self)
+	GameEvents:unregisterAll(self)
 	MapView.destroy(self)
 end
 
@@ -297,7 +297,7 @@ function TileMapView:registerEvents()
 	local events = {
 		MapUpdateFinishedEvent,
 	}
-	GameEvent:register(self, events)
+	GameEvents:register(self, events)
 end
 
 -- handle registered events as they are fired

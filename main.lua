@@ -52,8 +52,8 @@ function love.load()
 	-- register all love events with gamestate
 	GameState.registerEvents()
 
-	-- create an event manager for the entire game
-	GameEvent = EventManager()
+	-- create global event managers (event "channels")
+	GameEvents = EventManager()
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
@@ -66,7 +66,7 @@ function love.update(dt)
 		cron.update(dt)
 		tween.update(dt)
 
-		GameEvent:flush()
+		GameEvents:flush()
 
 		love.audio.update()
 	end
@@ -85,7 +85,7 @@ end
 function love.quit()
 	tween.stopAll()
 
-	GameEvent:destroy()
+	GameEvents:destroy()
 
 	if profiler then
 		profiler:stop()
