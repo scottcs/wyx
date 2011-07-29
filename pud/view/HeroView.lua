@@ -5,8 +5,8 @@ local EntityView = require 'pud.view.EntityView'
 --
 local HeroView = Class{name='HeroView',
 	inherits=EntityView,
-	function(self)
-		EntityView.construct(self)
+	function(self, hero, width, height)
+		EntityView.construct(self, hero, width, height)
 	end
 }
 
