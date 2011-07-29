@@ -52,12 +52,12 @@ function EventManager:register(obj, events)
 	end
 	for _,event in ipairs(events) do
 		_validateEvent(event)
-		local keyStr = tostring(event:getKey())
+		local keyStr = tostring(event:getEventKey())
 		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
 			'object "%s" is missing event callback method for event "%s"',
 			tostring(obj), keyStr)
 
-		local key = event:getKey()
+		local key = event:getEventKey()
 		self._events[key] = self._events[key] or {}
 		self._events[key][obj] = true
 	end
@@ -72,7 +72,7 @@ function EventManager:unregister(obj, events)
 	end
 	for _,event in ipairs(events) do
 		_validateEvent(event)
-		local key = event:getKey()
+		local key = event:getEventKey()
 
 		if self._events[key] and self._events[key][obj] then
 			self._events[key][obj] = nil
@@ -110,14 +110,14 @@ end
 -- directly.
 function EventManager:notify(event)
 	_validateEvent(event)
-	local key = event:getKey()
+	local key = event:getEventKey()
 
 	if self._events[key] then
 		for obj in pairs(self._events[key]) do
 			if type(obj) == 'function' then                     -- function()
 				obj(event)
 			else
-				local keyStr = tostring(event:getKey())
+				local keyStr = tostring(event:getEventKey())
 				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
 				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
 			end
