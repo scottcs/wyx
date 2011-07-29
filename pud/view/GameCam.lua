@@ -117,7 +117,10 @@ function GameCam:followTarget(rect)
 	}
 
 	local function _follow(self, theRect)
-		self._cam.pos = theRect:getCenterVector()
+		local pos = theRect:getPositionVector()
+		local size = theRect:getSizeVector()
+		self._cam.pos.x = (pos.x-1) * size.x + size.x/2
+		self._cam.pos.y = (pos.y-1) * size.y + size.y/2
 		self:_correctPos(self._cam.pos)
 	end
 
@@ -140,6 +143,8 @@ function GameCam:followTarget(rect)
 		self._targetFuncs.setCenter(theRect, x, y, flag)
 		_follow(self, theRect)
 	end
+
+	_follow(self, rect)
 end
 
 -- unfollow a target Rect

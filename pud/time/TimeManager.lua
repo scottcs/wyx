@@ -53,6 +53,9 @@ function TimeManager:tick()
 			ap[obj] = ap[obj] - obj:doAction(ap[obj])
 		end
 	end
+
+	-- return the object whose turn is next
+	return self._timeTravelers:front()
 end
 
 -- deconstructor

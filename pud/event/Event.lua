@@ -35,7 +35,7 @@ function Event:destroy()
 end
 
 -- return a unique key for the Event
-function Event:getKey()
+function Event:getEventKey()
 	return self.__class and self.__class or self
 end
 
