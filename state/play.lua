@@ -52,6 +52,17 @@ function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(200, 25)
 
+	if debug then
+		self._debug_hudinfo = {
+			h = GameFont.debug:getHeight(),
+			x = 8,
+			y = 8,
+			x2 = 248,
+		}
+		self._debug_hudinfo.y2 = self._debug_hudinfo.y + self._debug_hudinfo.h
+		self._debug_hudinfo.y3 = self._debug_hudinfo.y + self._debug_hudinfo.h*2
+	end
+
 	self._timeManager = TimeManager()
 	self._doTick = false
 
@@ -181,38 +192,78 @@ function st:update(dt)
 	end
 
 	if debug and self._debug then
-		self._memory = math_floor(collectgarbage('count'))
+		self._debug_memory = math_floor(collectgarbage('count'))
 		local balance = TARGET_FRAME_TIME_60 - dt
 		local time = love.timer.getMicroTime()
 
-		if self._clearTime and time > self._clearTime then
-			self._lastBadDT = nil
-			self._lastBadBalance = nil
-			self._clearTime = nil
+		if self._debug_memory then
+			if self._debug_memory > MEMORY_EXTREME then
+				self._debug_memory_clr = {1, 0, 0}
+			elseif self._debug_memory > MEMORY_WARN then
+				self._debug_memory_clr = {1, .9, 0}
+			else
+				self._debug_memory_clr = {1, 1, 1}
+			end
+		end
+
+		if self._debug_clearTime and time > self._debug_clearTime then
+			self._debug_lastBadDT = nil
+			self._debug_lastBadBalance = nil
+			self._debug_clearTime = nil
 		end
 
 		local resetTime = false
 		if dt > TARGET_FRAME_TIME_60
-			and (not self._lastBadDT or dt > self._lastBadDT)
+			and (not self._debug_lastBadDT or dt > self._debug_lastBadDT)
 		then
-			self._lastBadDT = dt
+			self._debug_lastBadDT = dt
+
+			if self._debug_lastBadDT > TARGET_FRAME_TIME_30 then
+				self._debug_lastBadDT_clr = {1, 0, 0}
+			else
+				self._debug_lastBadDT_clr = {1, .9, 0}
+			end
+
 			resetTime = true
 		end
 
 		if balance < UNACCEPTABLE_BALANCE
-			and (not self._lastBadBalance or balance < self._lastBadBalance)
+			and (not self._debug_lastBadBalance
+				or balance < self._debug_lastBadBalance)
 		then
-			self._lastBadBalance = balance
+			self._debug_lastBadBalance = balance
+
+			if self._debug_lastBadBalance < 0 then
+				self._debug_lastBadBalance_clr = {1, 0, 0}
+			else
+				self._debug_lastBadBalance_clr = {1, .9, 0}
+			end
 			resetTime = true
 		end
 
-		if resetTime then self._clearTime = time + 3 end
+		if resetTime then self._debug_clearTime = time + 3 end
 
 		_debug_accum = _debug_accum + dt
 		if _debug_accum > 0.1 then
 			_debug_accum = 0
-			self._lastDT = dt
-			self._lastBalance = balance
+			self._debug_lastDT = dt
+			self._debug_lastBalance = balance
+
+			if self._debug_lastDT > TARGET_FRAME_TIME_30 then
+				self._debug_lastDT_clr = {1, 0, 0}
+			elseif self._debug_lastDT > TARGET_FRAME_TIME_60 then
+				self._debug_lastDT_clr = {1, .9, 0}
+			else
+				self._debug_lastDT_clr = {1, 1, 1}
+			end
+
+			if self._debug_lastBalance < 0 then
+				self._debug_lastBalance_clr = {1, 0, 0}
+			elseif self._debug_lastBalance < UNACCEPTABLE_BALANCE then
+				self._debug_lastBalance_clr = {1, .9, 0}
+			else
+				self._debug_lastBalance_clr = {1, 1, 1}
+			end
 		end
 	end
 end
@@ -225,61 +276,39 @@ end
 function st:_drawHUDfb()
 	love.graphics.setRenderTarget(self._HUDfb)
 
+
 	if debug and self._debug then
+		local inf = self._debug_hudinfo
 		love.graphics.setFont(GameFont.debug)
-		local h = GameFont.debug:getHeight()
-		local x, y = 8, 8
-		local x2 = 248
 
-		local color = {1, 1, 1}
-		if self._memory then
-			if self._memory > MEMORY_EXTREME then
-				color = {1, 0, 0}
-			elseif self._memory > MEMORY_WARN then
-				color = {1, .9, 0}
-			end
-		end
-		love.graphics.setColor(color)
-		love.graphics.print('mem: '..tostring(self._memory), x, y)
-
-		if self._lastDT then
-			color = {1, 1, 1}
-			if self._lastDT > TARGET_FRAME_TIME_30 then
-				color = {1, 0, 0}
-			elseif self._lastDT > TARGET_FRAME_TIME_60 then
-				color = {1, .9, 0}
-			end
-			love.graphics.setColor(color)
-			love.graphics.print('dt: '..tostring(self._lastDT), x, y+h)
+		if self._debug_memory then
+			love.graphics.setColor(self._debug_memory_clr)
+			love.graphics.print('mem: '..tostring(self._debug_memory),
+				inf.x, inf.y)
 		end
 
-		if self._lastBadDT then
-			color = {1, .9, 0}
-			if self._lastBadDT > TARGET_FRAME_TIME_30 then
-				color = {1, 0, 0}
-			end
-			love.graphics.setColor(color)
-			love.graphics.print(tostring(self._lastBadDT), x2, y+h)
+		if self._debug_lastDT then
+			love.graphics.setColor(self._debug_lastDT_clr)
+			love.graphics.print('dt: '..tostring(self._debug_lastDT),
+				inf.x, inf.y2)
 		end
 
-		if self._lastBalance then
-			color = {1, 1, 1}
-			if self._lastBalance < 0 then
-				color = {1, 0, 0}
-			elseif self._lastBalance < UNACCEPTABLE_BALANCE then
-				color = {1, .9, 0}
-			end
-			love.graphics.setColor(color)
-			love.graphics.print('bal: '..tostring(self._lastBalance), x, y+h*2)
+		if self._debug_lastBadDT then
+			love.graphics.setColor(self._debug_lastBadDT_clr)
+			love.graphics.print(tostring(self._debug_lastBadDT),
+				inf.x2, inf.y2)
 		end
 
-		if self._lastBadBalance then
-			color = {1, .9, 0}
-			if self._lastBadBalance < 0 then
-				color = {1, 0, 0}
-			end
-			love.graphics.setColor(color)
-			love.graphics.print(tostring(self._lastBadBalance), x2, y+h*2)
+		if self._debug_lastBalance then
+			love.graphics.setColor(self._debug_lastBalance_clr)
+			love.graphics.print('bal: '..tostring(self._debug_lastBalance),
+				inf.x, inf.y3)
+		end
+
+		if self._debug_lastBadBalance then
+			love.graphics.setColor(self._debug_lastBadBalance_clr)
+			love.graphics.print(tostring(self._debug_lastBadBalance),
+				inf.x2, inf.y3)
 		end
 	end
 
