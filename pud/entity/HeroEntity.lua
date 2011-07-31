@@ -55,7 +55,12 @@ function HeroEntity:doAction(ap)
 	if self._commandQueue:size() == 0 then return self._turnSpeed end
 	local command = self._commandQueue:pop_front()
 	command:execute()
-	return AP_COSTS[tostring(command.__class)]
+	local cost = AP_COSTS[tostring(command.__class)]
+
+	-- destroy the command, since we executed it
+	command:destroy()
+
+	return cost
 end
 
 -- get the number of action points per tick of this entity
