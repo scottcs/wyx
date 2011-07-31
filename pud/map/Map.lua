@@ -48,7 +48,12 @@ function Map:setLocation(x, y, node)
 		'attempt to call setLocation without a MapNode (was %s)',
 		node and node.is_a and tostring(node) or type(node))
 
-	-- assign the node
+	-- destroy the old node
+	if self._layout[y] and self._layout[y][x] then
+		self._layout[y][x]:destroy()
+	end
+
+	-- assign the new node
 	self._layout[y] = self._layout[y] or {}
 	self._layout[y][x] = node
 end

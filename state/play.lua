@@ -328,6 +328,14 @@ function st:leave()
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
 	self._view:destroy()
 	self._view = nil
+	self._cam:destroy()
+	self._cam = nil
+	self._heroView:destroy()
+	self._heroView = nil
+	self._heroController:destroy()
+	self._heroController = nil
+	self._hero:destroy()
+	self._hero = nil
 	self._timeManager:destroy()
 	self._timeManager = nil
 	self._doTick = nil

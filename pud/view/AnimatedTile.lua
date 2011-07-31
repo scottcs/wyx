@@ -19,6 +19,8 @@ function AnimatedTile:destroy()
 	self:clearFrames()
 	self._isDrawing = nil
 	self._numFrames = nil
+	self._drawX = nil
+	self._drawY = nil
 	self._frame = nil
 	self._fb = nil
 	self._constructed = nil

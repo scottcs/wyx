@@ -15,6 +15,12 @@ local MapUpdateRequestEvent = Class{name='MapUpdateRequestEvent',
 	end
 }
 
+-- destructor
+function MapUpdateRequestEvent:destroy()
+	self._map = nil
+	Event.destroy(self)
+end
+
 function MapUpdateRequestEvent:getMap() return self._map end
 
 -- the class

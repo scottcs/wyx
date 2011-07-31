@@ -37,6 +37,7 @@ function GameCam:destroy()
 	self._zoom = nil
 	for k,v in pairs(self._limits) do self._limits[k] = nil end
 	self._limits = nil
+	self._isAnimating = nil
 end
 
 function GameCam:_setAnimating(b)

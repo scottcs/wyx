@@ -123,6 +123,8 @@ function EventManager:notify(event)
 			end
 		end
 	end
+
+	event:destroy()
 end
 
 -- push an event into the event queue
@@ -148,7 +150,6 @@ function EventManager:flush()
 		-- iterate through the copy of the queue and notify events
 		for _,event in ipairs(queue) do
 			self:notify(event)
-			event:destroy()
 		end
 	end
 end

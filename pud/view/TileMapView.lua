@@ -45,7 +45,9 @@ local TileMapView = Class{name='TileMapView',
 		self:_setupTiles()
 
 		-- make static floor tile
-		local quad = self:_getQuad(MapNode('floor'))
+		local node = MapNode('floor')
+		local quad = self:_getQuad(node)
+		node:destroy()
 		if quad then
 			self._floorfb:renderTo(function()
 				love.graphics.drawq(self._set, quad, 0, 0)
@@ -69,14 +71,28 @@ function TileMapView:destroy()
 	self._dt = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
-	for i in ipairs(self._tiles) do self._tiles[i] = nil end
+
+	for i in ipairs(self._tiles) do
+		self._tiles[i]:destroy()
+		self._tiles[i] = nil
+	end
 	self._tiles = nil
-	for i in ipairs(self._animatedTiles) do self._animatedTiles[i] = nil end
+
+	for i in ipairs(self._animatedTiles) do
+		self._animatedTiles[i]:destroy()
+		self._animatedTiles[i] = nil
+	end
 	self._animatedTiles = nil
-	for i in ipairs(self._drawTiles) do self._drawTiles[i] = nil end
+
+	for i in ipairs(self._drawTiles) do
+		self._drawTiles[i]:destroy()
+		self._drawTiles[i] = nil
+	end
 	self._drawTiles = nil
+
 	if self._mapViewport then self._mapViewport:destroy() end
 	self._mapViewport = nil
+
 	GameEvents:unregisterAll(self)
 	MapView.destroy(self)
 end
@@ -234,7 +250,10 @@ function TileMapView:_setupTiles()
 	local torchB = MapNode('torch', 'B'..self._tileVariant)
 	local trapA = MapNode()
 	local trapB = MapNode()
-	local floorquad = self:_getQuad(MapNode('floor'))
+
+	local floorNode = MapNode('floor')
+	local floorquad = self:_getQuad(floorNode)
+	floorNode:destroy()
 	
 	local torchUpdate = function(self)
 		if self._flicker then
@@ -290,6 +309,11 @@ function TileMapView:_setupTiles()
 			end
 		end
 	end
+
+	torchA:destroy()
+	torchB:destroy()
+	trapA:destroy()
+	trapB:destroy()
 end
 
 -- register for events that will cause this view to redraw

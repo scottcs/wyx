@@ -34,12 +34,13 @@ local HeroEntity = Class{name='HeroEntity',
 
 -- destructor
 function HeroEntity:destroy()
+	self._stepSize = nil
 	self._turnSpeed = nil
 	self._commandQueue:destroy()
 	self._commandQueue = nil
 
 	CommandEvents:unregisterAll(self)
-	Movable.destroy(self)
+	TimedObject.destroy(self)
 	Entity.destroy(self)
 end
 

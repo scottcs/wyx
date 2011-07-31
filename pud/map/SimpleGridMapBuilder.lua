@@ -52,6 +52,10 @@ function SimpleGridMapBuilder:destroy()
 	self:_clear()
 	self._rooms = nil
 	self._grid = nil
+	self._numRooms = nil
+	self._map = nil
+	self._cellW = nil
+	self._cellH = nil
 
 	MapBuilder.destroy(self)
 end

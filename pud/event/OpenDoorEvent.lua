@@ -10,5 +10,11 @@ local OpenDoorEvent = Class{name='OpenDoorEvent',
 	end
 }
 
+-- destructor
+function OpenDoorEvent:destroy()
+	self._actor = nil
+	Event.destroy(self)
+end
+
 -- the class
 return OpenDoorEvent
