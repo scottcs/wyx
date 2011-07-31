@@ -36,6 +36,17 @@ local HeroEntity = require 'pud.entity.HeroEntity'
 -- controllers
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
+-- target time between frames for 60Hz and 30Hz
+local TARGET_FRAME_TIME_60 = 0.016666666667
+local TARGET_FRAME_TIME_30 = 0.033333333333
+
+-- point at which target frame time minus actual frame time is too low
+local UNACCEPTABLE_BALANCE = TARGET_FRAME_TIME_60 * 0.2
+
+-- warning and extreme values for memory usage
+local MEMORY_WARN = 20000
+local MEMORY_EXTREME = 25000
+
 
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
@@ -156,6 +167,7 @@ function st:_createHUD()
 end
 
 local _accum = 0
+local _debug_accum = 0
 function st:update(dt)
 	if self._view then self._view:update(dt) end
 	self:_drawHUDfb()
@@ -165,6 +177,42 @@ function st:update(dt)
 		if _accum > TICK then
 			_accum = _accum - TICK
 			self._doTick = self._timeManager:tick() ~= self._hero
+		end
+	end
+
+	if debug and self._debug then
+		self._memory = math_floor(collectgarbage('count'))
+		local balance = TARGET_FRAME_TIME_60 - dt
+		local time = love.timer.getMicroTime()
+
+		if self._clearTime and time > self._clearTime then
+			self._lastBadDT = nil
+			self._lastBadBalance = nil
+			self._clearTime = nil
+		end
+
+		local resetTime = false
+		if dt > TARGET_FRAME_TIME_60
+			and (not self._lastBadDT or dt > self._lastBadDT)
+		then
+			self._lastBadDT = dt
+			resetTime = true
+		end
+
+		if balance < UNACCEPTABLE_BALANCE
+			and (not self._lastBadBalance or balance < self._lastBadBalance)
+		then
+			self._lastBadBalance = balance
+			resetTime = true
+		end
+
+		if resetTime then self._clearTime = time + 3 end
+
+		_debug_accum = _debug_accum + dt
+		if _debug_accum > 0.1 then
+			_debug_accum = 0
+			self._lastDT = dt
+			self._lastBalance = balance
 		end
 	end
 end
@@ -177,17 +225,62 @@ end
 function st:_drawHUDfb()
 	love.graphics.setRenderTarget(self._HUDfb)
 
-	if debug then
-		love.graphics.setFont(GameFont.small)
-		local fps = love.timer.getFPS()
+	if debug and self._debug then
+		love.graphics.setFont(GameFont.debug)
+		local h = GameFont.debug:getHeight()
+		local x, y = 8, 8
+		local x2 = 248
+
 		local color = {1, 1, 1}
-		if fps < 20 then
-			color = {1, 0, 0}
-		elseif fps < 60 then
-			color = {1, .9, 0}
+		if self._memory then
+			if self._memory > MEMORY_EXTREME then
+				color = {1, 0, 0}
+			elseif self._memory > MEMORY_WARN then
+				color = {1, .9, 0}
+			end
 		end
 		love.graphics.setColor(color)
-		love.graphics.print('fps: '..tostring(fps), 8, 8)
+		love.graphics.print('mem: '..tostring(self._memory), x, y)
+
+		if self._lastDT then
+			color = {1, 1, 1}
+			if self._lastDT > TARGET_FRAME_TIME_30 then
+				color = {1, 0, 0}
+			elseif self._lastDT > TARGET_FRAME_TIME_60 then
+				color = {1, .9, 0}
+			end
+			love.graphics.setColor(color)
+			love.graphics.print('dt: '..tostring(self._lastDT), x, y+h)
+		end
+
+		if self._lastBadDT then
+			color = {1, .9, 0}
+			if self._lastBadDT > TARGET_FRAME_TIME_30 then
+				color = {1, 0, 0}
+			end
+			love.graphics.setColor(color)
+			love.graphics.print(tostring(self._lastBadDT), x2, y+h)
+		end
+
+		if self._lastBalance then
+			color = {1, 1, 1}
+			if self._lastBalance < 0 then
+				color = {1, 0, 0}
+			elseif self._lastBalance < UNACCEPTABLE_BALANCE then
+				color = {1, .9, 0}
+			end
+			love.graphics.setColor(color)
+			love.graphics.print('bal: '..tostring(self._lastBalance), x, y+h*2)
+		end
+
+		if self._lastBadBalance then
+			color = {1, .9, 0}
+			if self._lastBadBalance < 0 then
+				color = {1, 0, 0}
+			end
+			love.graphics.setColor(color)
+			love.graphics.print(tostring(self._lastBadBalance), x2, y+h*2)
+		end
 	end
 
 	love.graphics.setRenderTarget()
@@ -277,6 +370,9 @@ function st:keypressed(key, unicode)
 			self._cam:followTarget(self._hero)
 			self._view:setViewport(self._cam:getViewport())
 		end,
+
+		-- debug
+		f3 = function() self._debug = not self._debug end,
 	}
 end
 
