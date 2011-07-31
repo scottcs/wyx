@@ -55,7 +55,7 @@ do
 	local sbg = love.graphics.setBackgroundColor
 
 	local function color(r, g, b, a)
-		if type(r) == 'table' then r,g,b,a = unpack(r) end
+		if type(r) == 'table' then r,g,b,a = r[1],r[2],r[3],r[4] end
 
 		if    r <= 1 and r >= 0
 			and g <= 1 and g >= 0
