@@ -181,7 +181,6 @@ local _accum = 0
 local _debug_accum = 0
 function st:update(dt)
 	if self._view then self._view:update(dt) end
-	self:_drawHUDfb()
 
 	if self._doTick then
 		_accum = _accum + dt
@@ -266,6 +265,8 @@ function st:update(dt)
 			end
 		end
 	end
+
+	self:_drawHUDfb()
 end
 
 function st:_drawHUD()
