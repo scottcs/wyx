@@ -85,7 +85,6 @@ function TileMapView:destroy()
 	self._animatedTiles = nil
 
 	for i in ipairs(self._drawTiles) do
-		self._drawTiles[i]:destroy()
 		self._drawTiles[i] = nil
 	end
 	self._drawTiles = nil
