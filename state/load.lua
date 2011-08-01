@@ -33,7 +33,7 @@ end
 
 function st:enter()
 	self.fadeColor = {0,0,0,1}
-	self.nextState = State.play
+	self.nextState = State.debug
 	self.lines = self.lines or {
 		{
 			text = "Loading...",
