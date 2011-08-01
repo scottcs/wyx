@@ -50,9 +50,6 @@ local MEMORY_EXTREME = 25000
 
 
 function st:enter()
-	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
-	love.keyboard.setKeyRepeat(200, 25)
-
 	if debug then
 		self._debug_hudinfo = {
 			h = GameFont.debug:getHeight(),
@@ -405,7 +402,6 @@ end
 
 function st:leave()
 	CommandEvents:unregisterAll(self)
-	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
