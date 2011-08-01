@@ -71,6 +71,8 @@ function TileMapView:destroy()
 	self._dt = nil
 	self._tileVariant = nil
 	self._doorVariant = nil
+	self._quadresults = nil
+	self._floorcache = nil
 
 	for i in ipairs(self._tiles) do
 		self._tiles[i]:destroy()
@@ -159,9 +161,9 @@ function TileMapView:_makeQuad(mapType, variant, x, y)
 		self._set:getHeight())
 end
 
-local quadresults = setmetatable({}, {__mode = 'kv'})
 function TileMapView:_getQuad(node)
-	local quad = quadresults[node]
+	self._quadresults = self._quadresults or setmetatable({}, {__mode = 'kv'})
+	local quad = self._quadresults[node]
 	if quad == nil then
 		quad = 0
 		if self._quads then
@@ -191,7 +193,7 @@ function TileMapView:_getQuad(node)
 				end
 			end
 
-			quadresults[node] = quad
+			self._quadresults[node] = quad
 		end
 	end
 	return quad ~= 0 and quad or nil
@@ -334,13 +336,13 @@ function TileMapView:onEvent(e, ...)
 end
 
 -- draw a floor tile if needed
-local floorcache = setmetatable({}, {__mode = 'kv'})
 function TileMapView:_shouldDrawFloor(node)
-	local should = floorcache[node]
+	self._floorcache = self._floorcache or setmetatable({}, {__mode = 'kv'})
+	local should = self._floorcache[node]
 	if should == nil then
 		local mapType = node:getMapType()
 		should = not mapType:isType('floor', 'wall', 'torch')
-		floorcache[node] = should
+		self._floorcache[node] = should
 	end
 	return should
 end
