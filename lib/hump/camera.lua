@@ -47,15 +47,12 @@ end
 camera.move = camera.translate
 
 function camera:predraw()
-	--local center = vector(love.graphics.getWidth(), love.graphics.getHeight()) / (self.zoom * 2)
-	local z = self.zoom * 2
-	local cx, cy = love.graphics.getWidth() / z, love.graphics.getHeight() / z
-	local px, py = -self.pos.x, -self.pos.y
+	local center = vector(love.graphics.getWidth(), love.graphics.getHeight()) / (self.zoom * 2)
 	love.graphics.push()
 	love.graphics.scale(self.zoom)
-	love.graphics.translate(cx, cy)
+	love.graphics.translate(center:unpack())
 	love.graphics.rotate(self.rot)
-	love.graphics.translate(px, py)
+	love.graphics.translate((-self.pos):unpack())
 end
 
 function camera:postdraw()
