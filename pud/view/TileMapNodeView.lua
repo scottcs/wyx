@@ -22,7 +22,7 @@ function TileMapNodeView:destroy()
 	MapNodeView.destroy(self)
 end
 
-local fbcache = setmetatable({}, {__mode = 'v'})
+local fbcache = setmetatable({}, {__mode = 'kv'})
 function TileMapNodeView:_getfb(key, tileset, quad, bgquad)
 	local fb = fbcache[key]
 

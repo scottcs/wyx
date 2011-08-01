@@ -160,7 +160,7 @@ function TileMapView:_makeQuad(mapType, variant, x, y)
 		self._set:getHeight())
 end
 
-local quadresults = setmetatable({}, {__mode = 'v'})
+local quadresults = setmetatable({}, {__mode = 'kv'})
 function TileMapView:_getQuad(node)
 	local quad = quadresults[node]
 	if quad == nil then
@@ -335,7 +335,7 @@ function TileMapView:onEvent(e, ...)
 end
 
 -- draw a floor tile if needed
-local floorcache = setmetatable({}, {__mode = 'v'})
+local floorcache = setmetatable({}, {__mode = 'kv'})
 function TileMapView:_shouldDrawFloor(node)
 	local should = floorcache[node]
 	if should == nil then
