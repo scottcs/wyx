@@ -77,16 +77,13 @@ function st:_createEntityViews()
 	if self._heroView then self._heroView:destroy() end
 	self._heroView = HeroView(self._hero, tileW, tileH)
 	self._heroView:set(Image.char, quad)
+	self._hero:setPosition(self._map:getStartVector())
 end
 
 function st:_createEntities()
-	local mapW, mapH = self._map:getSize()
 	local tileW, tileH = self._view:getTileSize()
-	local startX = math_floor(mapW/2+0.5)
-	local startY = math_floor(mapH/2+0.5)
 
 	self._hero = HeroEntity()
-	self._hero:setPosition(vector(startX, startY))
 	self._hero:setSize(vector(tileW, tileH))
 
 	self._timeManager:register(self._hero, 0)
@@ -134,7 +131,6 @@ end
 function st:_createMapView(viewClass)
 	if self._view then self._view:destroy() end
 	self._view = TileMapView(self._map)
-
 	self._view:registerEvents()
 end
 
