@@ -15,7 +15,7 @@ local PI2 = math.pi * 2
 local RandomBag = require 'pud.kit.RandomBag'
 local RingBuffer = require 'lib.hump.ringbuffer'
 local Camera = require 'lib.hump.camera'
-local Vector = require 'pud.kit.Vector'
+local vector = require 'lib.hump.vector'
 
 -- camera
 local _cam
@@ -150,7 +150,7 @@ end
 function st:init()
 	local w = math_floor(Image.demobg:getWidth()/2)
 	local h = math_floor(Image.demobg:getHeight()/2)
-	_cam = Camera(Vector(w, h), CAM_ZOOM)
+	_cam = Camera(vector(w, h), CAM_ZOOM)
 	_hudFB = love.graphics.newFramebuffer(nearestPO2(WIDTH), nearestPO2(HEIGHT))
 	_bgFB = love.graphics.newFramebuffer(nearestPO2(w*2), nearestPO2(h*2))
 end
@@ -201,22 +201,22 @@ function st:keypressed(key, unicode)
 
 		-- camera
 		left = function()
-			local amt = Vector(-CAM_TRANSLATE/_cam.zoom, 0)
+			local amt = vector(-CAM_TRANSLATE/_cam.zoom, 0)
 			_cam:translate(amt)
 			_correctCam()
 		end,
 		right = function()
-			local amt = Vector(CAM_TRANSLATE/_cam.zoom, 0)
+			local amt = vector(CAM_TRANSLATE/_cam.zoom, 0)
 			_cam:translate(amt)
 			_correctCam()
 		end,
 		up = function()
-			local amt = Vector(0, -CAM_TRANSLATE/_cam.zoom)
+			local amt = vector(0, -CAM_TRANSLATE/_cam.zoom)
 			_cam:translate(amt)
 			_correctCam()
 		end,
 		down = function()
-			local amt = Vector(0, CAM_TRANSLATE/_cam.zoom)
+			local amt = vector(0, CAM_TRANSLATE/_cam.zoom)
 			_cam:translate(amt)
 			_correctCam()
 		end,
@@ -235,7 +235,7 @@ function st:keypressed(key, unicode)
 			_cam.zoom = CAM_ZOOM
 			local w = math_floor(Image.demobg:getWidth()/2)
 			local h = math_floor(Image.demobg:getHeight()/2)
-			_cam.pos = Vector(w,h)
+			_cam.pos = vector(w,h)
 			_correctCam()
 		end,
 	}

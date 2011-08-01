@@ -1,7 +1,7 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local Camera = require 'lib.hump.camera'
-local Vector = require 'pud.kit.Vector'
+local vector = require 'lib.hump.vector'
 local Rect = require 'pud.kit.Rect'
 
 local math_max, math_min = math.max, math.min
@@ -12,7 +12,7 @@ local _isVector = function(...)
 	local n = select('#',...)
 	for i=1,n do
 		local v = select(i,...)
-		assert(Vector.isVector(v), 'Vector expected, got %s (%s)',
+		assert(vector.isvector(v), 'vector expected, got %s (%s)',
 			tostring(v), type(v))
 	end
 	return n > 0
@@ -20,7 +20,7 @@ end
 
 local GameCam = Class{name='GameCam',
 	function(self, v, zoom)
-		v = v or Vector(0,0)
+		v = v or vector(0,0)
 		if _isVector(v) then
 			self._zoom = math_max(1, math_min(#_zoomLevels, zoom or 1))
 			self._home = v
@@ -164,14 +164,14 @@ function GameCam:unfollowTarget()
 	end
 end
 
--- center on initial Vector
+-- center on initial vector
 function GameCam:home()
 	self:unfollowTarget()
 	self._cam.pos = self._home
 	self:_correctPos(self._cam.pos)
 end
 
--- change home Vector
+-- change home vector
 function GameCam:setHome(home)
 	if _isVector(home) then
 		self._home = home
@@ -246,13 +246,13 @@ function GameCam:postdraw() self._cam:postdraw() end
 function GameCam:draw(...) self._cam:draw(...) end
 
 function GameCam:toWorldCoords(campos, zoom, p)
-	local p = Vector((p.x-WIDTH/2) / zoom, (p.y-HEIGHT/2) / zoom)
+	local p = vector((p.x-WIDTH/2) / zoom, (p.y-HEIGHT/2) / zoom)
 	return p + campos
 end
 
 -- get a rect representing the camera viewport
 function GameCam:getViewport(translate, zoom)
-	translate = translate or Vector(0,0)
+	translate = translate or vector(0,0)
 	zoom = self._zoom + (zoom or 0)
 	zoom = math_max(1, math_min(#_zoomLevels, zoom))
 
@@ -262,7 +262,7 @@ function GameCam:getViewport(translate, zoom)
 	self:_correctPos(pos)
 	zoom = _zoomLevels[zoom]
 
-	local tl, br = Vector(0,0), Vector(WIDTH, HEIGHT)
+	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
 	local vp1 = self:toWorldCoords(pos, zoom, tl)
 	local vp2 = self:toWorldCoords(pos, zoom, br)
 	return Rect(vp1, vp2-vp1)

@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
 local Controller = require 'pud.controller.Controller'
-local Vector = require 'pud.kit.Vector'
+local vector = require 'lib.hump.vector'
 
 -- events this controller issues
 local CommandEvent = require 'pud.event.CommandEvent'
@@ -33,7 +33,7 @@ function HeroController:setCommandCallback(callback, ...)
 	self._commandCBArgs = {...}
 end
 
--- issue a MoveCommand to move the hero along Vector v
+-- issue a MoveCommand to move the hero along vector v
 function HeroController:move(v)
 	local command = MoveCommand(self._hero, v)
 	if self._commandCB then
