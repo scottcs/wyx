@@ -29,6 +29,7 @@ local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 
 local vector = {}
 vector.__index = vector
+vector.__mode = 'k'
 
 local function new(x,y)
 	local v = {x = x or 0, y = y or 0}
