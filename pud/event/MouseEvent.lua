@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
 local InputEvent = require 'pud.event.InputEvent'
-local vector = require 'lib.hump.vector'
+local Vector = require 'pud.kit.Vector'
 
 -- MouseEvent
 --
@@ -8,7 +8,7 @@ local MouseEvent = Class{name='MouseEvent',
 	inherits=InputEvent,
 	function(self, x, y, button, grabbed, visible, modifiers)
 		InputEvent.construct(self, modifiers)
-		self._pos = vector(x, y)
+		self._pos = Vector(x, y)
 		self._button = button
 		self._grabbed = grabbed
 		self._visible = visible
@@ -36,7 +36,7 @@ function MouseEvent:getY() return self._pos.y end
 -- get the position of the mouse when the button was pressed
 function MouseEvent:getPosition() return self:getX(), self:getY() end
 
--- get a vector of the position of the mouse when the button was pressed
+-- get a Vector of the position of the mouse when the button was pressed
 function MouseEvent:getPositionVector() return self._pos end
 
 -- return true if the mouse was grabbed when the button was pressed

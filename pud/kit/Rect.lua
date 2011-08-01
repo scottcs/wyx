@@ -1,6 +1,6 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'
+local Vector = require 'pud.kit.Vector'
 
 local math_floor, math_ceil = math.floor, math.ceil
 local round = function(x) return math_floor(x + 0.5) end
@@ -18,9 +18,9 @@ local Rect = Class{name='Rect',
 
 		local pos, size = x, y
 
-		if not vector.isvector(pos) then
-			pos = vector(x, y)
-			size = vector(w, h)
+		if not Vector.isVector(pos) then
+			pos = Vector(x, y)
+			size = Vector(w, h)
 		end
 
 		self:setSize(size)
@@ -49,11 +49,11 @@ end
 
 function Rect:getPosition() return self._pos:unpack() end
 function Rect:getPositionVector() return self._pos:clone() end
--- call as setPosition(x, y) or setPosition(vector)
+-- call as setPosition(x, y) or setPosition(Vector)
 function Rect:setPosition(pos, y)
-	if not vector.isvector(pos) then
+	if not Vector.isVector(pos) then
 		verify('number', pos, y)
-		pos = vector(pos, y)
+		pos = Vector(pos, y)
 	end
 	self._pos = pos
 end
@@ -91,11 +91,11 @@ function Rect:getCenterVector(flag)
 	return self._pos + adjust(self._size/2)
 end
 
--- call as setCenter(x, y, flag) or setCenter(vector, flag)
+-- call as setCenter(x, y, flag) or setCenter(Vector, flag)
 function Rect:setCenter(center, y, flag)
-	if not vector.isvector(center) then
+	if not Vector.isVector(center) then
 		verify('number', center, y)
-		center = vector(center, y)
+		center = Vector(center, y)
 	else
 		flag = y
 	end
@@ -114,11 +114,11 @@ function Rect:getBBoxVectors()
 end
 
 -- check if a point falls within the Rect's bounding box
--- call as contains(x, y) or contains(vector)
+-- call as contains(x, y) or contains(Vector)
 function Rect:containsPoint(p, y)
-	if not vector.isvector(p) then
+	if not Vector.isVector(p) then
 		verify('number', p, y)
-		p = vector(p, y)
+		p = Vector(p, y)
 	end
 	local tl, br = self:getBBoxVectors()
 	return p >= tl and p <= br
@@ -139,11 +139,11 @@ end
 
 function Rect:getSize() return self._size:unpack() end
 function Rect:getSizeVector() return self._size:clone() end
--- call as setSize(w, h) or setSize(vector)
+-- call as setSize(w, h) or setSize(Vector)
 function Rect:setSize(size, h)
-	if not vector.isvector(size) then
+	if not Vector.isVector(size) then
 		verify('number', size, h)
-		size = vector(size, h)
+		size = Vector(size, h)
 	end
 	self._size = size
 end

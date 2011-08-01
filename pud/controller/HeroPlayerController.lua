@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'
+local Vector = require 'pud.kit.Vector'
 local HeroController = require 'pud.controller.HeroController'
 
 -- events this controller listens for
@@ -26,10 +26,10 @@ function HeroPlayerController:KeyboardEvent(e)
 	if #(e:getModifiers()) == 0 then
 		local key = e:getKey()
 		switch(key) {
-			up    = function() self:move(vector( 0, -1)) end,
-			down  = function() self:move(vector( 0,  1)) end,
-			left  = function() self:move(vector(-1,  0)) end,
-			right = function() self:move(vector( 1,  0)) end,
+			up    = function() self:move(Vector( 0, -1)) end,
+			down  = function() self:move(Vector( 0,  1)) end,
+			left  = function() self:move(Vector(-1,  0)) end,
+			right = function() self:move(Vector( 1,  0)) end,
 		}
 	end
 end

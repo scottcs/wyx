@@ -21,7 +21,7 @@ local TICK = 0.01
 
 -- Camera
 local GameCam = require 'pud.view.GameCam'
-local vector = require 'lib.hump.vector'
+local Vector = require 'pud.kit.Vector'
 
 -- map director
 local MapDirector = require 'pud.map.MapDirector'
@@ -97,8 +97,8 @@ function st:_createEntities()
 	local startY = math_floor(mapH/2+0.5)
 
 	self._hero = HeroEntity()
-	self._hero:setPosition(vector(startX, startY))
-	self._hero:setSize(vector(tileW, tileH))
+	self._hero:setPosition(Vector(startX, startY))
+	self._hero:setSize(Vector(tileW, tileH))
 
 	self._timeManager:register(self._hero, 0)
 
@@ -157,13 +157,13 @@ function st:_createCamera()
 	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
 
 	if not self._cam then
-		self._cam = GameCam(vector(startX, startY), zoom)
+		self._cam = GameCam(Vector(startX, startY), zoom)
 	else
-		self._cam:setHome(vector(startX, startY))
+		self._cam:setHome(Vector(startX, startY))
 	end
 
-	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
-	local max = vector(mapTileW - min.x, mapTileH - min.y)
+	local min = Vector(math_floor(tileW/2), math_floor(tileH/2))
+	local max = Vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._cam:home()
 	self._cam:followTarget(self._hero)
@@ -346,9 +346,9 @@ end
 function st:_translateCam(x, y)
 	if not self._cam:isAnimating() then
 		self._view:setAnimate(false)
-		local translate = vector(x, y)
+		local translate = Vector(x, y)
 		self._view:setViewport(self._cam:getViewport(translate))
-		self._cam:translate(vector(x, y),
+		self._cam:translate(Vector(x, y),
 			self._view.setAnimate, self._view, true)
 	end
 end
