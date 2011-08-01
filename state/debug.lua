@@ -260,6 +260,7 @@ function st:keypressed(key, unicode)
 		f7 = function()
 			if self._debugHUD then self._debugHUD:clearExtremes() end
 		end,
+		f9 = function() collectgarbage('collect') end,
 	}
 end
 
