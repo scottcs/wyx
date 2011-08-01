@@ -63,7 +63,6 @@ local function new(args)
 	-- build class
 	local class = {}
 	class.__index = class
-	class.__mode = 'k'
 	class.__tostring = function() return ("<instance of %s>"):format(tostring(class)) end
 	class.construct, class.Construct = constructor or __NULL__, constructor or __NULL__
 	class.Construct = class.construct
@@ -98,8 +97,7 @@ local function new(args)
 			obj.__class = self
 			return obj
 		end,
-		__tostring = function() return name end,
-		__mode = 'k',
+		__tostring = function() return name end
 	}
 	return setmetatable(class, meta)
 end
