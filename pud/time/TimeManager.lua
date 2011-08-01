@@ -36,7 +36,6 @@ function TimeManager:tick()
 	while obj and obj:isExhausted() do
 		self._timeTravelers:pop_front()
 		self._actionPoints[obj] = nil
-		print('removed '..obj.name)
 		obj = self._timeTravelers:front()
 	end
 
