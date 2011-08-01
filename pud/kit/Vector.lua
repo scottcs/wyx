@@ -1,13 +1,12 @@
 local Class = require 'lib.hump.class'
 
-local _isVector = function(v) return v and v.is_a and v:is_a(Vector) end
-
 -- Vector
 -- rewritten from Hump's vector to make it a class and add destructor.
 -- Hump's vectors were never destroyed, causing serious memory leaks.
-local Vector = Class{name='Vector',
+local Vector
+Vector = Class{name='Vector',
 	function(self, x, y)
-		if _isVector(x) then
+		if Vector.isVector(x) then
 			self.x, self.y = x.x, x.y
 		else
 			self.x, self.y = x or 0, y or 0
@@ -19,6 +18,10 @@ local Vector = Class{name='Vector',
 function Vector:destroy()
 	self.x = nil
 	self.y = nil
+end
+
+function Vector.isVector(v)
+	return v and type(v) == 'table' and v.is_a and v:is_a(Vector)
 end
 
 function Vector:clone()
@@ -38,14 +41,14 @@ function Vector.__unm(a)
 end
 
 function Vector.__add(a,b)
-	assert(_isVector(a) and _isVector(b),
+	assert(Vector.isVector(a) and Vector.isVector(b),
 		'Add: wrong argument types (Vectors expected, were %s and %s)',
 		type(a), type(b))
 	return Vector(a.x+b.x, a.y+b.y)
 end
 
 function Vector.__sub(a,b)
-	assert(_isVector(a) and _isVector(b),
+	assert(Vector.isVector(a) and Vector.isVector(b),
 		'Sub: wrong argument types (Vectors expected, were %s and %s)',
 		type(a), type(b))
 	return Vector(a.x-b.x, a.y-b.y)
@@ -57,7 +60,7 @@ function Vector.__mul(a,b)
 	elseif type(b) == 'number' then
 		return Vector(b*a.x, b*a.y)
 	else
-		assert(_isVector(a) and _isVector(b),
+		assert(Vector.isVector(a) and Vector.isVector(b),
 			'Mul: wrong argument types (Vector or number expected, were %s and %s)',
 			type(a), type(b))
 		return a.x*b.x + a.y*b.y
@@ -65,7 +68,7 @@ function Vector.__mul(a,b)
 end
 
 function Vector.__div(a,b)
-	assert(_isVector(a) and type(b) == 'number',
+	assert(Vector.isVector(a) and type(b) == 'number',
 		'wrong argument types (expected Vector / number, were %s / %s)',
 		type(a), type(b))
 	return Vector(a.x / b, a.y / b)
@@ -84,7 +87,7 @@ function Vector.__le(a,b)
 end
 
 function Vector.permul(a,b)
-	assert(_isVector(a) and _isVector(b),
+	assert(Vector.isVector(a) and Vector.isVector(b),
 		'permul: wrong argument types (Vectors expected, were %s and %s)',
 		type(a), type(b))
 	return Vector(a.x*b.x, a.y*b.y)
@@ -99,7 +102,7 @@ function Vector:len()
 end
 
 function Vector.dist(a, b)
-	assert(_isVector(a) and _isVector(b),
+	assert(Vector.isVector(a) and Vector.isVector(b),
 		'dist: wrong argument types (Vectors expected, were %s and %s)',
 		type(a), type(b))
 	return (b-a):len()
@@ -130,19 +133,19 @@ function Vector:perpendicular()
 end
 
 function Vector:projectOn(v)
-	assert(_isVector(v),
+	assert(Vector.isVector(v),
 		'cannot project onto anything other than a Vector (was %s)', type(v))
 	return (self * v) * v / v:len2()
 end
 
 function Vector:mirrorOn(other)
-	assert(_isVector(other),
+	assert(Vector.isVector(other),
 		'cannot mirror on anything other than a Vector (was %s)', type(v))
 	return 2 * self:projectOn(other) - self
 end
 
 function Vector:cross(other)
-	assert(_isVector(other),
+	assert(Vector.isVector(other),
 		'cross: wrong argument types (Vector expected, was %s)', type(other))
 	return self.x * other.y - self.y * other.x
 end
