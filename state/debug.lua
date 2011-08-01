@@ -8,6 +8,8 @@
 
 local st = GameState.new()
 
+local DebugHUD = require 'pud.debug.DebugHUD'
+
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local random = Random
 
@@ -50,27 +52,6 @@ local MEMORY_EXTREME = 25000
 
 
 function st:enter()
-	if debug then
-		self._debug_hudinfo = {
-			h = GameFont.debug:getHeight(),
-			x = 8,
-			y = 8,
-			x2 = 8+240,
-			x3 = 8+240*2,
-			x4 = 8+240*3,
-		}
-		self._debug_hudinfo.y2 = self._debug_hudinfo.y + self._debug_hudinfo.h
-		self._debug_hudinfo.y3 = self._debug_hudinfo.y + self._debug_hudinfo.h*2
-		cron.after(0.6, function()
-			self._debug_bestMemory = nil
-			self._debug_worstMemory = nil
-			self._debug_bestDT = nil
-			self._debug_worstDT = nil
-			self._debug_bestBalance = nil
-			self._debug_worstBalance = nil
-		end)
-	end
-
 	self._timeManager = TimeManager()
 	self._doTick = false
 
@@ -81,8 +62,7 @@ function st:enter()
 	self:_createEntityViews()
 	self:_createEntityControllers()
 	self:_createCamera()
-	self:_createHUD()
-	self:_drawHUDfb()
+	self:_createDebugHUD()
 end
 
 function st:_createEntityViews()
@@ -178,15 +158,11 @@ function st:_createCamera()
 	self._view:setViewport(self._cam:getViewport())
 end
 
-function st:_createHUD()
-	if not self._HUDfb then
-		local w, h = nearestPO2(WIDTH), nearestPO2(HEIGHT)
-		self._HUDfb = love.graphics.newFramebuffer(w, h)
-	end
+function st:_createDebugHUD()
+	if debug then self._debugHUD = DebugHUD() end
 end
 
 local _accum = 0
-local _debug_accum = 0
 function st:update(dt)
 	if self._view then self._view:update(dt) end
 
@@ -198,206 +174,16 @@ function st:update(dt)
 		end
 	end
 
-	if debug then
-		self._debug_memory = math_floor(collectgarbage('count'))
-		local balance = TARGET_FRAME_TIME_60 - dt
-		local time = love.timer.getMicroTime()
-
-		if self._debug_memory then
-			if not self._debug_worstMemory
-				or self._debug_memory > self._debug_worstMemory
-			then
-				self._debug_worstMemory = self._debug_memory
-			end
-
-			if not self._debug_bestMemory
-				or self._debug_memory < self._debug_bestMemory
-			then
-				self._debug_bestMemory = self._debug_memory
-			end
-
-			if self._debug_memory > MEMORY_EXTREME then
-				self._debug_memory_clr = {1, 0, 0}
-			elseif self._debug_memory > MEMORY_WARN then
-				self._debug_memory_clr = {1, .9, 0}
-			else
-				self._debug_memory_clr = {1, 1, 1}
-			end
-		end
-
-		if self._debug_clearTime and time > self._debug_clearTime then
-			self._debug_lastBadDT = nil
-			self._debug_lastBadBalance = nil
-			self._debug_clearTime = nil
-		end
-
-		local resetTime = false
-		if dt > TARGET_FRAME_TIME_60
-			and (not self._debug_lastBadDT or dt > self._debug_lastBadDT)
-		then
-			self._debug_lastBadDT = dt
-
-			if not self._debug_worstDT
-				or self._debug_lastBadDT > self._debug_worstDT
-			then
-				self._debug_worstDT = self._debug_lastBadDT
-			end
-
-			if self._debug_lastBadDT > TARGET_FRAME_TIME_30 then
-				self._debug_lastBadDT_clr = {1, 0, 0}
-			else
-				self._debug_lastBadDT_clr = {1, .9, 0}
-			end
-
-			resetTime = true
-		end
-
-		if not self._debug_bestDT or dt < self._debug_bestDT then
-			self._debug_bestDT = dt
-		end
-
-		if not self._debug_bestBalance or balance > self._debug_bestBalance then
-			self._debug_bestBalance = balance
-		end
-
-		if balance < UNACCEPTABLE_BALANCE
-			and (not self._debug_lastBadBalance
-				or balance < self._debug_lastBadBalance)
-		then
-			self._debug_lastBadBalance = balance
-
-			if not self._debug_worstBalance
-				or self._debug_lastBadBalance < self._debug_worstBalance
-			then
-				self._debug_worstBalance = self._debug_lastBadBalance
-			end
-
-			if self._debug_lastBadBalance < 0 then
-				self._debug_lastBadBalance_clr = {1, 0, 0}
-			else
-				self._debug_lastBadBalance_clr = {1, .9, 0}
-			end
-			resetTime = true
-		end
-
-		if resetTime then self._debug_clearTime = time + 3 end
-
-		_debug_accum = _debug_accum + dt
-		if _debug_accum > 0.1 then
-			_debug_accum = 0
-			self._debug_lastDT = dt
-			self._debug_lastBalance = balance
-
-			if self._debug_lastDT > TARGET_FRAME_TIME_30 then
-				self._debug_lastDT_clr = {1, 0, 0}
-			elseif self._debug_lastDT > TARGET_FRAME_TIME_60 then
-				self._debug_lastDT_clr = {1, .9, 0}
-			else
-				self._debug_lastDT_clr = {1, 1, 1}
-			end
-
-			if self._debug_lastBalance < 0 then
-				self._debug_lastBalance_clr = {1, 0, 0}
-			elseif self._debug_lastBalance < UNACCEPTABLE_BALANCE then
-				self._debug_lastBalance_clr = {1, .9, 0}
-			else
-				self._debug_lastBalance_clr = {1, 1, 1}
-			end
-		end
-	end
-
-	self:_drawHUDfb()
+	if self._debugHUD then self._debugHUD:update(dt) end
 end
 
-function st:_drawHUD()
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.draw(self._HUDfb)
-end
-
-function st:_drawHUDfb()
-	love.graphics.setRenderTarget(self._HUDfb)
-
-
-	if debug then
-		local inf = self._debug_hudinfo
-		love.graphics.setFont(GameFont.debug)
-
-		if self._debug_memory then
-			love.graphics.setColor(self._debug_memory_clr)
-			love.graphics.print('mem: '..tostring(self._debug_memory),
-				inf.x, inf.y)
-		end
-
-		if self._debug_lastDT then
-			love.graphics.setColor(self._debug_lastDT_clr)
-			love.graphics.print('dt: '..tostring(self._debug_lastDT),
-				inf.x, inf.y2)
-		end
-
-		if self._debug_lastBadDT then
-			love.graphics.setColor(self._debug_lastBadDT_clr)
-			love.graphics.print(tostring(self._debug_lastBadDT),
-				inf.x2, inf.y2)
-		end
-
-		if self._debug_lastBalance then
-			love.graphics.setColor(self._debug_lastBalance_clr)
-			love.graphics.print('bal: '..tostring(self._debug_lastBalance),
-				inf.x, inf.y3)
-		end
-
-		if self._debug_lastBadBalance then
-			love.graphics.setColor(self._debug_lastBadBalance_clr)
-			love.graphics.print(tostring(self._debug_lastBadBalance),
-				inf.x2, inf.y3)
-		end
-
-		if self._debug_bestMemory then
-			love.graphics.setColor(0,1,0)
-			love.graphics.print(tostring(self._debug_bestMemory),
-				inf.x3, inf.y)
-		end
-
-		if self._debug_worstMemory then
-			love.graphics.setColor(1,0,0)
-			love.graphics.print(tostring(self._debug_worstMemory),
-				inf.x4, inf.y)
-		end
-
-		if self._debug_bestDT then
-			love.graphics.setColor(0,1,0)
-			love.graphics.print(tostring(self._debug_bestDT),
-				inf.x3, inf.y2)
-		end
-
-		if self._debug_worstDT then
-			love.graphics.setColor(1,0,0)
-			love.graphics.print(tostring(self._debug_worstDT),
-				inf.x4, inf.y2)
-		end
-
-		if self._debug_bestBalance then
-			love.graphics.setColor(0,1,0)
-			love.graphics.print(tostring(self._debug_bestBalance),
-				inf.x3, inf.y3)
-		end
-
-		if self._debug_worstBalance then
-			love.graphics.setColor(1,0,0)
-			love.graphics.print(tostring(self._debug_worstBalance),
-				inf.x4, inf.y3)
-		end
-	end
-
-	love.graphics.setRenderTarget()
-end
 
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
 	self._heroView:draw()
 	self._cam:postdraw()
-	self:_drawHUD()
+	if self._debugHUD then self._debugHUD:draw() end
 end
 
 function st:leave()
@@ -472,12 +258,7 @@ function st:keypressed(key, unicode)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		f7 = function()
-			self._debug_bestMemory = nil
-			self._debug_worstMemory = nil
-			self._debug_bestDT = nil
-			self._debug_worstDT = nil
-			self._debug_bestBalance = nil
-			self._debug_worstBalance = nil
+			if self._debugHUD then self._debugHUD:clearExtremes() end
 		end,
 	}
 end
