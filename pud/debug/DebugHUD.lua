@@ -33,7 +33,7 @@ local DebugHUD = Class{name='DebugHUD',
 
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
-			tick = 0.001,
+			tick = 0.05,
 			warn1 = 18000,
 			warn2 = 24000,
 			good = 12000,
