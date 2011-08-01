@@ -64,6 +64,11 @@ function HeroEntity:doAction(ap)
 	return cost
 end
 
+-- return the number of commands waiting to be executed
+function HeroEntity:getPendingCommandCount()
+	return self._commandQueue:size()
+end
+
 -- get the number of action points per tick of this entity
 --   ap is the current number of action points
 function HeroEntity:getSpeed(ap) return self._turnSpeed end

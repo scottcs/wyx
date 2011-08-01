@@ -171,7 +171,9 @@ function st:update(dt)
 		_accum = _accum + dt
 		if _accum > TICK then
 			_accum = _accum - TICK
-			self._doTick = self._timeManager:tick() ~= self._hero
+			local nextActor = self._timeManager:tick()
+			local numHeroCommands = self._hero:getPendingCommandCount()
+			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
 		end
 	end
 
