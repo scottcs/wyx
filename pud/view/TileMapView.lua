@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
 local MapView = require 'pud.view.MapView'
-local Map = require 'pud.map.Map'
+local Level = require 'pud.map.Level'
 local MapNode = require 'pud.map.MapNode'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 local TileMapNodeView = require 'pud.view.TileMapNodeView'
@@ -16,17 +16,18 @@ local math_min, math_max = math.min, math.max
 -- drawn to screen
 local TileMapView = Class{name='TileMapView',
 	inherits=MapView,
-	function(self, map)
+	function(self, level)
 		MapView.construct(self)
 
-		assert(map and map.is_a and map:is_a(Map))
-		self._map = map
+		assert(level and level.is_a and level:is_a(Level))
+		self._level = level
+		local mapW, mapH = self._level:getMapSize()
 
 		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 
-		local p2w = nearestPO2(map:getWidth() * self._tileW)
-		local p2h = nearestPO2(map:getHeight() * self._tileH)
+		local p2w = nearestPO2(mapW * self._tileW)
+		local p2h = nearestPO2(mapH * self._tileH)
 		self._frontfb = love.graphics.newFramebuffer(p2w, p2h)
 		self._backfb = love.graphics.newFramebuffer(p2w, p2h)
 		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
@@ -66,7 +67,7 @@ function TileMapView:destroy()
 	self._frontfb = nil
 	self._backfb = nil
 	self._floorfb = nil
-	self._map = nil
+	self._level = nil
 	self._animTick = nil
 	self._dt = nil
 	self._tileVariant = nil
@@ -106,10 +107,12 @@ function TileMapView:setViewport(rect)
 	if self._mapViewport then self._mapViewport:destroy() end
 
 	local tl, br = rect:getBBoxVectors()
+	local mapW, mapH = self._level:getMapSize()
+
 	tl.x = math_max(1, math_floor(tl.x/self._tileW)-2)
 	tl.y = math_max(1, math_floor(tl.y/self._tileH)-2)
-	br.x = math_min(self._map:getWidth(), math_floor(br.x/self._tileW)+2)
-	br.y = math_min(self._map:getHeight(), math_floor(br.y/self._tileH)+2)
+	br.x = math_min(mapW, math_floor(br.x/self._tileW)+2)
+	br.y = math_min(mapH, math_floor(br.y/self._tileH)+2)
 
 	self._mapViewport = Rect(tl, br-tl)
 
@@ -272,9 +275,11 @@ function TileMapView:_setupTiles()
 		self:advance()
 	end
 
-	for y=1,self._map:getHeight() do
-		for x=1,self._map:getWidth() do
-			local node = self._map:getLocation(x, y)
+	local mapW, mapH = self._level:getMapSize()
+
+	for y=1,mapH do
+		for x=1,mapW do
+			local node = self._level:getMapNode(x, y)
 			if node:isLit() == true then
 				local mapType = node:getMapType()
 				local bgquad
@@ -330,9 +335,7 @@ end
 function TileMapView:onEvent(e, ...)
 	if e:is_a(MapUpdateFinishedEvent) then
 		local map = e:getMap()
-		if map == self._map then
-			self:_drawFB()
-		end
+		if self._level:isMap(map) then self:_drawFB() end
 	end
 end
 
@@ -358,7 +361,7 @@ end
 function TileMapView:_shouldDraw(tile)
 	local pos = tile:getPositionVector()
 	if self._mapViewport:containsPoint(pos)
-		and self._map:containsPoint(pos)
+		and self._level:isPointInMap(pos)
 	then
 		return true
 	end
@@ -367,7 +370,7 @@ end
 
 -- draw to the framebuffer
 function TileMapView:_drawFB()
-	if self._backfb and self._set and self._map and self._mapViewport then
+	if self._backfb and self._set and self._level and self._mapViewport then
 		love.graphics.setRenderTarget(self._backfb)
 
 		love.graphics.setColor(1,1,1)
