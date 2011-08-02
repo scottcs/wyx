@@ -38,18 +38,6 @@ local HeroEntity = require 'pud.entity.HeroEntity'
 -- controllers
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
--- target time between frames for 60Hz and 30Hz
-local TARGET_FRAME_TIME_60 = 0.016666666667
-local TARGET_FRAME_TIME_30 = 0.033333333333
-
--- point at which target frame time minus actual frame time is too low
-local UNACCEPTABLE_BALANCE = TARGET_FRAME_TIME_60 * 0.2
-
--- warning and extreme values for memory usage
-local MEMORY_WARN = 20000
-local MEMORY_EXTREME = 25000
-
-
 function st:enter()
 	self._timeManager = TimeManager()
 	self._doTick = false
