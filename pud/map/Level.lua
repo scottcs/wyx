@@ -6,9 +6,11 @@ local MapDirector = require 'pud.map.MapDirector'
 local FileMapBuilder = require 'pud.map.FileMapBuilder'
 local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
+local MapNode = require 'pud.map.MapNode'
 
 -- events
 local CommandEvent = require 'pud.event.CommandEvent'
+local OpenDoorCommand = require 'pud.command.OpenDoorCommand'
 
 -- entities
 local HeroEntity = require 'pud.entity.HeroEntity'
@@ -28,6 +30,8 @@ local Level = Class{name='Level',
 		self._timeManager = TimeManager()
 		self._doTick = false
 		self._accum = 0
+
+		CommandEvents:register(self, CommandEvent)
 	end
 }
 
@@ -44,6 +48,16 @@ function Level:destroy()
 end
 
 function Level:update(dt)
+	if self._hero:wantsToMove() then
+		local to = self._hero:getMovePosition()
+		local node = self._map:getLocation(to.x, to.y)
+		if self._hero:canMove(node) then self._hero:move(to) end
+		if node:getMapType():isType('doorClosed') then
+			local command = OpenDoorCommand(self._hero, to, self._map)
+			CommandEvents:push(CommandEvent(command))
+		end
+	end
+
 	if self._doTick then
 		self._accum = self._accum + dt
 		if self._accum > TICK then
@@ -96,15 +110,14 @@ function Level:createEntities()
 	self._hero = HeroEntity()
 	self._hero:setSize(1, 1)
 	self._timeManager:register(self._hero, 0)
-
-	-- listen for hero commands
-	CommandEvents:register(self, CommandEvent)
 end
 
 function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
 	self._doTick = true
+	if command:is_a(OpenDoorCommand) then
+	end
 end
 
 -- the class

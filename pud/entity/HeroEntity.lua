@@ -7,13 +7,11 @@ local Deque = require 'pud.kit.Deque'
 -- events this entity listens for
 local CommandEvent = require 'pud.event.CommandEvent'
 
--- commands this entity implements
-local MoveCommand = require 'pud.command.MoveCommand'
-
 -- default action point costs for commands
 local AP_COSTS = {
 	MoveCommand = 1,
 	AttackCommand = 1.5,
+	OpenDoorCommand = 1,
 }
 
 -- default turn speed
@@ -26,6 +24,7 @@ local HeroEntity = Class{name='HeroEntity',
 	function(self)
 		Entity.construct(self)
 		TimedObject.construct(self)
+		Traveler.construct(self)
 		CommandEvents:register(self, CommandEvent)
 
 		self._commandQueue = Deque()
@@ -41,6 +40,7 @@ function HeroEntity:destroy()
 	self._commandQueue = nil
 
 	CommandEvents:unregisterAll(self)
+	Traveler.destroy(self)
 	TimedObject.destroy(self)
 	Entity.destroy(self)
 end
