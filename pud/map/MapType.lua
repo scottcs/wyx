@@ -64,7 +64,7 @@ function MapType:get() return self._type, self._variant end
 -- variant (if any).
 -- mapType can be a string or a MapType object (if an object, the passed in
 -- variant is ignored).
-local iresults = setmetatable({}, {__mode = 'kv'})
+local iresults = {}
 function MapType:isType(...)
 	local isType = false
 	for i=1,select('#',...) do
