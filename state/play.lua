@@ -40,6 +40,7 @@ function st:enter()
 	self:_createCamera()
 	if debug then
 		self:_createDebugHUD()
+		self._debug = true
 	end
 	CommandEvents:register(self, CommandEvent)
 end
