@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Entity = require 'pud.entity.Entity'
+local Traveler = require 'pud.entity.Traveler'
 local TimedObject = require 'pud.time.TimedObject'
 local Deque = require 'pud.kit.Deque'
 
@@ -21,7 +22,7 @@ local AP_PER_TURN = 1.0
 -- HeroEntity
 --
 local HeroEntity = Class{name='HeroEntity',
-	inherits={Entity, TimedObject},
+	inherits={Entity, TimedObject, Traveler},
 	function(self)
 		Entity.construct(self)
 		TimedObject.construct(self)
