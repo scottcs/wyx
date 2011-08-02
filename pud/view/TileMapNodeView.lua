@@ -7,8 +7,8 @@ local MapNodeView = require 'pud.view.MapNodeView'
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
 	function(self, width, height)
-		width = width or 32
-		height = height or 32
+		width = width or TILEW
+		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)
 	end
 }

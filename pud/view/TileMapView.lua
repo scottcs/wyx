@@ -22,7 +22,7 @@ local TileMapView = Class{name='TileMapView',
 		assert(map and map.is_a and map:is_a(Map))
 		self._map = map
 
-		self._tileW, self._tileH = 32, 32
+		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 
 		local p2w = nearestPO2(map:getWidth() * self._tileW)

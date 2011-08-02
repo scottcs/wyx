@@ -11,8 +11,8 @@ local EntityView = Class{name='EntityView',
 			'entity must be an instance of class Entity (was %s (%s))',
 			tostring(entity), type(entity))
 
-		width = width or 32
-		height = height or 32
+		width = width or TILEW
+		height = height or TILEH
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
 		self._entity = entity
