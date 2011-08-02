@@ -48,16 +48,6 @@ function Level:destroy()
 end
 
 function Level:update(dt)
-	if self._hero:wantsToMove() then
-		local to = self._hero:getMovePosition()
-		local node = self._map:getLocation(to.x, to.y)
-		if self._hero:canMove(node) then self._hero:move(to) end
-		if node:getMapType():isType('doorClosed') then
-			local command = OpenDoorCommand(self._hero, to, self._map)
-			CommandEvents:push(CommandEvent(command))
-		end
-	end
-
 	if self._doTick then
 		self._accum = self._accum + dt
 		if self._accum > TICK then
@@ -65,6 +55,21 @@ function Level:update(dt)
 			local nextActor = self._timeManager:tick()
 			local numHeroCommands = self._hero:getPendingCommandCount()
 			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
+		end
+	end
+
+	self:_moveEntities()
+end
+
+function Level:_moveEntities()
+	if self._hero:wantsToMove() then
+		local to = self._hero:getMovePosition()
+		local node = self._map:getLocation(to.x, to.y)
+		self._hero:move(to, node)
+
+		if node:getMapType():isType('doorClosed') then
+			local command = OpenDoorCommand(self._hero, to, self._map)
+			CommandEvents:push(CommandEvent(command))
 		end
 	end
 end

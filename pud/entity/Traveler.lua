@@ -25,8 +25,8 @@ end
 
 function Traveler:wantsToMove() return self._movePosition ~= nil end
 
-function Traveler:move()
-	self:setPosition(self._movePosition)
+function Traveler:move(pos, node)
+	if self:canMove(node) then self:setPosition(pos) end
 	self._movePosition = nil
 end
 
