@@ -34,12 +34,13 @@ local HeroEntity = Class{name='HeroEntity',
 
 -- destructor
 function HeroEntity:destroy()
+	self._stepSize = nil
 	self._turnSpeed = nil
 	self._commandQueue:destroy()
 	self._commandQueue = nil
 
 	CommandEvents:unregisterAll(self)
-	Movable.destroy(self)
+	TimedObject.destroy(self)
 	Entity.destroy(self)
 end
 
@@ -55,7 +56,17 @@ function HeroEntity:doAction(ap)
 	if self._commandQueue:size() == 0 then return self._turnSpeed end
 	local command = self._commandQueue:pop_front()
 	command:execute()
-	return AP_COSTS[tostring(command.__class)]
+	local cost = AP_COSTS[tostring(command.__class)]
+
+	-- destroy the command, since we executed it
+	command:destroy()
+
+	return cost
+end
+
+-- return the number of commands waiting to be executed
+function HeroEntity:getPendingCommandCount()
+	return self._commandQueue:size()
 end
 
 -- get the number of action points per tick of this entity

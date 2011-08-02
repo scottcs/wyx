@@ -9,5 +9,5 @@ local GameStartEvent = Class{name='GameStartEvent',
 	end
 }
 
--- Event namespace
+-- the class
 return GameStartEvent

@@ -23,6 +23,10 @@ function st:init()
 			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		debug = love.graphics.newImageFont('font/lofi_verysmall.png',
+			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
 
 end
@@ -39,7 +43,7 @@ function st:enter()
 			y = HEIGHT/2,
 		},
 		debug and {
-			text = "(press F3 for demo mode)",
+			text = "(press F5 for demo mode)",
 			font = GameFont.small,
 			color = {.2, .2, .2},
 			x = WIDTH/2,
@@ -91,7 +95,8 @@ end
 
 if debug then
 	function st:keypressed(key, unicode)
-		if 'f3' == key then self.nextState = State.demo end
+		if 'f3' == key then self.nextState = State.debug end
+		if 'f5' == key then self.nextState = State.demo end
 	end
 end
 

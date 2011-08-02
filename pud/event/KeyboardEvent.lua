@@ -16,6 +16,8 @@ local KeyboardEvent = Class{name='KeyboardEvent',
 
 -- destructor
 function KeyboardEvent:destroy()
+	self._key = nil
+	self._unicode = nil
 	InputEvent.destroy(self)
 end
 

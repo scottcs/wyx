@@ -1,13 +1,14 @@
 
+
          --[[--
-       PLAY STATE
+       DEBUG STATE
           ----
-      Play the game.
+      Debug the game.
          --]]--
 
 local st = GameState.new()
 
-local DebugHUD = debug and require 'pud.debug.DebugHUD'
+local DebugHUD = require 'pud.debug.DebugHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local random = Random
@@ -61,9 +62,7 @@ function st:enter()
 	self:_createEntityViews()
 	self:_createEntityControllers()
 	self:_createCamera()
-	if debug then
-		self:_createDebugHUD()
-	end
+	self:_createDebugHUD()
 end
 
 function st:_createEntityViews()
@@ -77,13 +76,16 @@ function st:_createEntityViews()
 	if self._heroView then self._heroView:destroy() end
 	self._heroView = HeroView(self._hero, tileW, tileH)
 	self._heroView:set(Image.char, quad)
-	self._hero:setPosition(self._map:getStartVector())
 end
 
 function st:_createEntities()
+	local mapW, mapH = self._map:getSize()
 	local tileW, tileH = self._view:getTileSize()
+	local startX = math_floor(mapW/2+0.5)
+	local startY = math_floor(mapH/2+0.5)
 
 	self._hero = HeroEntity()
+	self._hero:setPosition(vector(startX, startY))
 	self._hero:setSize(vector(tileW, tileH))
 
 	self._timeManager:register(self._hero, 0)
@@ -131,6 +133,7 @@ end
 function st:_createMapView(viewClass)
 	if self._view then self._view:destroy() end
 	self._view = TileMapView(self._map)
+
 	self._view:registerEvents()
 end
 
@@ -156,7 +159,7 @@ function st:_createCamera()
 end
 
 function st:_createDebugHUD()
-	self._debugHUD = DebugHUD()
+	if debug then self._debugHUD = DebugHUD() end
 end
 
 local _accum = 0
@@ -167,13 +170,11 @@ function st:update(dt)
 		_accum = _accum + dt
 		if _accum > TICK then
 			_accum = _accum - TICK
-			local nextActor = self._timeManager:tick()
-			local numHeroCommands = self._hero:getPendingCommandCount()
-			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
+			self._doTick = self._timeManager:tick() ~= self._hero
 		end
 	end
 
-	if self._debug then self._debugHUD:update(dt) end
+	if self._debugHUD then self._debugHUD:update(dt) end
 end
 
 
@@ -182,7 +183,7 @@ function st:draw()
 	self._view:draw()
 	self._heroView:draw()
 	self._cam:postdraw()
-	if self._debug then self._debugHUD:draw() end
+	if self._debugHUD then self._debugHUD:draw() end
 end
 
 function st:leave()
@@ -256,11 +257,10 @@ function st:keypressed(key, unicode)
 			self._cam:followTarget(self._hero)
 			self._view:setViewport(self._cam:getViewport())
 		end,
-		f3 = function() if debug then self._debug = not self._debug end end,
 		f7 = function()
-			if self._debug then self._debugHUD:clearExtremes() end
+			if self._debugHUD then self._debugHUD:clearExtremes() end
 		end,
-		f9 = function() if self._debug then collectgarbage('collect') end end,
+		f9 = function() collectgarbage('collect') end,
 	}
 end
 

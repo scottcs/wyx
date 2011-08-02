@@ -15,13 +15,17 @@ local TileMapNodeView = Class{name='TileMapNodeView',
 
 -- destructor
 function TileMapNodeView:destroy()
-	MapNodeView.destroy(self)
 	self._fb = nil
+	self._drawX = nil
+	self._drawY = nil
+	self._isDrawing = nil
+	self._fbcache = nil
+	MapNodeView.destroy(self)
 end
 
-local fbcache = setmetatable({}, {__mode = 'v'})
 function TileMapNodeView:_getfb(key, tileset, quad, bgquad)
-	local fb = fbcache[key]
+	self._fbcache = self._fbcache or setmetatable({}, {__mode = 'kv'})
+	local fb = self._fbcache[key]
 
 	if nil == fb then
 		local w, h = self:getSize()
@@ -35,7 +39,7 @@ function TileMapNodeView:_getfb(key, tileset, quad, bgquad)
 
 		love.graphics.setRenderTarget()
 
-		fbcache[key] = fb
+		self._fbcache[key] = fb
 	end
 
 	return fb

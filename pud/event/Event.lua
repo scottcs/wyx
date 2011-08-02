@@ -27,10 +27,6 @@ end
 
 -- destructor
 function Event:destroy()
-	if self._args then
-		for k,v in pairs(self._args) do self._args[k] = nil end
-		self._args = nil
-	end
 	self._name = nil
 end
 

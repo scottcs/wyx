@@ -17,7 +17,7 @@ local _allMapTypes = {
 }
 
 -- private class function to validate a given map type
-local vresults = setmetatable({}, {__mode = 'v'})
+local vresults = setmetatable({}, {__mode = 'kv'})
 local _isValidMapType = function(mapType)
 	local isValid = vresults[mapType]
 	if isValid == nil then
@@ -64,7 +64,7 @@ function MapType:get() return self._type, self._variant end
 -- variant (if any).
 -- mapType can be a string or a MapType object (if an object, the passed in
 -- variant is ignored).
-local iresults = setmetatable({}, {__mode = 'v'})
+local iresults = setmetatable({}, {__mode = 'kv'})
 function MapType:isType(...)
 	local isType = false
 	for i=1,select('#',...) do
