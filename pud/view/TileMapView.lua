@@ -30,7 +30,6 @@ local TileMapView = Class{name='TileMapView',
 		local p2h = nearestPO2(mapH * self._tileH)
 		self._frontfb = love.graphics.newFramebuffer(p2w, p2h)
 		self._backfb = love.graphics.newFramebuffer(p2w, p2h)
-		self._floorfb = love.graphics.newFramebuffer(self._tileW, self._tileH)
 
 		self._tileVariant = tostring(random(1,4))
 		self._doorVariant = tostring(random(1,5))
@@ -44,16 +43,6 @@ local TileMapView = Class{name='TileMapView',
 
 		self:_setupQuads()
 		self:_setupTiles()
-
-		-- make static floor tile
-		local node = MapNode('floor')
-		local quad = self:_getQuad(node)
-		node:destroy()
-		if quad then
-			self._floorfb:renderTo(function()
-				love.graphics.drawq(self._set, quad, 0, 0)
-			end)
-		end
 	end
 }
 
@@ -66,7 +55,6 @@ function TileMapView:destroy()
 	self._tileH = nil
 	self._frontfb = nil
 	self._backfb = nil
-	self._floorfb = nil
 	self._level = nil
 	self._animTick = nil
 	self._dt = nil
@@ -349,13 +337,6 @@ function TileMapView:_shouldDrawFloor(node)
 		self._floorcache[node] = should
 	end
 	return should
-end
-
--- draw a floor tile
-function TileMapView:_drawFloor(x, y)
-	if self._floorfb then
-		love.graphics.draw(self._floorfb, x, y)
-	end
 end
 
 function TileMapView:_shouldDraw(tile)
