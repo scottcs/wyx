@@ -28,8 +28,10 @@ function OpenDoorCommand:destroy()
 end
 
 function OpenDoorCommand:execute()
-	local node = self._map:setNodeMapType(MapNode(), 'doorOpen')
-	self._map:setLocation(self._pos.x, self._pos.y, node)
+	local node = self._map:getLocation(self._pos.x, self._pos.y)
+	local mapType = node:getMapType()
+	local mt, mv = mapType:get()
+	self._map:setNodeMapType(node, 'doorOpen', mv)
 end
 
 function OpenDoorCommand:getMapPosition() return self._pos end

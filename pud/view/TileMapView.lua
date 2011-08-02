@@ -23,6 +23,8 @@ local TileMapView = Class{name='TileMapView',
 		self._level = level
 		local mapW, mapH = self._level:getMapSize()
 
+		TileMapNodeView.resetCache()
+
 		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 
@@ -129,13 +131,42 @@ function TileMapView:isAnimate() return self._doAnimate == true end
 
 -- update the animated tiles
 function TileMapView:update(dt)
+	self:_updateTiles(dt)
+	self:_updateAnimatedTiles(dt)
+	self:_drawFB()
+end
+
+function TileMapView:_updateAnimatedTiles(dt)
 	self._dt = self._dt + dt
 	if self._doAnimate and self._dt > self._animTick then
 		self._dt = self._dt - self._animTick
 		for _,t in ipairs(self._drawTiles) do
-			if t.update then t:update() end
+			if t:is_a(AnimatedTile) then t:update() end
 		end
-		self:_drawFB()
+	end
+end
+
+function TileMapView:_updateTiles(dt)
+	if nil == self._floorquad then
+		local floorNode = MapNode('floor')
+		self._floorquad = self:_getQuad(floorNode)
+		floorNode:destroy()
+	end
+
+	for _,t in ipairs(self._drawTiles) do
+		if t:is_a(TileMapNodeView) then
+			local key = t:getKey()
+			t:update()
+			if key ~= t:getKey() then
+				local node = t:getNode()
+				local quad = self:_getQuad(node)
+				if quad then
+					local bgquad
+					if self:_shouldDrawFloor(node) then bgquad = self._floorquad end
+					t:setTile(self._set, quad, bgquad)
+				end
+			end
+		end
 	end
 end
 
@@ -153,27 +184,32 @@ function TileMapView:_makeQuad(mapType, variant, x, y)
 end
 
 function TileMapView:_getQuad(node)
-	self._quadresults = self._quadresults or setmetatable({}, {__mode = 'kv'})
-	local quad = self._quadresults[node]
+	local key = node:getMapTypeString()
+
+	self._quadresults = self._quadresults or setmetatable({}, {__mode = 'v'})
+	local quad = self._quadresults[key]
 	if quad == nil then
 		quad = 0
 		if self._quads then
 			local mapType = node:getMapType()
 			if not mapType:isType('empty') then
 				local mtype, variant = mapType:get()
-				if not variant then
-					if mapType:isType('wall') then
-						variant = 'V'
+
+				if mapType:isType('wall') then
+					if not variant then variant = 'V' end
+				end
+
+				if mapType:isType('doorClosed', 'doorOpen') then
+					variant = variant or self._doorVariant
+				elseif not mapType:isType('torch', 'trap') then
+					if variant then
+						variant = variant .. self._tileVariant
+					else
+						variant = self._tileVariant
 					end
 				end
 
 				variant = variant or ''
-
-				if mapType:isType('doorClosed', 'doorOpen') then
-					variant = variant .. self._doorVariant
-				elseif not mapType:isType('torch', 'trap') then
-					variant = variant .. self._tileVariant
-				end
 
 				if self._quads[mtype] then
 					quad = self._quads[mtype][variant]
@@ -184,7 +220,7 @@ function TileMapView:_getQuad(node)
 				end
 			end
 
-			self._quadresults[node] = quad
+			self._quadresults[key] = quad
 		end
 	end
 	return quad ~= 0 and quad or nil
@@ -290,13 +326,17 @@ function TileMapView:_setupTiles()
 					local quad = self:_getQuad(node)
 					if quad then
 						local v = self._tileVariant
+
 						if mapType:isType('doorClosed', 'doorOpen') then
 							v = self._doorVariant
 						end
+
 						local mt, mv = mapType:get()
 						mv = (mv or '') .. v
-						local t = TileMapNodeView()
-						t:setTile(mt..mv, self._set, quad, bgquad)
+						node:setMapType(mt, mv)
+
+						local t = TileMapNodeView(node)
+						t:setTile(self._set, quad, bgquad)
 						t:setPosition(x, y)
 						self._tiles[#self._tiles+1] = t
 					end
@@ -329,12 +369,14 @@ end
 
 -- draw a floor tile if needed
 function TileMapView:_shouldDrawFloor(node)
-	self._floorcache = self._floorcache or setmetatable({}, {__mode = 'kv'})
-	local should = self._floorcache[node]
+	local key = node:getMapTypeString()
+
+	self._floorcache = self._floorcache or {}
+	local should = self._floorcache[key]
 	if should == nil then
 		local mapType = node:getMapType()
 		should = not mapType:isType('floor', 'wall', 'torch')
-		self._floorcache[node] = should
+		self._floorcache[key] = should
 	end
 	return should
 end

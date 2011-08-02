@@ -61,5 +61,10 @@ function MapNode:setMapType(mapType, variant)
 end
 function MapNode:getMapType() return self._mapType end
 
+function MapNode:getMapTypeString()
+	local mt, mv = self._mapType:get()
+	return mt .. (mv or '')
+end
+
 -- the class
 return MapNode
