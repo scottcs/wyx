@@ -275,37 +275,38 @@ function TileMapView:_setupTiles()
 	for y=1,self._map:getHeight() do
 		for x=1,self._map:getWidth() do
 			local node = self._map:getLocation(x, y)
-			local mapType = node:getMapType()
-			local bgquad
-			if self:_shouldDrawFloor(node) then bgquad = floorquad end
+			if node:isLit() == true then
+				local mapType = node:getMapType()
+				local bgquad
+				if self:_shouldDrawFloor(node) then bgquad = floorquad end
 
-
-			if mapType:isType('torch') then
-				local at = self:_createAnimatedTile(torchA, torchB, bgquad)
-				at:setPosition(x, y)
-				at:setUpdateCallback(torchUpdate, at)
-				self._animatedTiles[#self._animatedTiles+1] = at
-			elseif mapType:isType('trap') then
-				local variant = random(1,6)
-				trapA:setMapType('trap', 'A'..tostring(variant))
-				trapB:setMapType('trap', 'B'..tostring(variant))
-				local at = self:_createAnimatedTile(trapA, trapB, bgquad)
-				at:setPosition(x, y)
-				at:setUpdateCallback(trapUpdate, at)
-				self._animatedTiles[#self._animatedTiles+1] = at
-			else
-				local quad = self:_getQuad(node)
-				if quad then
-					local v = self._tileVariant
-					if mapType:isType('doorClosed', 'doorOpen') then
-						v = self._doorVariant
+				if mapType:isType('torch') then
+					local at = self:_createAnimatedTile(torchA, torchB, bgquad)
+					at:setPosition(x, y)
+					at:setUpdateCallback(torchUpdate, at)
+					self._animatedTiles[#self._animatedTiles+1] = at
+				elseif mapType:isType('trap') then
+					local variant = random(1,6)
+					trapA:setMapType('trap', 'A'..tostring(variant))
+					trapB:setMapType('trap', 'B'..tostring(variant))
+					local at = self:_createAnimatedTile(trapA, trapB, bgquad)
+					at:setPosition(x, y)
+					at:setUpdateCallback(trapUpdate, at)
+					self._animatedTiles[#self._animatedTiles+1] = at
+				else
+					local quad = self:_getQuad(node)
+					if quad then
+						local v = self._tileVariant
+						if mapType:isType('doorClosed', 'doorOpen') then
+							v = self._doorVariant
+						end
+						local mt, mv = mapType:get()
+						mv = (mv or '') .. v
+						local t = TileMapNodeView()
+						t:setTile(mt..mv, self._set, quad, bgquad)
+						t:setPosition(x, y)
+						self._tiles[#self._tiles+1] = t
 					end
-					local mt, mv = mapType:get()
-					mv = (mv or '') .. v
-					local t = TileMapNodeView()
-					t:setTile(mt..mv, self._set, quad, bgquad)
-					t:setPosition(x, y)
-					self._tiles[#self._tiles+1] = t
 				end
 			end
 		end
