@@ -108,10 +108,16 @@ function TileMapView:setViewport(rect)
 
 	for i in ipairs(self._drawTiles) do self._drawTiles[i] = nil end
 	for _,t in ipairs(self._tiles) do
-		if self:_shouldDraw(t) then self._drawTiles[#self._drawTiles+1] = t end
+		local color = self:_shouldDraw(t)
+		if nil ~= color then
+			self._drawTiles[#self._drawTiles+1] = {tile=t, color=color}
+		end
 	end
 	for _,t in ipairs(self._animatedTiles) do
-		if self:_shouldDraw(t) then self._drawTiles[#self._drawTiles+1] = t end
+		local color = self:_shouldDraw(t)
+		if nil ~= color then
+			self._drawTiles[#self._drawTiles+1] = {tile=t, color=color}
+		end
 	end
 
 	self:_drawFB()
@@ -141,7 +147,7 @@ function TileMapView:_updateAnimatedTiles(dt)
 	if self._doAnimate and self._dt > self._animTick then
 		self._dt = self._dt - self._animTick
 		for _,t in ipairs(self._drawTiles) do
-			if t:is_a(AnimatedTile) then t:update() end
+			if t.tile:is_a(AnimatedTile) then t.tile:update() end
 		end
 	end
 end
@@ -154,16 +160,16 @@ function TileMapView:_updateTiles(dt)
 	end
 
 	for _,t in ipairs(self._drawTiles) do
-		if t:is_a(TileMapNodeView) then
-			local key = t:getKey()
-			t:update()
-			if key ~= t:getKey() then
-				local node = t:getNode()
+		if t.tile:is_a(TileMapNodeView) then
+			local key = t.tile:getKey()
+			t.tile:update()
+			if key ~= t.tile:getKey() then
+				local node = t.tile:getNode()
 				local quad = self:_getQuad(node)
 				if quad then
 					local bgquad
 					if self:_shouldDrawFloor(node) then bgquad = self._floorquad end
-					t:setTile(self._set, quad, bgquad)
+					t.tile:setTile(self._set, quad, bgquad)
 				end
 			end
 		end
@@ -386,9 +392,9 @@ function TileMapView:_shouldDraw(tile)
 	if self._mapViewport:containsPoint(pos)
 		and self._level:isPointInMap(pos)
 	then
-		return true
+		return self._level:getLightingColor(pos)
 	end
-	return false
+	return nil
 end
 
 -- draw to the framebuffer
@@ -396,8 +402,10 @@ function TileMapView:_drawFB()
 	if self._backfb and self._set and self._level and self._mapViewport then
 		love.graphics.setRenderTarget(self._backfb)
 
-		love.graphics.setColor(1,1,1)
-		for _,t in ipairs(self._drawTiles) do t:draw() end
+		for _,t in ipairs(self._drawTiles) do
+			love.graphics.setColor(t.color)
+			t.tile:draw()
+		end
 
 		love.graphics.setRenderTarget()
 

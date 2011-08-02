@@ -19,6 +19,9 @@ local HeroEntity = require 'pud.entity.HeroEntity'
 local TimeManager = require 'pud.time.TimeManager'
 local TICK = 0.01
 
+local math_floor = math.floor
+local math_round = function(x) return math_floor(x+0.5) end
+
 local _testFiles = {
 	'test',
 }
@@ -30,6 +33,13 @@ local Level = Class{name='Level',
 		self._timeManager = TimeManager()
 		self._doTick = false
 		self._accum = 0
+
+		-- lighting color value table
+		self._lighting = {
+			black = {0,0,0},
+			dim = {0.4, 0.4, 0.4},
+			lit = {1,1,1},
+		}
 
 		CommandEvents:register(self, CommandEvent)
 	end
@@ -66,6 +76,7 @@ function Level:_moveEntities()
 		local to = self._hero:getMovePosition()
 		local node = self._map:getLocation(to.x, to.y)
 		self._hero:move(to, node)
+		self._needViewUpdate = true
 
 		if node:getMapType():isType('doorClosed') then
 			local command = OpenDoorCommand(self._hero, to, self._map)
@@ -73,6 +84,9 @@ function Level:_moveEntities()
 		end
 	end
 end
+
+function Level:needViewUpdate() return self._needViewUpdate == true end
+function Level:postViewUpdate() self._needViewUpdate = false end
 
 function Level:generateFileMap(file)
 	file = file or _testFiles[Random(#_testFiles)]
@@ -121,8 +135,25 @@ function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
 	self._doTick = true
-	if command:is_a(OpenDoorCommand) then
+end
+
+-- get a color table of the lighting for the specified point
+function Level:getLightingColor(p)
+	local node = self._map:getLocation(p.x, p.y)
+	local radius = self._hero:getVisibilityRadius()
+	local heroPos = self._hero:getPositionVector()
+	local dist = math_round(heroPos:dist(p))
+
+	if dist > radius then
+		if node:wasSeen() then
+			return self._lighting.dim
+		else
+			return self._lighting.none
+		end
 	end
+
+	node:setSeen(true)
+	return self._lighting.lit
 end
 
 -- the class

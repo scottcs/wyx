@@ -80,5 +80,8 @@ function HeroEntity:setStepSize(v)
 	self._stepSize = v
 end
 
+-- get the radius of visibility
+function HeroEntity:getVisibilityRadius() return 8 end
+
 -- the class
 return HeroEntity

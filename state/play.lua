@@ -60,9 +60,7 @@ end
 
 function st:CommandEvent(e)
 	local command = e:getCommand()
-	if not command:is_a(MoveCommand) then return end
 	if command:getTarget() ~= self._level:getHero() then return end
-	self._view:setViewport(self._cam:getViewport())
 end
 
 function st:_createEntityControllers()
@@ -102,6 +100,12 @@ end
 
 function st:update(dt)
 	if self._level then self._level:update(dt) end
+
+	if self._level:needViewUpdate() then
+		self._view:setViewport(self._cam:getViewport())
+		self._level:postViewUpdate()
+	end
+
 	if self._view then self._view:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
 end

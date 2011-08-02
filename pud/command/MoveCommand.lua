@@ -38,5 +38,7 @@ function MoveCommand:execute()
 	self._target:setMovePosition(pos + self._vector)
 end
 
+function MoveCommand:getVector() return self._vector:clone() end
+
 -- the class
 return MoveCommand
