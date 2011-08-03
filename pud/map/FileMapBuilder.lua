@@ -48,6 +48,7 @@ function FileMapBuilder:_checkMapKeys(map)
 		glyphs = 'glyphs',
 		name = 'name',
 		author = 'author',
+		handleDetail = 'handleDetail',
 	}
 
 	for k,v in pairs(map) do
@@ -61,6 +62,7 @@ end
 function FileMapBuilder:_loadMap()
 	local map = assert(love.filesystem.load(self._filename))()
 	verify('string', map.map, map.name, map.author)
+	verify('boolean', map.handleDetail)
 	verify('table', map.glyphs)
 	self:_checkMapKeys(map)
 	return map
