@@ -17,6 +17,7 @@ local FileMapBuilder = Class{name='FileMapBuilder',
 -- destructor
 function FileMapBuilder:destroy()
 	self._filename = nil
+	self._handleDetail = nil
 	MapBuilder.destroy(self)
 end
 
@@ -65,6 +66,7 @@ function FileMapBuilder:_loadMap()
 	verify('boolean', map.handleDetail)
 	verify('table', map.glyphs)
 	self:_checkMapKeys(map)
+	self._handleDetail = map.handleDetail
 	return map
 end
 
@@ -73,7 +75,7 @@ local _findVariant = function(mtype, n)
 	if mtype == 'floor' then
 		variants = {nil, 'Worn', 'X', 'Rug'}
 	elseif mtype == 'wall' then
-		variants = {'H', 'HWorn', 'V'}
+		variants = {'H', 'HWorn', 'torch'}
 	end
 
 	return variants and variants[n] or nil
@@ -86,7 +88,9 @@ function FileMapBuilder:_glyphToMapType(allGlyphs, glyph)
 		if type(v) == 'table' then
 			for i,g in ipairs(v) do
 				if glyph == g then
-					mtype = MapType(k, _findVariant(k,i))
+					local v = _findVariant(k,i)
+					if v == 'torch' then k = 'torch' v = nil end
+					mtype = MapType(k, v)
 				end
 			end
 		elseif glyph == v then
@@ -144,6 +148,44 @@ end
 
 -- cleanup - find a suitable start position
 function FileMapBuilder:cleanup()
+	-- go through the whole map and add variations
+	local w, h = self._map:getSize()
+	for y=1,h do
+		for x=1,w do
+			local node = self._map:getLocation(x, y)
+			local mapType = node:getMapType()
+			local _,variant = mapType:get()
+
+			if mapType:isType('floor') and not variant and self._handleDetail then
+				if Random(12) == 1 then
+					self._map:setNodeMapType(node, 'floor', 'Worn')
+				end
+			elseif mapType:isType('wall') then
+				local horizontal = true
+				local below = self._map:getLocation(x, y+1)
+				if below then
+					local bMapType = below:getMapType()
+					horizontal = not bMapType:isType('wall')
+				end
+
+				if not horizontal then
+					self._map:setNodeMapType(node, 'wall', 'V')
+				elseif self._handleDetail then
+					if variant ~= 'HWorn' then
+						if Random(12) == 1 then
+							self._map:setNodeMapType(node, 'wall', 'HWorn')
+						elseif Random(12) == 1 then
+							self._map:setNodeMapType(node, 'torch', 'A')
+						else
+							self._map:setNodeMapType(node, 'wall', 'H')
+						end
+					end
+				end
+			end
+		end
+	end
+
+	-- set start position
 	local w, h = self._map:getSize()
 	local startPos
 	while nil == startPos do

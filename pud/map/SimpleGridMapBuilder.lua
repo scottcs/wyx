@@ -410,15 +410,16 @@ function SimpleGridMapBuilder:cleanup()
 					self._map:setNodeMapType(node, 'floor', 'Rug')
 				end
 			elseif mapType:isType('wall') and not variant then
-				local change = false
-				if y == h then
-					change = true
-				else
-					local below = self._map:getLocation(x, y+1)
+				local horizontal = true
+				local below = self._map:getLocation(x, y+1)
+				if below then
 					local bMapType = below:getMapType()
-					change = bMapType:isType('floor', 'empty')
+					horizontal = not bMapType:isType('wall')
 				end
-				if change then
+
+				if not horizontal then
+					self._map:setNodeMapType(node, 'wall', 'V')
+				else
 					if random(1,12) == 1 then
 						self._map:setNodeMapType(node, 'wall', 'HWorn')
 					elseif random(1,12) == 1 then
@@ -426,8 +427,6 @@ function SimpleGridMapBuilder:cleanup()
 					else
 						self._map:setNodeMapType(node, 'wall', 'H')
 					end
-				else
-					self._map:setNodeMapType(node, 'wall', 'V')
 				end
 			end
 		end

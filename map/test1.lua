@@ -8,7 +8,9 @@ map.author = 'scx'
       normal, broken, interior, rug
 
   wall types are (from left to right):
-      horizontal normal, horizontal broken, vertical
+      normal, broken, torch
+
+	note: broken and torch wall types will only show up on horizontal walls.
 
 	if you fail to provide an entry in this table for a glyph you used in the
 	map below, you will receive an error when you try to load the map in-game.
@@ -16,11 +18,10 @@ map.author = 'scx'
 map.glyphs = {
   empty = ' ',
   floor = {'.', ',', '_', 'x'},
-  wall = {'%', '*', '#'},
+  wall = {'#', '%', '*'},
   doorClosed = '+',
   doorOpen = '-',
   trap = '^',
-  torch = '~',
   stairUp = '<',
   stairDown = '>',
 }
@@ -28,7 +29,7 @@ map.glyphs = {
 --[[
    set to true if you do not want to specify which floor and wall tiles are
    different. the map generator will randomly change some normal map and floor
-   tiles to look broken.
+   tiles to look broken or have torches.
 
    (note: only normal floor and wall tiles are affected. if you turn this on
    AND also specify some broken or other detailed walls or floors, your
@@ -46,20 +47,20 @@ map.handleDetail = false
    for empty tiles if needed.
 --]]
 map.map = [[
-#%%%%*%%%%%*#%%%*%~%%%*%#
+#####%#####%####%#*###%##
 #.......##..#.......##..#
-#.<...,.~%..#.,.....##..#
-#...........-....#++%%*+#
+#.<...,.*#..#.,.....##..#
+#...........-....#++##%+#
 #..^.#......#....#______#
 #....#......#..,.#______#
 #########...#...#########
-#%%~%#%%*..,#...%#%*%%%%#
+###*####%..,#...###%#####
 #....#......#..,.#......#
-#.,..%...^..#....%...^..#
+#.,..#...^..#....#...^..#
 #...........#.xxx.......#
 #.....,.##..+.x>x,..##..#
 #.......##..#.xxx...##..#
-%*%%*%~%%%*%%%%%%*%%%~%%%
+#%##%#*###%######%###*###
 ]]
 
 return map
