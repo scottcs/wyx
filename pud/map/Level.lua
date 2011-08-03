@@ -26,6 +26,9 @@ local math_round = function(x) return math_floor(x+0.5) end
 local _testFiles = {
 	'test1',
 	'test2',
+	'test3',
+	'test4',
+	'test5',
 }
 
 -- Level
