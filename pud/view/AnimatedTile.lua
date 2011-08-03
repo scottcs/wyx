@@ -4,8 +4,8 @@ local Rect = require 'pud.kit.Rect'
 local AnimatedTile = Class{name='AnimatedTile',
 	inherits=Rect,
 	function(self, width, height)
-		width = width or 32
-		height = height or 32
+		width = width or TILEW
+		height = height or TILEH
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
 		self._fb = {}

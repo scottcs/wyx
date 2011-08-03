@@ -432,6 +432,18 @@ function SimpleGridMapBuilder:cleanup()
 			end
 		end
 	end
+
+	local startPos
+	while nil == startPos do
+		local room = self._rooms[Random(self._numRooms)]
+		local pos = room:getCenterVector('floor')
+		local node = self._map:getLocation(pos.x, pos.y)
+		if node:getMapType():isType('floor') then
+			startPos = pos
+		end
+	end
+
+	self._map:setStartVector(startPos)
 end
 
 -- the class

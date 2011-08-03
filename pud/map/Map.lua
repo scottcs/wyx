@@ -71,11 +71,18 @@ function Map:getLocation(x, y)
 	return nil
 end
 
+function Map:setStartVector(v)
+	assert(vector.isvector(v),
+		'vector expected (was %s)', type(v))
+
+	self._startVector = v
+end
+
 function Map:getStartVector()
-	if not self._startVector then
-		local w, h = self:getSize()
-		return vector(math_floor(w/2+0.5), math_floor(h/2+0.5))
-	end
+	if self._startVector then return self._startVector end
+
+	local w, h = self:getSize()
+	return vector(math_floor(w/2+0.5), math_floor(h/2+0.5))
 end
 
 -- functions for setting specific MapTypes and their associated attributes

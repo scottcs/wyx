@@ -12,58 +12,37 @@ local DebugHUD = debug and require 'pud.debug.DebugHUD'
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local random = Random
 
--- events
-local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
-local CommandEvent = require 'pud.event.CommandEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
-
--- time manager
-local TimeManager = require 'pud.time.TimeManager'
-local TICK = 0.01
+-- level
+local Level = require 'pud.map.Level'
 
 -- Camera
 local GameCam = require 'pud.view.GameCam'
 local vector = require 'lib.hump.vector'
 
--- map director
-local MapDirector = require 'pud.map.MapDirector'
+-- events
+local CommandEvent = require 'pud.event.CommandEvent'
+local MoveCommand = require 'pud.command.MoveCommand'
 
 -- views
 local TileMapView = require 'pud.view.TileMapView'
 local HeroView = require 'pud.view.HeroView'
 
--- entities
-local HeroEntity = require 'pud.entity.HeroEntity'
-
 -- controllers
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
--- target time between frames for 60Hz and 30Hz
-local TARGET_FRAME_TIME_60 = 0.016666666667
-local TARGET_FRAME_TIME_30 = 0.033333333333
-
--- point at which target frame time minus actual frame time is too low
-local UNACCEPTABLE_BALANCE = TARGET_FRAME_TIME_60 * 0.2
-
--- warning and extreme values for memory usage
-local MEMORY_WARN = 20000
-local MEMORY_EXTREME = 25000
-
-
 function st:enter()
-	self._timeManager = TimeManager()
-	self._doTick = false
-
-	--self:_generateMapFromFile()
-	self:_generateMapRandomly()
-	self:_createMapView()
-	self:_createEntities()
-	self:_createEntityViews()
+	self._level = Level()
+	self._level:createEntities()
+	self._level:generateSimpleGridMap()
 	self:_createEntityControllers()
+	self:_createMapView()
+	self:_createEntityViews()
 	self:_createCamera()
 	if debug then
 		self:_createDebugHUD()
+		self._debug = true
 	end
+	CommandEvents:register(self, CommandEvent)
 end
 
 function st:_createEntityViews()
@@ -73,69 +52,30 @@ function st:_createEntityViews()
 		(heroX-1)*tileW, (heroY-1)*tileH,
 		tileW, tileH,
 		Image.char:getWidth(), Image.char:getHeight())
+	local floorquad = self._view:getFloorQuad()
 
 	if self._heroView then self._heroView:destroy() end
-	self._heroView = HeroView(self._hero, tileW, tileH)
-	self._heroView:set(Image.char, quad)
-	self._hero:setPosition(self._map:getStartVector())
-end
-
-function st:_createEntities()
-	local tileW, tileH = self._view:getTileSize()
-
-	self._hero = HeroEntity()
-	self._hero:setSize(vector(tileW, tileH))
-
-	self._timeManager:register(self._hero, 0)
-
-	-- listen for hero commands
-	CommandEvents:register(self, CommandEvent)
+	self._heroView = HeroView(self._level:getHero(), tileW, tileH)
+	self._heroView:set(Image.char, quad, Image.dungeon, floorquad)
 end
 
 function st:CommandEvent(e)
 	local command = e:getCommand()
-	if command:getTarget() ~= self._hero then return end
-	self._doTick = true
-	if command:is_a(MoveCommand) then
-		self._view:setViewport(self._cam:getViewport())
-	end
+	if command:getTarget() ~= self._level:getHero() then return end
 end
 
 function st:_createEntityControllers()
-	self._heroController = HeroPlayerController(self._hero)
-end
-
-function st:_generateMapFromFile()
-	local FileMapBuilder = require 'pud.map.FileMapBuilder'
-	local mapfiles = {'test'}
-	local mapfile = mapfiles[random(1,#mapfiles)]
-	local builder = FileMapBuilder(mapfile)
-
-	self:_generateMap(builder)
-end
-
-function st:_generateMapRandomly()
-	local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
-	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16)
-
-	self:_generateMap(builder)
-end
-
-function st:_generateMap(builder)
-	if self._map then self._map:destroy() end
-	self._map = MapDirector:generateStandard(builder)
-	builder:destroy()
-	GameEvents:push(MapUpdateFinishedEvent(self._map))
+	self._heroController = HeroPlayerController(self._level:getHero())
 end
 
 function st:_createMapView(viewClass)
 	if self._view then self._view:destroy() end
-	self._view = TileMapView(self._map)
+	self._view = TileMapView(self._level)
 	self._view:registerEvents()
 end
 
 function st:_createCamera()
-	local mapW, mapH = self._map:getSize()
+	local mapW, mapH = self._level:getMapSize()
 	local tileW, tileH = self._view:getTileSize()
 	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
 	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
@@ -151,7 +91,7 @@ function st:_createCamera()
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._cam:home()
-	self._cam:followTarget(self._hero)
+	self._cam:followTarget(self._level:getHero())
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -159,20 +99,15 @@ function st:_createDebugHUD()
 	self._debugHUD = DebugHUD()
 end
 
-local _accum = 0
 function st:update(dt)
-	if self._view then self._view:update(dt) end
+	if self._level then self._level:update(dt) end
 
-	if self._doTick then
-		_accum = _accum + dt
-		if _accum > TICK then
-			_accum = _accum - TICK
-			local nextActor = self._timeManager:tick()
-			local numHeroCommands = self._hero:getPendingCommandCount()
-			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
-		end
+	if self._level:needViewUpdate() then
+		self._view:setViewport(self._cam:getViewport())
+		self._level:postViewUpdate()
 	end
 
+	if self._view then self._view:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
 end
 
@@ -195,11 +130,6 @@ function st:leave()
 	self._heroView = nil
 	self._heroController:destroy()
 	self._heroController = nil
-	self._hero:destroy()
-	self._hero = nil
-	self._timeManager:destroy()
-	self._timeManager = nil
-	self._doTick = nil
 end
 
 function st:_postZoomIn(vp)
@@ -215,14 +145,14 @@ function st:keypressed(key, unicode)
 		escape = function() love.event.push('q') end,
 		m = function()
 			self._view:setAnimate(false)
-			self:_generateMapRandomly()
+			self._level:generateSimpleGridMap()
 			self:_createMapView()
 			self:_createEntityViews()
 			self:_createCamera()
 		end,
 		f = function()
 			self._view:setAnimate(false)
-			self:_generateMapFromFile()
+			self._level:generateFileMap()
 			self:_createMapView()
 			self:_createEntityViews()
 			self:_createCamera()
@@ -253,7 +183,7 @@ function st:keypressed(key, unicode)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		x = function()
-			self._cam:followTarget(self._hero)
+			self._cam:followTarget(self._level:getHero())
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		f3 = function() if debug then self._debug = not self._debug end end,

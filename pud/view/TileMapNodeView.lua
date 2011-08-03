@@ -6,10 +6,17 @@ local MapNodeView = require 'pud.view.MapNodeView'
 --
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
-	function(self, width, height)
-		width = width or 32
-		height = height or 32
+	function(self, node, width, height)
+		assert(node and type(node) == 'table'
+			and node.is_a and node:is_a(MapNode),
+			'TileMapNodeView expects a MapNode in its constructor (was %s)',
+			type(node))
+
+		width = width or TILEW
+		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)
+		self._node = node
+		self:_resetKey()
 	end
 }
 
@@ -19,13 +26,13 @@ function TileMapNodeView:destroy()
 	self._drawX = nil
 	self._drawY = nil
 	self._isDrawing = nil
-	self._fbcache = nil
+	self._node = nil
 	MapNodeView.destroy(self)
 end
 
-function TileMapNodeView:_getfb(key, tileset, quad, bgquad)
-	self._fbcache = self._fbcache or setmetatable({}, {__mode = 'kv'})
-	local fb = self._fbcache[key]
+local _fbcache = setmetatable({}, {__mode = 'kv'})
+function TileMapNodeView:_getfb(tileset, quad, bgquad)
+	local fb = _fbcache[self._key]
 
 	if nil == fb then
 		local w, h = self:getSize()
@@ -39,17 +46,29 @@ function TileMapNodeView:_getfb(key, tileset, quad, bgquad)
 
 		love.graphics.setRenderTarget()
 
-		self._fbcache[key] = fb
+		_fbcache[self._key] = fb
 	end
 
 	return fb
 end
 
+function TileMapNodeView:_resetKey()
+	self._key = self._node:getMapTypeString()
+end
+
+-- update the tile for this node if it has changed
+function TileMapNodeView:update()
+	self:_resetKey()
+end
+
+function TileMapNodeView:getKey() return self._key end
+function TileMapNodeView:getNode() return self._node end
+
 -- set the tile for this node
-function TileMapNodeView:setTile(key, tileset, quad, bgquad)
-	if key and tileset and quad then
+function TileMapNodeView:setTile(tileset, quad, bgquad)
+	if tileset and quad then
 		self._isDrawing = true
-		self._fb = self:_getfb(key, tileset, quad, bgquad)
+		self._fb = self:_getfb(tileset, quad, bgquad)
 		self._isDrawing = false
 	end
 end
@@ -66,6 +85,11 @@ function TileMapNodeView:draw()
 	if self._fb and self._isDrawing == false then
 		love.graphics.draw(self._fb, self._drawX, self._drawY)
 	end
+end
+
+-- class function to reset the framebuffer cache
+function TileMapNodeView.resetCache()
+	for k in pairs(_fbcache) do _fbcache[k] = nil end
 end
 
 

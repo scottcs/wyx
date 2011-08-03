@@ -1,18 +1,17 @@
 local Class = require 'lib.hump.class'
 local Entity = require 'pud.entity.Entity'
+local Traveler = require 'pud.entity.Traveler'
 local TimedObject = require 'pud.time.TimedObject'
 local Deque = require 'pud.kit.Deque'
 
 -- events this entity listens for
 local CommandEvent = require 'pud.event.CommandEvent'
 
--- commands this entity implements
-local MoveCommand = require 'pud.command.MoveCommand'
-
 -- default action point costs for commands
 local AP_COSTS = {
 	MoveCommand = 1,
 	AttackCommand = 1.5,
+	OpenDoorCommand = 1,
 }
 
 -- default turn speed
@@ -21,10 +20,11 @@ local AP_PER_TURN = 1.0
 -- HeroEntity
 --
 local HeroEntity = Class{name='HeroEntity',
-	inherits={Entity, TimedObject},
+	inherits={Entity, TimedObject, Traveler},
 	function(self)
 		Entity.construct(self)
 		TimedObject.construct(self)
+		Traveler.construct(self)
 		CommandEvents:register(self, CommandEvent)
 
 		self._commandQueue = Deque()
@@ -40,6 +40,7 @@ function HeroEntity:destroy()
 	self._commandQueue = nil
 
 	CommandEvents:unregisterAll(self)
+	Traveler.destroy(self)
 	TimedObject.destroy(self)
 	Entity.destroy(self)
 end
@@ -78,6 +79,9 @@ function HeroEntity:getStepSize() return self._stepSize end
 function HeroEntity:setStepSize(v)
 	self._stepSize = v
 end
+
+-- get the radius of visibility
+function HeroEntity:getVisibilityRadius() return 8 end
 
 -- the class
 return HeroEntity

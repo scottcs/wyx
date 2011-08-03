@@ -11,8 +11,8 @@ local EntityView = Class{name='EntityView',
 			'entity must be an instance of class Entity (was %s (%s))',
 			tostring(entity), type(entity))
 
-		width = width or 32
-		height = height or 32
+		width = width or TILEW
+		height = height or TILEH
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
 		self._entity = entity
@@ -52,7 +52,7 @@ function EntityView:setHeight(...)
 end
 
 -- draw to the framebuffer
-function EntityView:set(tileset, quad, bgquad)
+function EntityView:set(tileset, quad, bgset, bgquad)
 	assert(tileset and quad, 'must specify tileset and quad')
 
 	local w, h = self:getSize()
@@ -62,7 +62,7 @@ function EntityView:set(tileset, quad, bgquad)
 	love.graphics.setRenderTarget(self._fb)
 
 	love.graphics.setColor(1,1,1)
-	if bgquad then love.graphics.drawq(tileset, bgquad, 0, 0) end
+	if bgquad then love.graphics.drawq(bgset, bgquad, 0, 0) end
 	love.graphics.drawq(tileset, quad, 0, 0)
 
 	love.graphics.setRenderTarget()
@@ -78,8 +78,6 @@ function EntityView:draw()
 		love.graphics.draw(self._fb, drawX, drawY)
 	end
 end
-
-
 
 -- the class
 return EntityView
