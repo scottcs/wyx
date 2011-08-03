@@ -128,7 +128,9 @@ function FileMapBuilder:_buildMap(map)
 		for col in string.gmatch(row, '%C') do
 			x = x + 1
 			local mapType = self:_glyphToMapType(map.glyphs, col)
-			if not mapType:isType('empty') then
+			if not mapType then
+				warning('unknown mapType for glyph: %s',col)
+			elseif not mapType:isType('empty') then
 				local node = self._map:setNodeMapType(MapNode(), mapType)
 				self._map:setLocation(x, y, node)
 			end
