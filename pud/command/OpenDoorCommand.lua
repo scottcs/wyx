@@ -32,6 +32,7 @@ function OpenDoorCommand:execute()
 	local mapType = node:getMapType()
 	local mt, mv = mapType:get()
 	self._map:setNodeMapType(node, 'doorOpen', mv)
+	Command.execute(self)
 end
 
 function OpenDoorCommand:getMapPosition() return self._pos end

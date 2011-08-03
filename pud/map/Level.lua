@@ -1,4 +1,5 @@
 local Class = require 'lib.hump.class'
+local vector = require 'lib.hump.vector'
 
 -- map classes
 local Map = require 'pud.map.Map'
@@ -18,9 +19,6 @@ local HeroEntity = require 'pud.entity.HeroEntity'
 -- time manager
 local TimeManager = require 'pud.time.TimeManager'
 local TICK = 0.01
-
--- line algorithm
-local Line = require 'pud.kit.Line'
 
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
@@ -149,6 +147,9 @@ end
 function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
+	if command:is_a(OpenDoorCommand) then
+		command:setOnComplete(self._bakeLights, self)
+	end
 	self._doTick = true
 	self._needViewUpdate = true
 end
@@ -165,7 +166,7 @@ local _mult = {
 function Level:_castLight(c, row, first, last, radius, x, y)
 	if first < last then return end
 	local radiusSq = radius*radius
-	local new_first = first
+	local new_first
 
 	for j=row,radius do
 		local dx, dy = -j-1, -j
@@ -176,13 +177,12 @@ function Level:_castLight(c, row, first, last, radius, x, y)
 
 			-- translate the dx, dy coordinates into map coordinates
 			local mp = vector(c.x + dx * x.x + dy * x.y, c.y + dx * y.x + dy * y.y)
-			print(mp)
 			-- lSlope and rSlope store the slopes of the left and right
 			-- extremeties of the square we're considering
 			local lSlope, rSlope = (dx-0.5)/(dy+0.5), (dx+0.5)/(dy-0.5)
 
 			if last > lSlope then break end
-			if not first < rSlope then
+			if not (first < rSlope) then
 				-- our light beam is touching this square; light it
 				if dx*dx + dy*dy < radiusSq then
 					self._lightmap[mp.x][mp.y] = 'lit'
@@ -231,77 +231,15 @@ function Level:_bakeLights()
 
 	for oct=1,8 do
 		self:_castLight(heroPos, 1, 1, 0, radius,
-			vector(_mult[0][oct], _mult[1][oct]),
-			vector(_mult[2][oct], _mult[3][oct]))
+			vector(_mult[1][oct], _mult[2][oct]),
+			vector(_mult[3][oct], _mult[4][oct]))
 	end
 end
 
 -- get a color table of the lighting for the specified point
 function Level:getLightingColor(p)
-	local node = self._map:getLocation(p.x, p.y)
-	local radius = self._hero:getVisibilityRadius()
-	local heroPos = self._hero:getPositionVector()
-
-	if p == heroPos then return self._lightColor.lit end
-
-	local dist = math_round(heroPos:dist(p))
-
-	if dist > radius then
-		if node:wasSeen() then
-			return self._lightColor.dim
-		else
-			return self._lightColor.none
-		end
-	end
-
-	local line = Line(heroPos, p)
-	local blocked = false
-	local l
-	repeat
-		l = line:next()
-		if l then
-			if not self:isPointInMap(l) then
-				blocked = true
-				break
-			end
-
-			local node = self._map:getLocation(l.x, l.y)
-			if not node:isTransparent() then
-				blocked = true
-				break
-			end
-		end
-	until not l
-
-	blocked = blocked and l ~= p
-
-	-- check neighbors for lit floor and unblock if found
-	if blocked and l == p then
-		local check = {-1, 0, 1}
-		for x=1,3 do
-			for y=1,3 do
-				if not (x == 2 and y == 2) then
-					local node = self._map:getLocation(p.x + check[x], p.y + check[y])
-					if node:isTransparent() then
-						blocked = false
-						break
-					end
-				end
-			end
-			if not blocked then break end
-		end
-	end
-
-	if blocked then
-		if node:wasSeen() then
-			return self._lightColor.dim
-		else
-			return self._lightColor.none
-		end
-	else
-		node:setSeen(true)
-		return self._lightColor.lit
-	end
+	local color = self._lightmap[p.x][p.y] or 'black'
+	return self._lightColor[color]
 end
 
 -- the class
