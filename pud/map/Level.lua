@@ -24,7 +24,7 @@ local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
 
 local _testFiles = {
-	'test',
+	'test1',
 }
 
 -- Level
