@@ -4,37 +4,30 @@ map.name = 'Test5'
 map.author = 'scx'
 
 --[[
-  floor types are (from left to right):
-      normal, broken, interior, rug
-
-  wall types are (from left to right):
-      normal, broken, torch
-
-	note: broken and torch wall types will only show up on horizontal walls.
+	note: worn and torch wall types will only show up on horizontal walls.
+	vertical walls are created automatically where needed.
 
   if you fail to provide an entry in this table for a glyph you used in the
   map below, you will receive an error when you try to load the map in-game.
 --]]
 map.glyphs = {
   empty = '0',
-  floor = {'.', ',', '_', 'x'},
-  wall = {'#', '%', '*'},
-  doorClosed = '+',
-  doorOpen = '-',
-  trap = '^',
-  stairUp = '<',
-  stairDown = '>',
+  floor = {'.', ',', '_', 'x'},  -- normal, worn, interior, rug
+  wall = {'#', '%', '*'},        -- normal, worn, torch
+  door = {'+', '-'},             -- shut, open
+  stair = {'<', '>'},            -- up, down
+  trap = {'^'},                  -- normal (possibly more later)
 }
 
 --[[
    set to true if you do not want to specify which floor and wall tiles are
    different. the map generator will randomly change some normal map and floor
-   tiles to look broken or have torches.
+   tiles to look worn or have torches.
 
    (note: only normal floor and wall tiles are affected. if you turn this on
-   AND also specify some broken or other detailed walls or floors, your
+   AND also specify some worn or other detailed walls or floors, your
    special walls and floors will not change, but your normal ones will have
-   more random broken tiles).
+   more random worn tiles).
 --]]
 map.handleDetail = false
 

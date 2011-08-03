@@ -2,6 +2,11 @@ require 'pud.util'
 local Class = require 'lib.hump.class'
 local MapBuilder = require 'pud.map.MapBuilder'
 local MapType = require 'pud.map.MapType'
+local FloorMapType = require 'pud.map.FloorMapType'
+local WallMapType = require 'pud.map.WallMapType'
+local DoorMapType = require 'pud.map.DoorMapType'
+local StairMapType = require 'pud.map.StairMapType'
+local TrapMapType = require 'pud.map.TrapMapType'
 local MapNode = require 'pud.map.MapNode'
 local vector = require 'lib.hump.vector'
 
@@ -72,10 +77,16 @@ end
 
 local _findVariant = function(mtype, n)
 	local variants
-	if mtype == 'floor' then
-		variants = {nil, 'Worn', 'X', 'Rug'}
-	elseif mtype == 'wall' then
-		variants = {'H', 'HWorn', 'torch'}
+	if mtype:is_a(FloorMapType) then
+		variants = {'normal', 'worn', 'interior', 'rug'}
+	elseif mtype:is_a(WallMapType) then
+		variants = {'normal', 'worn', 'torch'}
+	elseif mtype:is_a(DoorMapType) then
+		variants = {'shut', 'open'}
+	elseif mtype:is_a(StairMapType) then
+		variants = {'up', 'down'}
+	elseif mtype:is_a(TrapMapType) then
+		variants = {'normal'}
 	end
 
 	return variants and variants[n] or nil
@@ -88,9 +99,16 @@ function FileMapBuilder:_glyphToMapType(allGlyphs, glyph)
 		if type(v) == 'table' then
 			for i,g in ipairs(v) do
 				if glyph == g then
-					local v = _findVariant(k,i)
-					if v == 'torch' then k = 'torch' v = nil end
-					mtype = MapType(k, v)
+					if     k == 'floor' then mtype = FloorMapType()
+					elseif k == 'wall'  then mtype = WallMapType()
+					elseif k == 'door'  then mtype = DoorMapType()
+					elseif k == 'stair' then mtype = StairMapType()
+					elseif k == 'trap'  then mtype = TrapMapType()
+					end
+
+					local variant = _findVariant(mtype,i)
+					assert(variant ~= nil, 'Could not find variant %d for %s', i, k)
+					mtype:setVariant(variant)
 				end
 			end
 		elseif glyph == v then
@@ -136,9 +154,8 @@ function FileMapBuilder:_buildMap(map)
 			local mapType = self:_glyphToMapType(map.glyphs, col)
 			if not mapType then
 				warning('unknown mapType for glyph: %s',col)
-			elseif not mapType:isType('empty') then
-				local node = self._map:setNodeMapType(MapNode(), mapType)
-				self._map:setLocation(x, y, node)
+			elseif not mapType:isType(MapType('empty')) then
+				self._map:setLocation(x, y, MapNode(mapType))
 			end
 		end
 
@@ -154,30 +171,30 @@ function FileMapBuilder:cleanup()
 		for x=1,w do
 			local node = self._map:getLocation(x, y)
 			local mapType = node:getMapType()
-			local _,variant = mapType:get()
+			local variant = mapType:getVariant()
 
-			if mapType:isType('floor') and not variant and self._handleDetail then
-				if Random(12) == 1 then
-					self._map:setNodeMapType(node, 'floor', 'Worn')
-				end
-			elseif mapType:isType('wall') then
+			if mapType:is_a(FloorMapType) and variant == 'normal'
+				and self._handleDetail
+			then
+				if Random(12) == 1 then node:setMapType(FloorMapType('worn')) end
+			elseif mapType:is_a(WallMapType) then
 				local horizontal = true
 				local below = self._map:getLocation(x, y+1)
 				if below then
 					local bMapType = below:getMapType()
-					horizontal = not bMapType:isType('wall')
+					horizontal = not bMapType:is_a(WallMapType)
 				end
 
 				if not horizontal then
-					self._map:setNodeMapType(node, 'wall', 'V')
+					node:setMapType(WallMapType('vertical'))
 				elseif self._handleDetail then
-					if variant ~= 'HWorn' then
+					if variant ~= 'worn' and variant ~= 'torch' then
 						if Random(12) == 1 then
-							self._map:setNodeMapType(node, 'wall', 'HWorn')
+							node:setMapType(WallMapType('worn'))
 						elseif Random(12) == 1 then
-							self._map:setNodeMapType(node, 'torch', 'A')
+							node:setMapType(WallMapType('torch'))
 						else
-							self._map:setNodeMapType(node, 'wall', 'H')
+							node:setMapType(WallMapType('normal'))
 						end
 					end
 				end
@@ -191,7 +208,7 @@ function FileMapBuilder:cleanup()
 	while nil == startPos do
 		local x, y = Random(w), Random(h)
 		local node = self._map:getLocation(x, y)
-		if node:getMapType():isType('floor') then
+		if node:getMapType():is_a(FloorMapType) then
 			startPos = vector(x, y)
 		end
 	end

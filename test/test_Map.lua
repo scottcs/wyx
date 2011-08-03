@@ -1,6 +1,9 @@
 local Map = require 'pud.map.Map'
 local MapNode = require 'pud.map.MapNode'
 local MapType = require 'pud.map.MapType'
+local FloorMapType = require 'pud.map.FloorMapType'
+local WallMapType = require 'pud.map.WallMapType'
+local DoorMapType = require 'pud.map.DoorMapType'
 local Rect = require 'pud.kit.Rect'
 
 context('Map', function()
@@ -22,16 +25,13 @@ context('Map', function()
 			assert_equal(map:getHeight(), 0)
 		end)
 		test('should not have any locations defined', function()
-			assert_error(function() map:getLocation(0,0) end)
-			assert_error(function() map:getLocation(1,1) end)
-			assert_error(function() map:getLocation(-1,-1) end)
-			assert_error(function() map:getLocation(1,0) end)
-			assert_error(function() map:getLocation(0,1) end)
-			assert_error(function() map:getLocation(10,11) end)
-			assert_error(function() map:getLocation(-3,3) end)
-		end)
-		test('should have an empty __tostring', function()
-			assert_equal(tostring(map), '')
+			assert_nil(map:getLocation(0,0))
+			assert_nil(map:getLocation(1,1))
+			assert_nil(map:getLocation(-1,-1))
+			assert_nil(map:getLocation(1,0))
+			assert_nil(map:getLocation(0,1))
+			assert_nil(map:getLocation(10,11))
+			assert_nil(map:getLocation(-3,3))
 		end)
 	end)
 
@@ -53,47 +53,22 @@ context('Map', function()
 			assert_equal(map:getHeight(), 50)
 		end)
 		test('should have empty locations within bounds', function()
-			assert_true(map:getLocation(1,1):getMapType():isType('empty'))
-			assert_true(map:getLocation(10,11):getMapType():isType('empty'))
-			assert_true(map:getLocation(map:getSize()):getMapType():isType('empty'))
+			assert_true(map:getLocation(1,1):getMapType():isType(MapType('empty')))
+			assert_true(map:getLocation(10,11):getMapType():isType(MapType('empty')))
+			assert_true(map:getLocation(map:getSize()):getMapType():isType(MapType('empty')))
 		end)
 		test('should have no locations defined out of bounds', function()
-			assert_error(function() map:getLocation(0,0) end)
-			assert_error(function() map:getLocation(-1,-1) end)
-			assert_error(function() map:getLocation(1,0) end)
-			assert_error(function() map:getLocation(0,1) end)
-			assert_error(function() map:getLocation(-3,3) end)
-		end)
-		test('should have a correct __tostring', function()
-			local map = Map(0, 0, 10, 10)
-			local mapstr = ''
-			for j=1,10 do
-				for i=1,10 do
-					local node = map:getLocation(i, j)
-					local t = 'floor'
-					local c = '.'
-					if i%2 == 0 then
-						t = 'wall'
-						c = '#'
-					elseif j%2 == 0 then
-						t = 'doorClosed'
-						c = '+'
-					end
-
-					mapstr = mapstr .. c
-					map:setLocation(i, j, map:setNodeMapType(node, t))
-				end
-				if j < 10 then mapstr = mapstr .. '\n' end
-			end
-
-			assert_not_nil(tostring(map))
-			assert_equal(tostring(map), mapstr)
+			assert_nil(map:getLocation(0,0))
+			assert_nil(map:getLocation(-1,-1))
+			assert_nil(map:getLocation(1,0))
+			assert_nil(map:getLocation(0,1))
+			assert_nil(map:getLocation(-3,3))
 		end)
 	end)
 
 	context('When setting values', function()
 		local map = Map(0, 0, 20, 20)
-		local node = MapNode('wall')
+		local node = MapNode(WallMapType())
 		node:setLit(true)
 
 		context('for setLocation', function()
@@ -101,7 +76,7 @@ context('Map', function()
 				map:setLocation(3, 8, node)
 				local testNode = map:getLocation(3, 8)
 				assert_not_nil(testNode)
-				assert_true(testNode:getMapType():isType('wall'))
+				assert_true(testNode:getMapType():is_a(WallMapType))
 			end)
 			test('should error on incorrect arguments', function()
 				assert_error(function() map:setLocation() end)
@@ -110,26 +85,6 @@ context('Map', function()
 				assert_error(function() map:setLocation(0, 0, node) end)
 				assert_error(function() map:setLocation('s', 's', 's') end)
 				assert_error(function() map:setLocation(2, 2, {}) end)
-			end)
-		end)
-		context('for setNodeMapType', function()
-			test('should have correct values', function()
-				map:setNodeMapType(map:getLocation(9, 19), 'floor')
-				assert_true(map:getLocation(9, 19):getMapType():isType('floor'))
-			end)
-			test('should error on incorrect arguments', function()
-				local node = MapNode()
-				assert_error(function() map:setNodeMapType() end)
-				assert_error(function() map:setNodeMapType(4) end)
-				assert_error(function() map:setNodeMapType('floor') end)
-				assert_error(function() map:setNodeMapType(node, 'zzzz') end)
-			end)
-			test('should return the given node', function()
-				local node = MapNode('doorClosed')
-				local node2 = map:setNodeMapType(node, 'floor')
-				assert_true(node:getMapType():isType('floor'))
-				assert_true(node2:getMapType():isType('floor'))
-				assert_equal(node, node2)
 			end)
 		end)
 	end)

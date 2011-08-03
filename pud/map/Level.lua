@@ -8,6 +8,7 @@ local FileMapBuilder = require 'pud.map.FileMapBuilder'
 local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 local MapNode = require 'pud.map.MapNode'
+local DoorMapType = require 'pud.map.DoorMapType'
 
 -- events
 local CommandEvent = require 'pud.event.CommandEvent'
@@ -92,7 +93,7 @@ function Level:_moveEntities()
 			self:_bakeLights()
 		end
 
-		if node:getMapType():isType('doorClosed') then
+		if node:getMapType():isType(DoorMapType('shut')) then
 			local command = OpenDoorCommand(self._hero, to, self._map)
 			CommandEvents:push(CommandEvent(command))
 		end
