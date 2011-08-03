@@ -114,7 +114,7 @@ function Level:_generateMap(builder)
 	self._map = MapDirector:generateStandard(builder)
 	if self._hero then
 		self._hero:setPosition(self._map:getStartVector())
-		self:_bakeLights()
+		self:_bakeLights(true)
 	end
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
@@ -216,9 +216,26 @@ function Level:_castLight(c, row, first, last, radius, x, y)
 	end
 end
 
-function Level:_bakeLights()
+function Level:_resetLights(blackout)
+	-- make old lit positions dim
+	for x=1,self._map:getWidth() do
+		self._lightmap[x] = self._lightmap[x] or {}
+		for y=1,self._map:getHeight() do
+			if blackout then
+				self._lightmap[x][y] = 'black'
+			else
+				self._lightmap[x][y] = self._lightmap[x][y] or 'black'
+				if self._lightmap[x][y] == 'lit' then self._lightmap[x][y] = 'dim' end
+			end
+		end
+	end
+end
+
+function Level:_bakeLights(blackout)
 	local radius = self._hero:getVisibilityRadius()
 	local heroPos = self._hero:getPositionVector()
+
+	self:_resetLights(blackout)
 
 	-- make old lit positions dim
 	for x=1,self._map:getWidth() do
