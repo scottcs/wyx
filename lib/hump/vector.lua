@@ -36,7 +36,7 @@ local function new(x,y)
 	return v
 end
 
-local isv = setmetatable({}, {__mode = 'v'})
+local isv = setmetatable({}, {__mode = 'kv'})
 local function isvector(v)
 	local is = isv[v]
 	if nil == is then

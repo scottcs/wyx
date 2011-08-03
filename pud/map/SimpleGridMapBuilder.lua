@@ -52,6 +52,10 @@ function SimpleGridMapBuilder:destroy()
 	self:_clear()
 	self._rooms = nil
 	self._grid = nil
+	self._numRooms = nil
+	self._map = nil
+	self._cellW = nil
+	self._cellH = nil
 
 	MapBuilder.destroy(self)
 end
@@ -377,7 +381,7 @@ function SimpleGridMapBuilder:addFeatures()
 						local node = self._map:getLocation(x, y)
 						local mapType = node:getMapType()
 						if mapType:isType('floor') then
-							mapType:set('floor', 'X')
+							self._map:setNodeMapType(node, 'floor', 'X')
 						end
 					end
 				end
@@ -398,12 +402,12 @@ function SimpleGridMapBuilder:cleanup()
 			if mapType:isType('floor') and random(1,12) == 1 then
 				if not variant then
 					if random(1,20) > 1 then
-						mapType:set('floor', 'Worn')
+						self._map:setNodeMapType(node, 'floor', 'Worn')
 					else
-						mapType:set('trap')
+						self._map:setNodeMapType(node, 'trap')
 					end
 				elseif variant == 'X' then
-					mapType:set('floor', 'Rug')
+					self._map:setNodeMapType(node, 'floor', 'Rug')
 				end
 			elseif mapType:isType('wall') and not variant then
 				local change = false
@@ -416,18 +420,30 @@ function SimpleGridMapBuilder:cleanup()
 				end
 				if change then
 					if random(1,12) == 1 then
-						mapType:set('wall', 'HWorn')
+						self._map:setNodeMapType(node, 'wall', 'HWorn')
 					elseif random(1,12) == 1 then
-						mapType:set('torch', 'A')
+						self._map:setNodeMapType(node, 'torch', 'A')
 					else
-						mapType:set('wall', 'H')
+						self._map:setNodeMapType(node, 'wall', 'H')
 					end
 				else
-					mapType:set('wall', 'V')
+					self._map:setNodeMapType(node, 'wall', 'V')
 				end
 			end
 		end
 	end
+
+	local startPos
+	while nil == startPos do
+		local room = self._rooms[Random(self._numRooms)]
+		local pos = room:getCenterVector('floor')
+		local node = self._map:getLocation(pos.x, pos.y)
+		if node:getMapType():isType('floor') then
+			startPos = pos
+		end
+	end
+
+	self._map:setStartVector(startPos)
 end
 
 -- the class

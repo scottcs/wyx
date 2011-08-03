@@ -3,6 +3,7 @@ local Class = require 'lib.hump.class'
 local MapBuilder = require 'pud.map.MapBuilder'
 local MapType = require 'pud.map.MapType'
 local MapNode = require 'pud.map.MapNode'
+local vector = require 'lib.hump.vector'
 
 -- FileMapBuilder
 local FileMapBuilder = Class{name='FileMapBuilder',
@@ -135,6 +136,21 @@ function FileMapBuilder:_buildMap(map)
 
 		x = 0
 	end
+end
+
+-- cleanup - find a suitable start position
+function FileMapBuilder:cleanup()
+	local w, h = self._map:getSize()
+	local startPos
+	while nil == startPos do
+		local x, y = Random(w), Random(h)
+		local node = self._map:getLocation(x, y)
+		if node:getMapType():isType('floor') then
+			startPos = vector(x, y)
+		end
+	end
+
+	self._map:setStartVector(startPos)
 end
 
 -- the class

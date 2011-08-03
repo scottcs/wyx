@@ -51,6 +51,8 @@ end
 function MapNode:wasSeen() return self._wasSeen end
 
 function MapNode:setMapType(mapType, variant)
+	if self._mapType then self._mapType:destroy() end
+
 	if mapType and mapType.is_a and mapType:is_a(MapType) then
 		self._mapType = mapType
 	else
@@ -58,6 +60,11 @@ function MapNode:setMapType(mapType, variant)
 	end
 end
 function MapNode:getMapType() return self._mapType end
+
+function MapNode:getMapTypeString()
+	local mt, mv = self._mapType:get()
+	return mt .. (mv or '')
+end
 
 -- the class
 return MapNode

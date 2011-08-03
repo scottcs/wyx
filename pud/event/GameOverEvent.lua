@@ -20,6 +20,12 @@ local GameOverEvent = Class{name='GameOverEvent',
 	end
 }
 
+-- destructor
+function GameOverEvent:destroy()
+	self._reason = nil
+	Event.destroy(self)
+end
+
 function GameOverEvent:getReason() return self._reason end
 
 -- the class

@@ -1,11 +1,16 @@
 local Class = require 'lib.hump.class'
 local Command = require 'pud.command.Command'
+local Traveler = require 'pud.entity.Traveler'
 
 -- MoveCommand
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
-	function(self, target, vector)
+	function(self, target, vector, node)
+		assert(target and type(target) == 'table'
+			and target.is_a and target:is_a(Traveler),
+			'target must be an instance of Traveler (was %s)', tostring(target))
+
 		Command.construct(self, target)
 
 		if target.getStepSize then
@@ -18,6 +23,7 @@ local MoveCommand = Class{name='MoveCommand',
 		end
 
 		self._vector = self._vector or vector
+		self._node = node
 	end
 }
 
@@ -29,8 +35,10 @@ end
 
 function MoveCommand:execute()
 	local pos = self._target:getPositionVector()
-	self._target:setPosition(pos + self._vector)
+	self._target:setMovePosition(pos + self._vector)
 end
+
+function MoveCommand:getVector() return self._vector:clone() end
 
 -- the class
 return MoveCommand

@@ -46,6 +46,9 @@ function love.load()
 	NUM_MUSIC = 8
 	NUM_SOUNDS = 11
 
+	-- global tile width and height
+	TILEW, TILEH = 32, 32
+
 	-- global random number generator instance
 	Random = random.new()
 

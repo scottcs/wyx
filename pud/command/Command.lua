@@ -10,6 +10,8 @@ local Command = Class{name='Command',
 -- destructor
 function Command:destroy()
 	self._target = nil
+	self._onComplete = nil
+	self._onCompleteArgs = nil
 end
 
 -- get the target object of this command
@@ -32,12 +34,6 @@ end
 
 -- execute the command
 function Command:execute() self:_doOnComplete() end
-
--- destructor
-function Command:destroy()
-	self._onComplete = nil
-	self._onCompleteArgs = nil
-end
 
 -- the class
 return Command

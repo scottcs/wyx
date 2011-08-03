@@ -37,6 +37,7 @@ function GameCam:destroy()
 	self._zoom = nil
 	for k,v in pairs(self._limits) do self._limits[k] = nil end
 	self._limits = nil
+	self._isAnimating = nil
 end
 
 function GameCam:_setAnimating(b)
@@ -119,6 +120,10 @@ function GameCam:followTarget(rect)
 	local function _follow(self, theRect)
 		local pos = theRect:getPositionVector()
 		local size = theRect:getSizeVector()
+		if size.x == 1 and size.y == 1 then
+			size.x = size.x * TILEW
+			size.y = size.y * TILEH
+		end
 		self._cam.pos.x = (pos.x-1) * size.x + size.x/2
 		self._cam.pos.y = (pos.y-1) * size.y + size.y/2
 		self:_correctPos(self._cam.pos)

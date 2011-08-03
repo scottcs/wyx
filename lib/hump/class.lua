@@ -97,7 +97,7 @@ local function new(args)
 			obj.__class = self
 			return obj
 		end,
-		__tostring = function() return name end
+		__tostring = function() return name end,
 	}
 	return setmetatable(class, meta)
 end

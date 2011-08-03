@@ -2,8 +2,10 @@ require 'pud.util'
 local Class = require 'lib.hump.class'
 local MapNode = require 'pud.map.MapNode'
 local Rect = require 'pud.kit.Rect'
+local vector = require 'lib.hump.vector'
 
 local table_concat = table.concat
+local math_floor = math.floor
 
 -- Map
 local Map = Class{name='Map', inherits=Rect,
@@ -48,7 +50,12 @@ function Map:setLocation(x, y, node)
 		'attempt to call setLocation without a MapNode (was %s)',
 		node and node.is_a and tostring(node) or type(node))
 
-	-- assign the node
+	-- destroy the old node
+	if self._layout[y] and self._layout[y][x] then
+		self._layout[y][x]:destroy()
+	end
+
+	-- assign the new node
 	self._layout[y] = self._layout[y] or {}
 	self._layout[y][x] = node
 end
@@ -62,6 +69,20 @@ function Map:getLocation(x, y)
 		return self._layout[y][x]
 	end
 	return nil
+end
+
+function Map:setStartVector(v)
+	assert(vector.isvector(v),
+		'vector expected (was %s)', type(v))
+
+	self._startVector = v
+end
+
+function Map:getStartVector()
+	if self._startVector then return self._startVector end
+
+	local w, h = self:getSize()
+	return vector(math_floor(w/2+0.5), math_floor(h/2+0.5))
 end
 
 -- functions for setting specific MapTypes and their associated attributes

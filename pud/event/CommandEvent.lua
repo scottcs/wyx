@@ -16,6 +16,13 @@ local CommandEvent = Class{name='CommandEvent',
 	end
 }
 
+-- destructor
+function CommandEvent:destroy()
+	self._command = nil
+	Event.destroy(self)
+end
+
+-- return the command
 function CommandEvent:getCommand() return self._command end
 
 -- the class

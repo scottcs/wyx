@@ -15,6 +15,12 @@ local MapUpdateFinishedEvent = Class{name='MapUpdateFinishedEvent',
 	end
 }
 
+-- destructor
+function MapUpdateFinishedEvent:destroy()
+	self._map = nil
+	Event.destroy(self)
+end
+
 function MapUpdateFinishedEvent:getMap() return self._map end
 
 -- the class
