@@ -2,6 +2,9 @@ local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
 local Entity = require 'pud.entity.Entity'
 
+local CommandEvent = require 'pud.event.CommandEvent'
+local MoveCommand = require 'pud.command.MoveCommand'
+
 -- EntityView
 --
 local EntityView = Class{name='EntityView',
@@ -16,14 +19,19 @@ local EntityView = Class{name='EntityView',
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
 		self._entity = entity
+		self._movingLeft = false
+		CommandEvents:register(self, CommandEvent)
 	end
 }
 
 -- destructor
 function EntityView:destroy()
+	CommandEvents:unregisterAll(self)
 	self._entity = nil
 	self._fb = nil
+	self._movingLeft = nil
 	self._isDrawing = nil
+	self._quad = nil
 	self._constructed = nil
 	Rect.destroy(self)
 end
@@ -51,10 +59,36 @@ function EntityView:setHeight(...)
 	end
 end
 
--- draw to the framebuffer
+-- flip quad if moving left
+function EntityView:CommandEvent(e)
+	local command = e:getCommand()
+	if not command:is_a(MoveCommand) then return end
+	if command:getTarget() ~= self._entity then return end
+
+	local v = command:getVector()
+	if (self._movingLeft and v.x > 0)
+		or (not self._movingLeft and v.x < 0)
+	then
+		self._movingLeft = v.x < 0
+		self._quad:flip(1)
+		self:_drawFB()
+	end
+end
+
 function EntityView:set(tileset, quad, bgset, bgquad)
 	assert(tileset and quad, 'must specify tileset and quad')
 
+	self._tileset = tileset
+	self._quad = quad
+	self._bgset = bgset
+	self._bgquad = bgquad
+
+	self:_drawFB()
+end
+
+
+-- draw to the framebuffer
+function EntityView:_drawFB()
 	local w, h = self:getSize()
 	self._fb = love.graphics.newFramebuffer(w, h)
 
@@ -62,8 +96,10 @@ function EntityView:set(tileset, quad, bgset, bgquad)
 	love.graphics.setRenderTarget(self._fb)
 
 	love.graphics.setColor(1,1,1)
-	if bgquad then love.graphics.drawq(bgset, bgquad, 0, 0) end
-	love.graphics.drawq(tileset, quad, 0, 0)
+	if self._bgquad then
+		love.graphics.drawq(self._bgset, self._bgquad, 0, 0)
+	end
+	love.graphics.drawq(self._tileset, self._quad, 0, 0)
 
 	love.graphics.setRenderTarget()
 	self._isDrawing = false
