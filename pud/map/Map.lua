@@ -92,7 +92,7 @@ function Map:setNodeMapType(node, mapType, variant)
 	mapType = node:getMapType()
 
 	-- set attributes for specific types
-	if mapType:isType('floor', 'trap', 'doorOpen') then
+	if mapType:isType('floor', 'trap', 'doorOpen', 'stairDown') then
 		node:setLit(true)
 		node:setAccessible(true)
 		node:setTransparent(true)
@@ -100,7 +100,7 @@ function Map:setNodeMapType(node, mapType, variant)
 		node:setLit(true)
 		node:setAccessible(false)
 		node:setTransparent(false)
-	elseif mapType:isType('stairUp', 'stairDown') then
+	elseif mapType:isType('stairUp') then
 		node:setLit(true)
 		node:setAccessible(true)
 		node:setTransparent(false)
