@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'	
-local EntityPositionEvent = require 'pud.event.EntityPositionEvent'
 
 -- Traveler
 -- assumes the child inheriting this class also inherits Rect
@@ -27,11 +26,7 @@ end
 function Traveler:wantsToMove() return self._movePosition ~= nil end
 
 function Traveler:move(pos, node)
-	if self:canMove(node) then
-		local oldpos = self:getPositionVector()
-		self:setPosition(pos)
-		GameEvents:push(EntityPositionEvent(self, oldpos, pos))
-	end
+	if self:canMove(node) then self:setPosition(pos) end
 	self._movePosition = nil
 end
 

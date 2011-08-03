@@ -2,8 +2,6 @@ local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
 local Entity = require 'pud.entity.Entity'
 
-local EntityPositionEvent = require 'pud.event.EntityPositionEvent'
-
 -- EntityView
 --
 local EntityView = Class{name='EntityView',
@@ -18,13 +16,11 @@ local EntityView = Class{name='EntityView',
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
 		self._entity = entity
-		GameEvents:register(self, EntityPositionEvent)
 	end
 }
 
 -- destructor
 function EntityView:destroy()
-	GameEvents:unregisterAll(self)
 	self._entity = nil
 	self._fb = nil
 	self._isDrawing = nil
@@ -76,30 +72,10 @@ end
 -- draw the framebuffer
 function EntityView:draw()
 	if self._isDrawing == false then
-		local pos = self:getPositionVector()
-		local drawX = (pos.x-1)*self:getWidth()
-		local drawY = (pos.y-1)*self:getHeight()
+		local x, y = self._entity:getPosition()
+		local drawX = (x-1)*self:getWidth()
+		local drawY = (y-1)*self:getHeight()
 		love.graphics.draw(self._fb, drawX, drawY)
-	end
-end
-
-function EntityView:getPositionVector()
-	return self._isAnimating
-		and self._animatedPosition
-		or self._entity:getPositionVector()
-end
-
-function EntityView:EntityPositionEvent(e)
-	local entity = e:getEntity()
-	if entity ~= self._entity then return end
-
-	local target = e:getDestination()
-	self:setPosition(target.x, target.y)
-	if not self_isAnimating then
-		self._animatedPosition = e:getOrigin()
-		self._isAnimating = true
-		tween(0.15, self._animatedPosition, target, 'outQuint',
-			function(self) self._isAnimating = false end, self)
 	end
 end
 
