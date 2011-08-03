@@ -91,7 +91,7 @@ function st:_createCamera()
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._cam:home()
-	self._cam:followTarget(self._level:getHero())
+	self._cam:followTarget(self._heroView)
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -183,7 +183,7 @@ function st:keypressed(key, unicode)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		x = function()
-			self._cam:followTarget(self._level:getHero())
+			self._cam:followTarget(self._heroView)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		f3 = function() if debug then self._debug = not self._debug end end,
