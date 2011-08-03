@@ -31,6 +31,8 @@ local HeroView = require 'pud.view.HeroView'
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
 function st:enter()
+	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
+	love.keyboard.setKeyRepeat(100, 200)
 	self._level = Level()
 	self._level:createEntities()
 	self._level:generateSimpleGridMap()
@@ -122,6 +124,9 @@ end
 
 function st:leave()
 	CommandEvents:unregisterAll(self)
+	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
+	self._keyDelay = nil
+	self._keyInterval = nil
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
