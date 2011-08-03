@@ -52,10 +52,11 @@ function st:_createEntityViews()
 		(heroX-1)*tileW, (heroY-1)*tileH,
 		tileW, tileH,
 		Image.char:getWidth(), Image.char:getHeight())
+	local floorquad = self._view:getFloorQuad()
 
 	if self._heroView then self._heroView:destroy() end
 	self._heroView = HeroView(self._level:getHero(), tileW, tileH)
-	self._heroView:set(Image.char, quad)
+	self._heroView:set(Image.char, quad, Image.dungeon, floorquad)
 end
 
 function st:CommandEvent(e)

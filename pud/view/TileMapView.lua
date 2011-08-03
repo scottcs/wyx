@@ -152,12 +152,15 @@ function TileMapView:_updateAnimatedTiles(dt)
 	end
 end
 
+function TileMapView:getFloorQuad()
+	local floorNode = MapNode('floor')
+	local floorquad = self:_getQuad(floorNode)
+	floorNode:destroy()
+	return floorquad
+end
+
 function TileMapView:_updateTiles(dt)
-	if nil == self._floorquad then
-		local floorNode = MapNode('floor')
-		self._floorquad = self:_getQuad(floorNode)
-		floorNode:destroy()
-	end
+	local floorquad = self:getFloorQuad()
 
 	for _,t in ipairs(self._drawTiles) do
 		if t.tile:is_a(TileMapNodeView) then
@@ -168,7 +171,7 @@ function TileMapView:_updateTiles(dt)
 				local quad = self:_getQuad(node)
 				if quad then
 					local bgquad
-					if self:_shouldDrawFloor(node) then bgquad = self._floorquad end
+					if self:_shouldDrawFloor(node) then bgquad = floorquad end
 					t.tile:setTile(self._set, quad, bgquad)
 				end
 			end
@@ -285,9 +288,7 @@ function TileMapView:_setupTiles()
 	local trapA = MapNode()
 	local trapB = MapNode()
 
-	local floorNode = MapNode('floor')
-	local floorquad = self:_getQuad(floorNode)
-	floorNode:destroy()
+	local floorquad = self:getFloorQuad()
 	
 	local torchUpdate = function(self)
 		if self._flicker then
