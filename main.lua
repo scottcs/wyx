@@ -10,9 +10,21 @@ require 'random'
          --]]--
 
 --debug = nil
-is_profile = nil ~= debug
-if is_profile then require 'profiler' end
-local global_profile = is_profile and false
+doProfile = nil ~= debug
+--local use_profiler = 'pepperfish'
+local use_profiler = 'luatrace'
+--local use_profiler = 'luaprofiler'
+if doProfile then
+	if use_profiler == 'pepperfish' then
+		require 'lib.profiler'
+		profiler = newProfiler()
+	elseif use_profiler == 'luatrace' then
+		profiler = require 'luatrace'
+	elseif use_profiler == 'luaprofiler' then
+		require 'profiler'
+	end
+end
+local global_profile = doProfile and true
 NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 assert = nil ~= debug and assert or NOFUNC
@@ -35,7 +47,13 @@ tween = require 'lib.tween'
 function love.load()
 	-- start the profiler
 	if global_profile then
-		profiler.start()
+		if use_profiler == 'pepperfish' then
+			profiler:start()
+		elseif use_profiler == 'luatrace' then
+			profiler.tron()
+		elseif use_profiler == 'luaprofiler' then
+			profiler.start()
+		end
 	end
 
 	-- set graphics mode
@@ -139,7 +157,21 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if is_profile then
-		profiler.stop()
+	if global_profile then
+		if use_profiler == 'pepperfish' then
+			profiler:stop()
+			local filename = 'pepperfish.out'
+			local outfile = io.open(filename, 'w+')
+			profiler:report(outfile)
+			outfile:close()
+			print('profile written to '..filename)
+		elseif use_profiler == 'luatrace' then
+			profiler.troff()
+			print('analyze profile with "luatrace.profile"')
+		elseif use_profiler == 'luaprofiler' then
+			profiler.stop()
+			print('analyze profile with '
+				..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
+		end
 	end
 end
