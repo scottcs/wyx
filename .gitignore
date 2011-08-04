@@ -1,5 +1,7 @@
 /.DS_Store
 /profile.txt
 /out.txt
+/*.out
 /TODO.txt
-*tmp.txt
+/tmp.txt
+/*.tmp.txt
