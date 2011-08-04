@@ -32,6 +32,11 @@ local HeroView = require 'pud.view.HeroView'
 -- controllers
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
+-- target time between frames for 60Hz and 30Hz
+local TARGET_FRAME_TIME_60 = 0.016666666667
+local TARGET_FRAME_TIME_30 = 0.033333333333
+local IDLE_TIME = TARGET_FRAME_TIME_60 * 0.95
+
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
@@ -48,6 +53,10 @@ function st:enter()
 	end
 	CommandEvents:register(self, CommandEvent)
 	GameEvents:register(self, ZoneTriggerEvent)
+
+	-- turn off garbage collector... we'll collect manually when we have spare
+	-- time (in update())
+	collectgarbage('stop')
 end
 
 function st:_createEntityViews()
@@ -125,6 +134,7 @@ function st:_displayMessage(message, time)
 end
 
 function st:update(dt)
+	local start = love.timer.getMicroTime() - dt
 	if self._level then self._level:update(dt) end
 
 	if self._level:needViewUpdate() then
@@ -135,6 +145,10 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
+
+	while love.timer.getMicroTime() - start < IDLE_TIME do
+		collectgarbage('step', 0)
+	end
 end
 
 function st:draw()
@@ -147,6 +161,7 @@ function st:draw()
 end
 
 function st:leave()
+	collectgarbage('collect')
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
