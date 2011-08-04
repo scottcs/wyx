@@ -12,6 +12,7 @@ require 'random'
 --debug = nil
 is_profile = nil ~= debug
 if is_profile then require 'profiler' end
+local global_profile = is_profile and false
 NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 assert = nil ~= debug and assert or NOFUNC
@@ -33,7 +34,7 @@ tween = require 'lib.tween'
 
 function love.load()
 	-- start the profiler
-	if is_profile then
+	if global_profile then
 		profiler.start()
 	end
 
