@@ -158,10 +158,17 @@ function TileMapView:_updateAnimatedTiles(dt)
 	end
 end
 
+local _floorCache = setmetatable({}, {__mode='v'})
 function TileMapView:getFloorQuad()
-	local floorNode = MapNode(FloorMapType('normal', self._tileStyle))
-	local floorquad = self:_getQuad(floorNode)
-	floorNode:destroy()
+	local floorquad = _floorCache[self._tileStyle]
+
+	if floorquad == nil then
+		local floorNode = MapNode(FloorMapType('normal', self._tileStyle))
+		floorquad = self:_getQuad(floorNode)
+		floorNode:destroy()
+		_floorCache[self._tileStyle] = floorquad
+	end
+
 	return floorquad
 end
 
