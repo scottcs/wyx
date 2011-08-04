@@ -142,8 +142,8 @@ function st:idle(start)
 	while love.timer.getMicroTime() - start < IDLE_TIME do
 		cycles = cycles + 1
 		collectgarbage('step', 0)
+		collectgarbage('stop')
 	end
-	collectgarbage('stop')
 	return cycles
 end
 
