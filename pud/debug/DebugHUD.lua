@@ -34,10 +34,12 @@ local DebugHUD = Class{name='DebugHUD',
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
 			tick = 0.05,
-			warn1 = 18000,
-			warn2 = 24000,
-			good = 12000,
-			collect = function(dt) return math_floor(collectgarbage('count')) end,
+			warn1 = 15000000,
+			warn2 = 20000000,
+			good = 10000000,
+			collect = function(dt)
+				return math_floor(collectgarbage('count') * 1024)
+			end,
 		})
 		self:_set('dt',  {
 			gridX = 1, gridY = 3,
