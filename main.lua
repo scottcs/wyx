@@ -11,8 +11,7 @@ require 'random'
 
 --debug = nil
 is_profile = nil ~= debug
-if is_profile then require 'lib.profiler' end
-local profiler
+if is_profile then require 'profiler' end
 NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 assert = nil ~= debug and assert or NOFUNC
@@ -35,8 +34,7 @@ tween = require 'lib.tween'
 function love.load()
 	-- start the profiler
 	if is_profile then
-		profiler = newProfiler()
-		profiler:start()
+		profiler.start()
 	end
 
 	-- set graphics mode
@@ -140,10 +138,7 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if profiler then
-		profiler:stop()
-		local outfile = io.open('profile.txt', 'w+')
-		profiler:report(outfile)
-		outfile:close()
+	if is_profile then
+		profiler.stop()
 	end
 end
