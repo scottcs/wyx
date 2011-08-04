@@ -7,8 +7,8 @@ local LABEL = 50
 local CLEAR_DELAY = 4
 
 -- target time between frames for 60Hz and 30Hz
-local TARGET_FRAME_TIME_60 = 0.016666666667
-local TARGET_FRAME_TIME_30 = 0.033333333333
+local TARGET_FRAME_TIME_60 = 1/60
+local TARGET_FRAME_TIME_30 = 1/30
 
 local WARN1 = {1, 0.9, 0}
 local WARN2 = {1, 0, 0}
@@ -34,10 +34,12 @@ local DebugHUD = Class{name='DebugHUD',
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
 			tick = 0.05,
-			warn1 = 18000,
-			warn2 = 24000,
-			good = 12000,
-			collect = function(dt) return math_floor(collectgarbage('count')) end,
+			warn1 = 15000000,
+			warn2 = 20000000,
+			good = 10000000,
+			collect = function(dt)
+				return math_floor(collectgarbage('count') * 1024)
+			end,
 		})
 		self:_set('dt',  {
 			gridX = 1, gridY = 3,
