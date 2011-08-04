@@ -54,17 +54,26 @@ do
 	local sc = love.graphics.setColor
 	local sbg = love.graphics.setBackgroundColor
 
+	local _colorCache = setmetatable({}, {__mode='v'})
 	local function color(r, g, b, a)
-		if type(r) == 'table' then r,g,b,a = r[1],r[2],r[3],r[4] end
+		local col = type(r) == 'table' and r or {r,g,b,a}
+		local key = table.concat(col, '-')
+		local c = _colorCache[key]
 
-		if    r <= 1 and r >= 0
-			and g <= 1 and g >= 0
-			and b <= 1 and b >= 0
-			and (not a or (a <= 1 and a >= 0))
-		then
-			r, g, b, a = 255*r, 255*g, 255*b, 255*(a or 1)
+		if c == nil then
+			if    col[1] <= 1 and col[1] >= 0
+				and col[2] <= 1 and col[2] >= 0
+				and col[3] <= 1 and col[3] >= 0
+				and (not col[4] or (col[4] <= 1 and col[4] >= 0))
+			then
+				c = {255*col[1], 255*col[2], 255*col[3], 255*(col[4] or 1)}
+			else
+				c = {col[1], col[2], col[3], (col[4] or 1)}
+			end
+			_colorCache[key] = c
 		end
-		return r, g, b, a
+
+		return c[1], c[2], c[3], c[4]
 	end
 
 	function love.graphics.setColor(r,g,b,a) sc(color(r,g,b,a)) end
