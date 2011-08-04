@@ -16,7 +16,7 @@ local MessageHUD = Class{name='MessageHUD',
 		local fbW = imageData:getWidth()
 		local fbH = imageData:getHeight()
 		self._fbX = math.floor(WIDTH/2 - fbW/2)
-		self._fbY = math.floor(HEIGHT/2 - fbH/2)
+		self._fbY = math.floor(HEIGHT - fbH*1.5)
 		self._x = math.floor(fbW/2 - w/2)
 		self._y = math.floor(fbH/2 - h/2)
 		self._message = message
