@@ -5,12 +5,14 @@ local MapType = require 'pud.map.MapType'
 -- MapNode
 -- represents a single map position
 local MapNode = Class{name='MapNode',
-	function(self, ...)
+	function(self, mapType)
 		self._isAccessible = false
 		self._isLit = false
 		self._isTransparent = false
 		self._wasSeen = false
-		self:setMapType(...)
+
+		mapType = mapType or MapType()
+		self:setMapType(mapType)
 	end
 }
 
@@ -50,21 +52,21 @@ function MapNode:setSeen(b)
 end
 function MapNode:wasSeen() return self._wasSeen end
 
-function MapNode:setMapType(mapType, variant)
+function MapNode:setMapType(mapType)
 	if self._mapType then self._mapType:destroy() end
 
-	if mapType and mapType.is_a and mapType:is_a(MapType) then
-		self._mapType = mapType
-	else
-		self._mapType = MapType(mapType, variant)
-	end
+	assert(mapType and type(mapType) == 'table'
+		and mapType.is_a and mapType:is_a(MapType),
+		'MapNode:setMapType() expects a MapType (was %s, %s)',
+		tostring(mapType), type(mapType))
+
+	self._mapType = mapType
+	local attrs = mapType:getDefaultAttributes()
+	self._isTransparent = attrs.transparent
+	self._isAccessible = attrs.accessible
+	self._isLit = attrs.lit
 end
 function MapNode:getMapType() return self._mapType end
-
-function MapNode:getMapTypeString()
-	local mt, mv = self._mapType:get()
-	return mt .. (mv or '')
-end
 
 -- the class
 return MapNode

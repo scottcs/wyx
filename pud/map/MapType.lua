@@ -1,89 +1,86 @@
 local Class = require 'lib.hump.class'
 
-local table_concat = table.concat
-
--- table of all map types
-local _allMapTypes = {
-	empty = true,
-	wall = true,
-	torch = true,
-	floor = true,
-	doorClosed = true,
-	doorOpen = true,
-	stairUp = true,
-	stairDown = true,
-	trap = true,
-	point = true,
-}
-
--- private class function to validate a given map type
-local vresults = setmetatable({}, {__mode = 'kv'})
-local _isValidMapType = function(mapType)
-	local isValid = vresults[mapType]
-	if isValid == nil then
-		isValid = assert(type(mapType) == 'string' and nil ~= _allMapTypes[mapType],
-			'invalid map type: %s', tostring(mapType))
-		vresults[mapType] = isValid
-	end
-	return isValid
-end
-
 -- MapType
---   mapType - the actual type of this node
---   variant - can be anything the user needs
+-- represents a type and variant of a map node
 local MapType = Class{name='MapType',
-	function(self, mapType, variant)
-		mapType = mapType or 'empty'
-		self:set(mapType, variant)
+	function(self, variant, style)
+		self._variants = self._variants or {
+			default = 'empty',
+			empty = 'empty',
+		}
+		self._defaultTransparent = false
+		self._defaultAccessible = false
+		self._defaultLit = false
+		self:setVariant(variant or 'default')
+		if style then self:setStyle(style) end
 	end
 }
 
 -- destructor
 function MapType:destroy()
-	self._mapType = nil
 	self._variant = nil
+	self._style = nil
+	self._defaultTransparent = nil
+	self._defaultAccessible = nil
+	self._defaultLit = nil
 end
 
--- set the type and variant of this MapType.
--- mapType is a string
-function MapType:set(mapType, variant)
-	if _isValidMapType(mapType) then
-		if type(mapType) == 'string' then
-			self._type = mapType
-			self._variant = variant
-		else
-			self._type, self._variant = mapType:get()
-		end
-	end
+-- getter and setter for variant.
+-- variant must be defined in self._variants.
+function MapType:getVariant() return self._variant end
+function MapType:setVariant(variant)
+	assert(variant and self._variants[variant],
+		'unknown variant for %s: %s', tostring(self.__class), tostring(variant))
+
+	self._variant = self._variants[variant]
 end
 
--- get the type and variant
-function MapType:get() return self._type, self._variant end
+-- getter and setter for style.
+-- style can be anything the user needs.
+function MapType:getStyle() return self._style end
+function MapType:setStyle(style) self._style = style end
 
--- return true if this type is a mapType or if this variant is the specified
--- variant (if any).
--- mapType can be a string or a MapType object (if an object, the passed in
--- variant is ignored).
-local iresults = {}
+-- return a table of the default attributes for a MapNode with this MapType
+function MapType:getDefaultAttributes()
+	return {
+		transparent = self._defaultTransparent,
+		accessible = self._defaultAccessible,
+		lit = self._defaultLit,
+	}
+end
+
+-- return a key that uniquely identifies this MapType's class, variant and
+-- style.
+function MapType:getKey()
+	local key = tostring(self.__class)..'-'..tostring(self._variant)
+	if self._style then key = key..'-'..tostring(self._style) end
+	return key
+end
+
+-- return true if any of the given MapTypes have the same class and variant
+-- (but disregarding style) as this one.
 function MapType:isType(...)
-	local isType = false
-	for i=1,select('#',...) do
-		local mapType = select(i,...)
-		local key = self._type..'-'..mapType
-		isType = iresults[key]
-		if isType == nil then
-			isType = _isValidMapType(mapType) and self._type == mapType
-			iresults[key] = isType
+	for i=1,select('#', ...) do
+		local mapType = select(i, ...)
+		assert(type(mapType) == 'table'
+			and mapType.is_a and mapType:is_a(MapType),
+			'MapType:isType() expects a MapType (was %s, %s)',
+			tostring(mapType), type(mapType))
+
+		if mapType:is_a(self.__class)
+			and mapType:getVariant() == self:getVariant()
+		then
+			return true
 		end
-		if isType then break end
 	end
-	return isType
+	return false
 end
 
--- tostring
+-- represent this MapType as a string
 function MapType:__tostring()
-	local str = self._type
-	if self._variant then str = str..' ('..tostring(self._variant)..')' end
+	local str = tostring(self.__class)..' ('..tostring(self._variant)
+	if self._style then str = str..', '..tostring(self._style) end
+	str = str..')'
 	return str
 end
 

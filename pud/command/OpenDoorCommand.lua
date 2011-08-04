@@ -3,6 +3,7 @@ local vector = require 'lib.hump.vector'
 local Command = require 'pud.command.Command'
 local Map = require 'pud.map.Map'
 local MapNode = require 'pud.map.MapNode'
+local DoorMapType = require 'pud.map.DoorMapType'
 
 -- Open Door - fires when a door is opened
 local OpenDoorCommand = Class{name='OpenDoorCommand',
@@ -29,9 +30,8 @@ end
 
 function OpenDoorCommand:execute()
 	local node = self._map:getLocation(self._pos.x, self._pos.y)
-	local mapType = node:getMapType()
-	local mt, mv = mapType:get()
-	self._map:setNodeMapType(node, 'doorOpen', mv)
+	local style = node:getMapType():getStyle()
+	node:setMapType(DoorMapType('open', style))
 	Command.execute(self)
 end
 
