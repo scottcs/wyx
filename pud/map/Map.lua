@@ -12,6 +12,7 @@ local Map = Class{name='Map', inherits=Rect,
 	function(self, ...)
 		Rect.construct(self, ...)
 		self._layout = {}
+		self._zones = {}
 
 		self:clear()
 	end
@@ -27,6 +28,12 @@ function Map:destroy()
 		self._layout[y] = nil
 	end
 	self._layout = nil
+
+	for k in pairs(self._zones) do
+		self._zones[k]:destroy()
+		self._zones[k] = nil
+	end
+	self._zones = nil
 
 	Rect.destroy(self)
 end
@@ -71,6 +78,7 @@ function Map:getLocation(x, y)
 	return nil
 end
 
+-- set and get the starting vector for the map
 function Map:setStartVector(v)
 	assert(vector.isvector(v),
 		'vector expected (was %s)', type(v))
@@ -85,6 +93,37 @@ function Map:getStartVector()
 	return vector(math_floor(w/2+0.5), math_floor(h/2+0.5))
 end
 
+-- create a zone
+function Map:setZone(name, rect)
+	assert(rect and type(rect) == 'table' and rect.is_a and rect:is_a(Rect),
+		'setZone expects a rect (was %s, %s)', tostring(rect), type(rect))
+
+	if self._zones[name] then self._zones[name]:destroy() end
+	self._zones[name] = rect:clone()
+end
+
+-- check if a point is within a zone
+function Map:isInZone(point, zone)
+	if not self._zones[name] then
+		warning('Zone not found: %s', tostring(zone))
+		return false
+	end
+
+	return self._zones[name]:containsPoint(point)
+end
+
+-- get the zone name that the point is in (if any)
+function Map:getZonesFromPoint(point)
+	local zones = {}
+	local num = 0
+	for name,rect in pairs(self._zones) do
+		if rect:containsPoint(point) then
+			zones[name] = true
+			num = num + 1
+		end
+	end
+	return num > 0 and zones or nil
+end
 
 -- the class
 return Map

@@ -359,6 +359,10 @@ function SimpleGridMapBuilder:addFeatures()
 
 			-- now change floor if the room is completely enclosed by doors
 			if enclosed then
+				local x, y = self._rooms[i]:getX()+1, self._rooms[i]:getY()+1
+				local w, h = self._rooms[i]:getWidth()-3, self._rooms[i]:getHeight()-3
+				self._map:setZone('room'..tostring(i), Rect(x, y, w, h))
+
 				for x=x1+1,x2-1 do
 					for y=y1+1,y2-1 do
 						local node = self._map:getLocation(x, y)

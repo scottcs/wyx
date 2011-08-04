@@ -7,6 +7,7 @@ local MapDirector = require 'pud.map.MapDirector'
 local FileMapBuilder = require 'pud.map.FileMapBuilder'
 local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
 local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
+local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
 local MapNode = require 'pud.map.MapNode'
 local DoorMapType = require 'pud.map.DoorMapType'
 
@@ -82,21 +83,53 @@ function Level:update(dt)
 	self:_moveEntities()
 end
 
-function Level:_moveEntities()
-	if self._hero:wantsToMove() then
-		local to = self._hero:getMovePosition()
+function Level:_attemptMove(entity)
+	local moved = false
+
+	if entity:wantsToMove() then
+		local to = entity:getMovePosition()
 		local node = self._map:getLocation(to.x, to.y)
-		self._hero:move(to, node)
-		local heroPos = self._hero:getPositionVector()
-		if heroPos == to then
-			self._needViewUpdate = true
-			self:_bakeLights()
+
+		local oldEntityPos = entity:getPositionVector()
+		entity:move(to, node)
+		local entityPos = entity:getPositionVector()
+
+		if entityPos ~= oldEntityPos then
+			moved = true
+			local zonesFrom = self._map:getZonesFromPoint(oldEntityPos)
+			local zonesTo = self._map:getZonesFromPoint(entityPos)
+
+			if zonesFrom then
+				for zone in pairs(zonesFrom) do
+					if zonesTo and zonesTo[zone] then
+						zonesTo[zone] = nil
+					else
+						GameEvents:push(ZoneTriggerEvent(entity, zone, true))
+					end
+				end
+			end
+
+			if zonesTo then
+				for zone in pairs(zonesTo) do
+					GameEvents:push(ZoneTriggerEvent(entity, zone, false))
+				end
+			end
 		end
 
 		if node:getMapType():isType(DoorMapType('shut')) then
-			local command = OpenDoorCommand(self._hero, to, self._map)
+			local command = OpenDoorCommand(entity, to, self._map)
 			CommandEvents:push(CommandEvent(command))
 		end
+	end
+
+	return moved
+end
+
+function Level:_moveEntities()
+	local heroMoved = self:_attemptMove(self._hero)
+	if heroMoved then
+		self._needViewUpdate = true
+		self:_bakeLights()
 	end
 end
 
