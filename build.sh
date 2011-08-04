@@ -46,7 +46,7 @@ fi
 rm main.lua
 mv .main.lua.new main.lua
 
-if ! zip $lovefile -r * -x@.gitignore -x*.sh ; then
+if ! zip $lovefile -q -r * -x@.gitignore -x*.sh ; then
 	echo "Error creating .love file: $lovefile"
 	exit 2
 fi
