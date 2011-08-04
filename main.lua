@@ -23,7 +23,8 @@ if doProfile then
 		local _profiler = newProfiler()
 		profiler = {
 			start = function() _profiler:start() end,
-			stop = function()
+			stop = function() _profiler:stop() end,
+			stopAll = function()
 				_profiler:stop()
 				local filename = 'pepperfish.out'
 				local outfile = io.open(filename, 'w+')
@@ -36,7 +37,8 @@ if doProfile then
 		local _profiler = require 'luatrace'
 		profiler = {
 			start = _profiler.tron,
-			stop = function()
+			stop = _profiler.troff,
+			stopAll = function()
 				_profiler.troff()
 				print('analyze profile with "luatrace.profile"')
 			end,
@@ -46,7 +48,8 @@ if doProfile then
 		local _profiler = profiler
 		profiler = {
 			start = _profiler.start,
-			stop = function()
+			stop = _profiler.stop,
+			stopAll = function()
 				_profiler.stop()
 				print('analyze profile with '
 					..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
@@ -179,5 +182,5 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if doGlobalProfile then profiler.stop() end
+	if doGlobalProfile then profiler.stopAll() end
 end
