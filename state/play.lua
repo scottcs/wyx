@@ -8,6 +8,7 @@
 local st = GameState.new()
 
 local DebugHUD = debug and require 'pud.debug.DebugHUD'
+local MessageHUD = require 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local random = Random
@@ -21,6 +22,7 @@ local vector = require 'lib.hump.vector'
 
 -- events
 local CommandEvent = require 'pud.event.CommandEvent'
+local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
 local MoveCommand = require 'pud.command.MoveCommand'
 
 -- views
@@ -31,6 +33,8 @@ local HeroView = require 'pud.view.HeroView'
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
 function st:enter()
+	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
+	love.keyboard.setKeyRepeat(100, 200)
 	self._level = Level()
 	self._level:createEntities()
 	self._level:generateSimpleGridMap()
@@ -43,6 +47,7 @@ function st:enter()
 		self._debug = true
 	end
 	CommandEvents:register(self, CommandEvent)
+	GameEvents:register(self, ZoneTriggerEvent)
 end
 
 function st:_createEntityViews()
@@ -62,6 +67,12 @@ end
 function st:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._level:getHero() then return end
+end
+
+function st:ZoneTriggerEvent(e)
+	local message = e:isLeaving() and 'Leaving' or 'Entering'
+	message = message..' Zone: '..tostring(e:getZone())
+	self:_displayMessage(message)
 end
 
 function st:_createEntityControllers()
@@ -99,6 +110,20 @@ function st:_createDebugHUD()
 	self._debugHUD = DebugHUD()
 end
 
+function st:_displayMessage(message, time)
+	if self._messageHUD then
+		cron.cancel(self._messageID)
+		self._messageHUD:destroy()
+	end
+
+	time = time or 2
+	self._messageHUD = MessageHUD(message, time)
+	self._messageID = cron.after(time+1, function(self)
+		self._messageHUD:destroy()
+		self._messageHUD = nil
+	end, self)
+end
+
 function st:update(dt)
 	if self._level then self._level:update(dt) end
 
@@ -108,24 +133,32 @@ function st:update(dt)
 	end
 
 	if self._view then self._view:update(dt) end
+	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
 end
-
 
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
 	self._heroView:draw()
 	self._cam:postdraw()
+	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
 end
 
 function st:leave()
 	CommandEvents:unregisterAll(self)
+	GameEvents:unregisterAll(self)
+	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
+	self._keyDelay = nil
+	self._keyInterval = nil
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
 	self._cam = nil
+	self._messageHUD = nil
+	if self._debugHUD then self._debugHUD:destroy() end
+	self._debug = nil
 	self._heroView:destroy()
 	self._heroView = nil
 	self._heroController:destroy()

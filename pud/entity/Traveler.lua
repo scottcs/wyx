@@ -11,6 +11,7 @@ local Traveler = Class{name='Traveler',
 -- destructor
 function Traveler:destroy()
 	self._movePosition = nil
+	self._zone = nil
 end
 
 function Traveler:canMove(node) return node:isAccessible() end

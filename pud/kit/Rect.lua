@@ -148,6 +148,11 @@ function Rect:setSize(size, h)
 	self._size = size
 end
 
+-- clone this rect
+function Rect:clone()
+	return Rect(self._pos, self._size)
+end
+
 -- tostring
 function Rect:__tostring()
 	local x, y = self:getPosition()

@@ -53,7 +53,7 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 end
 
 function TileMapNodeView:_resetKey()
-	self._key = self._node:getMapTypeString()
+	self._key = self._node:getMapType():getKey()
 end
 
 -- update the tile for this node if it has changed
