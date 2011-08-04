@@ -53,3 +53,5 @@ fi
 
 rm main.lua
 mv .build-main.lua main.lua
+
+open -R $lovefile
