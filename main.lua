@@ -15,8 +15,8 @@ local doGlobalProfile = doProfile and true
 
 --[[ Profiler Setup ]]--
 local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
-local useProfiler = 3
-if doProfile then
+local useProfiler = 1
+if doProfile and useProfiler >= 1 and useProfiler <= #profilers then
 	local prof = profilers[useProfiler]
 	if prof == 'pepperfish' then
 		require 'lib.profiler'
