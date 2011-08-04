@@ -33,16 +33,12 @@ function MapType:setVariant(variant)
 		'unknown variant for %s: %s', tostring(self.__class), tostring(variant))
 
 	self._variant = self._variants[variant]
-	self:_setKey()
 end
 
 -- getter and setter for style.
 -- style can be anything the user needs.
 function MapType:getStyle() return self._style end
-function MapType:setStyle(style)
-	self._style = style
-	self:_setKey()
-end
+function MapType:setStyle(style) self._style = style end
 
 -- return a table of the default attributes for a MapNode with this MapType
 function MapType:getDefaultAttributes()
@@ -53,17 +49,12 @@ function MapType:getDefaultAttributes()
 	}
 end
 
--- set the unique key for this MapType
-function MapType:_setKey()
-	self._key = tostring(self.__class)..'-'..tostring(self._variant)
-	if self._style then self._key = self._key..'-'..tostring(self._style) end
-end
-
 -- return a key that uniquely identifies this MapType's class, variant and
 -- style.
 function MapType:getKey()
-	if not self._key then self:_setKey() end
-	return self._key
+	local key = tostring(self.__class)..'-'..tostring(self._variant)
+	if self._style then key = key..'-'..tostring(self._style) end
+	return key
 end
 
 -- return true if any of the given MapTypes have the same class and variant

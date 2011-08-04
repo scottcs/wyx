@@ -32,13 +32,6 @@ local HeroView = require 'pud.view.HeroView'
 -- controllers
 local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
--- memory and framerate management constants
-local TARGET_FRAME_TIME_60 = 1/60
-local TARGET_FRAME_TIME_30 = 1/30
-local IDLE_TIME = TARGET_FRAME_TIME_60 * 0.99
-local COLLECT_THRESHOLD = 10000000/1024 -- 10 megs
-local _lastCollect
-
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
@@ -55,11 +48,6 @@ function st:enter()
 	end
 	CommandEvents:register(self, CommandEvent)
 	GameEvents:register(self, ZoneTriggerEvent)
-
-	-- turn off garbage collector... we'll collect manually when we have spare
-	-- time (in update())
-	_lastCollect = collectgarbage('count')
-	collectgarbage('stop')
 end
 
 function st:_createEntityViews()
@@ -136,19 +124,7 @@ function st:_displayMessage(message, time)
 	end, self)
 end
 
--- idle function, called when there are spare cycles
-function st:idle(start)
-	local cycles = 0
-	while love.timer.getMicroTime() - start < IDLE_TIME do
-		cycles = cycles + 1
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-	end
-	return cycles
-end
-
 function st:update(dt)
-	local start = love.timer.getMicroTime() - dt
 	if self._level then self._level:update(dt) end
 
 	if self._level:needViewUpdate() then
@@ -159,19 +135,6 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
-
-	local cycles = self:idle(start)
-
-	-- if we're on a slow machine that doesn't get much idle time, then
-	-- collect garbage every COLLECT_THRESHOLD megs
-	if cycles == 0 then
-		local count = collectgarbage('count')
-		if _lastCollect - count > COLLECT_THRESHOLD then
-			collectgarbage('collect')
-			collectgarbage('stop')
-			_lastCollect = collectgarbage('count')
-		end
-	end
 end
 
 function st:draw()
@@ -184,7 +147,6 @@ function st:draw()
 end
 
 function st:leave()
-	collectgarbage('restart')
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
