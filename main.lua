@@ -10,21 +10,21 @@ require 'random'
          --]]--
 
 --debug = nil
-doProfile = nil ~= debug
---local use_profiler = 'pepperfish'
-local use_profiler = 'luatrace'
---local use_profiler = 'luaprofiler'
+doProfile = true
+local doGlobalProfile = doProfile and true
+local useProfiler = 'pepperfish'
+--local useProfiler = 'luatrace'
+--local useProfiler = 'luaprofiler'
 if doProfile then
-	if use_profiler == 'pepperfish' then
+	if useProfiler == 'pepperfish' then
 		require 'lib.profiler'
 		profiler = newProfiler()
-	elseif use_profiler == 'luatrace' then
+	elseif useProfiler == 'luatrace' then
 		profiler = require 'luatrace'
-	elseif use_profiler == 'luaprofiler' then
+	elseif useProfiler == 'luaprofiler' then
 		require 'profiler'
 	end
 end
-local global_profile = doProfile and true
 NOFUNC = function(...) return ... end
 inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
 assert = nil ~= debug and assert or NOFUNC
@@ -46,12 +46,12 @@ tween = require 'lib.tween'
 
 function love.load()
 	-- start the profiler
-	if global_profile then
-		if use_profiler == 'pepperfish' then
+	if doGlobalProfile then
+		if useProfiler == 'pepperfish' then
 			profiler:start()
-		elseif use_profiler == 'luatrace' then
+		elseif useProfiler == 'luatrace' then
 			profiler.tron()
-		elseif use_profiler == 'luaprofiler' then
+		elseif useProfiler == 'luaprofiler' then
 			profiler.start()
 		end
 	end
@@ -157,18 +157,18 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if global_profile then
-		if use_profiler == 'pepperfish' then
+	if doGlobalProfile then
+		if useProfiler == 'pepperfish' then
 			profiler:stop()
 			local filename = 'pepperfish.out'
 			local outfile = io.open(filename, 'w+')
 			profiler:report(outfile)
 			outfile:close()
 			print('profile written to '..filename)
-		elseif use_profiler == 'luatrace' then
+		elseif useProfiler == 'luatrace' then
 			profiler.troff()
 			print('analyze profile with "luatrace.profile"')
-		elseif use_profiler == 'luaprofiler' then
+		elseif useProfiler == 'luaprofiler' then
 			profiler.stop()
 			print('analyze profile with '
 				..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
