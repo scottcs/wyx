@@ -269,20 +269,12 @@ function Level:_resetLights(blackout)
 	end
 end
 
+-- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
 	local radius = self._hero:getVisibilityRadius()
 	local heroPos = self._hero:getPositionVector()
 
 	self:_resetLights(blackout)
-
-	-- make old lit positions dim
-	for x=1,self._map:getWidth() do
-		self._lightmap[x] = self._lightmap[x] or {}
-		for y=1,self._map:getHeight() do
-			self._lightmap[x][y] = self._lightmap[x][y] or 'black'
-			if self._lightmap[x][y] == 'lit' then self._lightmap[x][y] = 'dim' end
-		end
-	end
 
 	for oct=1,8 do
 		self:_castLight(heroPos, 1, 1, 0, radius,
