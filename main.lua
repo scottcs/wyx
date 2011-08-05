@@ -10,16 +10,57 @@ require 'random'
          --]]--
 
 --debug = nil
-is_profile = nil ~= debug
-if is_profile then require 'lib.profiler' end
-local profiler
-NOFUNC = function(...) return ... end
-inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
-assert = nil ~= debug and assert or NOFUNC
+doProfile = true
+local doGlobalProfile = doProfile and true
+
+--[[ Profiler Setup ]]--
+local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
+local useProfiler = 1
+if doProfile and useProfiler >= 1 and useProfiler <= #profilers then
+	local prof = profilers[useProfiler]
+	if prof == 'pepperfish' then
+		require 'lib.profiler'
+		local _profiler = newProfiler()
+		profiler = {
+			start = function() _profiler:start() end,
+			stop = function() _profiler:stop() end,
+			stopAll = function()
+				_profiler:stop()
+				local filename = 'pepperfish.out'
+				local outfile = io.open(filename, 'w+')
+				_profiler:report(outfile)
+				outfile:close()
+				print('profile written to '..filename)
+			end,
+		}
+	elseif prof == 'luatrace' then
+		local _profiler = require 'luatrace'
+		profiler = {
+			start = _profiler.tron,
+			stop = _profiler.troff,
+			stopAll = function()
+				_profiler.troff()
+				print('analyze profile with "luatrace.profile"')
+			end,
+		}
+	elseif prof == 'luaprofiler' then
+		require 'profiler'
+		local _profiler = profiler
+		profiler = {
+			start = _profiler.start,
+			stop = _profiler.stop,
+			stopAll = function()
+				_profiler.stop()
+				print('analyze profile with '
+					..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
+			end,
+		}
+	end
+end
 
 
          --[[--
-    GLOBAL SINGLETONS
+     GLOBAL CLASSES
          --]]--
 
 GameState = require 'lib.hump.gamestate'
@@ -34,10 +75,7 @@ tween = require 'lib.tween'
 
 function love.load()
 	-- start the profiler
-	if is_profile then
-		profiler = newProfiler()
-		profiler:start()
-	end
+	if doGlobalProfile then profiler.start() end
 
 	-- set graphics mode
 	resizeScreen(1024, 768)
@@ -140,10 +178,5 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if profiler then
-		profiler:stop()
-		local outfile = io.open('profile.txt', 'w+')
-		profiler:report(outfile)
-		outfile:close()
-	end
+	if doGlobalProfile then profiler.stopAll() end
 end

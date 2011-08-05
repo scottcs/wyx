@@ -9,7 +9,6 @@ local st = GameState.new()
 
 local math_max, math_min, math_floor, string_char
 		= math.max, math.min, math.floor, string.char
-local random = Random
 local PI2 = math.pi * 2
 
 local RandomBag = require 'pud.kit.RandomBag'
@@ -52,7 +51,7 @@ local _sbag = RandomBag(1,#_sounds)
 local _sound
 
 for i=97,96+NUM_MUSIC do _bgmbuffer:append(i) end
-for i=1,random(NUM_MUSIC) do _bgmbuffer:next() end
+for i=1,Random(NUM_MUSIC) do _bgmbuffer:next() end
 
 local function _selectBGM(direction)
 	local i = switch(direction) {
@@ -151,8 +150,10 @@ function st:init()
 	local w = math_floor(Image.demobg:getWidth()/2)
 	local h = math_floor(Image.demobg:getHeight()/2)
 	_cam = Camera(vector(w, h), CAM_ZOOM)
-	_hudFB = love.graphics.newFramebuffer(nearestPO2(WIDTH), nearestPO2(HEIGHT))
-	_bgFB = love.graphics.newFramebuffer(nearestPO2(w*2), nearestPO2(h*2))
+	local hudsize = nearestPO2(math.max(WIDTH, HEIGHT))
+	local bgsize = nearestPO2(math.max(w*2, h*2))
+	_hudFB = love.graphics.newFramebuffer(hudsize, hudsize)
+	_bgFB = love.graphics.newFramebuffer(bgsize, bgsize)
 end
 
 local _keyDelay, _keyInterval, _accum

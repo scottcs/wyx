@@ -11,7 +11,7 @@ local DebugHUD = debug and require 'pud.debug.DebugHUD'
 local MessageHUD = require 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
-local random = Random
+local collectgarbage = collectgarbage
 
 -- level
 local Level = require 'pud.map.Level'
@@ -224,6 +224,11 @@ function st:keypressed(key, unicode)
 			if self._debug then self._debugHUD:clearExtremes() end
 		end,
 		f9 = function() if self._debug then collectgarbage('collect') end end,
+		backspace = function()
+			local name = self._level:getMapName()
+			local author = self._level:getMapAuthor()
+			self:_displayMessage('Map: "'..name..'" by '..author)
+		end,
 	}
 end
 

@@ -88,7 +88,8 @@ end
 function Rect:getCenter(flag) return self:getCenterVector(flag):unpack() end
 function Rect:getCenterVector(flag)
 	local adjust = _getAdjust(flag)
-	return self._pos + adjust(self._size/2)
+	local size = self:getInnerSize()
+	return self._pos + adjust(size/2)
 end
 
 -- call as setCenter(x, y, flag) or setCenter(vector, flag)
@@ -101,7 +102,8 @@ function Rect:setCenter(center, y, flag)
 	end
 
 	local adjust = _getAdjust(flag)
-	self:setPosition(center - adjust(self._size/2))
+	local size = self:getInnerSize()
+	self:setPosition(center - adjust(size/2))
 end
 
 -- get (no set) bounding box coordinates
@@ -110,7 +112,8 @@ function Rect:getBBox()
 	return tl.x, tl.y, br.x, br.y
 end
 function Rect:getBBoxVectors()
-	return self._pos, self._pos + self._size
+	local size = self:getInnerSize()
+	return self._pos, self._pos + size
 end
 
 -- check if a point falls within the Rect's bounding box
@@ -120,7 +123,8 @@ function Rect:containsPoint(p, y)
 		verify('number', p, y)
 		p = vector(p, y)
 	end
-	local tl, br = self:getBBoxVectors()
+	local tl = self:getPositionVector()
+	local br = tl + self:getSizeVector()
 	return p >= tl and p <= br
 end
 
@@ -146,6 +150,14 @@ function Rect:setSize(size, h)
 		size = vector(size, h)
 	end
 	self._size = size
+end
+
+-- get the size of the rect for use in vector calculations
+function Rect:getInnerSize()
+	local size = self:getSizeVector()
+	size.x = size.x - 1
+	size.y = size.y - 1
+	return size
 end
 
 -- clone this rect
