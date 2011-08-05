@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 
 local math_floor = math.floor
+local collectgarbage = collectgarbage
 
 local MARGIN = 8
 local LABEL = 50
