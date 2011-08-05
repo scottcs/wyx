@@ -11,7 +11,7 @@ local DebugHUD = debug and require 'pud.debug.DebugHUD'
 local MessageHUD = require 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
-local random = Random
+local collectgarbage = collectgarbage
 
 -- level
 local Level = require 'pud.map.Level'

@@ -1,6 +1,8 @@
 local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
 
+local math_max = math.max
+
 local AnimatedTile = Class{name='AnimatedTile',
 	inherits=Rect,
 	function(self, width, height)
@@ -108,8 +110,8 @@ end
 function AnimatedTile:setNextFrame(tileset, quad, bgquad)
 	self._numFrames = self._numFrames and self._numFrames + 1 or 1
 
-	local w, h = self:getSize()
-	self._fb[self._numFrames] = love.graphics.newFramebuffer(w, h)
+	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
+	self._fb[self._numFrames] = love.graphics.newFramebuffer(size, size)
 	self:_drawToFB(self._numFrames, tileset, quad, bgquad)
 end
 

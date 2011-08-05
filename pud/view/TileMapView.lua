@@ -13,7 +13,6 @@ local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
 local TileMapNodeView = require 'pud.view.TileMapNodeView'
 local AnimatedTile = require 'pud.view.AnimatedTile'
 
-local random = Random
 local math_floor = math.floor
 local math_min, math_max = math.min, math.max
 
@@ -34,13 +33,12 @@ local TileMapView = Class{name='TileMapView',
 		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 
-		local p2w = nearestPO2(mapW * self._tileW)
-		local p2h = nearestPO2(mapH * self._tileH)
-		self._frontfb = love.graphics.newFramebuffer(p2w, p2h)
-		self._backfb = love.graphics.newFramebuffer(p2w, p2h)
+		local size = nearestPO2(math_max(mapW * self._tileW, mapH * self._tileH))
+		self._frontfb = love.graphics.newFramebuffer(size, size)
+		self._backfb = love.graphics.newFramebuffer(size, size)
 
-		self._tileStyle = tostring(random(1,4))
-		self._doorStyle = tostring(random(1,5))
+		self._tileStyle = tostring(Random(1,4))
+		self._doorStyle = tostring(Random(1,5))
 		self._tiles = {}
 		self._animatedTiles = {}
 		self._drawTiles = {}
@@ -286,7 +284,7 @@ function TileMapView:_setupTiles()
 			self._flicker = nil
 			self:advance()
 		else
-			if random(1,100) <= 3 then
+			if Random(1,100) <= 3 then
 				self:advance()
 				self._flicker = true
 			end
@@ -314,7 +312,7 @@ function TileMapView:_setupTiles()
 					self._animatedTiles[#self._animatedTiles+1] = at
 
 				elseif mapType:is_a(TrapMapType) then
-					local style = random(1,6)
+					local style = Random(1,6)
 					trapA:getMapType():setStyle('A'..tostring(style))
 					trapB:getMapType():setStyle('B'..tostring(style))
 					local at = self:_createAnimatedTile(trapA, trapB, bgquad)

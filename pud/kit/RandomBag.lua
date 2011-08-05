@@ -7,7 +7,6 @@ local Class = require 'lib.hump.class'
 --
 -- Taken from vrld's game 'Princess' (and modified).
 
-local random = Random
 local table_remove = table.remove
 
 local RandomBag = Class{name = 'RandomBag', function(self, a,b)
@@ -23,7 +22,7 @@ function RandomBag:_refill()
 
 	-- randomly swap each number in the bag
 	for i=#self._bag,1,-1 do
-		local k = random(1, i)
+		local k = Random(i)
 		self._bag[i],self._bag[k] = self._bag[k],self._bag[i]
 	end
 end
