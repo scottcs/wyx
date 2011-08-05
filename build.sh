@@ -1,4 +1,7 @@
 #!/bin/sh
+program='pud'
+versvar=$(echo $program | tr a-z A-Z)
+
 usage() {
 	echo "usage: build <directory>"
 }
@@ -17,34 +20,45 @@ if [ ! -d $directory ]; then
 	exit 2
 fi
 
-version=$(cat VERSION | sed 's/PUD_VERSION=//')
+version=$(cat VERSION | sed 's/'$versvar'_VERSION=//')
 
 if [ "$version" == "" ]; then
 	echo "Invalid version"
 	exit 2
 fi
 
-lovefile="$directory/pud_v$version.love"
+lovefile="${directory}/${program}_v${version}.love"
 
-echo "Building $lovefile"
+if [ -s main.lua ]; then
+	echo "Building $lovefile"
 
-cp -f main.lua .build-main.lua
+	cp -f main.lua .build-main.lua
 
-if ! sed 's/^--debug = nil$/debug = nil/g' main.lua > .main.lua.new; then
-	echo "Could not disable debug in main.lua." >&2
+	if ! sed 's/^--debug = nil$/debug = nil/g' main.lua > .main.lua.new; then
+		echo "Could not disable debug in main.lua." >&2
+	else
+		rm main.lua
+		mv .main.lua.new main.lua
+	fi
+
+	if ! sed 's/^doProfile = .*$/doProfile = false/g' main.lua > .main.lua.new; then
+		echo "Could not disable profiling in main.lua." >&2
+	else
+		rm main.lua
+		mv .main.lua.new main.lua
+	fi
+
+	if [ -w .main.lua.new ]; then
+		rm .main.lua.new
+	fi
+else
+	echo "Error: no main.lua found."
 	exit 2
 fi
 
-rm main.lua
-mv .main.lua.new main.lua
-
-if ! sed 's/^doProfile = .*$/doProfile = false/g' main.lua > .main.lua.new; then
-	echo "Could not disable profiling in main.lua." >&2
-	exit 2
+if [ ! -e .gitignore ]; then
+	echo '*/.DS_Store' > .gitignore
 fi
-
-rm main.lua
-mv .main.lua.new main.lua
 
 if ! zip $lovefile -q -r * -x@.gitignore -x*.sh ; then
 	echo "Error creating .love file: $lovefile"

@@ -1,4 +1,7 @@
 #!/bin/sh
+program='pud'
+versvar=$(echo $program | tr a-z A-Z)
+
 usage() {
 	echo "usage: bump-version <version-id>"
 }
@@ -8,8 +11,8 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-if ! sed 's/^PUD_VERSION=.*$/PUD_VERSION='$1'/g' VERSION > .VERSION.new; then
-	echo "Could not replace PUD_VERSION variable." >&2
+if ! sed 's/^'$versvar'_VERSION=.*$/'$versvar'_VERSION='$1'/g' VERSION > .VERSION.new; then
+	echo "Could not replace ${versvar}_VERSION variable." >&2
 	exit 2
 fi
 
