@@ -359,10 +359,9 @@ function SimpleGridMapBuilder:addFeatures()
 			-- now change floor if the room is completely enclosed by doors
 			if enclosed then
 				x1, y1 = x1+1, y1+1
+				x2, y2 = x2-1, y2-1
 
 				self._map:setZone('room'..tostring(i), Rect(x1, y1, x2-x1, y2-y1))
-
-				x2, y2 = x2-1, y2-1
 
 				for x=x1,x2 do
 					for y=y1,y2 do

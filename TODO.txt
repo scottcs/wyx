@@ -1,9 +1,9 @@
 [X] make build script (disable debug and profile)
 [X] fix performance issues
-[ ] add ability to specify zones in file maps
-[ ] spawn near up stairs
+[X] add ability to specify zones in file maps
+[X] verify that a map has at least 1 stair
+[X] spawn near up stairs
 [ ] make stairs work (generate new map)
-[ ] verify that a map has at least 3 down and 3 up stairs
 [ ] add monsters
 [ ] combat
 [ ] add interface

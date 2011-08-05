@@ -123,7 +123,8 @@ function Rect:containsPoint(p, y)
 		verify('number', p, y)
 		p = vector(p, y)
 	end
-	local tl, br = self:getBBoxVectors()
+	local tl = self:getPositionVector()
+	local br = tl + self:getSizeVector()
 	return p >= tl and p <= br
 end
 
