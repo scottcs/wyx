@@ -150,8 +150,10 @@ function st:init()
 	local w = math_floor(Image.demobg:getWidth()/2)
 	local h = math_floor(Image.demobg:getHeight()/2)
 	_cam = Camera(vector(w, h), CAM_ZOOM)
-	_hudFB = love.graphics.newFramebuffer(nearestPO2(WIDTH), nearestPO2(HEIGHT))
-	_bgFB = love.graphics.newFramebuffer(nearestPO2(w*2), nearestPO2(h*2))
+	local hudsize = nearestPO2(math.max(WIDTH, HEIGHT))
+	local bgsize = nearestPO2(math.max(w*2, h*2))
+	_hudFB = love.graphics.newFramebuffer(hudsize, hudsize)
+	_bgFB = love.graphics.newFramebuffer(bgsize, bgsize)
 end
 
 local _keyDelay, _keyInterval, _accum

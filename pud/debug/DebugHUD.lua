@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 
 local math_floor = math.floor
+local math_max = math.max
 local collectgarbage = collectgarbage
 
 local MARGIN = 8
@@ -27,8 +28,8 @@ local DebugHUD = Class{name='DebugHUD',
 	function(self)
 		self._font = GameFont.debug
 		self._fontH = GameFont.debug:getHeight()
-		local w, h = nearestPO2(WIDTH), nearestPO2(HEIGHT)
-		self._fb = love.graphics.newFramebuffer(w, h)
+		local size = nearestPO2(math_max(WIDTH, HEIGHT))
+		self._fb = love.graphics.newFramebuffer(size, size)
 		self._info = {}
 		self._start = love.timer.getMicroTime() + 0.2
 

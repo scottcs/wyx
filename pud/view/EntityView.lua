@@ -5,6 +5,8 @@ local Entity = require 'pud.entity.Entity'
 local CommandEvent = require 'pud.event.CommandEvent'
 local MoveCommand = require 'pud.command.MoveCommand'
 
+local math_max = math.max
+
 -- EntityView
 --
 local EntityView = Class{name='EntityView',
@@ -89,8 +91,8 @@ end
 
 -- draw to the framebuffer
 function EntityView:_drawFB()
-	local w, h = self:getSize()
-	self._fb = love.graphics.newFramebuffer(w, h)
+	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
+	self._fb = love.graphics.newFramebuffer(size, size)
 
 	self._isDrawing = true
 	love.graphics.setRenderTarget(self._fb)

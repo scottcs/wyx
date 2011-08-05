@@ -33,10 +33,9 @@ local TileMapView = Class{name='TileMapView',
 		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 
-		local p2w = nearestPO2(mapW * self._tileW)
-		local p2h = nearestPO2(mapH * self._tileH)
-		self._frontfb = love.graphics.newFramebuffer(p2w, p2h)
-		self._backfb = love.graphics.newFramebuffer(p2w, p2h)
+		local size = nearestPO2(math_max(mapW * self._tileW, mapH * self._tileH))
+		self._frontfb = love.graphics.newFramebuffer(size, size)
+		self._backfb = love.graphics.newFramebuffer(size, size)
 
 		self._tileStyle = tostring(Random(1,4))
 		self._doorStyle = tostring(Random(1,5))

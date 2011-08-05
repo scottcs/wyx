@@ -1,4 +1,6 @@
 local Class = require 'lib.hump.class'
+local math_max = math.max
+local math_floor = math.floor
 
 local MARGIN = 8
 
@@ -11,14 +13,13 @@ local MessageHUD = Class{name='MessageHUD',
 		local w = self._font:getWidth(message) + MARGIN*2
 		local h = self._fontH + MARGIN*2
 		self._w, self._h = w, h
-		self._fb = love.graphics.newFramebuffer(nearestPO2(w), nearestPO2(h))
+		local size = nearestPO2(math_max(w, h))
+		self._fb = love.graphics.newFramebuffer(size, size)
 		local imageData = self._fb:getImageData()
 		local fbW = imageData:getWidth()
 		local fbH = imageData:getHeight()
-		self._fbX = math.floor(WIDTH/2 - fbW/2)
-		self._fbY = math.floor(HEIGHT - fbH*1.5)
-		self._x = math.floor(fbW/2 - w/2)
-		self._y = math.floor(fbH/2 - h/2)
+		self._fbX = math_floor(WIDTH/2 - w/2)
+		self._fbY = math_floor(HEIGHT - h*1.5)
 		self._message = message
 		self._finish = love.timer.getMicroTime() + seconds + 0.3
 		self._fadeColor = {1,1,1,0}
@@ -63,10 +64,10 @@ function MessageHUD:_drawFB()
 	love.graphics.setFont(self._font)
 
 	love.graphics.setColor(0,0,0,0.7)
-	love.graphics.rectangle('fill', self._x, self._y, self._w, self._h)
+	love.graphics.rectangle('fill', 0, 0, self._w, self._h)
 
 	love.graphics.setColor(1,1,1)
-	love.graphics.print(self._message, self._x+MARGIN, self._y+MARGIN)
+	love.graphics.print(self._message, MARGIN, MARGIN)
 
 	love.graphics.setRenderTarget()
 	self._isDrawing = false

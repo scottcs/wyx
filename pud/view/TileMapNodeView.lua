@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local MapNode = require 'pud.map.MapNode'
 local MapNodeView = require 'pud.view.MapNodeView'
+local math_max = math.max
 
 -- TileMapNodeView
 --
@@ -35,8 +36,8 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 	local fb = _fbcache[self._key]
 
 	if nil == fb then
-		local w, h = self:getSize()
-		fb = love.graphics.newFramebuffer(w, h)
+		local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
+		fb = love.graphics.newFramebuffer(size, size)
 
 		love.graphics.setRenderTarget(fb)
 
