@@ -13,6 +13,7 @@ local Map = Class{name='Map', inherits=Rect,
 		Rect.construct(self, ...)
 		self._layout = {}
 		self._zones = {}
+		self._portals = {}
 
 		self:clear()
 	end
@@ -34,6 +35,9 @@ function Map:destroy()
 		self._zones[k] = nil
 	end
 	self._zones = nil
+
+	for k in pairs(self._portals) do self._portals[k] = nil end
+	self._portals = nil
 
 	Rect.destroy(self)
 end
@@ -86,19 +90,52 @@ function Map:getLocation(x, y)
 	return nil
 end
 
--- set and get the starting vector for the map
-function Map:setStartVector(v)
-	assert(vector.isvector(v),
-		'vector expected (was %s)', type(v))
+-- add the given point, and the map and point it links to,
+-- to the list of portals
+function Map:setPortal(name, point, map, mappoint)
+	verify('string', name)
+	assert(vector.isvector(point),
+		'vector expected for point argument (was %s)', type(point))
+	assert(self:containsPoint(point),
+		'portal point is not within map borders: %s', tostring(point))
 
-	self._startVector = v
+	local link
+	if nil ~= map and nil ~= mappoint then
+		assert(vector.isvector(mappoint),
+			'vector expected for mappoint argument (was %s)', type(mappoint))
+		assert(map and type(map) == 'table' and map.is_a and map:is_a(Map),
+			'map expected (was %s, %s)', tostring(map), type(map))
+		assert(map:containsPoint(mappoint),
+			'portal mappoint is not within its map borders: %s', tostring(mappoint))
+
+		link = {
+			map = map,
+			point = mappoint,
+		}
+	end
+
+	self._portals[name] = {
+		point = point,
+		link = link,
+	}
 end
 
-function Map:getStartVector()
-	if self._startVector then return self._startVector end
+-- get a named portal point and link
+function Map:getPortal(name)
+	local portal = self._portals[name]
+	if portal then
+		return portal.point, portal.link
+	else
+		return nil
+	end
+end
 
-	local w, h = self:getSize()
-	return vector(math_floor(w/2+0.5), math_floor(h/2+0.5))
+-- return the names of all portals
+function Map:getPortalNames()
+	local names = {}
+	for k in pairs(self._portals) do names[#names+1] = k end
+	table.sort(names)
+	return #names > 0 and names or nil
 end
 
 -- create a zone

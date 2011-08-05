@@ -151,15 +151,20 @@ function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
 	if self._hero then
-		self._hero:setPosition(self._map:getStartVector())
+		local ups = {}
+		for _,name in ipairs(self._map:getPortalNames()) do
+			if string.match(name, "^up%d") then ups[#ups+1] = name end
+		end
+		self._startPosition = self._map:getPortal(ups[Random(#ups)])
+		self._hero:setPosition(self._startPosition)
 		self:_bakeLights(true)
 	end
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
 
--- get the start vector from the map
-function Level:getStartVector() return self._map:getStartVector() end
+-- get the start vector
+function Level:getStartVector() return self._startPosition:clone() end
 
 -- get the size of the map
 function Level:getMapSize() return self._map:getSize() end

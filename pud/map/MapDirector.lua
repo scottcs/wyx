@@ -10,7 +10,8 @@ function MapDirector:generateStandard(builder)
 	
 	builder:createMap()
 	builder:addFeatures()
-	builder:cleanup()
+	builder:addPortals()
+	builder:postProcess()
 
 	return builder:getMap()
 end

@@ -25,6 +25,8 @@ function FileMapBuilder:destroy()
 	self._filename = nil
 	for k in pairs(self._mapdata) do self._mapdata[k] = nil end
 	self._mapdata = nil
+	for k in pairs(self._stairs) do self._stairs[k] = nil end
+	self._stairs = nil
 	MapBuilder.destroy(self)
 end
 
@@ -183,58 +185,34 @@ function FileMapBuilder:addFeatures()
 	end
 end
 
--- cleanup - find a suitable start position
-function FileMapBuilder:cleanup()
-	-- go through the whole map and add variations
-	local w, h = self._map:getSize()
-	for y=1,h do
-		for x=1,w do
-			local node = self._map:getLocation(x, y)
-			local mapType = node:getMapType()
-			local variant = mapType:getVariant()
+-- post process step
+-- a single step in the post process loop
+function FileMapBuilder:postProcessStep(node, point)
+	local mapType = node:getMapType()
 
-			if mapType:is_a(FloorMapType) and variant == 'normal'
-				and self._mapdata.handleDetail
-			then
-				if Random(12) == 1 then node:setMapType(FloorMapType('worn')) end
-			elseif mapType:is_a(WallMapType) then
-				local horizontal = true
-				local below = self._map:getLocation(x, y+1)
-				if below then
-					local bMapType = below:getMapType()
-					horizontal = not bMapType:is_a(WallMapType)
-				end
+	if mapType:is_a(StairMapType) then
+		local variant = mapType:getVariant()
+		self._stairs = self._stairs or {}
+		self._stairs[variant] =
+		self._stairs[variant] and self._stairs[variant]+1 or 1
+		self._map:setPortal(variant..tostring(self._stairs[variant]), point)
+	end
 
-				if not horizontal then
-					node:setMapType(WallMapType('vertical'))
-				elseif self._mapdata.handleDetail then
-					if variant ~= 'worn' and variant ~= 'torch' then
-						if Random(12) == 1 then
-							node:setMapType(WallMapType('worn'))
-						elseif Random(12) == 1 then
-							node:setMapType(WallMapType('torch'))
-						else
-							node:setMapType(WallMapType('normal'))
-						end
-					end
-				end
+	if self._mapdata.handleDetail then
+		if mapType:isType(FloorMapType('normal')) then
+			if Random(12) == 1 then node:setMapType(FloorMapType('worn')) end
+		elseif mapType:isType(WallMapType('normal')) then
+			if Random(12) == 1 then
+				node:setMapType(WallMapType('worn'))
+			elseif Random(12) == 1 then
+				node:setMapType(WallMapType('torch'))
+			else
+				node:setMapType(WallMapType('normal'))
 			end
 		end
 	end
-
-	-- set start position
-	local w, h = self._map:getSize()
-	local startPos
-	while nil == startPos do
-		local x, y = Random(w), Random(h)
-		local node = self._map:getLocation(x, y)
-		if node:getMapType():is_a(FloorMapType) then
-			startPos = vector(x, y)
-		end
-	end
-
-	self._map:setStartVector(startPos)
 end
+
 
 -- the class
 return FileMapBuilder
