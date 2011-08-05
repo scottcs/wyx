@@ -10,7 +10,6 @@ local StairMapType = require 'pud.map.StairMapType'
 local TrapMapType = require 'pud.map.TrapMapType'
 local Rect = require 'pud.kit.Rect'
 
-local random = Random
 local math_floor = math.floor
 
 --------------
@@ -100,7 +99,7 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 		t.minRooms = math.min(t.minRooms, gridSize)
 	end
 
-	self._numRooms = random(t.minRooms, t.maxRooms)
+	self._numRooms = Random(t.minRooms, t.maxRooms)
 	self._cellW = t.cellW
 	self._cellH = t.cellH
 end
@@ -118,7 +117,7 @@ end
 function SimpleGridMapBuilder:_generateRooms()
 	for i=1,self._numRooms do
 		self._rooms[i] = Rect(0, 0,
-			random(MINROOMSIZE, self._cellW), random(MINROOMSIZE, self._cellH))
+			Random(MINROOMSIZE, self._cellW), Random(MINROOMSIZE, self._cellH))
 	end
 end
 
@@ -154,8 +153,8 @@ function SimpleGridMapBuilder:_populateGrid()
 		-- (and will become much slower as numRooms is increased)
 		local x, y
 		repeat
-			x = random(2, w-1)
-			y = random(2, h-1)
+			x = Random(2, w-1)
+			y = Random(2, h-1)
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
@@ -331,7 +330,7 @@ end
 function SimpleGridMapBuilder:addFeatures()
 	for i=1,self._numRooms do
 		-- randomly add doors to every 3rd room
-		if random(3) == 1 then
+		if Random(3) == 1 then
 			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
 			local enclosed = true
 
@@ -386,11 +385,11 @@ function SimpleGridMapBuilder:cleanup()
 			local node = self._map:getLocation(x, y)
 			local mapType = node:getMapType()
 			local variant = mapType:getVariant()
-			if mapType:is_a(FloorMapType) and random(1,12) == 1 then
+			if mapType:is_a(FloorMapType) and Random(1,12) == 1 then
 				if variant == 'interior' then
 					node:setMapType(FloorMapType('rug'))
 				else
-					if random(1,20) > 1 then
+					if Random(1,20) > 1 then
 						node:setMapType(FloorMapType('worn'))
 					else
 						node:setMapType(TrapMapType())
@@ -407,9 +406,9 @@ function SimpleGridMapBuilder:cleanup()
 				if not horizontal then
 					node:setMapType(WallMapType('vertical'))
 				else
-					if random(1,12) == 1 then
+					if Random(1,12) == 1 then
 						node:setMapType(WallMapType('worn'))
-					elseif random(1,12) == 1 then
+					elseif Random(1,12) == 1 then
 						node:setMapType(WallMapType('torch'))
 					else
 						node:setMapType(WallMapType('normal'))
