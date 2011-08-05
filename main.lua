@@ -58,13 +58,9 @@ if doProfile and useProfiler >= 1 and useProfiler <= #profilers then
 	end
 end
 
-NOFUNC = function(...) return ... end
-inspect = nil ~= debug and require 'lib.inspect' or NOFUNC
-assert = nil ~= debug and assert or NOFUNC
-
 
          --[[--
-    GLOBAL SINGLETONS
+     GLOBAL CLASSES
          --]]--
 
 GameState = require 'lib.hump.gamestate'
