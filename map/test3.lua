@@ -80,6 +80,7 @@ map.zones = {
 	entryhall = {3,6, 17,6},
 	exithall = {49,6, 71,6},
 	tavern = {9,10, 14,14},
+	tavernRug = {11,11, 12,13},
 	greathall = {18,2, 48,10},
 	chamber1 = {27,11, 30,12},
 	chamber2 = {37,11, 40,12},
