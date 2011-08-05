@@ -9,6 +9,7 @@ local DoorMapType = require 'pud.map.DoorMapType'
 local StairMapType = require 'pud.map.StairMapType'
 local TrapMapType = require 'pud.map.TrapMapType'
 local Rect = require 'pud.kit.Rect'
+local vector = require 'lib.hump.vector'
 
 local math_floor = math.floor
 
@@ -26,6 +27,8 @@ local MINROOMSIZE = 4
 local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	inherits = MapBuilder,
 	function(self, ...)
+		self._seed = Random()
+		self._random = Random.new(self._seed)
 		self._grid = {}
 		self._rooms = {}
 		-- construct calls self:init(...)
@@ -99,13 +102,15 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 		t.minRooms = math.min(t.minRooms, gridSize)
 	end
 
-	self._numRooms = Random(t.minRooms, t.maxRooms)
+	self._numRooms = self._random(t.minRooms, t.maxRooms)
 	self._cellW = t.cellW
 	self._cellH = t.cellH
 end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
+	self._map:setName('Random_'..tostring(self._seed))
+	self._map:setAuthor('Pud')
 	self:_clear()
 	self:_generateRooms()
 	self:_buildGrid()
@@ -117,7 +122,8 @@ end
 function SimpleGridMapBuilder:_generateRooms()
 	for i=1,self._numRooms do
 		self._rooms[i] = Rect(0, 0,
-			Random(MINROOMSIZE, self._cellW), Random(MINROOMSIZE, self._cellH))
+			self._random(MINROOMSIZE, self._cellW),
+			self._random(MINROOMSIZE, self._cellH))
 	end
 end
 
@@ -153,8 +159,8 @@ function SimpleGridMapBuilder:_populateGrid()
 		-- (and will become much slower as numRooms is increased)
 		local x, y
 		repeat
-			x = Random(2, w-1)
-			y = Random(2, h-1)
+			x = self._random(2, w-1)
+			y = self._random(2, h-1)
 		until nil == self._grid[x][y].room
 
 		-- get the center of the grid cell
@@ -178,9 +184,6 @@ function SimpleGridMapBuilder:_populateMap()
 		local room = self._rooms[i]
 		local x1, y1, x2, y2 = room:getBBox()
 		
-		-- reduce the max coords by one for easy iteration
-		x2, y2 = x2 - 1, y2 - 1
-
 		-- iterate over the bounding box of the room and add nodes
 		for x=x1,x2 do
 			for y=y1,y2 do
@@ -330,12 +333,9 @@ end
 function SimpleGridMapBuilder:addFeatures()
 	for i=1,self._numRooms do
 		-- randomly add doors to every 3rd room
-		if Random(3) == 1 then
+		if self._random(3) == 1 then
 			local x1, y1, x2, y2 = self._rooms[i]:getBBox()
 			local enclosed = true
-
-			-- reduce the max coords by one for easy iteration
-			x2, y2 = x2 - 1, y2 - 1
 
 			-- walk along the room edges and plug holes with doors
 			for x=x1,x2 do
@@ -358,12 +358,13 @@ function SimpleGridMapBuilder:addFeatures()
 
 			-- now change floor if the room is completely enclosed by doors
 			if enclosed then
-				local x, y = self._rooms[i]:getX()+1, self._rooms[i]:getY()+1
-				local w, h = self._rooms[i]:getWidth()-3, self._rooms[i]:getHeight()-3
-				self._map:setZone('room'..tostring(i), Rect(x, y, w, h))
+				x1, y1 = x1+1, y1+1
+				x2, y2 = x2-1, y2-1
 
-				for x=x1+1,x2-1 do
-					for y=y1+1,y2-1 do
+				self._map:setZone('room'..tostring(i), Rect(x1, y1, x2-x1, y2-y1))
+
+				for x=x1,x2 do
+					for y=y1,y2 do
 						local node = self._map:getLocation(x, y)
 						local mapType = node:getMapType()
 						if mapType:is_a(FloorMapType) then
@@ -376,60 +377,53 @@ function SimpleGridMapBuilder:addFeatures()
 	end
 end
 
--- perform any cleanup needed on the map
-function SimpleGridMapBuilder:cleanup()
-	-- go through the whole map and add variations
-	local w, h = self._map:getSize()
-	for y=1,h do
-		for x=1,w do
-			local node = self._map:getLocation(x, y)
-			local mapType = node:getMapType()
-			local variant = mapType:getVariant()
-			if mapType:is_a(FloorMapType) and Random(1,12) == 1 then
-				if variant == 'interior' then
-					node:setMapType(FloorMapType('rug'))
-				else
-					if Random(1,20) > 1 then
-						node:setMapType(FloorMapType('worn'))
-					else
-						node:setMapType(TrapMapType())
-					end
-				end
-			elseif mapType:is_a(WallMapType) then
-				local horizontal = true
-				local below = self._map:getLocation(x, y+1)
-				if below then
-					local bMapType = below:getMapType()
-					horizontal = not bMapType:is_a(WallMapType)
-				end
+-- add portals to the map -- up and down stairs in this case
+function SimpleGridMapBuilder:addPortals()
+	local rooms = {}
+	for i=1,self._numRooms do rooms[i] = i end
+	local stairs = 6
+	while stairs > 0 do
+		local direction = stairs > 3 and 'up' or 'down'
+		local num = stairs > 3 and stairs-3 or stairs
+		local room = table.remove(rooms, self._random(#rooms))
+		local tl, br = self._rooms[room]:getBBoxVectors()
+		local x, y = self._random(tl.x+1, br.x-1), self._random(tl.y+1, br.y-1)
+		local node = self._map:getLocation(x, y)
+		if node:getMapType():is_a(FloorMapType) then
+			node:setMapType(StairMapType(direction))
+			self._map:setPortal(direction..tostring(num), vector(x, y))
+			stairs = stairs - 1
+		end
+	end
+end
 
-				if not horizontal then
-					node:setMapType(WallMapType('vertical'))
-				else
-					if Random(1,12) == 1 then
-						node:setMapType(WallMapType('worn'))
-					elseif Random(1,12) == 1 then
-						node:setMapType(WallMapType('torch'))
-					else
-						node:setMapType(WallMapType('normal'))
-					end
-				end
+-- post process step
+-- a single step in the post process loop
+function SimpleGridMapBuilder:postProcessStep(node, point)
+	local mapType = node:getMapType()
+	local variant = mapType:getVariant()
+
+	if mapType:is_a(FloorMapType) and self._random(1,12) == 1 then
+		if variant == 'interior' then
+			node:setMapType(FloorMapType('rug'))
+		else
+			if self._random(1,20) > 1 then
+				node:setMapType(FloorMapType('worn'))
+			else
+				node:setMapType(TrapMapType())
 			end
 		end
-	end
-
-	local startPos
-	while nil == startPos do
-		local room = self._rooms[Random(self._numRooms)]
-		local pos = room:getCenterVector('floor')
-		local node = self._map:getLocation(pos.x, pos.y)
-		if node:getMapType():is_a(FloorMapType) then
-			startPos = pos
+	elseif mapType:is_a(WallMapType) and variant ~= 'vertical' then
+		if self._random(1,12) == 1 then
+			node:setMapType(WallMapType('worn'))
+		elseif self._random(1,12) == 1 then
+			node:setMapType(WallMapType('torch'))
+		else
+			node:setMapType(WallMapType('normal'))
 		end
 	end
-
-	self._map:setStartVector(startPos)
 end
+
 
 -- the class
 return SimpleGridMapBuilder
