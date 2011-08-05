@@ -60,6 +60,13 @@ function MapBuilder:postProcess()
 	end
 end
 
+-- verify map is correct
+function MapBuilder:verifyMap()
+	assert(self._map:getPortalNames() ~= nil,
+		'Invalid map: no portals! name: %s  author: %s',
+		self._map:getName(), self._map:getAuthor())
+end
+
 -- get the created map
 function MapBuilder:getMap() return self._map end
 

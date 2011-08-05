@@ -12,6 +12,7 @@ function MapDirector:generateStandard(builder)
 	builder:addFeatures()
 	builder:addPortals()
 	builder:postProcess()
+	builder:verifyMap()
 
 	return builder:getMap()
 end
