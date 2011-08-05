@@ -137,6 +137,8 @@ function FileMapBuilder:_newMap()
 	local width, height = self:_getMapSize()
 	self._map:setSize(width, height)
 	self._map:clear()
+	self._map:setName(self._mapdata.name)
+	self._map:setAuthor(self._mapdata.author)
 end
 
 -- build the map

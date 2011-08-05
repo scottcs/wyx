@@ -48,6 +48,14 @@ function Map:clear()
 	end
 end
 
+-- return the name of this map
+function Map:getName() return self._name end
+function Map:setName(name) self._name = name end
+
+-- return the author of this map
+function Map:getAuthor() return self._author end
+function Map:setAuthor(author) self._author = author end
+
 -- set the given map location to the given map node
 function Map:setLocation(x, y, node)
 	verify('number', x, y)

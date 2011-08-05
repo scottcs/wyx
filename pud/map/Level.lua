@@ -167,6 +167,12 @@ function Level:getMapSize() return self._map:getSize() end
 -- get the MapNode at the given location on the map
 function Level:getMapNode(...) return self._map:getLocation(...) end
 
+-- get the Map Name
+function Level:getMapName() return self._map:getName() end
+
+-- get the Map Author
+function Level:getMapAuthor() return self._map:getAuthor() end
+
 -- return true if the given map is our map
 function Level:isMap(map) return map == self._map end
 

@@ -106,6 +106,8 @@ end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()
+	self._map:setName('Random_'..tostring(self._seed))
+	self._map:setAuthor('Pud')
 	self:_clear()
 	self:_generateRooms()
 	self:_buildGrid()
