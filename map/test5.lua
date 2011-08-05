@@ -60,5 +60,7 @@ map.map = [[
 
 	make sure each line inside the first curly brackets ends with a comma.
 --]]
+map.zones = {
+}
 
 return map
