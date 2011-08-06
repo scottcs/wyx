@@ -1,3 +1,4 @@
+[X] change FileMapLoader to consider all files in map dir
 [ ] add monsters
 [ ] save/load
 [ ] add combat
@@ -6,6 +7,8 @@
 [ ] maptypes as composites?
 [ ] make stairs work (generate new map)
 [ ] wizard mode
+[ ] map as quad-tree (or something)?
+[ ] can hero background be transparent?
 [ ] make hero movement smoother (possibly only move camera when near edges?)
 [-] don't animate or update dim tiles
 [-] support sprite batches if framebuffers are unsupported
