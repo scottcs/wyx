@@ -37,7 +37,7 @@ function FileMapBuilder:init(filename)
 	MapBuilder.init(self)
 
 	-- check if the filename is actually a map name
-	if not string.find(filename, '^map/%a+%.lua') then
+	if not string.find(filename, '^map/%S-%.lua') then
 		filename = 'map/'..filename..'.lua'
 	end
 
