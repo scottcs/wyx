@@ -141,30 +141,46 @@ function TileMapView:isAnimate() return self._doAnimate == true end
 
 -- update the animated tiles
 function TileMapView:update(dt)
-	self:_updateTiles(dt)
-	self:_updateAnimatedTiles(dt)
-	self:_drawFB()
+	local updated = 0
+	updated = updated + self:_updateTiles(dt)
+	updated = updated + self:_updateAnimatedTiles(dt)
+	if updated > 0 then self:_drawFB() end
 end
 
 function TileMapView:_updateAnimatedTiles(dt)
 	self._dt = self._dt + dt
+	local updated = 0
+
 	if self._doAnimate and self._dt > self._animTick then
 		self._dt = self._dt - self._animTick
 		for _,t in ipairs(self._drawTiles) do
-			if t.tile:is_a(AnimatedTile) then t.tile:update() end
+			if t.tile:is_a(AnimatedTile) then
+				t.tile:update()
+				updated = updated + 1
+			end
 		end
 	end
+
+	return updated
 end
 
+local _floorCache = setmetatable({}, {__mode='v'})
 function TileMapView:getFloorQuad()
-	local floorNode = MapNode(FloorMapType('normal', self._tileStyle))
-	local floorquad = self:_getQuad(floorNode)
-	floorNode:destroy()
+	local floorquad = _floorCache[self._tileStyle]
+
+	if floorquad == nil then
+		local floorNode = MapNode(FloorMapType('normal', self._tileStyle))
+		floorquad = self:_getQuad(floorNode)
+		floorNode:destroy()
+		_floorCache[self._tileStyle] = floorquad
+	end
+
 	return floorquad
 end
 
 function TileMapView:_updateTiles(dt)
 	local floorquad = self:getFloorQuad()
+	local updated = 0
 
 	for _,t in ipairs(self._drawTiles) do
 		if t.tile:is_a(TileMapNodeView) then
@@ -177,10 +193,13 @@ function TileMapView:_updateTiles(dt)
 					local bgquad
 					if self:_shouldDrawFloor(node) then bgquad = floorquad end
 					t.tile:setTile(self._set, quad, bgquad)
+					updated = updated + 1
 				end
 			end
 		end
 	end
+
+	return updated
 end
 
 -- make a quad from the given tile position
