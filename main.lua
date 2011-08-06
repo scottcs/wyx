@@ -73,6 +73,41 @@ tween = require 'lib.tween'
        <3 LÖVE <3
          --]]--
 
+
+local function _makeADir(dir)
+	if not love.filesystem.mkdir(dir) then
+		local savedir = love.filesystem.getSaveDirectory()
+		error('Could not create directory: '..savedir..'/'..tostring(dir))
+	end
+end
+
+local function _makeSaveDirectories()
+	for _,dir in ipairs({
+		--[[
+		'font',
+		'music',
+		'image',
+		'sound',
+		'map',
+		'item',
+		'enemy',
+		'hero',
+		'skill',
+		]]--
+		'save',
+		'morgue',
+	}) do _makeADir(dir) end
+end
+
+local function _testJSON(enemy)
+	local json = require 'lib.dkjson'
+	local file = love.filesystem.read('enemy/'..enemy..'.json')
+	local skula, nextobj, errmsg = json.decode(file)
+	if errmsg then error(errmsg) end
+	local inspect = require 'lib.inspect'
+	print(inspect(skula))
+end
+
 function love.load()
 	-- start the profiler
 	if doGlobalProfile then profiler.start() end
@@ -97,6 +132,11 @@ function love.load()
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
+
+	-- make sure the save directories are created
+	_makeSaveDirectories()
+
+	--_testJSON('skula')
 
 	-----------------------------------
 	-- "The real Pud starts here..." --

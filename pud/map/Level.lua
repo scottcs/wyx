@@ -25,14 +25,6 @@ local TICK = 0.01
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
 
-local _testFiles = {
-	'test1',
-	'test2',
-	'test3',
-	'test4',
-	'test5',
-}
-
 -- Level
 --
 local Level = Class{name='Level',
@@ -137,8 +129,9 @@ function Level:needViewUpdate() return self._needViewUpdate == true end
 function Level:postViewUpdate() self._needViewUpdate = false end
 
 function Level:generateFileMap(file)
-	file = file or _testFiles[Random(#_testFiles)]
-	local builder = FileMapBuilder(file)
+	local maps = love.filesystem.enumerate('map')
+	file = file or maps[Random(#maps)]
+	local builder = FileMapBuilder('map/'..file)
 	self:_generateMap(builder)
 end
 

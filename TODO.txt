@@ -1,16 +1,14 @@
-[X] make build script (disable debug and profile)
-[X] fix performance issues
-[X] add ability to specify zones in file maps
-[X] verify that a map has at least 1 stair
-[X] spawn near up stairs
+[X] change FileMapLoader to consider all files in map dir
 [ ] add monsters
-[ ] combat
-[ ] add interface
-[ ] make stairs work (generate new map)
-[ ] maptypes as composites?
-[ ] add items (as composites?)
 [ ] save/load
+[ ] add combat
+[ ] add interface
+[ ] add items (as composites?)
+[ ] maptypes as composites?
+[ ] make stairs work (generate new map)
 [ ] wizard mode
+[ ] map as quad-tree (or something)?
+[ ] can hero background be transparent?
 [ ] make hero movement smoother (possibly only move camera when near edges?)
 [-] don't animate or update dim tiles
 [-] support sprite batches if framebuffers are unsupported
