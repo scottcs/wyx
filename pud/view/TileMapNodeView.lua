@@ -8,11 +8,7 @@ local math_max = math.max
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
 	function(self, node, width, height)
-		assert(node and type(node) == 'table'
-			and node.is_a and node:is_a(MapNode),
-			'TileMapNodeView expects a MapNode in its constructor (was %s)',
-			type(node))
-
+		verifyClass(MapNode, node)
 		width = width or TILEW
 		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)

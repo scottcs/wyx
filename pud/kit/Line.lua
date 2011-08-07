@@ -7,8 +7,7 @@ local math_abs, math_floor = math.abs, math.floor
 -- implements Bresenham's Line Algorithm
 local Line = Class{name='Line',
 	function(self, p, q)
-		assert(vector.isvector(p) and vector.isvector(q),
-			'vectors expected in Line constructor (was %s, %s)', type(p), type(q))
+		verify('vector', p, q)
 
 		self._p = p:clone()
 		self._q = q:clone()

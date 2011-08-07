@@ -55,10 +55,7 @@ function MapNode:wasSeen() return self._wasSeen end
 function MapNode:setMapType(mapType)
 	if self._mapType then self._mapType:destroy() end
 
-	assert(mapType and type(mapType) == 'table'
-		and mapType.is_a and mapType:is_a(MapType),
-		'MapNode:setMapType() expects a MapType (was %s, %s)',
-		tostring(mapType), type(mapType))
+	verifyClass(MapType, mapType)
 
 	self._mapType = mapType
 	local attrs = mapType:getDefaultAttributes()

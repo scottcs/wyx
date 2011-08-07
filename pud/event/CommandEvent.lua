@@ -7,9 +7,7 @@ local Command = require 'pud.command.Command'
 local CommandEvent = Class{name='CommandEvent',
 	inherits=Event,
 	function(self, command)
-		assert(command and command.is_a and command:is_a(Command),
-			self:_msg('command must be a Command (not %s (%s))',
-				type(command), tostring(command)))
+		verifyClass(Command, command)
 		Event.construct(self, 'Command Event')
 
 		self._command = command

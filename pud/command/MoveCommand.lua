@@ -7,9 +7,8 @@ local Traveler = require 'pud.entity.Traveler'
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
 	function(self, target, vector, node)
-		assert(target and type(target) == 'table'
-			and target.is_a and target:is_a(Traveler),
-			'target must be an instance of Traveler (was %s)', tostring(target))
+		verifyClass(Traveler, target)
+		verify('vector', vector)
 
 		Command.construct(self, target)
 

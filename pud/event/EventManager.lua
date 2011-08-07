@@ -13,12 +13,6 @@ local EventManager = Class{name='EventManager',
 	end
 }
 
--- validate that the given event is a defined event (in pud.event.Event)
-local _validateEvent = function(e)
-	assert(e, 'event is nil')
-	assert(e.is_a and e:is_a(Event), 'invalid event: %s', tostring(e))
-end
-
 -- validate that the given object is an object or a function
 local _validateObj = function(obj)
 	assert(obj and (type(obj) == 'table' or type(obj) == 'function'),
@@ -51,7 +45,7 @@ function EventManager:register(obj, events)
 		events = {events}
 	end
 	for _,event in ipairs(events) do
-		_validateEvent(event)
+		verifyClass(Event, event)
 		local keyStr = tostring(event:getEventKey())
 		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
 			'object "%s" is missing event callback method for event "%s"',
@@ -71,7 +65,7 @@ function EventManager:unregister(obj, events)
 		events = {events}
 	end
 	for _,event in ipairs(events) do
-		_validateEvent(event)
+		verifyClass(Event, event)
 		local key = event:getEventKey()
 
 		if self._events[key] and self._events[key][obj] then
@@ -109,7 +103,7 @@ end
 -- note: it is recommended to use push() and flush() rather than call notify()
 -- directly.
 function EventManager:notify(event)
-	_validateEvent(event)
+	verifyClass(Event, event)
 	local key = event:getEventKey()
 
 	if self._events[key] then
@@ -129,7 +123,7 @@ end
 
 -- push an event into the event queue
 function EventManager:push(event)
-	_validateEvent(event)
+	verifyClass(Event, event)
 
 	self._queue = self._queue or {}
 	self._queue[#self._queue + 1] = event

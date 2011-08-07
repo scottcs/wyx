@@ -17,9 +17,7 @@ local TimeManager = Class{name = 'TimeManager',
 -- debt is the amount of action points that the obj needs to "burn off" before
 -- accumulating more action points at the object's speed.
 function TimeManager:register(obj, debt)
-	assert(obj:is_a(TimedObject),
-		'object to register must be a TimedObject (was %s)',
-		nil ~= obj.is_a and tostring(obj) or type(obj))
+	verifyClass(TimedObject, obj)
 
 	debt = debt or 0
 	if debt < 0 then debt = -debt end

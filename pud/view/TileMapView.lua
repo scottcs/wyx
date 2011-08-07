@@ -24,7 +24,7 @@ local TileMapView = Class{name='TileMapView',
 	function(self, level)
 		MapView.construct(self)
 
-		assert(level and level.is_a and level:is_a(Level))
+		verifyClass(Level, level)
 		self._level = level
 		local mapW, mapH = self._level:getMapSize()
 
@@ -95,8 +95,7 @@ end
 
 -- set the viewport
 function TileMapView:setViewport(rect)
-	assert(rect and rect.is_a and rect:is_a(Rect),
-		'viewport must be a Rect (was %s (%s))', tostring(rect), type(rect))
+	verifyClass(Rect, rect)
 
 	if self._mapViewport then self._mapViewport:destroy() end
 

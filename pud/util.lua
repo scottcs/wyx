@@ -1,3 +1,5 @@
+local select, type, tostring = select, type, tostring
+local format, io_stderr = string.format, io.stderr
 
          --[[--
         UTILITIES
@@ -77,11 +79,38 @@ do
 	end
 end
 
+local vector = require 'lib.hump.vector'
+
 -- assert helpers
-function verify(t, ...)
+function verify(theType, ...)
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
-		assert(type(x) == t, '%s expected (was %s)', t, type(x))
+		local xType = type(x)
+		if theType == 'vector' then
+			assert(vector.isvector(x), 'vector expected (was %s)', xType)
+		else
+			assert(xType == theType, '%s expected (was %s)', theType, xType)
+		end
+	end
+	return true
+end
+
+local _verifyCache = {}
+local _mt = {__mode = 'k'}
+function verifyClass(class, ...)
+	local classStr = tostring(class)
+	_verifyCache[classStr] = _verifyCache[classStr] or setmetatable({}, _mt)
+
+	for i=1,select('#', ...) do
+		local x = select(i, ...)
+		if not _verifyCache[classStr][x] then
+			local xType = type(x)
+			assert(x ~= nil and xType == 'table',
+				'expected %s (was %s)', classStr, xType)
+			assert(x.is_a ~= nil and type(x.is_a) == 'function' and x:is_a(class),
+				'expected %s (was %s)', classStr, tostring(x))
+			_verifyCache[classStr][x] = true
+		end
 	end
 	return true
 end
@@ -92,5 +121,5 @@ end
 function warning(msg, ...)
 	msg = msg or 'unknown warning'
 	msg = 'Warning: '..msg..'\n'
-	io.stderr:write(string.format(msg, ...))
+	io_stderr:write(format(msg, ...))
 end

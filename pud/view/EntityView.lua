@@ -12,9 +12,7 @@ local math_max = math.max
 local EntityView = Class{name='EntityView',
 	inherits=Rect,
 	function(self, entity, width, height)
-		assert(entity and entity.is_a and entity:is_a(Entity),
-			'entity must be an instance of class Entity (was %s (%s))',
-			tostring(entity), type(entity))
+		verifyClass(Entity, entity)
 
 		width = width or TILEW
 		height = height or TILEH

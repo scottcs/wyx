@@ -7,8 +7,7 @@ local Map = require 'pud.map.Map'
 local MapUpdateRequestEvent = Class{name='MapUpdateRequestEvent',
 	inherits=Event,
 	function(self, map)
-		assert(map and map.is_a and map:is_a(Map),
-			self:_msg('map must be a Map (not %s (%s))', type(map), tostring(map)))
+		verifyClass(Map, map)
 		Event.construct(self, 'Map Update RequestEvent')
 
 		self._map = map

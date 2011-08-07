@@ -12,8 +12,7 @@ local _isVector = function(...)
 	local n = select('#',...)
 	for i=1,n do
 		local v = select(i,...)
-		assert(vector.isvector(v), 'vector expected, got %s (%s)',
-			tostring(v), type(v))
+		verify('vector', v)
 	end
 	return n > 0
 end
