@@ -9,8 +9,19 @@ local get = function(prop)
 	return property[prop]
 end
 
--- the actual properties
-property.FLAMMABLE = 'FLAMMABLE'
+---------------------------
+-- the actual properties --
+---------------------------
+
+-- status properties
+property.Flammable         = 'Flammable'
+property.Fragile           = 'Fragile'
+
+-- bonus properties
+property.AttackBonus       = 'AttackBonus'
+property.DefenseBonus      = 'DefenseBonus'
+property.SpeedBonus        = 'SpeedBonus'
+property.HealthBonus       = 'HealthBonus'
 
 -- the structure of valid property
 return setmetatable({isproperty = isproperty},
