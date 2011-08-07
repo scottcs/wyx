@@ -1,7 +1,0 @@
-{
-	"name" : "skula",
-	"tile" : [5, 9],
-	"attributes" : [ "HealthAttribute", "AttackAttribute" ],
-	"behaviors" : [ "AttackBehavior", "DefendBehavior", "HeadbuttBehavior" ],
-	"somethingelse" : { "a" : 1, "b" : 2, "c" : 4 },
-}

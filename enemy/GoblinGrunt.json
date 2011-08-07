@@ -1,0 +1,12 @@
+{
+	"name": "GoblinGrunt",
+	"tile": {"set": "hero", "x": 1, "y": 6},
+	"attributes": [ "Health", "Attack", "Defense", "Speed" ],
+	"behaviors": {
+		"HealthBehavior": {
+			"base": 5,
+		},
+		"CollisionBehavior": {
+		},
+	}
+}

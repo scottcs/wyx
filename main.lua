@@ -136,7 +136,7 @@ function love.load()
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
-	--_testJSON('skula')
+	--_testJSON('GoblinGrunt')
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
