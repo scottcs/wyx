@@ -13,15 +13,45 @@ end
 -- the actual properties --
 ---------------------------
 
--- status properties
-property.Flammable         = 'Flammable'
-property.Fragile           = 'Fragile'
+-- stat properties
+property.Attack            = 'Attack'
+property.Defense           = 'Defense'
+property.Speed             = 'Speed'
+property.Health            = 'Health'
+property.MaxHealth         = 'MaxHealth'
 
 -- bonus properties
 property.AttackBonus       = 'AttackBonus'
 property.DefenseBonus      = 'DefenseBonus'
 property.SpeedBonus        = 'SpeedBonus'
 property.HealthBonus       = 'HealthBonus'
+property.MaxHealthBonus    = 'MaxHealthBonus'
+
+-- weaknesses
+property.CrushWeakness     = 'CrushWeakness'
+property.SliceWeakness     = 'SliceWeakness'
+property.StabWeakness      = 'StabWeakness'
+property.FireWeakness      = 'FireWeakness'
+
+-- resistances
+property.CrushResistance   = 'CrushResistance'
+property.SliceResistance   = 'SliceResistance'
+property.StabResistance    = 'StabResistance'
+property.FireResistance    = 'FireResistance'
+
+-- status effects
+property.Combustable       = 'Combustable'
+
+-- graphics properties
+property.TileSet           = 'TileSet'
+property.TileCoords        = 'TileCoords'
+property.Visibility        = 'Visibility'
+
+-- time properties
+property.Default           = 'DefaultCost'
+property.AttackCost        = 'AttackCost'
+property.MoveCost          = 'MoveCost'
+
 
 -- the structure of valid property
 return setmetatable({isproperty = isproperty},
