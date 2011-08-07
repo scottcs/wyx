@@ -89,9 +89,9 @@ local function _makeSaveDirectories()
 		'image',
 		'sound',
 		'map',
-		'item',
-		'enemy',
-		'hero',
+		'entity/item',
+		'entity/enemy',
+		'entity/hero',
 		'skill',
 		]]--
 		'save',
