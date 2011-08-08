@@ -1,4 +1,5 @@
 [X] change FileMapLoader to consider all files in map dir
+[X] change dungeon sets to mix colors for walls, floors and stairs
 [ ] add monsters
 [ ] save/load
 [ ] add combat
