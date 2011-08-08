@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Entity = require 'pud.entity.Entity'
+local property = require 'pud.entity.component.property'
 
 -- Component
 --
@@ -10,7 +11,7 @@ local Component = Class{name='Component',
 		if newProperties ~= nil then
 			verify('table', newProperties)
 			for p in pairs(newProperties) do
-				self._properties[property(p)] = newProperties[p]
+				self:_addProperty(p, newProperties[p])
 			end
 		end
 	end
@@ -20,6 +21,11 @@ local Component = Class{name='Component',
 function Component:destroy()
 	for k in pairs(self._properties) do self._properties[k] = nil end
 	self._properties = nil
+end
+
+-- add a new property to this component
+function Component:_addProperty(prop, data)
+	self._properties[property(prop)] = data
 end
 
 -- update
