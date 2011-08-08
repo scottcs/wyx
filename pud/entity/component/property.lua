@@ -45,6 +45,7 @@ property.Combustable       = 'Combustable'
 -- graphics properties
 property.TileSet           = 'TileSet'
 property.TileCoords        = 'TileCoords'
+property.TileStepSize      = 'TileStepSize'
 property.Visibility        = 'Visibility'
 
 -- time properties
