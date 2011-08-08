@@ -37,8 +37,23 @@ local TileMapView = Class{name='TileMapView',
 		self._frontfb = love.graphics.newFramebuffer(size, size)
 		self._backfb = love.graphics.newFramebuffer(size, size)
 
-		self._tileStyle = tostring(Random(1,4))
+		local styles = {1, 2, 3, 4}
+		local s = styles[Random(#styles)]
+		if     3 == s then table.remove(styles, 4)
+		elseif 4 == s then table.remove(styles, 3)
+		end
+		table.remove(styles, s)
+		self._wallStyle = tostring(s)
+
+		s = styles[Random(#styles)]
+		table.remove(styles, s)
+		self._floorStyle = tostring(s)
+
+		table.insert(styles, tonumber(self._wallStyle))
+		self._stairStyle = tostring(styles[Random(#styles)])
+
 		self._doorStyle = tostring(Random(1,5))
+
 		self._tiles = {}
 		self._animatedTiles = {}
 		self._drawTiles = {}
@@ -64,7 +79,9 @@ function TileMapView:destroy()
 	self._level = nil
 	self._animTick = nil
 	self._dt = nil
-	self._tileStyle = nil
+	self._wallStyle = nil
+	self._floorStyle = nil
+	self._stairStyle = nil
 	self._doorStyle = nil
 	self._quadresults = nil
 	self._floorcache = nil
@@ -165,13 +182,13 @@ end
 
 local _floorCache = setmetatable({}, {__mode='v'})
 function TileMapView:getFloorQuad()
-	local floorquad = _floorCache[self._tileStyle]
+	local floorquad = _floorCache[self._floorStyle]
 
 	if floorquad == nil then
-		local floorNode = MapNode(FloorMapType('normal', self._tileStyle))
+		local floorNode = MapNode(FloorMapType('normal', self._floorStyle))
 		floorquad = self:_getQuad(floorNode)
 		floorNode:destroy()
-		_floorCache[self._tileStyle] = floorquad
+		_floorCache[self._floorStyle] = floorquad
 	end
 
 	return floorquad
@@ -271,8 +288,8 @@ function TileMapView:_createAnimatedTile(nodeA, nodeB, bgquad)
 end
 
 function TileMapView:_setupTiles()
-	local torchA = MapNode(WallMapType('torch', 'A'..self._tileStyle))
-	local torchB = MapNode(WallMapType('torch', 'B'..self._tileStyle))
+	local torchA = MapNode(WallMapType('torch', 'A'..self._wallStyle))
+	local torchB = MapNode(WallMapType('torch', 'B'..self._wallStyle))
 	local trapA = MapNode(TrapMapType())
 	local trapB = MapNode(TrapMapType())
 
@@ -320,10 +337,14 @@ function TileMapView:_setupTiles()
 					self._animatedTiles[#self._animatedTiles+1] = at
 
 				else
-					if mapType:is_a(DoorMapType) then
+					if mapType:is_a(FloorMapType) then
+						mapType:setStyle(self._floorStyle)
+					elseif mapType:is_a(DoorMapType) then
 						mapType:setStyle(self._doorStyle)
+					elseif mapType:is_a(StairMapType) then
+						mapType:setStyle(self._stairStyle)
 					else
-						mapType:setStyle(self._tileStyle)
+						mapType:setStyle(self._wallStyle)
 					end
 
 					local quad = self:_getQuad(node)
