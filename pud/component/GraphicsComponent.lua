@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Component = require 'pud.component.Component'
+local ViewComponent = require 'pud.component.ViewComponent'
 local property = require 'pud.component.property'
 local vector = require 'lib.hump.vector'
 
@@ -7,9 +7,9 @@ local vector = require 'lib.hump.vector'
 -- GraphicsComponent
 --
 local GraphicsComponent = Class{name='GraphicsComponent',
-	inherits=Component,
+	inherits=ViewComponent,
 	function(self, properties)
-		Component.construct(self, properties)
+		ViewComponent.construct(self, properties)
 		self._attachMessages = {'HAS_MOVED', 'DRAW'}
 		self:_makeQuad()
 		local size = nearestPO2(self._properties[property('TileSize')])
@@ -22,7 +22,7 @@ function GraphicsComponent:destroy()
 	self._quad = nil
 	self._fb = nil
 	self._backfb = nil
-	Component.destroy(self)
+	ViewComponent.destroy(self)
 end
 
 function GraphicsComponent:_addProperty(prop, data)
@@ -48,9 +48,7 @@ function GraphicsComponent:_addProperty(prop, data)
 end
 
 function GraphicsComponent:receive(msg, ...)
-	if     msg == message('DRAW') then self:draw(...)
-	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
-	end
+	if msg == message('HAS_MOVED') then self:_updateFB(...) end
 end
 
 function GraphicsComponent:_makeQuad()
