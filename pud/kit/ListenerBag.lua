@@ -18,6 +18,12 @@ function ListenerBag:clear()
 	for obj in pairs(self._queue) do self:pop(obj) end
 end
 
+function ListenerBag:size()
+	local size = 0
+	for obj in pairs(self._queue) do size = size + 1 end
+	return size
+end
+
 function ListenerBag:push(obj) self._queue[obj] = true end
 function ListenerBag:pop(obj) self._queue[obj] = nil end
 
