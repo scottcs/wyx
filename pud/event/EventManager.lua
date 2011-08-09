@@ -5,6 +5,7 @@ local Class = require 'lib.hump.class'
 -- those object when events occur.
 
 local Event = require 'pud.event.Event'
+local eventsMT = {__mode = 'k'}
 
 -- EventManager class
 local EventManager = Class{name='EventManager',
@@ -52,7 +53,8 @@ function EventManager:register(obj, events)
 			tostring(obj), keyStr)
 
 		local key = event:getEventKey()
-		self._events[key] = self._events[key] or {}
+		-- event table has weak keys
+		self._events[key] = self._events[key] or setmetatable({}, eventsMT)
 		self._events[key][obj] = true
 	end
 end
