@@ -14,7 +14,7 @@ local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
 
 -- systems
-local RenderSystem = require 'pud.system.RenderSystem'
+local RenderSystemClass = require 'pud.system.RenderSystem'
 
 -- level
 local Level = require 'pud.map.Level'
@@ -44,7 +44,7 @@ local _lastCollect
 
 function st:enter()
 	-- create systems
-	Render = RenderSystem()
+	RenderSystem = RenderSystemClass()
 	
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
@@ -183,7 +183,7 @@ end
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
-	Render:draw()
+	RenderSystem:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
@@ -191,7 +191,7 @@ end
 
 function st:leave()
 	collectgarbage('restart')
-	Render:destroy()
+	RenderSystem:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
