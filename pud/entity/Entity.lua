@@ -3,7 +3,7 @@ local Rect = require 'pud.kit.Rect'
 local Component = require 'pud.component.Component'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
-local ListenerBag = require 'pud.component.ListenerBag'
+local ListenerBag = require 'pud.kit.ListenerBag'
 
 local table_sort = table.sort
 lcoal math_ceil = math.ceil
