@@ -42,6 +42,17 @@ function Entity:getID() return self._id end
 function Entity:getName() return self._name end
 function Entity:getType() return self._type end
 
+-- return a list of all components of the given type.
+-- type is not checked, here, but is expected to be one of the parent
+-- component classes: ModelComponent, ViewComponent, ControllerComponent
+function Entity:getComponentsByType(componentType)
+	local components = {}
+	for _,comp in pairs(self._components) do
+		if comp:is_a(componentType) then components[#components+1] = comp end
+	end
+	return #components > 0 and components or nil
+end
+
 
 -- the class
 return Entity
