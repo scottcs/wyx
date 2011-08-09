@@ -56,44 +56,37 @@ local function _newComponent(componentString, props)
 	return component
 end
 
--- create an enemy entity and return it
-function createEnemy(entityName)
-	local info = _getEntityInfo('enemy', entityName)
-	local initComponents = {}
-
-	for component, props in pairs(info.components) do
-		initComponents[#initComponents+1] = _newComponent(component, props)
-	end
-
-	return EnemyEntity(entityName, initComponents)
-end
-
--- create a hero entity and return it
-function createHero(entityName)
-	local info = _getEntityInfo('hero', entityName)
-	local initComponents = {}
+-- return the component objects described by the info table
+local _getComponents = function(info)
+	local newComponents = {}
 
 	for component, props in pairs(info.components) do
 		if type(component) == 'number' then
 			component = props
 			props = nil
 		end
-		initComponents[#initComponents+1] = _newComponent(component, props)
+		newComponents[#newComponents+1] = _newComponent(component, props)
 	end
 
-	return HeroEntity(entityName, initComponents)
+	return #newComponents > 0 and newComponents or nil
+end
+
+-- create an enemy entity and return it
+function EnemyFactory:createEnemy(entityName)
+	local info = _getEntityInfo('enemy', entityName)
+	return EnemyEntity(entityName, _getComponents(info))
 end
 
 -- create a hero entity and return it
-function createItem(entityName)
+function EnemyFactory:createHero(entityName)
+	local info = _getEntityInfo('hero', entityName)
+	return HeroEntity(entityName, _getComponents(info))
+end
+
+-- create a hero entity and return it
+function EnemyFactory:createItem(entityName)
 	local info = _getEntityInfo('item', entityName)
-	local initComponents = {}
-
-	for component, props in pairs(info.components) do
-		initComponents[#initComponents+1] = _newComponent(component, props)
-	end
-
-	return ItemEntity(entityName, initComponents)
+	return ItemEntity(entityName, _getComponents(info))
 end
 
 -- the class
