@@ -13,19 +13,30 @@ end
 -- the actual properties --
 ---------------------------
 
--- stat properties
+-- combat properties
 property.Attack            = 'Attack'
 property.Defense           = 'Defense'
-property.Speed             = 'Speed'
-property.Health            = 'Health'
-property.MaxHealth         = 'MaxHealth'
-
--- bonus properties
 property.AttackBonus       = 'AttackBonus'
 property.DefenseBonus      = 'DefenseBonus'
-property.SpeedBonus        = 'SpeedBonus'
+
+-- health properties
+property.Health            = 'Health'
+property.MaxHealth         = 'MaxHealth'
 property.HealthBonus       = 'HealthBonus'
 property.MaxHealthBonus    = 'MaxHealthBonus'
+
+-- graphics properties
+property.TileSet           = 'TileSet'
+property.TileCoords        = 'TileCoords'
+property.TileCoords        = 'TileSize'
+property.Visibility        = 'Visibility'
+
+-- time properties
+property.DefaultCost       = 'DefaultCost'
+property.AttackCost        = 'AttackCost'
+property.MoveCost          = 'MoveCost'
+property.Speed             = 'Speed'
+property.SpeedBonus        = 'SpeedBonus'
 
 -- weaknesses
 property.CrushWeakness     = 'CrushWeakness'
@@ -42,17 +53,11 @@ property.FireResistance    = 'FireResistance'
 -- status effects
 property.Combustable       = 'Combustable'
 
--- graphics properties
-property.TileSet           = 'TileSet'
-property.TileCoords        = 'TileCoords'
-property.TileStepSize      = 'TileStepSize'
-property.Visibility        = 'Visibility'
 
--- time properties
-property.Default           = 'DefaultCost'
-property.AttackCost        = 'AttackCost'
-property.MoveCost          = 'MoveCost'
-
+-- check for mistakes when this file is loaded
+for p in pairs(property) do
+	assert(property[p] == p, 'Property mismatch: %s ~= %s', property[p], p)
+end
 
 -- the structure of valid property
 return setmetatable({isproperty = isproperty},

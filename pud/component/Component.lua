@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
 local Entity = require 'pud.entity.Entity'
-local property = require 'pud.entity.component.property'
+local property = require 'pud.component.property'
 
 -- Component
 --
@@ -21,6 +21,26 @@ local Component = Class{name='Component',
 function Component:destroy()
 	for k in pairs(self._properties) do self._properties[k] = nil end
 	self._properties = nil
+	if self._attachMessages then
+		for _,msg in pairs(self._attachMessages) do
+			self._entity:detach(message(msg), self)
+		end
+		self._attachMessages = nil
+	end
+	self._entity = nil
+end
+
+-- set the entity who owns this component
+function Component:setEntity(entity)
+	verifyClass(Entity, entity)
+	self._entity = entity
+end
+
+-- attach all of this component's messages to its entity
+function Component:attachMessages()
+	for _,msg in pairs(_attachMessages) do
+		self._entity:attach(message(msg), self)
+	end
 end
 
 -- add a new property to this component
@@ -29,7 +49,7 @@ function Component:_addProperty(prop, data)
 end
 
 -- update
-function Component:update(entity, level, view) end
+function Component:update(level, view) end
 
 -- receive a message
 -- precondition: msg is a valid component message
@@ -38,6 +58,10 @@ function Component:receive(msg, ...) end
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
 function Component:getProperty(p) return self._properties[p] end
+
+-- attach this component to the messages it wants to receive
+function Component:attachMessages() end
+
 
 -- the class
 return Component

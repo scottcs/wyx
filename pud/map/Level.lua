@@ -16,7 +16,8 @@ local CommandEvent = require 'pud.event.CommandEvent'
 local OpenDoorCommand = require 'pud.command.OpenDoorCommand'
 
 -- entities
-local HeroEntity = require 'pud.entity.HeroEntity'
+local EntityFactory = require 'pud.entity.EntityFactory'
+local message = require 'pud.component.message'
 
 -- time manager
 local TimeManager = require 'pud.time.TimeManager'
@@ -40,6 +41,7 @@ local Level = Class{name='Level',
 			lit = {1,1,1},
 		}
 		self._lightmap = {}
+		self._entities = {}
 
 		CommandEvents:register(self, CommandEvent)
 	end
@@ -50,11 +52,14 @@ function Level:destroy()
 	CommandEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
-	self._hero:destroy()
-	self._hero = nil
 	self._doTick = nil
 	self._timeManager:destroy()
 	self._timeManager = nil
+	for k in pairs(self._entities) do
+		self._entities[k]:destroy()
+		self._entities[k] = nil
+	end
+	self._entities = nil
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
@@ -177,8 +182,20 @@ function Level:isMap(map) return map == self._map end
 -- return true if the given point exists on the map
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
--- return the hero entity
-function Level:getHero() return self._hero end
+-- return the entities at the given location
+function Level:getEntitiesAtLocation(pos)
+	local ents = {}
+	for _,entity in pairs(self._entities) do
+		if entity:getPositionVector() == pos then ents[#ents+1] = entity end
+	end
+	return #ents > 0 and ents or nil
+end
+
+function Level:sendToAllEntities(msg, ...)
+	for _,entity in pairs(self._entities) do
+		entity:send(message(msg), ...)
+	end
+end
 
 function Level:createEntities()
 	self._hero = HeroEntity()

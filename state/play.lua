@@ -177,7 +177,7 @@ end
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
-	self._heroView:draw()
+	self._level:sendToAllEntities('DRAW')
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end

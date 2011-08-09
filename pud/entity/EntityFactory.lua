@@ -8,7 +8,7 @@ local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
 -- ALL the components
-local Component = require 'pud.entity.component.Component'
+local Component = require 'pud.component.Component'
 
 local _ENTITY = {
 	enemy = 'enemy',
@@ -46,7 +46,7 @@ end
 -- class.
 local function _newComponent(componentString, props)
 	local new = assert(
-		loadstring('return require "pud.entity.component.'
+		loadstring('return require "pud.component.'
 			..componentString..'"'),
 		'could not load component: %s', componentString)
 
@@ -74,6 +74,10 @@ function createHero(entityName)
 	local initComponents = {}
 
 	for component, props in pairs(info.components) do
+		if type(component) == 'number' then
+			component = props
+			props = nil
+		end
 		initComponents[#initComponents+1] = _newComponent(component, props)
 	end
 
