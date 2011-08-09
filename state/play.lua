@@ -13,6 +13,9 @@ local MessageHUD = require 'pud.view.MessageHUD'
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
 
+-- systems
+local RenderSystem = require 'pud.system.RenderSystem'
+
 -- level
 local Level = require 'pud.map.Level'
 
@@ -40,6 +43,9 @@ local COLLECT_THRESHOLD = 10000000/1024 -- 10 megs
 local _lastCollect
 
 function st:enter()
+	-- create systems
+	Render = RenderSystem()
+	
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
 	self._level = Level()
@@ -177,7 +183,7 @@ end
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
-	self._level:sendToAllEntities('DRAW')
+	Render:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
@@ -185,6 +191,7 @@ end
 
 function st:leave()
 	collectgarbage('restart')
+	Render:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
