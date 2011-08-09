@@ -8,6 +8,7 @@ local table_sort = table.sort
 local RenderSystem = Class{name='RenderSystem',
 	function(self)
 		self._registered = {}
+		self._levels = {}
 	end
 }
 
@@ -23,11 +24,9 @@ end
 
 -- draw
 function RenderSystem:draw()
-	if self._levels then
-		for i=#self._levels,1,-1 do
-			local level = self._levels[i]
-			for obj in self._registered[level]:listeners() do obj:draw() end
-		end
+	for i=#self._levels,1,-1 do
+		local level = self._levels[i]
+		for obj in self._registered[level]:listeners() do obj:draw() end
 	end
 end
 
@@ -40,11 +39,11 @@ function RenderSystem:_touchLevel(level)
 		local unique = {}
 		unique[level] = true
 
-		if self._levels then
-			for i,l in pairs(self._levels) do unique[l] = true end
+		for i,l in pairs(self._levels) do
+			unique[l] = true
+			self._levels[i] = nil
 		end
 
-		self._levels = {}
 		for l in pairs(unique) do self._levels[#self._levels+1] = l end
 		table_sort(self._levels)
 	end
