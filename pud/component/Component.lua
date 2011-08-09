@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Entity = require 'pud.entity.Entity'
+local ComponentMediator = require 'pud.component.ComponentMediator'
 local property = require 'pud.component.property'
 
 -- Component
@@ -23,23 +23,23 @@ function Component:destroy()
 	self._properties = nil
 	if self._attachMessages then
 		for _,msg in pairs(self._attachMessages) do
-			self._entity:detach(message(msg), self)
+			self._mediator:detach(message(msg), self)
 		end
 		self._attachMessages = nil
 	end
-	self._entity = nil
+	self._mediator = nil
 end
 
--- set the entity who owns this component
-function Component:setEntity(entity)
-	verifyClass(Entity, entity)
-	self._entity = entity
+-- set the mediator who owns this component
+function Component:setMediator(mediator)
+	verifyClass(ComponentMediator, mediator)
+	self._mediator = mediator
 end
 
--- attach all of this component's messages to its entity
+-- attach all of this component's messages to its mediator
 function Component:attachMessages()
 	for _,msg in pairs(_attachMessages) do
-		self._entity:attach(message(msg), self)
+		self._mediator:attach(message(msg), self)
 	end
 end
 

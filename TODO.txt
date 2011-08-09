@@ -29,13 +29,15 @@ NOTES:
   - AIComponent
 * RenderWrangler (or RenderManager, or GraphicsSubsystem, or something)
   - Cycles through array of registered ViewComponents and asks them to draw().
+* Other subsystems do the update() calls, but only when needed.
+  - how to accomplish this?
 * EntityFactory queries new Entity for all ViewComponents, asks them to
   register with RenderWrangler.
 * Entity knows nothing about Component implementations. It contains no state
   like position or visual representation.
   - This means remove Rect inheritance and add position to a ModelComponent.
-  - DEFINE: it contains "lifetime management" and "identifier scoping".
-  - DEFINE: can query components for type.
+  - it contains only lifetime management and identifier scoping.
+  - can query components for type.
 
 * Properties
   - want to assume it's lua code if not property.isproperty? If so, then the
@@ -50,16 +52,3 @@ NOTES:
         came from because they are messages sent at some point from somewhere.
   - currently I am queueing and flushing events... is this necessary or even
     wise? Might account for performance issues? Look into it!
-
-* Object construction
-  - write a helper new() function to automatically require the given class and
-    return a new object of that class? Like:
-      new(class, ...)
-        local Class = require class
-        return Class(...)
-      end
-  - it could even try to be smart about the class path? So instead of:
-      new('pud.event.component.GraphicsComponent', ...)
-    you could just call:
-      new('GraphicsComponent', ...)
-  - is this terrible design or clever design??
