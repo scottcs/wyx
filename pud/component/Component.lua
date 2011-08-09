@@ -48,9 +48,6 @@ function Component:_addProperty(prop, data)
 	self._properties[property(prop)] = data
 end
 
--- update
-function Component:update(level, view) end
-
 -- receive a message
 -- precondition: msg is a valid component message
 function Component:receive(msg, ...) end
