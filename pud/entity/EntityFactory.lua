@@ -4,17 +4,20 @@ local HeroEntity = require 'pud.entity.HeroEntity'
 local EnemyEntity = require 'pud.entity.EnemyEntity'
 local ItemEntity = require 'pud.entity.ItemEntity'
 
+local ViewComponent = require 'pud.component.ViewComponent'
+local ControllerComponent = require 'pud.component.ControllerComponent'
+
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
--- ALL the components
 local Component = require 'pud.component.Component'
 
-local _ENTITY = {
-	enemy = 'enemy',
-	hero = 'hero',
-	item = 'item',
+local ENTITY = {
+	enemy = {kind = 'enemy', level = 7},
+	hero = {kind = 'hero', level = 5},
+	item = {kind = 'item', level = 10},
 }
+
 
 -- EntityFactory
 -- creates entities based on data files
@@ -26,8 +29,6 @@ local EntityFactory = Class{name='EntityFactory',
 function EntityFactory:destroy() end
 
 local _getEntityInfo = function(kind, entityName)
-	assert(kind == _ENTITY[kind], 'invalid entity kind: %s', tostring(kind))
-
 	local filename = 'entity/'..kind..'/'..entityName..'.json'
 	local contents, size = love.filesystem.read(filename)
 
@@ -71,22 +72,57 @@ local _getComponents = function(info)
 	return #newComponents > 0 and newComponents or nil
 end
 
+-- register with the relevant systems any ViewComponents the entity has
+local _registerViews = function(entity, level)
+	local views = entity:getComponentsByType(ViewComponent)
+	if views then
+		for _,view in pairs(views) do
+			RenderSystem:register(view, level)
+		end
+	end
+end
+
+-- register with the relevant systems any ControllerComponents the entity has
+local _registerControllers = function(entity)
+	local controllers = entity:getComponentsByType(ControllerComponent)
+	if controllers then
+		for _,controller in pairs(controllers) do
+			--[[
+			if controller:is_a(InputComponent) then
+				InputSystem:register(controller)
+			elseif controller:is_a(AIComponent) then
+				AISystem:register(controller)
+			end
+			]]--
+		end
+	end
+end
+
 -- create an enemy entity and return it
 function EnemyFactory:createEnemy(entityName)
-	local info = _getEntityInfo('enemy', entityName)
-	return EnemyEntity(entityName, _getComponents(info))
+	local e = ENTITY.enemy
+	local info = _getEntityInfo(e.kind, entityName)
+	local entity = EnemyEntity(entityName, _getComponents(info))
+	_registerViews(entity, e.level)
+	return entity
 end
 
 -- create a hero entity and return it
 function EnemyFactory:createHero(entityName)
-	local info = _getEntityInfo('hero', entityName)
-	return HeroEntity(entityName, _getComponents(info))
+	local e = ENTITY.hero
+	local info = _getEntityInfo(e.kind, entityName)
+	local entity = HeroEntity(entityName, _getComponents(info))
+	_registerViews(entity, e.level)
+	return entity
 end
 
 -- create a hero entity and return it
 function EnemyFactory:createItem(entityName)
-	local info = _getEntityInfo('item', entityName)
-	return ItemEntity(entityName, _getComponents(info))
+	local e = ENTITY.item
+	local info = _getEntityInfo(e.kind, entityName)
+	local entity = ItemEntity(entityName, _getComponents(info))
+	_registerViews(entity, e.level)
+	return entity
 end
 
 -- the class
