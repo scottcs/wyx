@@ -95,25 +95,19 @@ function verify(theType, ...)
 	return true
 end
 
-local _verifyCache = {}
-local _mt = {__mode = 'k'}
-function verifyClass(class, ...)
-	local classStr = tostring(class)
-	_verifyCache[classStr] = _verifyCache[classStr] or setmetatable({}, _mt)
+
+function verifyClass(className, ...)
+	verify('string', className)
 
 	for i=1,select('#', ...) do
-		local x = select(i, ...)
-		if not _verifyCache[classStr][x] then
-			local xType = type(x)
-			assert(x ~= nil and xType == 'table',
-				'expected %s (was %s)', classStr, xType)
-			assert(x.is_a ~= nil and type(x.is_a) == 'function' and x:is_a(class),
-				'expected %s (was %s)', classStr, tostring(x))
-			_verifyCache[classStr][x] = true
-		end
+		local obj = select(i, ...)
+		assert(pud.isClass(className, obj),
+			'expected %s (was %s, %s)', className, type(obj), tostring(obj))
 	end
+
 	return true
 end
+
 
 -------------
 -- warning --
@@ -123,3 +117,63 @@ function warning(msg, ...)
 	msg = 'Warning: '..msg..'\n'
 	io_stderr:write(format(msg, ...))
 end
+
+-------------------------------------
+-- pud namespace and class helpers --
+-------------------------------------
+pud = {}
+
+local _pudPath = ';pud/?.lua'
+local pudfiles = love.filesystem.enumerate('pud')
+for _,file in pairs(pudfiles) do
+	if love.filesystem.isDirectory(file) then
+		_pudPath = _pudPath..';pud/'..file..'/?.lua'
+	end
+end
+
+local _classCache = {}
+local _verifyCache = {}
+local _mt = {__mode = 'k'}
+
+-- cache class objects (even though Lua does this).
+-- this also avoids weird loop errors with require.
+function pud.getClass(className)
+	verify('string', className)
+	local theClass = _classCache[className]
+
+	if nil == theClass then
+		local oldPath = package.path
+		package.path = package.path.._pudPath
+		local ok,theClass = pcall(require, className)
+		if not ok then error(theClass) end
+		package.path = oldPath
+		_classCache[className] = theClass
+	end
+
+	return theClass
+end
+
+-- convenience function to get a new object of className
+function pud.new(className, ...)
+	local theClass = pud.getClass(className)
+	return theClass.new(...)
+end
+
+function pud.isClass(className, obj)
+	verify('string', className)
+	if obj == nil then return false end
+
+	_verifyCache[className] = _verifyCache[className] or setmetatable({}, _mt)
+	local is = _verifyCache[className][obj]
+
+	if nil == is then
+		local theClass = pud.getClass(className)
+		is = type(obj) == 'table' and obj.is_a and type(obj.is_a) == 'function'
+			and obj:is_a(theClass)
+
+		_verifyCache[className][obj] = is
+	end
+
+	return is
+end
+
