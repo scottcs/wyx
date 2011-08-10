@@ -99,11 +99,13 @@ end
 -- class helpers --
 -------------------
 
-local _pudPath = ';pud/?.lua'
+local _pudPath = ';./pud/?.lua'
 local pudfiles = love.filesystem.enumerate('pud')
 for _,file in pairs(pudfiles) do
+	file = 'pud/'..file
 	if love.filesystem.isDirectory(file) then
-		_pudPath = _pudPath..';pud/'..file..'/?.lua'
+		_pudPath = _pudPath..';./'..file..'/?.lua'
+	else
 	end
 end
 
@@ -112,7 +114,8 @@ local _verifyCache = {}
 local _mt = {__mode = 'k'}
 
 -- cache class objects (even though Lua does this).
--- this also avoids weird loop errors with require.
+-- this also helps to avoid weird loop errors with require, by printing the
+-- entire stack trace.
 function pud.getClass(className)
 	verify('string', className)
 	local theClass = _classCache[className]
@@ -120,9 +123,15 @@ function pud.getClass(className)
 	if nil == theClass then
 		local oldPath = package.path
 		package.path = package.path.._pudPath
-		local ok,theClass = pcall(require, className)
-		if not ok then error(theClass) end
+
+		local ok,res = xpcall(function()
+			return require(className)
+		end, debug.traceback)
+
+		if not ok then error(res) end
+
 		package.path = oldPath
+		theClass = res
 		_classCache[className] = theClass
 	end
 
