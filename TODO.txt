@@ -5,6 +5,9 @@
 [ ] make sure *Entity classes verify that necessary components exist on init.
 [X] remove Rect from Entity
 [X] EntityFactory: query new Entities for ViewComponents, register with RenderSystem
+[ ] get entities created from data into Level
+[ ] draw entities
+[ ] get hero movement working with keyboard again
 [X] ModelComponent - game data and helper methods
 [ ]   HealthComponent - hp info
 [ ]   PositionComponent - position info
@@ -16,8 +19,9 @@
 [ ]   GraphicsComponent - what to draw
 [ ]   InfoPanelComponent - just a guess here... mouseover info panel thingy
 [X] ControllerComponent - modifies the model based on circumstance
-[ ]   InputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
-[ ]   AIComponent - AI routines, sends same messages as input component
+[ ]   InputComponent
+[ ]     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
+[ ]     AIInputComponent - AI routines, sends same messages as input component
 [X] RenderSystem - lets ViewComponents register, draws
 [ ] InputSystem - ticks InputComponents
 [ ]   - must also allow components to steal input (example: interface steals mouse click so that any components underneath do nothing) (I THINK)
