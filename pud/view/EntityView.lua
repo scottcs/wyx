@@ -62,7 +62,7 @@ end
 -- flip quad if moving left
 function EntityView:CommandEvent(e)
 	local command = e:getCommand()
-	if not command:is_a(MoveCommand) then return end
+	if not isClass(MoveCommand, command) then return end
 	if command:getTarget() ~= self._entity then return end
 
 	local v = command:getVector()

@@ -88,9 +88,9 @@ local _registerControllers = function(entity)
 	if controllers then
 		for _,controller in pairs(controllers) do
 			--[[
-			if controller:is_a(InputComponent) then
+			if isClass(InputComponent, controller) then
 				InputSystem:register(controller)
-			elseif controller:is_a(AIComponent) then
+			elseif isClass(AIComponent, controller) then
 				AISystem:register(controller)
 			end
 			]]--

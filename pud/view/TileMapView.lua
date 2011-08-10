@@ -170,7 +170,7 @@ function TileMapView:_updateAnimatedTiles(dt)
 	if self._doAnimate and self._dt > self._animTick then
 		self._dt = self._dt - self._animTick
 		for _,t in ipairs(self._drawTiles) do
-			if t.tile:is_a(AnimatedTile) then
+			if isClass(AnimatedTile, t.tile) then
 				t.tile:update()
 				updated = updated + 1
 			end
@@ -199,7 +199,7 @@ function TileMapView:_updateTiles(dt)
 	local updated = 0
 
 	for _,t in ipairs(self._drawTiles) do
-		if t.tile:is_a(TileMapNodeView) then
+		if isClass(TileMapNodeView, t.tile) then
 			local key = t.tile:getKey()
 			t.tile:update()
 			if key ~= t.tile:getKey() then
@@ -327,7 +327,7 @@ function TileMapView:_setupTiles()
 					at:setUpdateCallback(torchUpdate, at)
 					self._animatedTiles[#self._animatedTiles+1] = at
 
-				elseif mapType:is_a(TrapMapType) then
+				elseif isClass(TrapMapType, mapType) then
 					local style = Random(1,6)
 					trapA:getMapType():setStyle('A'..tostring(style))
 					trapB:getMapType():setStyle('B'..tostring(style))
@@ -337,11 +337,11 @@ function TileMapView:_setupTiles()
 					self._animatedTiles[#self._animatedTiles+1] = at
 
 				else
-					if mapType:is_a(FloorMapType) then
+					if isClass(FloorMapType, mapType) then
 						mapType:setStyle(self._floorStyle)
-					elseif mapType:is_a(DoorMapType) then
+					elseif isClass(DoorMapType, mapType) then
 						mapType:setStyle(self._doorStyle)
-					elseif mapType:is_a(StairMapType) then
+					elseif isClass(StairMapType, mapType) then
 						mapType:setStyle(self._stairStyle)
 					else
 						mapType:setStyle(self._wallStyle)
@@ -373,7 +373,7 @@ end
 
 -- handle registered events as they are fired
 function TileMapView:onEvent(e, ...)
-	if e:is_a(MapUpdateFinishedEvent) then
+	if isClass(MapUpdateFinishedEvent, e) then
 		local map = e:getMap()
 		if self._level:isMap(map) then self:_drawFB() end
 	end
@@ -387,7 +387,7 @@ function TileMapView:_shouldDrawFloor(node)
 	local should = self._floorcache[key]
 	if should == nil then
 		local mapType = node:getMapType()
-		should = not mapType:is_a(FloorMapType) and not mapType:is_a(WallMapType)
+		should = not isClass(FloorMapType, mapType) and not isClass(WallMapType, mapType)
 		self._floorcache[key] = should
 	end
 	return should

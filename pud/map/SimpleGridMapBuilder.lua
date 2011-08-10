@@ -308,11 +308,11 @@ function SimpleGridMapBuilder:_placeDoor(x, y)
 			local placeDoor = false
 
 			-- check top and bottom neighbors for floor
-			if topMT:is_a(WallMapType) and bottomMT:is_a(WallMapType) then
+			if isClass(WallMapType, topMT) and isClass(WallMapType, bottomMT) then
 				placeDoor = true
 			else
 				-- top or bottom was floor, so now check sides
-				if leftMT:is_a(WallMapType) and rightMT:is_a(WallMapType) then
+				if isClass(WallMapType, leftMT) and isClass(WallMapType, rightMT) then
 					placeDoor = true
 				else
 					ok = false
@@ -367,7 +367,7 @@ function SimpleGridMapBuilder:addFeatures()
 					for y=y1,y2 do
 						local node = self._map:getLocation(x, y)
 						local mapType = node:getMapType()
-						if mapType:is_a(FloorMapType) then
+						if isClass(FloorMapType, mapType) then
 							node:setMapType(FloorMapType('interior'))
 						end
 					end
@@ -403,7 +403,7 @@ function SimpleGridMapBuilder:postProcessStep(node, point)
 	local mapType = node:getMapType()
 	local variant = mapType:getVariant()
 
-	if mapType:is_a(FloorMapType) and self._random(1,12) == 1 then
+	if isClass(FloorMapType, mapType) and self._random(1,12) == 1 then
 		if variant == 'interior' then
 			node:setMapType(FloorMapType('rug'))
 		else
@@ -413,7 +413,7 @@ function SimpleGridMapBuilder:postProcessStep(node, point)
 				node:setMapType(TrapMapType())
 			end
 		end
-	elseif mapType:is_a(WallMapType) and variant ~= 'vertical' then
+	elseif isClass(WallMapType, mapType) and variant ~= 'vertical' then
 		if self._random(1,12) == 1 then
 			node:setMapType(WallMapType('worn'))
 		elseif self._random(1,12) == 1 then

@@ -206,7 +206,7 @@ end
 function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
-	if command:is_a(OpenDoorCommand) then
+	if isClass(OpenDoorCommand, command) then
 		command:setOnComplete(self._bakeLights, self)
 	end
 	self._doTick = true

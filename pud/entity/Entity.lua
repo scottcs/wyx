@@ -48,7 +48,7 @@ function Entity:getType() return self._type end
 function Entity:getComponentsByType(componentType)
 	local components = {}
 	for _,comp in pairs(self._components) do
-		if comp:is_a(componentType) then components[#components+1] = comp end
+		if isClass(componentType, comp) then components[#components+1] = comp end
 	end
 	return #components > 0 and components or nil
 end

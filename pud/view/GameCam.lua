@@ -105,8 +105,7 @@ end
 
 -- follow a target Rect
 function GameCam:followTarget(rect)
-	assert(rect and rect.is_a and rect:is_a(Rect),
-		'GameCam can only follow a Rect (tried to follow %s)', tostring(rect))
+	verifyClass(Rect, rect)
 
 	if self._target then self:unfollowTarget() end
 

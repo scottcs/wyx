@@ -80,15 +80,15 @@ end
 
 local _findVariant = function(mtype, n)
 	local variants
-	if mtype:is_a(FloorMapType) then
+	if isClass(FloorMapType, mtype) then
 		variants = {'normal', 'worn', 'interior', 'rug'}
-	elseif mtype:is_a(WallMapType) then
+	elseif isClass(WallMapType, mtype) then
 		variants = {'normal', 'worn', 'torch'}
-	elseif mtype:is_a(DoorMapType) then
+	elseif isClass(DoorMapType, mtype) then
 		variants = {'shut', 'open'}
-	elseif mtype:is_a(StairMapType) then
+	elseif isClass(StairMapType, mtype) then
 		variants = {'up', 'down'}
-	elseif mtype:is_a(TrapMapType) then
+	elseif isClass(TrapMapType, mtype) then
 		variants = {'normal'}
 	end
 
@@ -190,7 +190,7 @@ end
 function FileMapBuilder:postProcessStep(node, point)
 	local mapType = node:getMapType()
 
-	if mapType:is_a(StairMapType) then
+	if isClass(StairMapType, mapType) then
 		local variant = mapType:getVariant()
 		self._stairs = self._stairs or {}
 		self._stairs[variant] =
