@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local Component = require 'pud.component.Component'
 local ComponentMediator = require 'pud.component.ComponentMediator'
 
 
@@ -19,7 +18,7 @@ local Entity = Class{name = 'Entity',
 
 		if components ~= nil then
 			verify('table', components)
-			verifyClass(Component, unpack(components))
+			verifyClass('pud.component.Component', unpack(components))
 		end
 
 		self._components = components

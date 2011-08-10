@@ -1,13 +1,12 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local Event = require 'pud.event.Event'
-local Map = require 'pud.map.Map'
 
 -- Map Update RequestEvent - fires when the map needs to be updated
 local MapUpdateRequestEvent = Class{name='MapUpdateRequestEvent',
 	inherits=Event,
 	function(self, map)
-		verifyClass(Map, map)
+		verifyClass('pud.map.Map', map)
 		Event.construct(self, 'Map Update RequestEvent')
 
 		self._map = map

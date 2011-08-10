@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local ComponentMediator = require 'pud.component.ComponentMediator'
 local property = require 'pud.component.property'
 
 -- Component
@@ -32,7 +31,7 @@ end
 
 -- set the mediator who owns this component
 function Component:setMediator(mediator)
-	verifyClass(ComponentMediator, mediator)
+	verifyClass('pud.component.ComponentMediator', mediator)
 	self._mediator = mediator
 end
 

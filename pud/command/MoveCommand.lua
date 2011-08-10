@@ -1,13 +1,12 @@
 local Class = require 'lib.hump.class'
 local Command = require 'pud.command.Command'
-local Traveler = require 'pud.entity.Traveler'
 
 -- MoveCommand
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
 	function(self, target, vector, node)
-		verifyClass(Traveler, target)
+		verifyClass('pud.entity.Traveler', target)
 		verify('vector', vector)
 
 		Command.construct(self, target)

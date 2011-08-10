@@ -1,13 +1,12 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
 local Event = require 'pud.event.Event'
-local Command = require 'pud.command.Command'
 
 -- Command Event - fires when a command needs to be executed
 local CommandEvent = Class{name='CommandEvent',
 	inherits=Event,
 	function(self, command)
-		verifyClass(Command, command)
+		verifyClass('pud.command.Command', command)
 		Event.construct(self, 'Command Event')
 
 		self._command = command

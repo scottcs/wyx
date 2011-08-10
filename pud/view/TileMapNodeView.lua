@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.map.MapNode'
 local MapNodeView = require 'pud.view.MapNodeView'
 local math_max = math.max
 
@@ -8,7 +7,7 @@ local math_max = math.max
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
 	function(self, node, width, height)
-		verifyClass(MapNode, node)
+		verifyClass('pud.map.MapNode', node)
 		width = width or TILEW
 		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)

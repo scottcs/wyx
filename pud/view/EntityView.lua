@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
-local Entity = require 'pud.entity.Entity'
 
 local CommandEvent = require 'pud.event.CommandEvent'
 local MoveCommand = require 'pud.command.MoveCommand'
@@ -12,7 +11,7 @@ local math_max = math.max
 local EntityView = Class{name='EntityView',
 	inherits=Rect,
 	function(self, entity, width, height)
-		verifyClass(Entity, entity)
+		verifyClass('pud.entity.Entity', entity)
 
 		width = width or TILEW
 		height = height or TILEH

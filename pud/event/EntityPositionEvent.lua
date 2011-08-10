@@ -1,13 +1,12 @@
 local Class = require 'lib.hump.class'
 local Event = require 'pud.event.Event'
-local Entity = require 'pud.entity.Entity'
 
 -- EntityPositionEvent
 --
 local EntityPositionEvent = Class{name='EntityPositionEvent',
 	inherits=Event,
 	function(self, entity, from, to)
-		verifyClass(Entity, entity)
+		verifyClass('pud.entity.Entity', entity)
 		verify('vector', from, to)
 
 		Event.construct(self, 'Entity Position Event')

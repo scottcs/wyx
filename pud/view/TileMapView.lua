@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local Rect = require 'pud.kit.Rect'
 local MapView = require 'pud.view.MapView'
-local Level = require 'pud.map.Level'
 local MapNode = require 'pud.map.MapNode'
 local MapType = require 'pud.map.MapType'
 local FloorMapType = require 'pud.map.FloorMapType'
@@ -24,7 +23,7 @@ local TileMapView = Class{name='TileMapView',
 	function(self, level)
 		MapView.construct(self)
 
-		verifyClass(Level, level)
+		verifyClass('pud.map.Level', level)
 		self._level = level
 		local mapW, mapH = self._level:getMapSize()
 

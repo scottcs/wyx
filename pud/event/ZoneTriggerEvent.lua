@@ -1,13 +1,12 @@
 local Class = require 'lib.hump.class'
 local Event = require 'pud.event.Event'
-local Entity = require 'pud.entity.Entity'
 
 -- ZoneTriggerEvent
 -- fires when something crosses a map zone boundary
 local ZoneTriggerEvent = Class{name='ZoneTriggerEvent',
 	inherits=Event,
 	function(self, entity, zone, isLeaving)
-		verifyClass(Entity, entity)
+		verifyClass('pud.entity.Entity', entity)
 		verify('string', zone)
 
 		Event.construct(self, 'Zone Trigger Event')

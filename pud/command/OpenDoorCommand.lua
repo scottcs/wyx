@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local Command = require 'pud.command.Command'
-local Map = require 'pud.map.Map'
 local MapNode = require 'pud.map.MapNode'
 local DoorMapType = require 'pud.map.DoorMapType'
 
@@ -11,7 +10,7 @@ local OpenDoorCommand = Class{name='OpenDoorCommand',
 		Command.construct(self, target)
 
 		verify('vector', pos)
-		verifyClass(Map, map)
+		verifyClass('pud.map.Map', map)
 
 		self._pos = pos
 		self._map = map

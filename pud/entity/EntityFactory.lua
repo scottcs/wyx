@@ -10,8 +10,6 @@ local ControllerComponent = require 'pud.component.ControllerComponent'
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
-local Component = require 'pud.component.Component'
-
 local ENTITY = {
 	enemy = {kind = 'enemy', level = 7},
 	hero = {kind = 'hero', level = 5},
@@ -52,7 +50,7 @@ local function _newComponent(componentString, props)
 		'could not load component: %s', componentString)
 
 	local component = new(props)
-	verifyClass(Component, component)
+	verifyClass('pud.component.Component', component)
 
 	return component
 end
