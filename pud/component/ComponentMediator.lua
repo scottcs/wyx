@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
-local Component = require 'pud.component.Component'
-local ListenerBag = require 'pud.kit.ListenerBag'
+local Component = getClass('pud.component.Component')
+local ListenerBag = getClass('pud.kit.ListenerBag')
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 local queryFunc = require 'pud.component.queryFunc'

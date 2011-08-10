@@ -2,7 +2,7 @@ local Class = require 'lib.hump.class'
 
 -- TimeManager
 
-local Deque = require 'pud.kit.Deque'
+local Deque = getClass('pud.kit.Deque')
 
 -- TimeManager class controls time
 local TimeManager = Class{name = 'TimeManager',

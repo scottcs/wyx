@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Event = require 'pud.event.Event'
+local Event = getClass('pud.event.Event')
 
 -- Game Start - fires when the game starts, before drawing or updating
 local GameStartEvent = Class{name='GameStartEvent',

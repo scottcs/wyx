@@ -7,29 +7,29 @@
 
 local st = GameState.new()
 
-local DebugHUD = debug and require 'pud.debug.DebugHUD'
-local MessageHUD = require 'pud.view.MessageHUD'
+local DebugHUD = debug and getClass('pud.debug.DebugHUD')
+local MessageHUD = getClass('pud.view.MessageHUD')
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
 
 -- systems
-local RenderSystemClass = require 'pud.system.RenderSystem'
+local RenderSystemClass = getClass('pud.system.RenderSystem')
 
 -- level
-local Level = require 'pud.map.Level'
+local Level = getClass('pud.map.Level')
 
 -- Camera
-local GameCam = require 'pud.view.GameCam'
+local GameCam = getClass('pud.view.GameCam')
 local vector = require 'lib.hump.vector'
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local ZoneTriggerEvent = getClass('pud.event.ZoneTriggerEvent')
+local MoveCommand = getClass('pud.command.MoveCommand')
 
 -- views
-local TileMapView = require 'pud.view.TileMapView'
+local TileMapView = getClass('pud.view.TileMapView')
 
 -- memory and framerate management constants
 local TARGET_FRAME_TIME_60 = 1/60

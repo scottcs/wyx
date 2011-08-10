@@ -1,10 +1,10 @@
 local Class = require 'lib.hump.class'
-local Entity = require 'pud.entity.Entity'
-local Deque = require 'pud.kit.Deque'
+local Entity = getClass('pud.entity.Entity')
+local Deque = getClass('pud.kit.Deque')
 local property = require 'pud.component.property'
 
 -- events this entity listens for
-local CommandEvent = require 'pud.event.CommandEvent'
+local CommandEvent = getClass('pud.event.CommandEvent')
 
 
 -- ItemEntity

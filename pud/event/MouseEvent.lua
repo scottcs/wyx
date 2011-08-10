@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local InputEvent = require 'pud.event.InputEvent'
+local InputEvent = getClass('pud.event.InputEvent')
 local vector = require 'lib.hump.vector'
 
 -- MouseEvent

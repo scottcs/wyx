@@ -2,25 +2,25 @@ local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'
 
 -- map classes
-local Map = require 'pud.map.Map'
-local MapDirector = require 'pud.map.MapDirector'
-local FileMapBuilder = require 'pud.map.FileMapBuilder'
-local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
-local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Map = getClass('pud.map.Map')
+local MapDirector = getClass('pud.map.MapDirector')
+local FileMapBuilder = getClass('pud.map.FileMapBuilder')
+local SimpleGridMapBuilder = getClass('pud.map.SimpleGridMapBuilder')
+local MapUpdateFinishedEvent = getClass('pud.event.MapUpdateFinishedEvent')
+local ZoneTriggerEvent = getClass('pud.event.ZoneTriggerEvent')
+local MapNode = getClass('pud.map.MapNode')
+local DoorMapType = getClass('pud.map.DoorMapType')
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local OpenDoorCommand = require 'pud.command.OpenDoorCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local OpenDoorCommand = getClass('pud.command.OpenDoorCommand')
 
 -- entities
-local EntityFactory = require 'pud.entity.EntityFactory'
-local message = require 'pud.component.message'
+local EntityFactory = getClass('pud.entity.EntityFactory')
+local message = getClass('pud.component.message')
 
 -- time manager
-local TimeManager = require 'pud.time.TimeManager'
+local TimeManager = getClass('pud.time.TimeManager')
 local TICK = 0.01
 
 local math_floor = math.floor

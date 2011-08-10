@@ -1,14 +1,14 @@
 require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapBuilder = require 'pud.map.MapBuilder'
-local MapNode = require 'pud.map.MapNode'
-local MapType = require 'pud.map.MapType'
-local FloorMapType = require 'pud.map.FloorMapType'
-local WallMapType = require 'pud.map.WallMapType'
-local DoorMapType = require 'pud.map.DoorMapType'
-local StairMapType = require 'pud.map.StairMapType'
-local TrapMapType = require 'pud.map.TrapMapType'
-local Rect = require 'pud.kit.Rect'
+local MapBuilder = getClass('pud.map.MapBuilder')
+local MapNode = getClass('pud.map.MapNode')
+local MapType = getClass('pud.map.MapType')
+local FloorMapType = getClass('pud.map.FloorMapType')
+local WallMapType = getClass('pud.map.WallMapType')
+local DoorMapType = getClass('pud.map.DoorMapType')
+local StairMapType = getClass('pud.map.StairMapType')
+local TrapMapType = getClass('pud.map.TrapMapType')
+local Rect = getClass('pud.kit.Rect')
 local vector = require 'lib.hump.vector'
 
 local math_floor = math.floor

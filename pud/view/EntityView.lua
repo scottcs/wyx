@@ -1,8 +1,8 @@
 local Class = require 'lib.hump.class'
-local Rect = require 'pud.kit.Rect'
+local Rect = getClass('pud.kit.Rect')
 
-local CommandEvent = require 'pud.event.CommandEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local MoveCommand = getClass('pud.command.MoveCommand')
 
 local math_max = math.max
 

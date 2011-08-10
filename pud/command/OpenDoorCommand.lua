@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
-local Command = require 'pud.command.Command'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Command = getClass('pud.command.Command')
+local MapNode = getClass('pud.map.MapNode')
+local DoorMapType = getClass('pud.map.DoorMapType')
 
 -- Open Door - fires when a door is opened
 local OpenDoorCommand = Class{name='OpenDoorCommand',

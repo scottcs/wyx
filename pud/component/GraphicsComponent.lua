@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local ViewComponent = require 'pud.component.ViewComponent'
+local ViewComponent = getClass('pud.component.ViewComponent')
 local property = require 'pud.component.property'
 local vector = require 'lib.hump.vector'
 
