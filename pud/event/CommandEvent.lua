@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Event = getClass('pud.event.Event')
+local Event = getClass 'pud.event.Event'
 
 -- Command Event - fires when a command needs to be executed
 local CommandEvent = Class{name='CommandEvent',

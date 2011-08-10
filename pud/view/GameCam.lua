@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
 local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
-local Rect = getClass('pud.kit.Rect')
+local Rect = getClass 'pud.kit.Rect'
 
 local math_max, math_min = math.max, math.min
 

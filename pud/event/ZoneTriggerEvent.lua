@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Event = getClass('pud.event.Event')
+local Event = getClass 'pud.event.Event'
 
 -- ZoneTriggerEvent
 -- fires when something crosses a map zone boundary

@@ -4,7 +4,7 @@ local Class = require 'lib.hump.class'
 -- Provides a class that registers objects with itself, then notifies
 -- those object when events occur.
 
-local Event = getClass('pud.event.Event')
+local Event = getClass 'pud.event.Event'
 local eventsMT = {__mode = 'k'}
 
 -- EventManager class

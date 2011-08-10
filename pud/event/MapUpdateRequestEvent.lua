@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Event = getClass('pud.event.Event')
+local Event = getClass 'pud.event.Event'
 
 -- Map Update RequestEvent - fires when the map needs to be updated
 local MapUpdateRequestEvent = Class{name='MapUpdateRequestEvent',

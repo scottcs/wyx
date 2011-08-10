@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local ComponentMediator = getClass('pud.component.ComponentMediator')
+local ComponentMediator = getClass 'pud.component.ComponentMediator'
 
 
 -- Entity

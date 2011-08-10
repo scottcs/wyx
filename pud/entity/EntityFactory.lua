@@ -1,11 +1,11 @@
 local Class = require 'lib.hump.class'
-local Entity = getClass('pud.entity.Entity')
-local HeroEntity = getClass('pud.entity.HeroEntity')
-local EnemyEntity = getClass('pud.entity.EnemyEntity')
-local ItemEntity = getClass('pud.entity.ItemEntity')
+local Entity = getClass 'pud.entity.Entity'
+local HeroEntity = getClass 'pud.entity.HeroEntity'
+local EnemyEntity = getClass 'pud.entity.EnemyEntity'
+local ItemEntity = getClass 'pud.entity.ItemEntity'
 
-local ViewComponent = getClass('pud.component.ViewComponent')
-local ControllerComponent = getClass('pud.component.ControllerComponent')
+local ViewComponent = getClass 'pud.component.ViewComponent'
+local ControllerComponent = getClass 'pud.component.ControllerComponent'
 
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'

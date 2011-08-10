@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local EntityView = getClass('pud.view.EntityView')
+local EntityView = getClass 'pud.view.EntityView'
 
 -- HeroView
 --

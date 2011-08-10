@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local MapBuilder = getClass('pud.map.MapBuilder')
+local MapBuilder = getClass 'pud.map.MapBuilder'
 
 -- MapDirector
 local MapDirector = Class{name='MapDirector'}

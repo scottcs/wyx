@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Node = getClass('pud.kit.Node')
+local Node = getClass 'pud.kit.Node'
 
 -- Deque
 -- A Deque is a container that allows items to be added and removed from both

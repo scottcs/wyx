@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local MapNodeView = getClass('pud.view.MapNodeView')
+local MapNodeView = getClass 'pud.view.MapNodeView'
 local math_max = math.max
 
 -- TileMapNodeView

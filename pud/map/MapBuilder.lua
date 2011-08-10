@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
-local Map = getClass('pud.map.Map')
-local MapNode = getClass('pud.map.MapNode')
-local WallMapType = getClass('pud.map.WallMapType')
+local Map = getClass 'pud.map.Map'
+local MapNode = getClass 'pud.map.MapNode'
+local WallMapType = getClass 'pud.map.WallMapType'
 local vector = require 'lib.hump.vector'
 
 -- MapBuilder

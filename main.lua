@@ -63,7 +63,7 @@ end
          --]]--
 
 GameState = require 'lib.hump.gamestate'
-EventManager = getClass('pud.event.EventManager')
+EventManager = getClass 'pud.event.EventManager'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -186,7 +186,7 @@ local function _getModifiers()
 	return mods
 end
 
-local KeyboardEvent = getClass('pud.event.KeyboardEvent')
+local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 
 function love.keypressed(key, unicode)
 	local mods = _getModifiers()
@@ -199,7 +199,7 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = getClass('pud.event.MouseEvent')
+local MouseEvent = getClass 'pud.event.MouseEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()

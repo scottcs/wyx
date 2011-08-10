@@ -1,12 +1,12 @@
 local Class = require 'lib.hump.class'
-local Controller = getClass('pud.controller.Controller')
+local Controller = getClass 'pud.controller.Controller'
 local vector = require 'lib.hump.vector'
 
 -- events this controller issues
-local CommandEvent = getClass('pud.event.CommandEvent')
+local CommandEvent = getClass 'pud.event.CommandEvent'
 
 -- commands this controller issues
-local MoveCommand = getClass('pud.command.MoveCommand')
+local MoveCommand = getClass 'pud.command.MoveCommand'
 
 -- HeroController
 -- controls the hero of the game

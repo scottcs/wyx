@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Component = getClass('pud.component.Component')
+local Component = getClass 'pud.component.Component'
 
 -- ControllerComponent
 --

@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local ListenerBag = getClass('pud.kit.ListenerBag')
+local ListenerBag = getClass 'pud.kit.ListenerBag'
 
 local table_sort = table.sort
 
