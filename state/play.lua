@@ -30,10 +30,6 @@ local MoveCommand = require 'pud.command.MoveCommand'
 
 -- views
 local TileMapView = require 'pud.view.TileMapView'
-local HeroView = require 'pud.view.HeroView'
-
--- controllers
-local HeroPlayerController = require 'pud.controller.HeroPlayerController'
 
 -- memory and framerate management constants
 local TARGET_FRAME_TIME_60 = 1/60
@@ -68,33 +64,10 @@ function st:enter()
 	collectgarbage('stop')
 end
 
-function st:_createEntityViews()
-	local tileW, tileH = self._view:getTileSize()
-	local heroX, heroY = Random(16), Random(2)
-	local quad = love.graphics.newQuad(
-		(heroX-1)*tileW, (heroY-1)*tileH,
-		tileW, tileH,
-		Image.char:getWidth(), Image.char:getHeight())
-	local floorquad = self._view:getFloorQuad()
-
-	if self._heroView then self._heroView:destroy() end
-	self._heroView = HeroView(self._level:getHero(), tileW, tileH)
-	self._heroView:set(Image.char, quad, Image.dungeon, floorquad)
-end
-
-function st:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getHero() then return end
-end
-
 function st:ZoneTriggerEvent(e)
 	local message = e:isLeaving() and 'Leaving' or 'Entering'
 	message = message..' Zone: '..tostring(e:getZone())
 	self:_displayMessage(message)
-end
-
-function st:_createEntityControllers()
-	self._heroController = HeroPlayerController(self._level:getHero())
 end
 
 function st:_createMapView(viewClass)
@@ -204,10 +177,6 @@ function st:leave()
 	self._messageHUD = nil
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil
-	self._heroView:destroy()
-	self._heroView = nil
-	self._heroController:destroy()
-	self._heroController = nil
 end
 
 function st:_postZoomIn(vp)
