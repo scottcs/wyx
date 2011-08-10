@@ -1,8 +1,7 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
 local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
-local Rect = require 'pud.kit.Rect'
+local Rect = getClass('pud.kit.Rect')
 
 local math_max, math_min = math.max, math.min
 
@@ -12,8 +11,7 @@ local _isVector = function(...)
 	local n = select('#',...)
 	for i=1,n do
 		local v = select(i,...)
-		assert(vector.isvector(v), 'vector expected, got %s (%s)',
-			tostring(v), type(v))
+		verify('vector', v)
 	end
 	return n > 0
 end
@@ -106,8 +104,7 @@ end
 
 -- follow a target Rect
 function GameCam:followTarget(rect)
-	assert(rect and rect.is_a and rect:is_a(Rect),
-		'GameCam can only follow a Rect (tried to follow %s)', tostring(rect))
+	verifyClass(Rect, rect)
 
 	if self._target then self:unfollowTarget() end
 

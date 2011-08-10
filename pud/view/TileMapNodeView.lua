@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.map.MapNode'
-local MapNodeView = require 'pud.view.MapNodeView'
+local MapNodeView = getClass('pud.view.MapNodeView')
 local math_max = math.max
 
 -- TileMapNodeView
@@ -8,11 +7,7 @@ local math_max = math.max
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
 	function(self, node, width, height)
-		assert(node and type(node) == 'table'
-			and node.is_a and node:is_a(MapNode),
-			'TileMapNodeView expects a MapNode in its constructor (was %s)',
-			type(node))
-
+		verifyClass('pud.map.MapNode', node)
 		width = width or TILEW
 		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)

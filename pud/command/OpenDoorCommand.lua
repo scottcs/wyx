@@ -1,9 +1,7 @@
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'
-local Command = require 'pud.command.Command'
-local Map = require 'pud.map.Map'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Command = getClass('pud.command.Command')
+local MapNode = getClass('pud.map.MapNode')
+local DoorMapType = getClass('pud.map.DoorMapType')
 
 -- Open Door - fires when a door is opened
 local OpenDoorCommand = Class{name='OpenDoorCommand',
@@ -11,10 +9,8 @@ local OpenDoorCommand = Class{name='OpenDoorCommand',
 	function(self, target, pos, map)
 		Command.construct(self, target)
 
-		assert(vector.isvector(pos),
-			'OpenDoorCommand expects a vector (was %s)', type(pos))
-		assert(map and type(map) == 'table' and map.is_a and map:is_a(Map),
-			'OpenDoorCommand expects a Map (was %s)', type(map))
+		verify('vector', pos)
+		verifyClass('pud.map.Map', map)
 
 		self._pos = pos
 		self._map = map

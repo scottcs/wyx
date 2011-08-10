@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
-local Map = require 'pud.map.Map'
-local MapNode = require 'pud.map.MapNode'
-local WallMapType = require 'pud.map.WallMapType'
+local Map = getClass('pud.map.Map')
+local MapNode = getClass('pud.map.MapNode')
+local WallMapType = getClass('pud.map.WallMapType')
 local vector = require 'lib.hump.vector'
 
 -- MapBuilder
@@ -43,11 +43,11 @@ function MapBuilder:postProcess()
 			local variant = mapType:getVariant()
 
 			local horizontal = true
-			if mapType:is_a(WallMapType) then
+			if isClass(WallMapType, mapType) then
 				local below = self._map:getLocation(x, y+1)
 				if below then
 					local bMapType = below:getMapType()
-					horizontal = not bMapType:is_a(WallMapType)
+					horizontal = not isClass(WallMapType, bMapType)
 				end
 
 				if not horizontal then

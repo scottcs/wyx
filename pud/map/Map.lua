@@ -1,8 +1,6 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.map.MapNode'
-local Rect = require 'pud.kit.Rect'
-local vector = require 'lib.hump.vector'
+local MapNode = getClass('pud.map.MapNode')
+local Rect = getClass('pud.kit.Rect')
 
 local table_concat = table.concat
 local math_floor = math.floor
@@ -65,9 +63,7 @@ function Map:setLocation(x, y, node)
 	verify('number', x, y)
 	assert(x >= 1 and x <= self:getWidth(), 'setLocation x is out of range')
 	assert(y >= 1 and y <= self:getHeight(), 'setLocation y is out of range')
-	assert(node and node.is_a and node:is_a(MapNode),
-		'attempt to call setLocation without a MapNode (was %s)',
-		node and node.is_a and tostring(node) or type(node))
+	verifyClass(MapNode, node)
 
 	-- destroy the old node
 	if self._layout[y] and self._layout[y][x] then
@@ -94,17 +90,14 @@ end
 -- to the list of portals
 function Map:setPortal(name, point, map, mappoint)
 	verify('string', name)
-	assert(vector.isvector(point),
-		'vector expected for point argument (was %s)', type(point))
+	verify('vector', point)
 	assert(self:containsPoint(point),
 		'portal point is not within map borders: %s', tostring(point))
 
 	local link
 	if nil ~= map and nil ~= mappoint then
-		assert(vector.isvector(mappoint),
-			'vector expected for mappoint argument (was %s)', type(mappoint))
-		assert(map and type(map) == 'table' and map.is_a and map:is_a(Map),
-			'map expected (was %s, %s)', tostring(map), type(map))
+		verify('vector', mappoint)
+		verifyClass(Map, map)
 		assert(map:containsPoint(mappoint),
 			'portal mappoint is not within its map borders: %s', tostring(mappoint))
 
@@ -140,9 +133,7 @@ end
 
 -- create a zone
 function Map:setZone(name, rect)
-	assert(rect and type(rect) == 'table' and rect.is_a and rect:is_a(Rect),
-		'setZone expects a rect (was %s, %s)', tostring(rect), type(rect))
-
+	verifyClass(Rect, rect)
 	if self._zones[name] then self._zones[name]:destroy() end
 	self._zones[name] = rect:clone()
 end

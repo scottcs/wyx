@@ -1,9 +1,8 @@
 local Class = require 'lib.hump.class'
-local Rect = require 'pud.kit.Rect'
-local Entity = require 'pud.entity.Entity'
+local Rect = getClass('pud.kit.Rect')
 
-local CommandEvent = require 'pud.event.CommandEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local MoveCommand = getClass('pud.command.MoveCommand')
 
 local math_max = math.max
 
@@ -12,9 +11,7 @@ local math_max = math.max
 local EntityView = Class{name='EntityView',
 	inherits=Rect,
 	function(self, entity, width, height)
-		assert(entity and entity.is_a and entity:is_a(Entity),
-			'entity must be an instance of class Entity (was %s (%s))',
-			tostring(entity), type(entity))
+		verifyClass('pud.entity.Entity', entity)
 
 		width = width or TILEW
 		height = height or TILEH
@@ -64,7 +61,7 @@ end
 -- flip quad if moving left
 function EntityView:CommandEvent(e)
 	local command = e:getCommand()
-	if not command:is_a(MoveCommand) then return end
+	if not isClass(MoveCommand, command) then return end
 	if command:getTarget() ~= self._entity then return end
 
 	local v = command:getVector()

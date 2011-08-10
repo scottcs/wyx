@@ -1,6 +1,5 @@
 
 -- common utilities used throughout the program
-require 'pud.loveutil'
 require 'pud.util'
 require 'random'
 
@@ -64,7 +63,7 @@ end
          --]]--
 
 GameState = require 'lib.hump.gamestate'
-EventManager = require 'pud.event.EventManager'
+EventManager = getClass('pud.event.EventManager')
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -89,9 +88,9 @@ local function _makeSaveDirectories()
 		'image',
 		'sound',
 		'map',
-		'item',
-		'enemy',
-		'hero',
+		'entity/item',
+		'entity/enemy',
+		'entity/hero',
 		'skill',
 		]]--
 		'save',
@@ -136,7 +135,7 @@ function love.load()
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
-	--_testJSON('skula')
+	--_testJSON('GoblinGrunt')
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
@@ -187,7 +186,7 @@ local function _getModifiers()
 	return mods
 end
 
-local KeyboardEvent = require 'pud.event.KeyboardEvent'
+local KeyboardEvent = getClass('pud.event.KeyboardEvent')
 
 function love.keypressed(key, unicode)
 	local mods = _getModifiers()
@@ -200,7 +199,7 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = require 'pud.event.MouseEvent'
+local MouseEvent = getClass('pud.event.MouseEvent')
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()

@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Node = require 'pud.kit.Node'
+local Node = getClass('pud.kit.Node')
 
 -- Deque
 -- A Deque is a container that allows items to be added and removed from both
@@ -15,7 +15,7 @@ local Deque = Class{name='Deque',
 		if t then
 			assert(type(t) == 'table' and #t > 0,
 				'Deque must be initialized with an array or nil')
-			for i=1,#t do self:push(t[i]) end
+			for i=1,#t do self:push_back(t[i]) end
 		end
 	end
 }
@@ -136,7 +136,7 @@ end
 
 -- removes all the objects in the Deque.
 function Deque:clear()
-	for i=1,self._size do self:pop() end
+	for i=1,self._size do self:pop_front() end
 	_clear(self)
 end
 

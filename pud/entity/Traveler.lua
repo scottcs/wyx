@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'	
+local match = string.match
 
 -- Traveler
 -- assumes the child inheriting this class also inherits Rect
@@ -14,13 +14,27 @@ function Traveler:destroy()
 	self._zone = nil
 end
 
-function Traveler:canMove(node) return node:isAccessible() end
+function Traveler:isBlocked(node)
+	local blocked = false
+	local mapType = node:getMapType()
+	local variant = mapType:getVariant()
+	local mt = match(mapType.__class, '^(%w+)MapType')
+	if mt then
+		blocked = self:query('BlockedBy', function(t)
+			for _,p in pairs(t) do
+				if p[mt] and (variant == p[mt] or p[mt] == 'ALL') then return true end
+			end
+			return false
+		end)
+	end
+
+	return blocked
+end
 
 function Traveler:getMovePosition() return self._movePosition end
 
 function Traveler:setMovePosition(v)
-	assert(vector.isvector(v),
-		'setMovePosition expects a vector (was %s)', type(v))
+	verify('vector', v)
 	self._movePosition = v
 end
 

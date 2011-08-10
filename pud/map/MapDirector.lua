@@ -1,12 +1,12 @@
 local Class = require 'lib.hump.class'
-local MapBuilder = require 'pud.map.MapBuilder'
+local MapBuilder = getClass('pud.map.MapBuilder')
 
 -- MapDirector
 local MapDirector = Class{name='MapDirector'}
 
 -- generate a standard roguelike map with rooms connected via hallways.
 function MapDirector:generateStandard(builder)
-	assert(builder:is_a(MapBuilder))
+	assert(isClass(MapBuilder, builder))
 	
 	builder:createMap()
 	builder:addFeatures()

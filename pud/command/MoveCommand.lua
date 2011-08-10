@@ -1,15 +1,13 @@
 local Class = require 'lib.hump.class'
-local Command = require 'pud.command.Command'
-local Traveler = require 'pud.entity.Traveler'
+local Command = getClass('pud.command.Command')
 
 -- MoveCommand
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
 	function(self, target, vector, node)
-		assert(target and type(target) == 'table'
-			and target.is_a and target:is_a(Traveler),
-			'target must be an instance of Traveler (was %s)', tostring(target))
+		verifyClass('pud.entity.Traveler', target)
+		verify('vector', vector)
 
 		Command.construct(self, target)
 

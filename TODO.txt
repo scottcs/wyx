@@ -1,4 +1,33 @@
 [X] change FileMapLoader to consider all files in map dir
+[X] change dungeon sets to mix colors for walls, floors and stairs
+[X] Event tables should be weak tables
+[X] write isClass and getClass
+[ ] make sure *Entity classes verify that necessary components exist on init.
+[X] remove Rect from Entity
+[X] EntityFactory: query new Entities for ViewComponents, register with
+RenderSystem
+[X] ModelComponent - game data and helper methods
+[ ]   HealthComponent - hp info
+[ ]   PositionComponent - position info
+[ ]   TimeComponent - speed/action point info
+[X] ViewComponent = anything that will be drawn
+[ ]   GraphicsComponent - what to draw
+[ ]   InfoPanelComponent - just a guess here... mouseover info panel thingy
+[X] ControllerComponent - anything that modifies the model
+[ ]   InputComponent - which keys/mouse buttons to listen for, messages to
+send when they are pressed
+[ ]   AIComponent - AI routines, sends same messages as input component
+[ ]   CombatComponent - determines attack rolls vs target, sends messages
+[ ]   CollisionComponent - decides if collision occurs, sends messages
+[ ]   MotionComponent - moves the entity
+[X] RenderSystem - lets ViewComponents register, draws
+[ ] InputSystem - ticks InputComponents
+[ ]   - must also allow components to steal input (example: interface steals
+mouse click so that any components underneath do nothing) (I THINK)
+[ ] AISystem - ticks AIComponents
+[ ] UISystem - handles User Interface
+[ ] CombatSystem - determines outcome of combat using CombatComponents
+[ ] TimeSystem - determines whose turn it is
 [ ] add monsters
 [ ] save/load
 [ ] add combat
@@ -8,7 +37,28 @@
 [ ] make stairs work (generate new map)
 [ ] wizard mode
 [ ] map as quad-tree (or something)?
+[ ] poisson disk sampling for decoration/item/monster placement (map gen too?)
 [ ] can hero background be transparent?
 [ ] make hero movement smoother (possibly only move camera when near edges?)
 [-] don't animate or update dim tiles
 [-] support sprite batches if framebuffers are unsupported
+
+NOTES:
+* Entity knows nothing about Component implementations. It contains no state
+  like position or visual representation.
+  - This means remove Rect inheritance and add position to a ModelComponent.
+  - it contains only lifetime management and identifier scoping.
+  - can query components for type.
+
+* Properties
+  - want to assume it's lua code if not property.isproperty? If so, then the
+    whole property() thing is useless.
+
+* Events
+  - Don't have chains of objects observing other objects, observing other
+    objects. One layer of observer relationships is best (unless you use an
+    Event Aggregator).
+      - this is because it is very hard to debug. it's not obvious where calls
+        came from because they are messages sent at some point from somewhere.
+  - currently I am queueing and flushing events... is this necessary or even
+    wise? Might account for performance issues? Look into it!

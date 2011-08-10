@@ -2,24 +2,25 @@ local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'
 
 -- map classes
-local Map = require 'pud.map.Map'
-local MapDirector = require 'pud.map.MapDirector'
-local FileMapBuilder = require 'pud.map.FileMapBuilder'
-local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
-local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Map = getClass('pud.map.Map')
+local MapDirector = getClass('pud.map.MapDirector')
+local FileMapBuilder = getClass('pud.map.FileMapBuilder')
+local SimpleGridMapBuilder = getClass('pud.map.SimpleGridMapBuilder')
+local MapUpdateFinishedEvent = getClass('pud.event.MapUpdateFinishedEvent')
+local ZoneTriggerEvent = getClass('pud.event.ZoneTriggerEvent')
+local MapNode = getClass('pud.map.MapNode')
+local DoorMapType = getClass('pud.map.DoorMapType')
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local OpenDoorCommand = require 'pud.command.OpenDoorCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local OpenDoorCommand = getClass('pud.command.OpenDoorCommand')
 
 -- entities
-local HeroEntity = require 'pud.entity.HeroEntity'
+local EntityFactory = getClass('pud.entity.EntityFactory')
+local message = getClass('pud.component.message')
 
 -- time manager
-local TimeManager = require 'pud.time.TimeManager'
+local TimeManager = getClass('pud.time.TimeManager')
 local TICK = 0.01
 
 local math_floor = math.floor
@@ -40,6 +41,7 @@ local Level = Class{name='Level',
 			lit = {1,1,1},
 		}
 		self._lightmap = {}
+		self._entities = {}
 
 		CommandEvents:register(self, CommandEvent)
 	end
@@ -50,11 +52,14 @@ function Level:destroy()
 	CommandEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
-	self._hero:destroy()
-	self._hero = nil
 	self._doTick = nil
 	self._timeManager:destroy()
 	self._timeManager = nil
+	for k in pairs(self._entities) do
+		self._entities[k]:destroy()
+		self._entities[k] = nil
+	end
+	self._entities = nil
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
@@ -177,8 +182,20 @@ function Level:isMap(map) return map == self._map end
 -- return true if the given point exists on the map
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
--- return the hero entity
-function Level:getHero() return self._hero end
+-- return the entities at the given location
+function Level:getEntitiesAtLocation(pos)
+	local ents = {}
+	for _,entity in pairs(self._entities) do
+		if entity:getPositionVector() == pos then ents[#ents+1] = entity end
+	end
+	return #ents > 0 and ents or nil
+end
+
+function Level:sendToAllEntities(msg, ...)
+	for _,entity in pairs(self._entities) do
+		entity:send(message(msg), ...)
+	end
+end
 
 function Level:createEntities()
 	self._hero = HeroEntity()
@@ -189,7 +206,7 @@ end
 function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
-	if command:is_a(OpenDoorCommand) then
+	if isClass(OpenDoorCommand, command) then
 		command:setOnComplete(self._bakeLights, self)
 	end
 	self._doTick = true

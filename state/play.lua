@@ -7,30 +7,29 @@
 
 local st = GameState.new()
 
-local DebugHUD = debug and require 'pud.debug.DebugHUD'
-local MessageHUD = require 'pud.view.MessageHUD'
+local DebugHUD = debug and getClass('pud.debug.DebugHUD')
+local MessageHUD = getClass('pud.view.MessageHUD')
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
 
+-- systems
+local RenderSystemClass = getClass('pud.system.RenderSystem')
+
 -- level
-local Level = require 'pud.map.Level'
+local Level = getClass('pud.map.Level')
 
 -- Camera
-local GameCam = require 'pud.view.GameCam'
+local GameCam = getClass('pud.view.GameCam')
 local vector = require 'lib.hump.vector'
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
+local CommandEvent = getClass('pud.event.CommandEvent')
+local ZoneTriggerEvent = getClass('pud.event.ZoneTriggerEvent')
+local MoveCommand = getClass('pud.command.MoveCommand')
 
 -- views
-local TileMapView = require 'pud.view.TileMapView'
-local HeroView = require 'pud.view.HeroView'
-
--- controllers
-local HeroPlayerController = require 'pud.controller.HeroPlayerController'
+local TileMapView = getClass('pud.view.TileMapView')
 
 -- memory and framerate management constants
 local TARGET_FRAME_TIME_60 = 1/60
@@ -40,6 +39,9 @@ local COLLECT_THRESHOLD = 10000000/1024 -- 10 megs
 local _lastCollect
 
 function st:enter()
+	-- create systems
+	RenderSystem = RenderSystemClass()
+	
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
 	self._level = Level()
@@ -62,33 +64,10 @@ function st:enter()
 	collectgarbage('stop')
 end
 
-function st:_createEntityViews()
-	local tileW, tileH = self._view:getTileSize()
-	local heroX, heroY = Random(16), Random(2)
-	local quad = love.graphics.newQuad(
-		(heroX-1)*tileW, (heroY-1)*tileH,
-		tileW, tileH,
-		Image.char:getWidth(), Image.char:getHeight())
-	local floorquad = self._view:getFloorQuad()
-
-	if self._heroView then self._heroView:destroy() end
-	self._heroView = HeroView(self._level:getHero(), tileW, tileH)
-	self._heroView:set(Image.char, quad, Image.dungeon, floorquad)
-end
-
-function st:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getHero() then return end
-end
-
 function st:ZoneTriggerEvent(e)
 	local message = e:isLeaving() and 'Leaving' or 'Entering'
 	message = message..' Zone: '..tostring(e:getZone())
 	self:_displayMessage(message)
-end
-
-function st:_createEntityControllers()
-	self._heroController = HeroPlayerController(self._level:getHero())
 end
 
 function st:_createMapView(viewClass)
@@ -177,7 +156,7 @@ end
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
-	self._heroView:draw()
+	RenderSystem:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
@@ -185,6 +164,7 @@ end
 
 function st:leave()
 	collectgarbage('restart')
+	RenderSystem:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
@@ -197,10 +177,6 @@ function st:leave()
 	self._messageHUD = nil
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil
-	self._heroView:destroy()
-	self._heroView = nil
-	self._heroController:destroy()
-	self._heroController = nil
 end
 
 function st:_postZoomIn(vp)

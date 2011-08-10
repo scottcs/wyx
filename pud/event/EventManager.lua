@@ -4,7 +4,8 @@ local Class = require 'lib.hump.class'
 -- Provides a class that registers objects with itself, then notifies
 -- those object when events occur.
 
-local Event = require 'pud.event.Event'
+local Event = getClass('pud.event.Event')
+local eventsMT = {__mode = 'k'}
 
 -- EventManager class
 local EventManager = Class{name='EventManager',
@@ -12,12 +13,6 @@ local EventManager = Class{name='EventManager',
 		self._events = {}
 	end
 }
-
--- validate that the given event is a defined event (in pud.event.Event)
-local _validateEvent = function(e)
-	assert(e, 'event is nil')
-	assert(e.is_a and e:is_a(Event), 'invalid event: %s', tostring(e))
-end
 
 -- validate that the given object is an object or a function
 local _validateObj = function(obj)
@@ -51,14 +46,15 @@ function EventManager:register(obj, events)
 		events = {events}
 	end
 	for _,event in ipairs(events) do
-		_validateEvent(event)
+		verifyClass(Event, event)
 		local keyStr = tostring(event:getEventKey())
 		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
 			'object "%s" is missing event callback method for event "%s"',
 			tostring(obj), keyStr)
 
 		local key = event:getEventKey()
-		self._events[key] = self._events[key] or {}
+		-- event table has weak keys
+		self._events[key] = self._events[key] or setmetatable({}, eventsMT)
 		self._events[key][obj] = true
 	end
 end
@@ -71,7 +67,7 @@ function EventManager:unregister(obj, events)
 		events = {events}
 	end
 	for _,event in ipairs(events) do
-		_validateEvent(event)
+		verifyClass(Event, event)
 		local key = event:getEventKey()
 
 		if self._events[key] and self._events[key][obj] then
@@ -109,7 +105,7 @@ end
 -- note: it is recommended to use push() and flush() rather than call notify()
 -- directly.
 function EventManager:notify(event)
-	_validateEvent(event)
+	verifyClass(Event, event)
 	local key = event:getEventKey()
 
 	if self._events[key] then
@@ -129,7 +125,7 @@ end
 
 -- push an event into the event queue
 function EventManager:push(event)
-	_validateEvent(event)
+	verifyClass(Event, event)
 
 	self._queue = self._queue or {}
 	self._queue[#self._queue + 1] = event

@@ -1,9 +1,9 @@
 local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'
-local HeroController = require 'pud.controller.HeroController'
+local HeroController = getClass('pud.controller.HeroController')
 
 -- events this controller listens for
-local KeyboardEvent = require 'pud.event.KeyboardEvent'
+local KeyboardEvent = getClass('pud.event.KeyboardEvent')
 
 -- HeroPlayerController
 --
