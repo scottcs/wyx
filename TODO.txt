@@ -1,65 +1,71 @@
-[X] change FileMapLoader to consider all files in map dir
-[X] change dungeon sets to mix colors for walls, floors and stairs
-[X] Event tables should be weak tables
-[X] write isClass and getClass
-[ ] make sure *Entity classes verify that necessary components exist on init.
-[X] remove Rect from Entity
-[X] EntityFactory: query new Entities for ViewComponents, register with RenderSystem
-[ ] get entities created from data into Level
-[ ] draw entities
-[ ] get hero movement working with keyboard again
-[X] ModelComponent - game data and helper methods
-[ ]   HealthComponent - hp info
-[ ]   PositionComponent - position info
-[ ]   TimeComponent - speed/action point info
-[ ]   CombatComponent - determines attack rolls vs target, sends messages
-[ ]   CollisionComponent - decides if collision occurs, sends messages
-[ ]   MotionComponent - moves the entity
-[X] ViewComponent = anything that will be drawn
-[ ]   GraphicsComponent - what to draw
-[ ]   InfoPanelComponent - just a guess here... mouseover info panel thingy
-[X] ControllerComponent - modifies the model based on circumstance
-[ ]   InputComponent
-[ ]     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
-[ ]     AIInputComponent - AI routines, sends same messages as input component
-[X] RenderSystem - lets ViewComponents register, draws
-[ ] InputSystem - ticks InputComponents
-[ ]   - must also allow components to steal input (example: interface steals mouse click so that any components underneath do nothing) (I THINK)
-[ ] AISystem - ticks AIComponents
-[ ] UISystem - handles User Interface
-[ ] CombatSystem - determines outcome of combat using CombatComponents
-[ ] TimeSystem - determines whose turn it is
-[ ] add monsters
-[ ] save/load
-[ ] add combat
-[ ] add interface
-[ ] add items (as composites?)
-[ ] maptypes as composites?
-[ ] make stairs work (generate new map)
-[ ] wizard mode
-[ ] map as quad-tree (or something)?
-[ ] poisson disk sampling for decoration/item/monster placement (map gen too?)
-[ ] can hero background be transparent?
-[ ] make hero movement smoother (possibly only move camera when near edges?)
-[-] don't animate or update dim tiles
-[-] support sprite batches if framebuffers are unsupported
+d change FileMapLoader to consider all files in map dir
+d change dungeon sets to mix colors for walls, floors and stairs
+d Event tables should be weak tables
+d write isClass and getClass
+
+Implement Components:
+  o make sure *Entity classes verify that necessary components exist on init.
+  d remove Rect from Entity
+  d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
+  + get entities created from data into Level
+  + draw entities
+  + get hero movement working with keyboard again
+  d ModelComponent - game data and helper methods
+  o   HealthComponent - hp info
+  o   PositionComponent - position info
+  o   TimeComponent - speed/action point info
+  -   CombatComponent - determines attack rolls vs target, sends messages
+  -   CollisionComponent - decides if collision occurs, sends messages
+  -   MotionComponent - moves the entity
+  d ViewComponent = anything that will be drawn
+  o   GraphicsComponent - what to draw
+  o   InfoPanelComponent - just a guess here... mouseover info panel thingy
+  d ControllerComponent - modifies the model based on circumstance
+  o   InputComponent
+  o     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
+  o     AIInputComponent - AI routines, sends same messages as input component
+  d RenderSystem - lets ViewComponents register, draws
+  o InputSystem - ticks InputComponents
+  o   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
+  o AISystem - ticks AIComponents
+  o UISystem - handles User Interface
+  o CombatSystem - determines outcome of combat using CombatComponents
+  o TimeSystem - determines whose turn it is
+
+For v0.1.0:
+  o add monsters
+  o save/load
+  o add combat
+  o add interface
+  o add items [as composites?]
+
+Beyond v0.1.0:
+  - maptypes as composites?
+  o make stairs work [generate new map]
+  - wizard mode
+  - map as quad-tree [or something?]
+  - poisson disk sampling for decoration/item/monster placement [map gen too?]
+  o can hero background be transparent?
+  - make hero movement smoother [possibly only move camera when near edges?]
+  x don't animate or update dim tiles
+  x support sprite batches if framebuffers are unsupported
 
 NOTES:
-* Entity knows nothing about Component implementations. It contains no state
-  like position or visual representation.
-  - This means remove Rect inheritance and add position to a ModelComponent.
-  - it contains only lifetime management and identifier scoping.
-  - can query components for type.
+Entity knows nothing about Component implementations. It contains no state
+like position or visual representation.
+  * This means remove Rect inheritance and add position to a ModelComponent.
+  * it contains only lifetime management and identifier scoping.
+  * can query components for type.
 
-* Properties
-  - want to assume it's lua code if not property.isproperty? If so, then the
+Properties:
+  ? want to assume it's lua code if not property.isproperty? If so, then the
     whole property() thing is useless.
 
-* Events
-  - Don't have chains of objects observing other objects, observing other
+Events:
+  * Don't have chains of objects observing other objects, observing other
     objects. One layer of observer relationships is best (unless you use an
     Event Aggregator).
-      - this is because it is very hard to debug. it's not obvious where calls
+      * this is because it is very hard to debug. it's not obvious where calls
         came from because they are messages sent at some point from somewhere.
-  - currently I am queueing and flushing events... is this necessary or even
+  ? currently I am queueing and flushing events... is this necessary or even
     wise? Might account for performance issues? Look into it!
