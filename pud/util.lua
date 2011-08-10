@@ -2,9 +2,6 @@ local select, type, tostring = select, type, tostring
 local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
 
--- pud namespace
-pud = {}
-
 
          --[[--
         UTILITIES
@@ -27,7 +24,7 @@ end
 
 local vector = require 'lib.hump.vector'
 
--- assert helpers
+-- verify that all the given objects are of the given type
 function verify(theType, ...)
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
@@ -38,19 +35,6 @@ function verify(theType, ...)
 			assert(xType == theType, '%s expected (was %s)', theType, xType)
 		end
 	end
-	return true
-end
-
-
-function verifyClass(className, ...)
-	verify('string', className)
-
-	for i=1,select('#', ...) do
-		local obj = select(i, ...)
-		assert(pud.isClass(className, obj),
-			'expected %s (was %s, %s)', className, type(obj), tostring(obj))
-	end
-
 	return true
 end
 
@@ -98,67 +82,58 @@ end
 -------------------
 -- class helpers --
 -------------------
-
-local _pudPath = ';./pud/?.lua'
-local pudfiles = love.filesystem.enumerate('pud')
-for _,file in pairs(pudfiles) do
-	file = 'pud/'..file
-	if love.filesystem.isDirectory(file) then
-		_pudPath = _pudPath..';./'..file..'/?.lua'
-	else
-	end
-end
-
-local _classCache = {}
-local _verifyCache = {}
 local _mt = {__mode = 'k'}
+local _classCache = {}
+local _verifyCache = setmetatable({}, _mt)
 
 -- cache class objects (even though Lua does this).
--- this also helps to avoid weird loop errors with require, by printing the
--- entire stack trace.
-function pud.getClass(className)
-	verify('string', className)
-	local theClass = _classCache[className]
+-- this also helps to avoid weird loop errors with require.
+function getClass(classPath)
+	verify('string', classPath)
+	local theClass = _classCache[classPath]
 
 	if nil == theClass then
-		local oldPath = package.path
-		package.path = package.path.._pudPath
-
-		local ok,res = pcall(require, className)
-
+		local ok,res = pcall(require, classPath)
 		if not ok then error(res) end
 
-		package.path = oldPath
 		theClass = res
-		_classCache[className] = theClass
+		_classCache[classPath] = theClass
 	end
 
 	return theClass
 end
 
--- convenience function to get a new object of className
-function pud.new(className, ...)
-	local theClass = pud.getClass(className)
-	return theClass.new(...)
-end
-
-function pud.isClass(className, obj)
-	verify('string', className)
+-- return true if the given object is an instance of the given class
+function isClass(class, obj)
+	if type(class) == 'string' then class = getClass(class) end
 	if obj == nil then return false end
 
-	_verifyCache[className] = _verifyCache[className] or setmetatable({}, _mt)
-	local is = _verifyCache[className][obj]
+	_verifyCache[class] = _verifyCache[class] or setmetatable({}, _mt)
+	local is = _verifyCache[class][obj]
 
 	if nil == is then
-		local theClass = pud.getClass(className)
-		is = type(obj) == 'table' and obj.is_a and type(obj.is_a) == 'function'
-			and obj:is_a(theClass)
+		is = type(obj) == 'table'
+			and nil ~= obj.is_a
+			and type(obj.is_a) == 'function'
+			and obj:is_a(class)
 
-		_verifyCache[className][obj] = is
+		_verifyCache[class][obj] = is
 	end
 
 	return is
 end
+
+-- assert that the given objects are all instances of the given class
+function verifyClass(class, ...)
+	for i=1,select('#', ...) do
+		local obj = select(i, ...)
+		assert(isClass(class, obj),
+			'expected %s (was %s, %s)', class, type(obj), tostring(obj))
+	end
+
+	return true
+end
+
 
 
          --[[--
