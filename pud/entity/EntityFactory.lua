@@ -1,8 +1,5 @@
 local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
-local HeroEntity = getClass 'pud.entity.HeroEntity'
-local EnemyEntity = getClass 'pud.entity.EnemyEntity'
-local ItemEntity = getClass 'pud.entity.ItemEntity'
 
 local ViewComponent = getClass 'pud.component.ViewComponent'
 local ControllerComponent = getClass 'pud.component.ControllerComponent'
@@ -10,24 +7,23 @@ local ControllerComponent = getClass 'pud.component.ControllerComponent'
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
-local ENTITY = {
-	enemy = {kind = 'enemy', level = 7},
-	hero = {kind = 'hero', level = 5},
-	item = {kind = 'item', level = 10},
-}
-
 
 -- EntityFactory
 -- creates entities based on data files
 local EntityFactory = Class{name='EntityFactory',
-	function(self) end
+	function(self, kind)
+		self._kind = kind or 'UNKNOWN'
+		self._renderLevel = 30
+	end
 }
 
 -- destructor
-function EntityFactory:destroy() end
+function EntityFactory:destroy()
+	self._kind = nil
+end
 
-local _getEntityInfo = function(kind, entityName)
-	local filename = 'entity/'..kind..'/'..entityName..'.json'
+function EntityFactory:_getEntityInfo(entityName)
+	local filename = 'entity/'..self._kind..'/'..entityName..'.json'
 	local contents, size = love.filesystem.read(filename)
 
 	-- these files should be at mininmum 27 bytes
@@ -43,7 +39,7 @@ end
 
 -- create a new component from the given string representation of a component
 -- class.
-local function _newComponent(componentString, props)
+function EntityFactory:_newComponent(componentString, props)
 	local new = assert(
 		loadstring('return require "pud.component.'
 			..componentString..'"'),
@@ -55,33 +51,53 @@ local function _newComponent(componentString, props)
 	return component
 end
 
+-- check for required components, and add any that are missing
+function EntityFactory:_addMissingRequiredComponents(unique)
+	if self._requiredComponents then
+		for _,comp in pairs(self._requiredComponents) do
+			local compName = tostring(comp)
+			if not unique[compName] then unique[compName] = comp() end
+		end
+	end
+end
+
 -- return the component objects described by the info table
-local _getComponents = function(info)
-	local newComponents = {}
+function EntityFactory:_getComponents(info)
+	local unique = {}
 
 	for component, props in pairs(info.components) do
 		if type(component) == 'number' then
 			component = props
 			props = nil
 		end
-		newComponents[#newComponents+1] = _newComponent(component, props)
+		if not unique[component] then
+			unique[component] = self:_newComponent(component, props)
+		else
+			warning('Component "%s" was defined more than once.',
+				tostring(component))
+		end
 	end
+
+	self:_addMissingRequiredComponents(unique)
+
+	local newComponents = {}
+	for _,v in pairs(unique) do newComponents[#newComponents+1] = v end
 
 	return #newComponents > 0 and newComponents or nil
 end
 
 -- register with the relevant systems any ViewComponents the entity has
-local _registerViews = function(entity, level)
+function EntityFactory:_registerViews(entity)
 	local views = entity:getComponentsByType(ViewComponent)
 	if views then
 		for _,view in pairs(views) do
-			RenderSystem:register(view, level)
+			RenderSystem:register(view, self._renderLevel)
 		end
 	end
 end
 
 -- register with the relevant systems any ControllerComponents the entity has
-local _registerControllers = function(entity)
+function EntityFactory:_registerControllers(entity)
 	local controllers = entity:getComponentsByType(ControllerComponent)
 	if controllers then
 		for _,controller in pairs(controllers) do
@@ -96,30 +112,11 @@ local _registerControllers = function(entity)
 	end
 end
 
--- create an enemy entity and return it
-function EntityFactory:createEnemy(entityName)
-	local e = ENTITY.enemy
-	local info = _getEntityInfo(e.kind, entityName)
-	local entity = EnemyEntity(entityName, _getComponents(info))
-	_registerViews(entity, e.level)
-	return entity
-end
-
--- create a hero entity and return it
-function EntityFactory:createHero(entityName)
-	local e = ENTITY.hero
-	local info = _getEntityInfo(e.kind, entityName)
-	local entity = HeroEntity(entityName, _getComponents(info))
-	_registerViews(entity, e.level)
-	return entity
-end
-
--- create a hero entity and return it
-function EntityFactory:createItem(entityName)
-	local e = ENTITY.item
-	local info = _getEntityInfo(e.kind, entityName)
-	local entity = ItemEntity(entityName, _getComponents(info))
-	_registerViews(entity, e.level)
+function EntityFactory:createEntity(entityName)
+	local info = self:_getEntityInfo(entityName)
+	local entity = Entity(entityName, self:_getComponents(info))
+	self:_registerViews(entity)
+	self:_registerControllers(entity)
 	return entity
 end
 

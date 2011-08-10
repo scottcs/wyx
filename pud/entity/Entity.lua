@@ -7,7 +7,7 @@ local ComponentMediator = getClass 'pud.component.ComponentMediator'
 local _id = 0
 local Entity = Class{name = 'Entity',
 	inherits=ComponentMediator,
-	function(self, name, entityType, components)
+	function(self, entityType, name, components)
 		ComponentMediator.construct(self)
 		_id = _id + 1
 		self._id = _id
