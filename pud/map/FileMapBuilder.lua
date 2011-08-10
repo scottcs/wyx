@@ -1,4 +1,3 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
 local Rect = getClass('pud.kit.Rect')
 local MapBuilder = getClass('pud.map.MapBuilder')
