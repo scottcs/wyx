@@ -28,7 +28,7 @@ property.MaxHealthBonus    = 'MaxHealthBonus'
 -- graphics properties
 property.TileSet           = 'TileSet'
 property.TileCoords        = 'TileCoords'
-property.TileCoords        = 'TileSize'
+property.TileSize          = 'TileSize'
 property.Visibility        = 'Visibility'
 
 -- time properties
