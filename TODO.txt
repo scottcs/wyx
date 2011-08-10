@@ -1,6 +1,7 @@
 [X] change FileMapLoader to consider all files in map dir
 [X] change dungeon sets to mix colors for walls, floors and stairs
 [X] Event tables should be weak tables
+[ ] write isClass and getClass
 [ ] make sure *Entity classes verify that necessary components exist on init.
 [X] remove Rect from Entity
 [X] EntityFactory: query new Entities for ViewComponents, register with
