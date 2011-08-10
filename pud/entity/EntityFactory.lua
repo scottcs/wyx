@@ -97,7 +97,7 @@ local _registerControllers = function(entity)
 end
 
 -- create an enemy entity and return it
-function EnemyFactory:createEnemy(entityName)
+function EntityFactory:createEnemy(entityName)
 	local e = ENTITY.enemy
 	local info = _getEntityInfo(e.kind, entityName)
 	local entity = EnemyEntity(entityName, _getComponents(info))
@@ -106,7 +106,7 @@ function EnemyFactory:createEnemy(entityName)
 end
 
 -- create a hero entity and return it
-function EnemyFactory:createHero(entityName)
+function EntityFactory:createHero(entityName)
 	local e = ENTITY.hero
 	local info = _getEntityInfo(e.kind, entityName)
 	local entity = HeroEntity(entityName, _getComponents(info))
@@ -115,7 +115,7 @@ function EnemyFactory:createHero(entityName)
 end
 
 -- create a hero entity and return it
-function EnemyFactory:createItem(entityName)
+function EntityFactory:createItem(entityName)
 	local e = ENTITY.item
 	local info = _getEntityInfo(e.kind, entityName)
 	local entity = ItemEntity(entityName, _getComponents(info))
