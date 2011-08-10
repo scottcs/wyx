@@ -1,6 +1,5 @@
 
 -- common utilities used throughout the program
-require 'pud.loveutil'
 require 'pud.util'
 require 'random'
 
