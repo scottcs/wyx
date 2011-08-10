@@ -124,9 +124,7 @@ function pud.getClass(className)
 		local oldPath = package.path
 		package.path = package.path.._pudPath
 
-		local ok,res = xpcall(function()
-			return require(className)
-		end, debug.traceback)
+		local ok,res = pcall(require, className)
 
 		if not ok then error(res) end
 
