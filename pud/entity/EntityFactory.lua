@@ -2,7 +2,6 @@ local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
 
 local ViewComponent = getClass 'pud.component.ViewComponent'
-local ControllerComponent = getClass 'pud.component.ControllerComponent'
 
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
@@ -52,14 +51,22 @@ function EntityFactory:_newComponent(componentString, props)
 end
 
 -- check for required components, and add any that are missing
-function EntityFactory:_addMissingRequiredComponents(unique)
+function EntityFactory:_addMissingRequiredComponents(entity)
 	if self._requiredComponents then
-		for _,comp in pairs(self._requiredComponents) do
-			local compName = tostring(comp)
-			if not unique[compName] then unique[compName] = comp() end
+		for _,class in pairs(self._requiredComponents) do
+			local found = entity:getComponentsByClass(class)
+			if not found then
+				self:_addDefaultComponent(entity, class)
+			end
 		end
 	end
 end
+
+-- add a component with default values to the entity
+function EntityFactory:_addDefaultComponent(entity, componentClass)
+	entity:addComponent(componentClass())
+end
+
 
 -- return the component objects described by the info table
 function EntityFactory:_getComponents(info)
@@ -78,8 +85,6 @@ function EntityFactory:_getComponents(info)
 		end
 	end
 
-	self:_addMissingRequiredComponents(unique)
-
 	local newComponents = {}
 	for _,v in pairs(unique) do newComponents[#newComponents+1] = v end
 
@@ -88,7 +93,7 @@ end
 
 -- register with the relevant systems any ViewComponents the entity has
 function EntityFactory:_registerViews(entity)
-	local views = entity:getComponentsByType(ViewComponent)
+	local views = entity:getComponentsByClass(ViewComponent)
 	if views then
 		for _,view in pairs(views) do
 			RenderSystem:register(view, self._renderLevel)
@@ -96,27 +101,11 @@ function EntityFactory:_registerViews(entity)
 	end
 end
 
--- register with the relevant systems any ControllerComponents the entity has
-function EntityFactory:_registerControllers(entity)
-	local controllers = entity:getComponentsByType(ControllerComponent)
-	if controllers then
-		for _,controller in pairs(controllers) do
-			--[[
-			if isClass(InputComponent, controller) then
-				InputSystem:register(controller)
-			elseif isClass(AIComponent, controller) then
-				AISystem:register(controller)
-			end
-			]]--
-		end
-	end
-end
-
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
 	local entity = Entity(entityName, self:_getComponents(info))
+	self:_addMissingRequiredComponents(entity)
 	self:_registerViews(entity)
-	self:_registerControllers(entity)
 	return entity
 end
 

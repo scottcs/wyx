@@ -9,6 +9,7 @@ local HeroFactory = Class{name='HeroFactory',
 		EntityFactory.construct(self)
 		self._renderLevel = 5
 		--[[
+		-- required components (can be parent classes)
 		self._requiredComponents = {
 			getClass 'pud.component.HealthComponent',
 			getClass 'pud.component.PositionComponent',
@@ -18,6 +19,7 @@ local HeroFactory = Class{name='HeroFactory',
 			getClass 'pud.component.CombatComponent',
 			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.MotionComponent',
+			getClass 'pud.component.InputComponent',
 		}
 		]]--
 	end
@@ -28,18 +30,19 @@ function HeroFactory:destroy()
 	EntityFactory.destroy(self)
 end
 
--- check for required components, and add any that are missing
-function HeroFactory:_addMissingRequiredComponents(unique)
-	EntityFactory._addMissingRequiredComponents(self, unique)
-
-	--[[
-	-- make sure Hero has either an InputComponent or an AIComponent
-	if not unique['InputComponent'] and not unique['AIComponent'] then
-		local AIComponent = getClass 'pud.component.AIComponent'
-		unique['AIComponent'] = AIComponent()
+--[[
+-- add a required component with default values
+function HeroFactory:_addDefaultComponent(entity, componentClass)
+	-- check if the componentClass is InputComponent (or a subclass)
+	if isClass('pud.component.InputComponent', componentClass) then
+		-- add an AI component
+		entity:addComponent(AIInputComponent())
+	else
+		EntityFactory._addDefaultComponent(self, entity, componentClass)
 	end
-	]]--
 end
+]]--
+
 
 -- the class
 return HeroFactory
