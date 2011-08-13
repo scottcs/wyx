@@ -16,7 +16,9 @@ local CommandEvent = getClass 'pud.event.CommandEvent'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 
 -- entities
-local EntityFactory = getClass 'pud.entity.EntityFactory'
+local HeroFactory = getClass 'pud.entity.HeroFactory'
+local EnemyFactory = getClass 'pud.entity.EnemyFactory'
+local ItemFactory = getClass 'pud.entity.ItemFactory'
 local message = getClass 'pud.component.message'
 
 -- time manager
@@ -33,6 +35,10 @@ local Level = Class{name='Level',
 		self._timeManager = TimeManager()
 		self._doTick = false
 		self._accum = 0
+
+		self._heroFactory = HeroFactory()
+		self._enemyFactory = EnemyFactory()
+		self._itemFactory = ItemFactory()
 
 		-- lighting color value table
 		self._lightColor = {
@@ -55,6 +61,12 @@ function Level:destroy()
 	self._doTick = nil
 	self._timeManager:destroy()
 	self._timeManager = nil
+	self._heroFactory:destroy()
+	self._heroFactory = nil
+	self._enemyFactory:destroy()
+	self._enemyFactory = nil
+	self._itemFactory:destroy()
+	self._itemFactory = nil
 	for k in pairs(self._entities) do
 		self._entities[k]:destroy()
 		self._entities[k] = nil
@@ -71,9 +83,11 @@ function Level:update(dt)
 		self._accum = self._accum + dt
 		if self._accum > TICK then
 			self._accum = self._accum - TICK
+			--[[
 			local nextActor = self._timeManager:tick()
 			local numHeroCommands = self._hero:getPendingCommandCount()
 			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
+			]]--
 		end
 	end
 
@@ -154,7 +168,7 @@ function Level:_generateMap(builder)
 			if string.match(name, "^up%d") then ups[#ups+1] = name end
 		end
 		self._startPosition = self._map:getPortal(ups[Random(#ups)])
-		self._hero:setPosition(self._startPosition)
+		self._hero:send(message('SET_POSITION'), self._startPosition)
 		self:_bakeLights(true)
 	end
 	builder:destroy()
@@ -186,7 +200,9 @@ function Level:isPointInMap(...) return self._map:containsPoint(...) end
 function Level:getEntitiesAtLocation(pos)
 	local ents = {}
 	for _,entity in pairs(self._entities) do
-		if entity:getPositionVector() == pos then ents[#ents+1] = entity end
+		if entity:query(property('Position')) == pos then
+			ents[#ents+1] = entity
+		end
 	end
 	return #ents > 0 and ents or nil
 end
@@ -198,9 +214,8 @@ function Level:sendToAllEntities(msg, ...)
 end
 
 function Level:createEntities()
-	self._hero = HeroEntity()
-	self._hero:setSize(1, 1)
-	self._timeManager:register(self._hero, 0)
+	-- TODO: choose hero rather than hardcode Warrior
+	self._hero = self._heroFactory:createEntity('Warrior')
 end
 
 function Level:CommandEvent(e)
@@ -292,8 +307,8 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local radius = self._hero:getVisibilityRadius()
-	local heroPos = self._hero:getPositionVector()
+	local radius = self._hero:query('Visibility')
+	local heroPos = self._hero:query('Position')
 
 	self:_resetLights(blackout)
 
