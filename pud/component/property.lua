@@ -3,8 +3,14 @@ local property = {}
 -- check if a given property is valid
 local isproperty = function(prop) return property[prop] ~= nil end
 
--- get a property from the property table
+-- get a valid property name
 local get = function(prop)
+	assert(isproperty(prop), 'invalid component property: %s', prop)
+	return prop
+end
+
+-- get a property's default value
+local default = function(prop)
 	assert(isproperty(prop), 'invalid component property: %s', prop)
 	return property[prop]
 end
@@ -63,5 +69,5 @@ for p in pairs(property) do
 end
 
 -- the structure of valid property
-return setmetatable({isproperty = isproperty},
+return setmetatable({isproperty=isproperty, default=default},
 	{__call = function(_, prop) return get(prop) end})
