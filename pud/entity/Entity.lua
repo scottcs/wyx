@@ -21,7 +21,7 @@ local Entity = Class{name = 'Entity',
 			verify('table', components)
 			verifyClass('pud.component.Component', unpack(components))
 
-			for _,comp in components do
+			for _,comp in pairs(components) do
 				self._components[tostring(comp.__class)] = comp
 			end
 		end
