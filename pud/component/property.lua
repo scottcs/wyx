@@ -63,11 +63,6 @@ property.FireResistance    = 0
 property.Combustable       = false
 
 
--- check for mistakes when this file is loaded
-for p in pairs(property) do
-	assert(property[p] == p, 'Property mismatch: %s ~= %s', property[p], p)
-end
-
 -- the structure of valid property
 return setmetatable({isproperty=isproperty, default=default},
 	{__call = function(_, prop) return get(prop) end})
