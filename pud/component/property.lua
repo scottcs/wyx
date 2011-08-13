@@ -31,7 +31,7 @@ property.MaxHealth         = 1
 property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
 
--- collision properties
+-- motion properties
 property.Position          = {x=1, y=1}
 
 -- graphics properties
