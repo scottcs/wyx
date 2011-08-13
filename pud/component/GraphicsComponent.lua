@@ -61,7 +61,7 @@ function GraphicsComponent:_makeQuad()
 	local size = self._properties[property('TileSize')]
 	local pos = self._properties[property('TileCoords')]
 	verify('table', pos)
-	pos.x, pos.y = (pos.x-1)*size (pos.y-1)*size
+	pos.x, pos.y = (pos.x-1)*size, (pos.y-1)*size
 
 	self._quad = love.graphics.newQuad(
 		pos.x, pos.y, size, size,
