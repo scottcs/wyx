@@ -52,11 +52,11 @@ end
 
 -- query all components for a property, collect their responses, then feed the
 -- responses to the given function and return the result. by default, the
--- function only checks for existance of the property in any component.
+-- 'sum' function is used.
 function ComponentMediator:query(prop, func)
 	prop = property(prop)
 	local values = {}
-	func = func or queryFunc.exists
+	func = func or queryFunc.sum
 	if type(func) == 'string' then func = queryFunc[func] end
 	verify('function', func)
 
