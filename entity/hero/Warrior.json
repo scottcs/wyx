@@ -18,8 +18,5 @@
 			"Speed": 1,
 		},
 		"MotionComponent",
-		"CollisionComponent": {
-			"BlockedBy": {"Wall": "ALL", "Door": "shut"},
-		},
 	}
 }
