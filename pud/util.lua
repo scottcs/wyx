@@ -22,20 +22,28 @@ do
 	end
 end
 
-local vector = require 'lib.hump.vector'
+do
+	local vector = require 'lib.hump.vector'
+	local property = require 'pud.component.property'
+	local message = require 'pud.component.message'
 
--- verify that all the given objects are of the given type
-function verify(theType, ...)
-	for i=1,select('#', ...) do
-		local x = select(i, ...)
-		local xType = type(x)
-		if theType == 'vector' then
-			assert(vector.isvector(x), 'vector expected (was %s)', xType)
-		else
-			assert(xType == theType, '%s expected (was %s)', theType, xType)
+	-- verify that all the given objects are of the given type
+	function verify(theType, ...)
+		for i=1,select('#', ...) do
+			local x = select(i, ...)
+			local xType = type(x)
+			if theType == 'vector' then
+				assert(vector.isvector(x), 'vector expected (was %s)', xType)
+			elseif theType == 'property' then
+				assert(property.isproperty(x), 'invalid component property: %s', x)
+			elseif theType == 'message' then
+				assert(message.ismessage(x), 'invalid component message: %s', x)
+			else
+				assert(xType == theType, '%s expected (was %s)', theType, xType)
+			end
 		end
+		return true
 	end
-	return true
 end
 
 
