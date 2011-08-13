@@ -23,6 +23,7 @@ local Entity = Class{name = 'Entity',
 
 			for _,comp in pairs(components) do
 				self._components[tostring(comp.__class)] = comp
+				comp:setMediator(self)
 			end
 		end
 	end
