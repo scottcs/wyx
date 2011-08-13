@@ -7,12 +7,7 @@ local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
 
-		if newProperties ~= nil then
-			verify('table', newProperties)
-			for p in pairs(newProperties) do
-				self:_addProperty(p, newProperties[p])
-			end
-		end
+		self:_createProperties(newProperties)
 	end
 }
 
@@ -27,6 +22,26 @@ function Component:destroy()
 		self._attachMessages = nil
 	end
 	self._mediator = nil
+end
+
+-- create properties from the given table, add default values if needed
+function Component:_createProperties(newProperties)
+	if newProperties ~= nil then
+		verify('table', newProperties)
+		for p in pairs(newProperties) do
+			self:_addProperty(p, newProperties[p])
+		end
+	end
+
+	-- add missing defaults
+	if self._requiredProperties then
+		verify('table', self._requiredProperties)
+		for p in pairs(self._requiredProperties) do
+			if not self._properties[p] then
+				self:_addProperty(p)
+			end
+		end
+	end
 end
 
 -- set the mediator who owns this component
@@ -44,7 +59,7 @@ end
 
 -- add a new property to this component
 function Component:_addProperty(prop, data)
-	self._properties[property(prop)] = data
+	self._properties[property(prop)] = data or property.default(prop)
 end
 
 -- receive a message
