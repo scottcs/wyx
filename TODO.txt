@@ -59,7 +59,8 @@ like position or visual representation.
 
 Properties:
   ? want to assume it's lua code if not property.isproperty? If so, then the
-    whole property() thing is useless.
+    whole property() thing is useless. Wait, this makes no sense. isproperty
+    just checks if it's a valid property, not the content.
 
 Events:
   * Don't have chains of objects observing other objects, observing other
