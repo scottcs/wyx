@@ -6,7 +6,6 @@ local property = require 'pud.component.property'
 local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
-
 		self:_createProperties(newProperties)
 	end
 }
@@ -29,7 +28,7 @@ function Component:_createProperties(newProperties)
 	if newProperties ~= nil then
 		verify('table', newProperties)
 		for p in pairs(newProperties) do
-			self:_addProperty(p, newProperties[p])
+			self:_setProperty(p, newProperties[p])
 		end
 	end
 
@@ -38,7 +37,7 @@ function Component:_createProperties(newProperties)
 		verify('table', self._requiredProperties)
 		for _,p in pairs(self._requiredProperties) do
 			if not self._properties[p] then
-				self:_addProperty(p)
+				self:_setProperty(p)
 			end
 		end
 	end
@@ -57,8 +56,8 @@ function Component:attachMessages()
 	end
 end
 
--- add a new property to this component
-function Component:_addProperty(prop, data)
+-- set a property for this component
+function Component:_setProperty(prop, data)
 	self._properties[property(prop)] = data or property.default(prop)
 end
 
