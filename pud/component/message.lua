@@ -11,6 +11,7 @@ end
 
 -- MotionComponent messages
 message.HAS_MOVED             = 'HAS_MOVED'
+message.SET_POSITION          = 'SET_POSITION'
 
 -- CollisionComponent messages
 message.COLLIDE_CHECK         = 'COLLIDE_CHECK'

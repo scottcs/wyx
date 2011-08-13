@@ -25,6 +25,9 @@ property.MaxHealth         = 'MaxHealth'
 property.HealthBonus       = 'HealthBonus'
 property.MaxHealthBonus    = 'MaxHealthBonus'
 
+-- collision properties
+property.Position          = 'Position'
+
 -- graphics properties
 property.TileSet           = 'TileSet'
 property.TileCoords        = 'TileCoords'
