@@ -98,15 +98,6 @@ local function _makeSaveDirectories()
 	}) do _makeADir(dir) end
 end
 
-local function _testJSON(enemy)
-	local json = require 'lib.dkjson'
-	local file = love.filesystem.read('enemy/'..enemy..'.json')
-	local skula, nextobj, errmsg = json.decode(file)
-	if errmsg then error(errmsg) end
-	local inspect = require 'lib.inspect'
-	print(inspect(skula))
-end
-
 function love.load()
 	-- start the profiler
 	if doGlobalProfile then profiler.start() end
