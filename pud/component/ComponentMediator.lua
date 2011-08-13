@@ -58,12 +58,11 @@ function ComponentMediator:query(prop, func)
 	func = func or queryFunc.sum
 	if type(func) == 'string' then func = queryFunc[func] end
 	verify('function', func)
-
-	local numComponents = #self._components
+	
 	local values = {}
 	local numValues = 1
-	for i=1,numComponents do
-		local v = self._components[i]:getProperty(prop)
+	for k in pairs(self._components) do
+		local v = self._components[k]:getProperty(prop)
 		if v ~= nil then
 			values[numValues] = v
 			numValues = numValues+1
