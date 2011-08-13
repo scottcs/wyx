@@ -9,8 +9,8 @@ require 'random'
          --]]--
 
 --debug = nil
-doProfile = true
-local doGlobalProfile = doProfile and true
+doProfile = false
+local doGlobalProfile = doProfile and false
 
 --[[ Profiler Setup ]]--
 local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
