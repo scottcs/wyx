@@ -20,10 +20,10 @@ local Entity = Class{name = 'Entity',
 		if components ~= nil then
 			verify('table', components)
 			verifyClass('pud.component.Component', unpack(components))
-		end
 
-		for _,comp in components do
-			self._components[tostring(comp.__class)] = comp
+			for _,comp in components do
+				self._components[tostring(comp.__class)] = comp
+			end
 		end
 	end
 }
