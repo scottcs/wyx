@@ -61,27 +61,23 @@ function GraphicsComponent:_makeQuad()
 		self._tileset:getWidth(), self._tileset:getHeight())
 end
 
-function GraphicsComponent:_updateFB(v)
-	if (self._movingLeft and v.x > 0)
-		or (not self._movingLeft and v.x < 0)
-	then
-		self._movingLeft = v.x < 0
-		self._quad:flip(1)
+function GraphicsComponent:_updateFB(new, old)
+	if old then
+		local v = new - old
+		if (self._movingLeft and v.x > 0)
+			or (not self._movingLeft and v.x < 0)
+		then
+			self._movingLeft = v.x < 0
+			self._quad:flip(1)
+		end
 	end
 
-	local pos = self._entity:getPositionVector()
 	local size = self._properties[property('TileSize')]
-	self._drawX, self.drawY = (pos.x-1)*size, (pos.y-1)*size
+	self._drawX, self.drawY = (new.x-1)*size, (new.y-1)*size
 
-	if not self._backfb then
-		self._backfb = love.graphics.newFramebuffer(size, size)
-	end
+	self._backfb = self._backfb or love.graphics.newFramebuffer(size, size)
 
 	love.graphics.setRenderTarget(self._backfb)
-	--[[
-	love.graphics.setColor(0,0,0,1)
-	love.graphics.rectangle(0, 0, size, size)
-	]]--
 	love.graphics.setColor(1,1,1)
 	love.graphics.drawq(self._quad)
 	love.graphics.setRenderTarget()
