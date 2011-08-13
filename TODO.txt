@@ -18,19 +18,19 @@ Implement Components:
   -   CollisionComponent - decides if collision occurs, sends messages
   -   MotionComponent - moves the entity
   d ViewComponent = anything that will be drawn
-  o   GraphicsComponent - what to draw
+  +   GraphicsComponent - what to draw
   o   InfoPanelComponent - just a guess here... mouseover info panel thingy
   d ControllerComponent - modifies the model based on circumstance
-  o   InputComponent
-  o     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
+  +   InputComponent
+  +     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
   o     AIInputComponent - AI routines, sends same messages as input component
   d RenderSystem - lets ViewComponents register, draws
-  o InputSystem - ticks InputComponents
+  + InputSystem - ticks InputComponents
   o   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   o AISystem - ticks AIComponents
   o UISystem - handles User Interface
   o CombatSystem - determines outcome of combat using CombatComponents
-  o TimeSystem - determines whose turn it is
+  + TimeSystem - determines whose turn it is
 
 For v0.1.0:
   o add monsters
