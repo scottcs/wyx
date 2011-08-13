@@ -18,12 +18,8 @@ local Entity = Class{name = 'Entity',
 		self._components = {}
 
 		if components ~= nil then
-			verify('table', components)
-			verifyClass('pud.component.Component', unpack(components))
-
 			for _,comp in pairs(components) do
-				self._components[tostring(comp.__class)] = comp
-				comp:setMediator(self)
+				self:addComponent(comp)
 			end
 		end
 	end
@@ -64,6 +60,7 @@ end
 function Entity:addComponent(component)
 	local name = _getComponentName(component)
 	self:removeComponent(name)
+	component:setMediator(self)
 	self._components[name] = component
 end
 
