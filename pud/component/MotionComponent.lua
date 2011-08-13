@@ -14,7 +14,7 @@ local MotionComponent = Class{name='MotionComponent',
 			'Position',
 		}
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COLLIDE_NONE'}
+		self._attachMessages = {'COLLIDE_NONE', 'SET_POSITION'}
 	end
 }
 
@@ -40,14 +40,14 @@ function MotionComponent:_addProperty(prop, data)
 end
 
 function MotionComponent:_setPosition(pos)
-	self._entity:setPosition(pos)
-	self._entity:send(message('HAS_MOVED'), pos)
+	self:_setProperty(property('Position'), pos)
+	self._mediator:send(message('HAS_MOVED'), pos)
 end
 
 function MotionComponent:_move(pos)
-	local oldpos = self._entity:query(property('Position'))
-	self._entity:setPosition(pos)
-	self._entity:send(message('HAS_MOVED'), pos, oldpos)
+	local oldpos = self._mediator:query(property('Position'))
+	self:_setProperty(property('Position'), pos)
+	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
 end
 
 function MotionComponent:receive(msg, ...)
