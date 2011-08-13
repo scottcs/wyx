@@ -103,7 +103,7 @@ end
 
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
-	local entity = Entity(entityName, self:_getComponents(info))
+	local entity = Entity(self._kind, entityName, self:_getComponents(info))
 	self:_addMissingRequiredComponents(entity)
 	self:_registerViews(entity)
 	return entity
