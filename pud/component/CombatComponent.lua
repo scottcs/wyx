@@ -15,13 +15,13 @@ local CombatComponent = Class{name='CombatComponent',
 			'AttackBonus',
 			'DefenseBonus',
 		}
-		Component.construct(self, properties)
+		ModelComponent.construct(self, properties)
 	end
 }
 
 -- destructor
 function CombatComponent:destroy()
-	Component.destroy(self)
+	ModelComponent.destroy(self)
 end
 
 

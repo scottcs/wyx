@@ -12,14 +12,14 @@ local CollisionComponent = Class{name='CollisionComponent',
 		self._requiredProperties = {
 			'BlockedBy',
 		}
-		Component.construct(self, properties)
+		ModelComponent.construct(self, properties)
 		self._attachMessages = {'COLLIDE_CHECK'}
 	end
 }
 
 -- destructor
 function CollisionComponent:destroy()
-	Component.destroy(self)
+	ModelComponent.destroy(self)
 end
 
 function CollisionComponent:_addProperty(prop, data)

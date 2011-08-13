@@ -16,13 +16,13 @@ local TimeComponent = Class{name='TimeComponent',
 			'Speed',
 			'SpeedBonus',
 		}
-		Component.construct(self, properties)
+		ModelComponent.construct(self, properties)
 	end
 }
 
 -- destructor
 function TimeComponent:destroy()
-	Component.destroy(self)
+	ModelComponent.destroy(self)
 end
 
 

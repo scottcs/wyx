@@ -15,13 +15,13 @@ local HealthComponent = Class{name='HealthComponent',
 			'HealthBonus',
 			'MaxHealthBonus',
 		}
-		Component.construct(self, properties)
+		ModelComponent.construct(self, properties)
 	end
 }
 
 -- destructor
 function HealthComponent:destroy()
-	Component.destroy(self)
+	ModelComponent.destroy(self)
 end
 
 

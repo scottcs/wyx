@@ -12,14 +12,14 @@ local MotionComponent = Class{name='MotionComponent',
 		self._requiredProperties = {
 			'Position',
 		}
-		Component.construct(self, properties)
+		ModelComponent.construct(self, properties)
 		self._attachMessages = {'COLLIDE_NONE'}
 	end
 }
 
 -- destructor
 function MotionComponent:destroy()
-	Component.destroy(self)
+	ModelComponent.destroy(self)
 end
 
 function MotionComponent:_setPosition(pos)
