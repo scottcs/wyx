@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Component = getClass 'pud.component.Component'
+local ModelComponent = getClass 'pud.component.ModelComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
@@ -7,6 +7,7 @@ local message = require 'pud.component.message'
 -- CollisionComponent
 --
 local CollisionComponent = Class{name='CollisionComponent',
+	inherits=ModelComponent,
 	function(self, properties)
 		Component.construct(self, properties)
 		self._attachMessages = {'COLLIDE_CHECK'}
