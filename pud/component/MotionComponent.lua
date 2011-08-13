@@ -23,7 +23,7 @@ function MotionComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
-function MotionComponent:_addProperty(prop, data)
+function MotionComponent:_setProperty(prop, data)
 	prop = property(prop)
 	data = data or property.default(prop)
 

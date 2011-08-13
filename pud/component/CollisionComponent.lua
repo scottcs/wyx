@@ -22,7 +22,7 @@ function CollisionComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
-function CollisionComponent:_addProperty(prop, data)
+function CollisionComponent:_setProperty(prop, data)
 	prop = property(prop)
 	data = data or property.default(prop)
 

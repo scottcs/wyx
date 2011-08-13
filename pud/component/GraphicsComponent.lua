@@ -30,7 +30,7 @@ function GraphicsComponent:destroy()
 	ViewComponent.destroy(self)
 end
 
-function GraphicsComponent:_addProperty(prop, data)
+function GraphicsComponent:_setProperty(prop, data)
 	prop = property(prop)
 	data = data or property.default(prop)
 	if prop == property('TileSet') then
