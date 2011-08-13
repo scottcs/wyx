@@ -39,13 +39,10 @@ end
 -- create a new component from the given string representation of a component
 -- class.
 function EntityFactory:_newComponent(componentString, props)
-	local new = assert(
-		loadstring('return require "pud.component.'
-			..componentString..'"'),
-		'could not load component: %s', componentString)
-
+	local new = getClass('pud.component.'..componentString)
 	local component = new(props)
 	verifyClass('pud.component.Component', component)
+	assert(component.__class, 'invalid component')
 
 	return component
 end
