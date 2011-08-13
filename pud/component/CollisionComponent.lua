@@ -42,10 +42,10 @@ function CollisionComponent:_collideCheck(level, pos)
 		for _,otherEntity in pairs(entities) do
 			local otherEntityType = otherEntity:getType()
 			if otherEntityType == 'enemy' then
-				self._entity:send(message('COLLIDE_ENEMY'), otherEntity)
+				self._mediator:send(message('COLLIDE_ENEMY'), otherEntity)
 				collision = true
 			elseif otherEntityType == 'hero' then
-				self._entity:sent(message('COLLIDE_HERO'), otherEntity)
+				self._mediator:sent(message('COLLIDE_HERO'), otherEntity)
 				collision = true
 			end
 		end
