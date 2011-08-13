@@ -36,7 +36,7 @@ function Component:_createProperties(newProperties)
 	-- add missing defaults
 	if self._requiredProperties then
 		verify('table', self._requiredProperties)
-		for p in pairs(self._requiredProperties) do
+		for _,p in pairs(self._requiredProperties) do
 			if not self._properties[p] then
 				self:_addProperty(p)
 			end
