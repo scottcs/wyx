@@ -9,6 +9,9 @@ local message = require 'pud.component.message'
 local MotionComponent = Class{name='MotionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
+		self._requiredProperties = {
+			'Position',
+		}
 		Component.construct(self, properties)
 		self._attachMessages = {'COLLIDE_NONE'}
 	end

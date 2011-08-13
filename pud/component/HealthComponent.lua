@@ -9,6 +9,12 @@ local message = require 'pud.component.message'
 local HealthComponent = Class{name='HealthComponent',
 	inherits=ModelComponent,
 	function(self, properties)
+		self._requiredProperties = {
+			'Health',
+			'MaxHealth',
+			'HealthBonus',
+			'MaxHealthBonus',
+		}
 		Component.construct(self, properties)
 	end
 }

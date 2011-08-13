@@ -9,6 +9,9 @@ local message = require 'pud.component.message'
 local CollisionComponent = Class{name='CollisionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
+		self._requiredProperties = {
+			'BlockedBy',
+		}
 		Component.construct(self, properties)
 		self._attachMessages = {'COLLIDE_CHECK'}
 	end
@@ -21,6 +24,7 @@ end
 
 function CollisionComponent:_addProperty(prop, data)
 	prop = property(prop)
+	data = data or property.default(prop)
 
 	if prop == property('BlockedBy') then
 		verify('table', data)

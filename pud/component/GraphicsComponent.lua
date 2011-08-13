@@ -3,12 +3,17 @@ local ViewComponent = getClass 'pud.component.ViewComponent'
 local property = require 'pud.component.property'
 local vector = require 'lib.hump.vector'
 
-
 -- GraphicsComponent
 --
 local GraphicsComponent = Class{name='GraphicsComponent',
 	inherits=ViewComponent,
 	function(self, properties)
+		self._requiredProperties = {
+			'TileSet',
+			'TileSize',
+			'TileCoords',
+			'Visibility',
+		}
 		ViewComponent.construct(self, properties)
 		self._attachMessages = {'HAS_MOVED', 'DRAW'}
 		self:_makeQuad()
@@ -27,6 +32,7 @@ end
 
 function GraphicsComponent:_addProperty(prop, data)
 	prop = property(prop)
+	data = data or property.default(prop)
 	if prop == property('TileSet') then
 		verify('string', data)
 		self._tileset = Image[data]
@@ -54,6 +60,7 @@ end
 function GraphicsComponent:_makeQuad()
 	local size = self._properties[property('TileSize')]
 	local pos = self._properties[property('TileCoords')]
+	verify('table', pos)
 	pos.x, pos.y = (pos.x-1)*size (pos.y-1)*size
 
 	self._quad = love.graphics.newQuad(
