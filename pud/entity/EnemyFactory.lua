@@ -5,8 +5,8 @@ local EntityFactory = getClass 'pud.entity.EntityFactory'
 -- creates entities based on data files
 local EnemyFactory = Class{name='EnemyFactory',
 	inherits=EntityFactory,
-	function(self, 'enemy')
-		EntityFactory.construct(self)
+	function(self)
+		EntityFactory.construct(self, 'enemy')
 		self._renderLevel = 5
 		--[[
 		self._requiredComponents = {

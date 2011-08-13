@@ -5,8 +5,8 @@ local EntityFactory = getClass 'pud.entity.EntityFactory'
 -- creates entities based on data files
 local ItemFactory = Class{name='ItemFactory',
 	inherits=EntityFactory,
-	function(self, 'item')
-		EntityFactory.construct(self)
+	function(self)
+		EntityFactory.construct(self, 'item')
 		self._renderLevel = 5
 		--[[
 		self._requiredComponents = {
