@@ -21,6 +21,7 @@ local HeroFactory = getClass 'pud.entity.HeroFactory'
 local EnemyFactory = getClass 'pud.entity.EnemyFactory'
 local ItemFactory = getClass 'pud.entity.ItemFactory'
 local message = getClass 'pud.component.message'
+local property = require 'pud.component.property'
 
 -- time manager
 local TimeManager = getClass 'pud.time.TimeManager'
