@@ -77,9 +77,11 @@ function st:CommandEvent(e)
 end
 
 function st:ZoneTriggerEvent(e)
-	local message = e:isLeaving() and 'Leaving' or 'Entering'
-	message = message..' Zone: '..tostring(e:getZone())
-	self:_displayMessage(message)
+	if self._level:getPrimeEntity() == e:getTarget() then
+		local message = e:isLeaving() and 'Leaving' or 'Entering'
+		message = message..' Zone: '..tostring(e:getZone())
+		self:_displayMessage(message)
+	end
 end
 
 function st:_createMapView(viewClass)
