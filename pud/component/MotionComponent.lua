@@ -11,8 +11,10 @@ local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local MotionComponent = Class{name='MotionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
+		self:_addRequiredProperties{
+			'Position',
+		}
 		ModelComponent.construct(self, properties)
-		self:_addRequiredProperties({'Position'})
 		self._attachMessages = {'SET_POSITION'}
 	end
 }
