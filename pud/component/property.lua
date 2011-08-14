@@ -53,6 +53,7 @@ property.AttackCost        = 1
 property.MoveCost          = 1
 property.Speed             = 1
 property.SpeedBonus        = 0
+property.IsExhausted       = false
 
 -- weaknesses
 property.CrushWeakness     = 0

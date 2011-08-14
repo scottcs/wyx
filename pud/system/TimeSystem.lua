@@ -56,7 +56,7 @@ function TimeSystem:tick()
 	local obj = self._timeTravelers:front()
 
 	-- check for exhausted objects and remove them
-	while obj and obj:isExhausted() do
+	while obj and obj:query(property('IsExhausted'), 'boolor') do
 		self._timeTravelers:pop_front()
 		self._actionPoints[obj] = nil
 		obj = self._timeTravelers:front()
