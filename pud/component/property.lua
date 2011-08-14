@@ -36,6 +36,7 @@ property.Position          = {x=1, y=1}
 
 -- collision properties
 property.BlockedBy         = {Wall='ALL', Door='shut'}
+property.CanMove           = true
 
 -- graphics properties
 property.TileSet           = 'dungeon'
