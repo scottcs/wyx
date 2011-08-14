@@ -80,7 +80,7 @@ function TimeSystem:tick()
 				if nextCommand then
 					ap[obj] = ap[obj] - nextCommand:execute(ap[obj])
 				end
-			until self._actionPoints[obj] <= 0
+			until nil == nextCommand or self._actionPoints[obj] <= 0
 	end
 
 	-- return the object whose turn is next
