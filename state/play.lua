@@ -64,6 +64,11 @@ function st:enter()
 	collectgarbage('stop')
 end
 
+function st:CommandEvent(e)
+	local command = e:getCommand()
+	if command:getTarget() ~= self._level:getHero() then return end
+end
+
 function st:ZoneTriggerEvent(e)
 	local message = e:isLeaving() and 'Leaving' or 'Entering'
 	message = message..' Zone: '..tostring(e:getZone())
