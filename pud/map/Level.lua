@@ -216,6 +216,12 @@ function Level:createEntities()
 	self._hero = self._heroFactory:createEntity('Warrior')
 end
 
+function Level:setPlayerControlledHero()
+	local PIC = getClass 'pud.component.PlayerInputComponent'
+	local player = PIC()
+	self._heroFactory:setInputComponent(self._hero, player)
+end
+
 function Level:CommandEvent(e)
 	local command = e:getCommand()
 	if command:getTarget() ~= self._hero then return end
