@@ -12,10 +12,8 @@ local property = require 'pud.component.property'
 local ControllerComponent = Class{name='ControllerComponent',
 	inherits=Component,
 	function(self, newProperties)
-		self:_addRequiredProperties{
-			'CanOpenDoors',
-		}
 		Component.construct(self, newProperties)
+		self:_addRequiredProperties({'CanOpenDoors'})
 		self._attachMessages = {'COLLIDE_BLOCKED'}
 	end
 }

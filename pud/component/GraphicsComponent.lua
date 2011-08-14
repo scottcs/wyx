@@ -17,13 +17,13 @@ local nearestPO2 = nearestPO2
 local GraphicsComponent = Class{name='GraphicsComponent',
 	inherits=ViewComponent,
 	function(self, properties)
-		self:_addRequiredProperties{
+		ViewComponent.construct(self, properties)
+		self:_addRequiredProperties({
 			'TileSet',
 			'TileSize',
 			'TileCoords',
 			'Visibility',
-		}
-		ViewComponent.construct(self, properties)
+		})
 		self._attachMessages = {'HAS_MOVED', 'DRAW'}
 		self:_makeQuad()
 		local size = nearestPO2(self._properties[property('TileSize')])

@@ -9,14 +9,14 @@ local message = require 'pud.component.message'
 local TimeComponent = Class{name='TimeComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		self:_addRequiredProperties{
+		ModelComponent.construct(self, properties)
+		self:_addRequiredProperties({
 			'AttackCost',
 			'MoveCost',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
-		}
-		ModelComponent.construct(self, properties)
+		})
 	end
 }
 

@@ -10,11 +10,8 @@ local match = string.match
 local CollisionComponent = Class{name='CollisionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		self:_addRequiredProperties{
-			'BlockedBy',
-			'CanMove',
-		}
 		ModelComponent.construct(self, properties)
+		self:_addRequiredProperties({'BlockedBy', 'CanMove'})
 		self._attachMessages = {
 			'COLLIDE_ENEMY',
 			'COLLIDE_HERO',
