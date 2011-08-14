@@ -9,6 +9,9 @@ local get = function(msg)
 	return message[msg]
 end
 
+-- Component messages
+message.ENTITY_CREATED        = 'ENTITY_CREATED'
+
 -- MotionComponent messages
 message.HAS_MOVED             = 'HAS_MOVED'
 message.SET_POSITION          = 'SET_POSITION'
@@ -18,9 +21,6 @@ message.COLLIDE_NONE          = 'COLLIDE_NONE'
 message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
 message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
-
--- GraphicsComponent messages
-message.DRAW                  = 'DRAW'
 
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},

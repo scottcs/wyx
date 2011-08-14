@@ -7,7 +7,6 @@ local message = require 'pud.component.message'
 local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
-		self._requiredProperties = {}
 		self:_createProperties(newProperties)
 	end
 }
@@ -28,6 +27,7 @@ end
 -- add properties to the list of required properties (to be called by child
 -- classes)
 function Component:_addRequiredProperties(properties)
+	self._requiredProperties = self._requiredProperties or {}
 	local num = #properties
 	for i=1,num do
 		self._requiredProperties[property(properties[i])] = true

@@ -9,12 +9,12 @@ local message = require 'pud.component.message'
 local CombatComponent = Class{name='CombatComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		self:_addRequiredProperties{
+		ModelComponent._addRequiredProperties(self, {
 			'Attack',
 			'Defense',
 			'AttackBonus',
 			'DefenseBonus',
-		}
+		})
 		ModelComponent.construct(self, properties)
 	end
 }
