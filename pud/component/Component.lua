@@ -30,7 +30,7 @@ end
 function Component:_addRequiredProperties(properties)
 	local num = #properties
 	for i=1,num do
-		self._reqiuredProperties[property(properties[i])] = true
+		self._requiredProperties[property(properties[i])] = true
 	end
 end
 
