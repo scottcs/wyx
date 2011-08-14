@@ -87,7 +87,7 @@ function EntityFactory:_getComponents(info)
 end
 
 -- register with the relevant systems any ViewComponents the entity has
-function EntityFactory:_registerViews(entity)
+function EntityFactory:_registerWithRenderSystem(entity)
 	local ViewComponent = getClass 'pud.component.ViewComponent'
 	local comps = entity:getComponentsByClass(ViewComponent)
 
@@ -99,7 +99,7 @@ function EntityFactory:_registerViews(entity)
 end
 
 -- register with the relevant systems any CollisionComponents the entity has
-function EntityFactory:_registerCollisions(entity)
+function EntityFactory:_registerWithCollisionSystem(entity)
 	local CollisionComponent = getClass 'pud.component.CollisionComponent'
 	local comps = entity:getComponentsByClass(CollisionComponent)
 	if comps then
@@ -109,12 +109,24 @@ function EntityFactory:_registerCollisions(entity)
 	end
 end
 
+-- register with the relevant systems any TimeComponents the entity has
+function EntityFactory:_registerWithTimeSystem(entity)
+	local TimeComponent = getClass 'pud.component.TimeComponent'
+	local comps = entity:getComponentsByClass(TimeComponent)
+	if comps then
+		for _,comp in pairs(comps) do
+			TimeSystem:register(comp)
+		end
+	end
+end
+
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
 	local entity = Entity(self._kind, entityName, self:_getComponents(info))
 	self:_addMissingRequiredComponents(entity)
-	self:_registerViews(entity)
-	self:_registerCollisions(entity)
+	self:_registerWithRenderSystem(entity)
+	self:_registerWithCollisionSystem(entity)
+	self:_registerWithTimeSystem(entity)
 	return entity
 end
 
