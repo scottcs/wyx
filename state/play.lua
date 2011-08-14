@@ -18,6 +18,7 @@ local getMicroTime = love.timer.getMicroTime
 local RenderSystemClass = getClass 'pud.system.RenderSystem'
 local TimeSystemClass = getClass 'pud.system.TimeSystem'
 local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
+local TICK = 0.01
 
 -- level
 local Level = getClass 'pud.map.Level'
@@ -142,9 +143,15 @@ function st:idle(start)
 	return cycles
 end
 
+local _accum = 0
 function st:update(dt)
 	local start = getMicroTime() - dt
-	if self._level then self._level:update(dt) end
+
+	_accum = _accum + dt
+	if _accum > TICK then
+		_accum = _accum - TICK
+		TimeSystem:tick()
+	end
 
 	if self._level:needViewUpdate() then
 		self._view:setViewport(self._cam:getViewport())

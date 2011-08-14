@@ -21,9 +21,6 @@ local ItemFactory = getClass 'pud.entity.ItemFactory'
 local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
--- time manager
-local TICK = 0.01
-
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
 
@@ -31,9 +28,6 @@ local math_round = function(x) return math_floor(x+0.5) end
 --
 local Level = Class{name='Level',
 	function(self)
-		self._doTick = false
-		self._accum = 0
-
 		self._heroFactory = HeroFactory()
 		self._enemyFactory = EnemyFactory()
 		self._itemFactory = ItemFactory()
@@ -56,9 +50,6 @@ function Level:destroy()
 	GameEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
-	self._doTick = nil
-	self._timeManager:destroy()
-	self._timeManager = nil
 	self._heroFactory:destroy()
 	self._heroFactory = nil
 	self._enemyFactory:destroy()
@@ -74,15 +65,6 @@ function Level:destroy()
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
 	self._lightmap = nil
-end
-
-function Level:update(dt)
-	if self._doTick then
-		self._accum = self._accum + dt
-		if self._accum > TICK then
-			self._accum = self._accum - TICK
-		end
-	end
 end
 
 function Level:_triggerZones(entity, pos, oldpos)
