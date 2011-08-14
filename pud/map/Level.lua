@@ -114,7 +114,10 @@ function Level:_generateMap(builder)
 			if string.match(name, "^up%d") then ups[#ups+1] = name end
 		end
 		self._startPosition = self._map:getPortal(ups[Random(#ups)])
-		self._primeEntity:send(message('SET_POSITION'), self._startPosition)
+		self._primeEntity:send(
+			message('SET_POSITION'),
+			self._startPosition,
+			self._startPosition)
 		self:_bakeLights(true)
 	end
 	builder:destroy()
