@@ -128,7 +128,7 @@ function verifyClass(class, ...)
 	for i=1,select('#', ...) do
 		local obj = select(i, ...)
 		assert(isClass(class, obj),
-			'expected %s (was %s, %s)', class, type(obj), tostring(obj))
+			'expected %s (was %s, %s)', tostring(class), type(obj), tostring(obj))
 	end
 
 	return true
