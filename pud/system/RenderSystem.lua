@@ -59,7 +59,9 @@ end
 
 -- unregister an object
 function RenderSystem:unregister(obj)
-	self._registered:pop(obj)
+	for _,l in pairs(self._levels) do
+		if self._registered[l] then self._registered[l]:pop(obj) end
+	end
 end
 
 
