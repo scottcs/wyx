@@ -24,7 +24,14 @@ end
 
 function MoveCommand:execute(currAP)
 	local pos = self._target:query(property('Position'))
-	self._target:send(message('COLLIDE_CHECK'), level, pos + self._vector, pos)
+	local newpos = pos + self._vector
+
+	CollisionSystem:check(self._target, newpos)
+
+	local canMove = self._target:query(property('CanMove'), 'booland')
+	if not canMove then return 0 end
+
+	self._target:send(message('SET_POSITION'), newpos, pos)
 
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))

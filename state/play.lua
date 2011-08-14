@@ -16,6 +16,7 @@ local getMicroTime = love.timer.getMicroTime
 
 -- systems
 local RenderSystemClass = getClass 'pud.system.RenderSystem'
+local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
 
 -- level
 local Level = getClass 'pud.map.Level'
@@ -40,12 +41,16 @@ local COLLECT_THRESHOLD = 10000000/1024 -- 10 megs
 local _lastCollect
 
 function st:enter()
-	-- create systems
-	RenderSystem = RenderSystemClass()
-	
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
+
+	-- create level
 	self._level = Level()
+
+	-- create systems
+	RenderSystem = RenderSystemClass()
+	CollisionSystem = CollisionSystemClass(self._level)
+
 	self._level:createEntities()
 	self._level:setPlayerControlled()
 	self._level:generateSimpleGridMap()
@@ -172,6 +177,7 @@ end
 function st:leave()
 	collectgarbage('restart')
 	RenderSystem:destroy()
+	CollisionSystem:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)

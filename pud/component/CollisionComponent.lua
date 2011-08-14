@@ -12,9 +12,15 @@ local CollisionComponent = Class{name='CollisionComponent',
 	function(self, properties)
 		self._requiredProperties = {
 			'BlockedBy',
+			'CanMove',
 		}
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COLLIDE_CHECK'}
+		self._attachMessages = {
+			'COLLIDE_ENEMY',
+			'COLLIDE_HERO',
+			'COLLIDE_BLOCKED',
+			'COLLIDE_NONE'
+		}
 	end
 }
 
@@ -36,51 +42,15 @@ function CollisionComponent:_setProperty(prop, data)
 	self._properties[prop] = data
 end
 
-function CollisionComponent:_collideCheck(level, pos, oldpos)
-	local collision = false
-	local entities = level:getEntitiesAtLocation(pos)
-	if entities then
-		for _,otherEntity in pairs(entities) do
-			local otherEntityType = otherEntity:getType()
-			if otherEntityType == 'enemy' then
-				self._mediator:send(message('COLLIDE_ENEMY'), otherEntity)
-				collision = true
-			elseif otherEntityType == 'hero' then
-				self._mediator:sent(message('COLLIDE_HERO'), otherEntity)
-				collision = true
-			end
-		end
-	end
-
-	if not collision then
-		local node = level:getMapNode(pos)
-		local blocked = false
-		local mapType = node:getMapType()
-		local variant = mapType:getVariant()
-		local mt = match(tostring(mapType.__class), '^(%w+)MapType')
-		if mt then
-			blocked = self._mediator:query(property('BlockedBy'), function(t)
-				for _,p in pairs(t) do
-					if p[mt] and (variant == p[mt] or p[mt] == 'ALL') then
-						return true
-					end
-				end
-				return false
-			end)
-		end
-		if blocked then
-			self._mediator:send(message('COLLIDE_BLOCKED'), mapType)
-			collision = true
-		end
-	end
-
-	if not collision then
-		self._mediator:send(message('COLLIDE_NONE'), pos, oldpos)
-	end
-end
-
 function CollisionComponent:receive(msg, ...)
-	if     msg == message('COLLIDE_CHECK') then self:_collideCheck(...)
+	if     msg == message('COLLIDE_ENEMY') then
+		self._properties[property('CanMove')] = false
+	elseif msg == message('COLLIDE_HERO') then
+		self._properties[property('CanMove')] = false
+	elseif msg == message('COLLIDE_BLOCKED') then
+		self._properties[property('CanMove')] = false
+	elseif msg == message('COLLIDE_NONE') then
+		self._properties[property('CanMove')] = true
 	end
 end
 

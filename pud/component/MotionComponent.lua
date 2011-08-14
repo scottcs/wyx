@@ -14,7 +14,7 @@ local MotionComponent = Class{name='MotionComponent',
 			'Position',
 		}
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COLLIDE_NONE', 'SET_POSITION'}
+		self._attachMessages = {'SET_POSITION'}
 	end
 }
 
@@ -45,8 +45,8 @@ function MotionComponent:_move(pos, oldpos)
 end
 
 function MotionComponent:receive(msg, ...)
-	if msg == message('COLLIDE_NONE') then self:_move(...) end
-	if msg == message('SET_POSITION') then self:_move(...) end
+	if     msg == message('SET_POSITION') then self:_move(...)
+	end
 end
 
 
