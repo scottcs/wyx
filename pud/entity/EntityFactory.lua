@@ -114,6 +114,7 @@ function EntityFactory:createEntity(entityName)
 	local entity = Entity(self._kind, entityName, self:_getComponents(info))
 	self:_addMissingRequiredComponents(entity)
 	self:_registerViews(entity)
+	self:_registerCollisions(entity)
 	return entity
 end
 
