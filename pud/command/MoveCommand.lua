@@ -1,12 +1,14 @@
 local Class = require 'lib.hump.class'
 local Command = getClass 'pud.command.Command'
+local property = require 'pud.component.property'
+local message = require 'pud.component.message'
 
 -- MoveCommand
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
 	function(self, target, vector, node)
-		verifyClass('pud.entity.Traveler', target)
+		verifyClass('pud.component.ComponentMediator', target)
 		verify('vector', vector)
 
 		Command.construct(self, target)
@@ -31,9 +33,9 @@ function MoveCommand:destroy()
 	Command.destroy(self)
 end
 
-function MoveCommand:execute()
-	local pos = self._target:getPositionVector()
-	self._target:setMovePosition(pos + self._vector)
+function MoveCommand:execute(level)
+	local pos = self._target:query(property('Position'))
+	self._target:send(message('COLLIDE_CHECK'), level, pos + self._vector, pos)
 end
 
 function MoveCommand:getVector() return self._vector:clone() end
