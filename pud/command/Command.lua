@@ -38,7 +38,7 @@ function Command:_doOnComplete()
 end
 
 -- execute the command
-function Command:execute()
+function Command:execute(currAP)
 	self:_doOnComplete()
 	return self._cost or DEFAULT_COST
 end
