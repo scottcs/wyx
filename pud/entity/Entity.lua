@@ -61,6 +61,7 @@ function Entity:addComponent(component)
 	local name = _getComponentName(component)
 	self:removeComponent(name)
 	component:setMediator(self)
+	component:attachMessages()
 	self._components[name] = component
 end
 
