@@ -1,5 +1,9 @@
 local Class = require 'lib.hump.class'
 
+-- default action point cost for executing a command
+-- (used by the TimeSystem for entity commands)
+DEFAULT_COST = 1
+
 -- Command class
 local Command = Class{name='Command',
 	function(self, target)
@@ -10,6 +14,7 @@ local Command = Class{name='Command',
 -- destructor
 function Command:destroy()
 	self._target = nil
+	self._cost = nil
 	self._onComplete = nil
 	self._onCompleteArgs = nil
 end
@@ -33,7 +38,11 @@ function Command:_doOnComplete()
 end
 
 -- execute the command
-function Command:execute() self:_doOnComplete() end
+function Command:execute()
+	self:_doOnComplete()
+	return self._cost or DEFAULT_COST
+end
+
 
 -- the class
 return Command

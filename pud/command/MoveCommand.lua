@@ -22,9 +22,13 @@ function MoveCommand:destroy()
 	Command.destroy(self)
 end
 
-function MoveCommand:execute(level)
+function MoveCommand:execute(currAP)
 	local pos = self._target:query(property('Position'))
 	self._target:send(message('COLLIDE_CHECK'), level, pos + self._vector, pos)
+
+	self._cost = self._target:query(property('MoveCost'))
+	self._cost = self._cost or self._target:query(property('DefaultCost'))
+	Command.execute(self)
 end
 
 function MoveCommand:getVector() return self._vector:clone() end

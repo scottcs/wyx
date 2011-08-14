@@ -28,6 +28,9 @@ function OpenDoorCommand:execute()
 	local node = self._map:getLocation(self._pos.x, self._pos.y)
 	local style = node:getMapType():getStyle()
 	node:setMapType(DoorMapType('open', style))
+
+	self._cost = self._target:query(property('MoveCost'))
+	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	Command.execute(self)
 end
 
