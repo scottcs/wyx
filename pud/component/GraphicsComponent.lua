@@ -81,7 +81,7 @@ function GraphicsComponent:_updateFB(new, old)
 	end
 
 	local size = self._properties[property('TileSize')]
-	self._drawX, self.drawY = (new.x-1)*size, (new.y-1)*size
+	self._drawX, self._drawY = (new.x-1)*size, (new.y-1)*size
 
 	self._backfb = self._backfb or love.graphics.newFramebuffer(size, size)
 
