@@ -44,13 +44,13 @@ end
 
 function CollisionComponent:receive(msg, ...)
 	if     msg == message('COLLIDE_ENEMY') then
-		self._properties[property('CanMove')] = false
+		self:_setProperty(property('CanMove'), false)
 	elseif msg == message('COLLIDE_HERO') then
-		self._properties[property('CanMove')] = false
+		self:_setProperty(property('CanMove'), false)
 	elseif msg == message('COLLIDE_BLOCKED') then
-		self._properties[property('CanMove')] = false
+		self:_setProperty(property('CanMove'), false)
 	elseif msg == message('COLLIDE_NONE') then
-		self._properties[property('CanMove')] = true
+		self:_setProperty(property('CanMove'), true)
 	end
 end
 
