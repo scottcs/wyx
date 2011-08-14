@@ -23,12 +23,15 @@ end
 function PlayerInputComponent:KeyboardEvent(e)
 	if #(e:getModifiers()) == 0 then
 		local key = e:getKey()
+		local doTick = false
 		switch(key) {
-			up    = function() self:move(vector( 0, -1)) end,
-			down  = function() self:move(vector( 0,  1)) end,
-			left  = function() self:move(vector(-1,  0)) end,
-			right = function() self:move(vector( 1,  0)) end,
+			up    = function() self:move(vector( 0, -1)) doTick = true end,
+			down  = function() self:move(vector( 0,  1)) doTick = true end,
+			left  = function() self:move(vector(-1,  0)) doTick = true end,
+			right = function() self:move(vector( 1,  0)) doTick = true end,
 		}
+
+		if doTick then TimeSystem:tick() end
 	end
 end
 
