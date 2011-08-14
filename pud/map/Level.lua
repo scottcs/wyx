@@ -85,46 +85,27 @@ function Level:update(dt)
 	end
 end
 
-function Level:_attemptMove(entity)
-	local moved = false
+function Level:_triggerZones(entity, pos, oldpos)
+	if pos ~= oldpos then
+		local zonesFrom = self._map:getZonesFromPoint(oldpos)
+		local zonesTo = self._map:getZonesFromPoint(pos)
 
-	if entity:wantsToMove() then
-		local to = entity:getMovePosition()
-		local node = self._map:getLocation(to.x, to.y)
-
-		local oldEntityPos = entity:getPositionVector()
-		entity:move(to, node)
-		local entityPos = entity:getPositionVector()
-
-		if entityPos ~= oldEntityPos then
-			moved = true
-			local zonesFrom = self._map:getZonesFromPoint(oldEntityPos)
-			local zonesTo = self._map:getZonesFromPoint(entityPos)
-
-			if zonesFrom then
-				for zone in pairs(zonesFrom) do
-					if zonesTo and zonesTo[zone] then
-						zonesTo[zone] = nil
-					else
-						GameEvents:push(ZoneTriggerEvent(entity, zone, true))
-					end
-				end
-			end
-
-			if zonesTo then
-				for zone in pairs(zonesTo) do
-					GameEvents:push(ZoneTriggerEvent(entity, zone, false))
+		if zonesFrom then
+			for zone in pairs(zonesFrom) do
+				if zonesTo and zonesTo[zone] then
+					zonesTo[zone] = nil
+				else
+					GameEvents:push(ZoneTriggerEvent(entity, zone, true))
 				end
 			end
 		end
 
-		if node:getMapType():isType(DoorMapType('shut')) then
-			local command = OpenDoorCommand(entity, to, self._map)
-			CommandEvents:push(CommandEvent(command))
+		if zonesTo then
+			for zone in pairs(zonesTo) do
+				GameEvents:push(ZoneTriggerEvent(entity, zone, false))
+			end
 		end
 	end
-
-	return moved
 end
 
 function Level:needViewUpdate() return self._needViewUpdate == true end
@@ -210,6 +191,8 @@ end
 
 function Level:EntityPositionEvent(e)
 	local entity = e:getEntity()
+	self:_triggerZones(entity, e:getDestination(), e:getOrigin())
+
 	if entity == self._primeEntity then
 		self:_bakeLights()
 		self._needViewUpdate = true
