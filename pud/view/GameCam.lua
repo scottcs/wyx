@@ -122,6 +122,9 @@ function GameCam:followTarget(t)
 	t:attach(message('HAS_MOVED'), self)
 	self._targetSize = t:query(property('TileSize'))
 	self._target = t
+
+	-- set the initial position
+	self:receive(message('HAS_MOVED'), t:query(property('Position')))
 end
 
 -- unfollow a target Rect
