@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local ModelComponent = getClass 'pud.component.ModelComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
+local match = string.match
 
 
 -- CollisionComponent
@@ -36,7 +37,6 @@ function CollisionComponent:_setProperty(prop, data)
 end
 
 function CollisionComponent:_collideCheck(level, pos, oldpos)
-	print(pos, oldpos)
 	local collision = false
 	local entities = level:getEntitiesAtLocation(pos)
 	if entities then
@@ -57,9 +57,9 @@ function CollisionComponent:_collideCheck(level, pos, oldpos)
 		local blocked = false
 		local mapType = node:getMapType()
 		local variant = mapType:getVariant()
-		local mt = match(mapType.__class, '^(%w+)MapType')
+		local mt = match(tostring(mapType.__class), '^(%w+)MapType')
 		if mt then
-			blocked = entity:query(property('BlockedBy'), function(t)
+			blocked = self._mediator:query(property('BlockedBy'), function(t)
 				for _,p in pairs(t) do
 					if p[mt] and (variant == p[mt] or p[mt] == 'ALL') then
 						return true
@@ -69,12 +69,14 @@ function CollisionComponent:_collideCheck(level, pos, oldpos)
 			end)
 		end
 		if blocked then
-			entity:send(message('COLLIDE_BLOCKED'), mapType)
+			self._mediator:send(message('COLLIDE_BLOCKED'), mapType)
 			collision = true
 		end
 	end
 
-	if not collision then entity:send(message('COLLIDE_NONE'), pos, oldpos) end
+	if not collision then
+		self._mediator:send(message('COLLIDE_NONE'), pos, oldpos)
+	end
 end
 
 function CollisionComponent:receive(msg, ...)
