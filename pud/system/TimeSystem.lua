@@ -82,10 +82,10 @@ function TimeSystem:tick()
 				end
 			until nil == nextCommand or self._actionPoints[obj] <= 0
 	end
-
-	-- return the object whose turn is next
-	return self._timeTravelers:front()
 end
+
+-- return the object whose turn is next
+function TimeSystem:front() return self._timeTravelers:front() end
 
 
 -- the class

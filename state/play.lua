@@ -147,10 +147,12 @@ local _accum = 0
 function st:update(dt)
 	local start = getMicroTime() - dt
 
-	_accum = _accum + dt
-	if _accum > TICK then
-		_accum = _accum - TICK
-		TimeSystem:tick()
+	if TimeSystem:front() ~= self._level:getPrimeEntity() then
+		_accum = _accum + dt
+		if _accum > TICK then
+			_accum = _accum - TICK
+			TimeSystem:tick()
+		end
 	end
 
 	if self._level:needViewUpdate() then
