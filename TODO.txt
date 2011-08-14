@@ -12,7 +12,6 @@ Implement Components:
   + get hero movement working with keyboard again
   d ModelComponent - game data and helper methods
   o   HealthComponent - hp info
-  o   PositionComponent - position info
   o   TimeComponent - speed/action point info
   -   CombatComponent - determines attack rolls vs target, sends messages
   -   CollisionComponent - decides if collision occurs, sends messages
