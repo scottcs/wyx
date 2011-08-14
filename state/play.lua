@@ -12,6 +12,7 @@ local MessageHUD = getClass 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
+local getMicroTime = love.timer.getMicroTime
 
 -- systems
 local RenderSystemClass = getClass 'pud.system.RenderSystem'
@@ -122,16 +123,18 @@ end
 -- idle function, called when there are spare cycles
 function st:idle(start)
 	local cycles = 0
-	while love.timer.getMicroTime() - start < IDLE_TIME do
+	local time_left = getMicroTime() - start
+	while time_left < IDLE_TIME do
 		cycles = cycles + 1
 		collectgarbage('step', 0)
 		collectgarbage('stop')
+		time_left = getMicroTime() - start
 	end
 	return cycles
 end
 
 function st:update(dt)
-	local start = love.timer.getMicroTime() - dt
+	local start = getMicroTime() - dt
 	if self._level then self._level:update(dt) end
 
 	if self._level:needViewUpdate() then
