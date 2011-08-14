@@ -6,15 +6,13 @@ local Map = getClass 'pud.map.Map'
 local MapDirector = getClass 'pud.map.MapDirector'
 local FileMapBuilder = getClass 'pud.map.FileMapBuilder'
 local SimpleGridMapBuilder = getClass 'pud.map.SimpleGridMapBuilder'
-local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
-local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local MapNode = getClass 'pud.map.MapNode'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 
 -- events
-local CommandEvent = getClass 'pud.event.CommandEvent'
-local MoveCommand = getClass 'pud.command.MoveCommand'
-local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
+local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
+local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
+local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
 -- entities
 local HeroFactory = getClass 'pud.entity.HeroFactory'
@@ -24,7 +22,6 @@ local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
 -- time manager
-local TimeManager = getClass 'pud.time.TimeManager'
 local TICK = 0.01
 
 local math_floor = math.floor
@@ -34,7 +31,6 @@ local math_round = function(x) return math_floor(x+0.5) end
 --
 local Level = Class{name='Level',
 	function(self)
-		self._timeManager = TimeManager()
 		self._doTick = false
 		self._accum = 0
 
@@ -51,13 +47,13 @@ local Level = Class{name='Level',
 		self._lightmap = {}
 		self._entities = {}
 
-		CommandEvents:register(self, CommandEvent)
+		GameEvents:register(self, EntityPositionEvent)
 	end
 }
 
 -- destructor
 function Level:destroy()
-	CommandEvents:unregisterAll(self)
+	GameEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
 	self._doTick = nil
@@ -85,11 +81,6 @@ function Level:update(dt)
 		self._accum = self._accum + dt
 		if self._accum > TICK then
 			self._accum = self._accum - TICK
-			--[[
-			local nextActor = self._timeManager:tick()
-			local numPrimeEntityCommands = self._primeEntity:getPendingCommandCount()
-			self._doTick = nextActor ~= self._primeEntity or numPrimeEntityCommands > 0
-			]]--
 		end
 	end
 end
@@ -134,14 +125,6 @@ function Level:_attemptMove(entity)
 	end
 
 	return moved
-end
-
-function Level:_moveEntities()
-	local primeMoved = self:_attemptMove(self._primeEntity)
-	if primeMoved then
-		self._needViewUpdate = true
-		self:_bakeLights()
-	end
 end
 
 function Level:needViewUpdate() return self._needViewUpdate == true end
@@ -225,17 +208,12 @@ function Level:setPlayerControlled()
 	self._heroFactory:setInputComponent(self._primeEntity, player)
 end
 
-function Level:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._primeEntity then return end
-	if isClass(OpenDoorCommand, command) then
-		command:setOnComplete(self._bakeLights, self)
-	elseif isClass(MoveCommand, command) then
-		command:execute(self)
+function Level:EntityPositionEvent(e)
+	local entity = e:getEntity()
+	if entity == self._primeEntity then
 		self:_bakeLights()
+		self._needViewUpdate = true
 	end
-	self._doTick = true
-	self._needViewUpdate = true
 end
 
 function Level:getPrimeEntity() return self._primeEntity end
