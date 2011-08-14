@@ -2,6 +2,8 @@ local Class = require 'lib.hump.class'
 local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
 local Rect = getClass 'pud.kit.Rect'
+local message = require 'pud.component.message'
+local property = require 'pud.component.property'
 
 local math_max, math_min = math.max, math.min
 
@@ -102,68 +104,32 @@ function GameCam:getZoom()
 	return self._zoom, _zoomLevels[self._zoom]
 end
 
--- follow a target Rect
-function GameCam:followTarget(rect)
-	verifyClass(Rect, rect)
-
-	if self._target then self:unfollowTarget() end
-
-	self._target = rect
-	self._targetFuncs = {
-		setX = rect.setX,
-		setY = rect.setY,
-		setPosition = rect.setPosition,
-		setCenter = rect.setCenter,
-	}
-
-	local function _follow(self, theRect)
-		local pos = theRect:getPositionVector()
-		local size = theRect:getSizeVector()
-		if size.x == 1 and size.y == 1 then
-			size.x = size.x * TILEW
-			size.y = size.y * TILEH
-		end
-		self._cam.pos.x = (pos.x-1) * size.x + size.x/2
-		self._cam.pos.y = (pos.y-1) * size.y + size.y/2
+-- receive - receives messages from followed ComponentMediator
+function GameCam:receive(msg, pos, oldpos)
+	if msg == message('HAS_MOVED') then
+		local size = self._targetSize
+		self._cam.pos.x = (pos.x-1) * size + size/2
+		self._cam.pos.y = (pos.y-1) * size + size/2
 		self:_correctPos(self._cam.pos)
 	end
+end
 
-	rect.setX = function(theRect, x)
-		self._targetFuncs.setX(theRect, x)
-		_follow(self, theRect)
-	end
+-- follow a target
+function GameCam:followTarget(t)
+	verifyClass('pud.component.ComponentMediator', t)
 
-	rect.setY = function(theRect, y)
-		self._targetFuncs.setY(theRect, y)
-		_follow(self, theRect)
-	end
-
-	rect.setPosition = function(theRect, x, y)
-		self._targetFuncs.setPosition(theRect, x, y)
-		_follow(self, theRect)
-	end
-
-	rect.setCenter = function(theRect, x, y, flag)
-		self._targetFuncs.setCenter(theRect, x, y, flag)
-		_follow(self, theRect)
-	end
-
-	_follow(self, rect)
+	self:unfollowTarget()
+	t:attach(message('HAS_MOVED'), self)
+	self._targetSize = t:query(property('TileSize'))
+	self._target = t
 end
 
 -- unfollow a target Rect
 function GameCam:unfollowTarget()
 	if self._target then
-		self._target.setX = self._targetFuncs.setX
-		self._target.setY = self._targetFuncs.setY
-		self._target.setPosition = self._targetFuncs.setPosition
-		self._target.setCenter = self._targetFuncs.setCenter
-		self._targetFuncs.setX = nil
-		self._targetFuncs.setY = nil
-		self._targetFuncs.setPosition = nil
-		self._targetFuncs.setCenter = nil
-		self._targetFuncs = nil
+		self._target:detach(message('HAS_MOVED'), self)
 		self._target = nil
+		self._targetSize = nil
 	end
 end
 
