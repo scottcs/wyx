@@ -44,6 +44,9 @@ property.TileCoords        = {x=1, y=1}
 property.TileSize          = 32
 property.Visibility        = 6
 
+-- controller properties
+property.CanOpenDoors      = false
+
 -- time properties
 property.DefaultCost       = 1
 property.AttackCost        = 1

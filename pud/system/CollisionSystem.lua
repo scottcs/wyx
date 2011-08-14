@@ -65,7 +65,7 @@ function CollisionSystem:check(obj, pos)
 			end)
 		end
 		if blocked then
-			obj:send(message('COLLIDE_BLOCKED'), mapType)
+			obj:send(message('COLLIDE_BLOCKED'), node)
 			collision = true
 		end
 	end
