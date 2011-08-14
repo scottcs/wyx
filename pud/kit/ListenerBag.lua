@@ -26,6 +26,7 @@ end
 
 function ListenerBag:push(obj) self._queue[obj] = true end
 function ListenerBag:pop(obj) self._queue[obj] = nil end
+function ListenerBag:exists(obj) return self._queue[obj] ~= nil end
 
 -- 'for' iterator (unordered)
 -- example: for obj in queue:listeners() do obj:something() end
