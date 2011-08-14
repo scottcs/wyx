@@ -14,7 +14,6 @@ message.HAS_MOVED             = 'HAS_MOVED'
 message.SET_POSITION          = 'SET_POSITION'
 
 -- CollisionComponent messages
-message.COLLIDE_CHECK         = 'COLLIDE_CHECK'
 message.COLLIDE_NONE          = 'COLLIDE_NONE'
 message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
