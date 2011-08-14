@@ -194,14 +194,12 @@ function st:keypressed(key, unicode)
 			self._view:setAnimate(false)
 			self._level:generateSimpleGridMap()
 			self:_createMapView()
-			self:_createEntityViews()
 			self:_createCamera()
 		end,
 		f = function()
 			self._view:setAnimate(false)
 			self._level:generateFileMap()
 			self:_createMapView()
-			self:_createEntityViews()
 			self:_createCamera()
 		end,
 
