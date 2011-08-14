@@ -61,7 +61,8 @@ end
 
 -- set a property for this component
 function Component:_setProperty(prop, data)
-	self._properties[property(prop)] = data or property.default(prop)
+	if data == nil then data = property.default(prop) end
+	self._properties[property(prop)] = data
 end
 
 -- receive a message
