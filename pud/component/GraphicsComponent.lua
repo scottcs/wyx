@@ -4,6 +4,14 @@ local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 local vector = require 'lib.hump.vector'
 
+local newFramebuffer = love.graphics.newFramebuffer
+local newQuad = love.graphics.newQuad
+local setRenderTarget = love.graphics.setRenderTarget
+local drawq = love.graphics.drawq
+local draw = love.graphics.draw
+local setColor = love.graphics.setColor
+local nearestPO2 = nearestPO2
+
 -- GraphicsComponent
 --
 local GraphicsComponent = Class{name='GraphicsComponent',
@@ -64,7 +72,7 @@ function GraphicsComponent:_makeQuad()
 	verify('table', pos)
 	pos.x, pos.y = (pos.x-1)*size, (pos.y-1)*size
 
-	self._quad = love.graphics.newQuad(
+	self._quad = newQuad(
 		pos.x, pos.y, size, size,
 		self._tileset:getWidth(), self._tileset:getHeight())
 end
@@ -83,20 +91,20 @@ function GraphicsComponent:_updateFB(new, old)
 	local size = self._properties[property('TileSize')]
 	self._drawX, self._drawY = (new.x-1)*size, (new.y-1)*size
 
-	self._backfb = self._backfb or love.graphics.newFramebuffer(size, size)
+	self._backfb = self._backfb or newFramebuffer(size, size)
 
-	love.graphics.setRenderTarget(self._backfb)
-	love.graphics.setColor(1,1,1)
-	love.graphics.drawq(self._tileset, self._quad, 0, 0)
-	love.graphics.setRenderTarget()
+	setRenderTarget(self._backfb)
+	setColor(1,1,1)
+	drawq(self._tileset, self._quad, 0, 0)
+	setRenderTarget()
 
 	self._fb, self._backfb = self._backfb, self._fb
 end
 
 function GraphicsComponent:draw()
 	if self._fb then
-		love.graphics.setColor(1,1,1)
-		love.graphics.draw(self._fb, self._drawX, self._drawY)
+		setColor(1,1,1)
+		draw(self._fb, self._drawX, self._drawY)
 	end
 end
 

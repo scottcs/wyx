@@ -15,6 +15,13 @@ local AnimatedTile = getClass 'pud.view.AnimatedTile'
 local math_floor = math.floor
 local math_min, math_max = math.min, math.max
 
+local newFramebuffer = love.graphics.newFramebuffer
+local newQuad = love.graphics.newQuad
+local setRenderTarget = love.graphics.setRenderTarget
+local draw = love.graphics.draw
+local setColor = love.graphics.setColor
+local nearestPO2 = nearestPO2
+
 -- TileMapView
 -- draws tiles for each node in the level map to a framebuffer, which is then
 -- drawn to screen
@@ -33,8 +40,8 @@ local TileMapView = Class{name='TileMapView',
 		self._set = Image.dungeon
 
 		local size = nearestPO2(math_max(mapW * self._tileW, mapH * self._tileH))
-		self._frontfb = love.graphics.newFramebuffer(size, size)
-		self._backfb = love.graphics.newFramebuffer(size, size)
+		self._frontfb = newFramebuffer(size, size)
+		self._backfb = newFramebuffer(size, size)
 
 		local styles = {1, 2, 3, 4}
 		local s = styles[Random(#styles)]
@@ -220,7 +227,7 @@ end
 -- make a quad from the given tile position
 function TileMapView:_makeQuad(mapType, variant, style, x, y)
 	local key = mapType(variant, style):getKey()
-	self._quads[key] = love.graphics.newQuad(
+	self._quads[key] = newQuad(
 		self._tileW*(x-1),
 		self._tileH*(y-1),
 		self._tileW,
@@ -405,14 +412,14 @@ end
 -- draw to the framebuffer
 function TileMapView:_drawFB()
 	if self._backfb and self._set and self._level and self._mapViewport then
-		love.graphics.setRenderTarget(self._backfb)
+		setRenderTarget(self._backfb)
 
 		for _,t in ipairs(self._drawTiles) do
-			love.graphics.setColor(t.color)
+			setColor(t.color)
 			t.tile:draw()
 		end
 
-		love.graphics.setRenderTarget()
+		setRenderTarget()
 
 		-- flip back and front frame buffers
 		self._frontfb, self._backfb = self._backfb, self._frontfb
@@ -422,8 +429,8 @@ end
 -- draw the framebuffer to the screen
 function TileMapView:draw()
 	if self._frontfb then
-		love.graphics.setColor(1,1,1)
-		love.graphics.draw(self._frontfb)
+		setColor(1,1,1)
+		draw(self._frontfb)
 	end
 end
 
