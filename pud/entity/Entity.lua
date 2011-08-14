@@ -71,7 +71,13 @@ function Entity:removeComponent(component)
 	if type(component) == 'string' then
 		name = component
 	else
-		name = _getComponentName(component)
+		-- an actual class, check for component child or self
+		for k,v in pairs(self._components) do
+			if v:is_a(component) then
+				name = _getComponentName(component)
+				break
+			end
+		end
 	end
 
 	if name and self._components[name] then
