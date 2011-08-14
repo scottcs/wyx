@@ -35,8 +35,10 @@ function CollisionComponent:_setProperty(prop, data)
 
 	if prop == property('BlockedBy') then
 		verify('table', data)
+	elseif prop == property('CanMove') then
+		verify('boolean', data)
 	else
-		error('CollisionComponent does not support property: %s', tostring(prop))
+		error('CollisionComponent does not support property: '..tostring(prop))
 	end
 
 	self._properties[prop] = data
