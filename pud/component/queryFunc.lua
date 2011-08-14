@@ -80,6 +80,28 @@ local productFunc = function(t)
 	return product
 end
 
+local boolAndFunc = function(t)
+	local bool = true
+	local count = 0
+	for k,v in pairs(t) do
+		if type(v) == 'boolean' then
+			bool = bool and v
+			count = count + 1
+		end
+	end
+
+	return count>0 and bool
+end
+
+local boolOrFunc = function(t)
+	for k,v in pairs(t) do
+		if type(v) == 'boolean' then
+			if v then return true end
+		end
+	end
+
+	return false
+end
 
 local randomFunc = function(t) return t[Random(#t)] end
 local existsFunc = function(t) return true end
@@ -89,6 +111,8 @@ return {
 	sum = sumFunc,
 	mean = meanFunc,
 	product = productFunc,
+	booland = boolAndFunc,
+	boolor = boolOrFunc,
 	random = randomFunc,
 	exists = existsFunc
 }
