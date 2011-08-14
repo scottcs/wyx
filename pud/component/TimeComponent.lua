@@ -15,6 +15,7 @@ local TimeComponent = Class{name='TimeComponent',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
+			'IsExhausted',
 		})
 		ModelComponent.construct(self, properties)
 	end
