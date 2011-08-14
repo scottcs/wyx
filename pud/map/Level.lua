@@ -13,6 +13,7 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 
 -- events
 local CommandEvent = getClass 'pud.event.CommandEvent'
+local MoveCommand = getClass 'pud.command.MoveCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 
 -- entities
@@ -227,6 +228,8 @@ function Level:CommandEvent(e)
 	if command:getTarget() ~= self._hero then return end
 	if isClass(OpenDoorCommand, command) then
 		command:setOnComplete(self._bakeLights, self)
+	elseif isClass(MoveCommand, command) then
+		command:execute(self)
 	end
 	self._doTick = true
 	self._needViewUpdate = true
