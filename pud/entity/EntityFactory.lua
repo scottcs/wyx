@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
+local message = require 'pud.component.message'
 
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
@@ -127,6 +128,7 @@ function EntityFactory:createEntity(entityName)
 	self:_registerWithRenderSystem(entity)
 	self:_registerWithCollisionSystem(entity)
 	self:_registerWithTimeSystem(entity)
+	entity:send(message('ENTITY_CREATED'))
 	return entity
 end
 

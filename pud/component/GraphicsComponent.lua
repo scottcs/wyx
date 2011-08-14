@@ -24,7 +24,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		ViewComponent.construct(self, properties)
-		self._attachMessages = {'HAS_MOVED', 'DRAW'}
+		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED'}
 	end
 }
 
@@ -62,16 +62,17 @@ function GraphicsComponent:_setProperty(prop, data)
 end
 
 function GraphicsComponent:receive(msg, ...)
-	if msg == message('HAS_MOVED') then self:_updateFB(...) end
+	if     msg == message('ENTITY_CREATED') then self:_makeQuad(...)
+	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
+	end
 end
 
 function GraphicsComponent:setMediator(mediator)
 	ViewComponent.setMediator(self, mediator)
-	self._size = self._mediator:query(property('TileSize'))
-	self:_makeQuad()
 end
 
 function GraphicsComponent:_makeQuad()
+	self._size = self._size or self._mediator:query(property('TileSize'))
 	local pos = self._mediator:query(property('TileCoords'))
 	verify('table', pos)
 	pos.x, pos.y = (pos.x-1)*self._size, (pos.y-1)*self._size
