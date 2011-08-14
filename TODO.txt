@@ -9,6 +9,7 @@ Implement Components:
   d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
   o get entities created from data into Level
   o draw entities
+	- support lua in properties when read from file
   d get hero created from data into Level
   d draw hero
   d get hero movement working with keyboard again
@@ -35,6 +36,7 @@ Implement Components:
   o AISystem - ticks AIComponents
   o UISystem - handles User Interface
   o CombatSystem - determines outcome of combat using CombatComponents
+  + CollisionSystem - figures out when things collide
   + TimeSystem - determines whose turn it is
 
 For v0.1.0:
