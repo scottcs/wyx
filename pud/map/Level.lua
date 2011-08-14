@@ -230,6 +230,7 @@ function Level:CommandEvent(e)
 		command:setOnComplete(self._bakeLights, self)
 	elseif isClass(MoveCommand, command) then
 		command:execute(self)
+		self:_bakeLights()
 	end
 	self._doTick = true
 	self._needViewUpdate = true
