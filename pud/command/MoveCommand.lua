@@ -35,7 +35,7 @@ function MoveCommand:execute(currAP)
 
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))
-	Command.execute(self)
+	return Command.execute(self)
 end
 
 function MoveCommand:getVector() return self._vector:clone() end

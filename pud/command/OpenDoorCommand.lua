@@ -27,7 +27,7 @@ function OpenDoorCommand:execute()
 
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))
-	Command.execute(self)
+	return Command.execute(self)
 end
 
 -- the class
