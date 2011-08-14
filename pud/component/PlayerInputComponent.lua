@@ -8,8 +8,6 @@ local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 local PlayerInputComponent = Class{name='PlayerInputComponent',
 	inherits=InputComponent,
 	function(self, properties)
-		self._requiredProperties = {
-		}
 		InputComponent.construct(self, properties)
 		InputEvents:register(self, KeyboardEvent)
 	end

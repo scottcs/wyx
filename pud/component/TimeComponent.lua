@@ -9,7 +9,7 @@ local message = require 'pud.component.message'
 local TimeComponent = Class{name='TimeComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		self._requiredProperties = {
+		self:_addRequiredProperties{
 			'AttackCost',
 			'MoveCost',
 			'DefaultCost',

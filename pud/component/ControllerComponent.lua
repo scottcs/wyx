@@ -6,6 +6,9 @@ local Component = getClass 'pud.component.Component'
 local ControllerComponent = Class{name='ControllerComponent',
 	inherits=Component,
 	function(self, newProperties)
+		self:_addRequiredProperties{
+			'CanOpenDoors',
+		}
 		Component.construct(self, newProperties)
 	end
 }

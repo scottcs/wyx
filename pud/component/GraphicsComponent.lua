@@ -17,7 +17,7 @@ local nearestPO2 = nearestPO2
 local GraphicsComponent = Class{name='GraphicsComponent',
 	inherits=ViewComponent,
 	function(self, properties)
-		self._requiredProperties = {
+		self:_addRequiredProperties{
 			'TileSet',
 			'TileSize',
 			'TileCoords',

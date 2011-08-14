@@ -7,6 +7,7 @@ local message = require 'pud.component.message'
 local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
+		self._requiredProperties = {}
 		self:_createProperties(newProperties)
 	end
 }
@@ -24,6 +25,15 @@ function Component:destroy()
 	self._mediator = nil
 end
 
+-- add properties to the list of required properties (to be called by child
+-- classes)
+function Component:_addRequiredProperties(properties)
+	local num = #properties
+	for i=1,num do
+		self._reqiuredProperties[property(properties[i])] = true
+	end
+end
+
 -- create properties from the given table, add default values if needed
 function Component:_createProperties(newProperties)
 	if newProperties ~= nil then
@@ -34,13 +44,8 @@ function Component:_createProperties(newProperties)
 	end
 
 	-- add missing defaults
-	if self._requiredProperties then
-		verify('table', self._requiredProperties)
-		for _,p in pairs(self._requiredProperties) do
-			if not self._properties[p] then
-				self:_setProperty(p)
-			end
-		end
+	for p in pairs(self._requiredProperties) do
+		if not self._properties[p] then self:_setProperty(p) end
 	end
 end
 
