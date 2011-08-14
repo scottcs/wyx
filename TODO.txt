@@ -4,24 +4,29 @@ d Event tables should be weak tables
 d write isClass and getClass
 
 Implement Components:
-  o make sure *Entity classes verify that necessary components exist on init.
+  d make sure *Entity classes verify that necessary components exist on init.
   d remove Rect from Entity
   d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
-  + get entities created from data into Level
-  + draw entities
-  + get hero movement working with keyboard again
+  o get entities created from data into Level
+  o draw entities
+  d get hero created from data into Level
+  d draw hero
+  d get hero movement working with keyboard again
+	+ get hero command queue working again
+  +   stop hardcoding MoveCommand:execute() inside Level
+	+   including OpenDoorCommand
   d ModelComponent - game data and helper methods
   o   HealthComponent - hp info
   o   TimeComponent - speed/action point info
   -   CombatComponent - determines attack rolls vs target, sends messages
-  -   CollisionComponent - decides if collision occurs, sends messages
-  -   MotionComponent - moves the entity
+  d   CollisionComponent - decides if collision occurs, sends messages
+  d   MotionComponent - moves the entity
   d ViewComponent = anything that will be drawn
-  +   GraphicsComponent - what to draw
+  d   GraphicsComponent - what to draw
   o   InfoPanelComponent - just a guess here... mouseover info panel thingy
   d ControllerComponent - modifies the model based on circumstance
-  +   InputComponent
-  +     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
+  d   InputComponent
+  d     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
   o     AIInputComponent - AI routines, sends same messages as input component
   d RenderSystem - lets ViewComponents register, draws
   + InputSystem - ticks InputComponents
