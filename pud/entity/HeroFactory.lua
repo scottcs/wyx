@@ -17,7 +17,7 @@ local HeroFactory = Class{name='HeroFactory',
 			getClass 'pud.component.CombatComponent',
 			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.MotionComponent',
-			--getClass 'pud.component.InputComponent',
+			getClass 'pud.component.InputComponent',
 		}
 	end
 }
@@ -39,6 +39,14 @@ function HeroFactory:_addDefaultComponent(entity, componentClass)
 	end
 end
 ]]--
+
+-- set input component explicitly
+function HeroFactory:setInputComponent(entity, component)
+	local InputComponent = getClass 'pud.component.InputComponent'
+	verifyClass(InputComponent, component)
+	entity:removeComponent(InputComponent)
+	entity:addComponent(component)
+end
 
 
 -- the class
