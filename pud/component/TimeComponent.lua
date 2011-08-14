@@ -15,6 +15,7 @@ local TimeComponent = Class{name='TimeComponent',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
+			'IsExhausted',
 		})
 		ModelComponent.construct(self, properties)
 	end
@@ -25,6 +26,15 @@ function TimeComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
+function TimeComponent:isExhausted()
+	return self._mediator:query(property('IsExhausted'), 'boolor')
+end
+
+function TimeComponent:getTotalSpeed()
+	local speed = self._mediator:query(property('Speed'))
+	speed = speed + self._mediator:query(property('SpeedBonus'))
+	return speed
+end
 
 -- the class
 return TimeComponent

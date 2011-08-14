@@ -56,7 +56,7 @@ function TimeSystem:tick()
 	local obj = self._timeTravelers:front()
 
 	-- check for exhausted objects and remove them
-	while obj and obj:query(property('IsExhausted'), 'boolor') do
+	while obj and obj:isExhausted() do
 		self._timeTravelers:pop_front()
 		self._actionPoints[obj] = nil
 		obj = self._timeTravelers:front()
@@ -68,8 +68,7 @@ function TimeSystem:tick()
 
 		-- increase action points by the object's speed
 		local ap = self._actionPoints
-		local speed = obj:query(property('Speed'))
-		speed = speed + obj:query(property('SpeedBonus'))
+		local speed = obj:getTotalSpeed()
 
 		ap[obj] = ap[obj] + speed
 
