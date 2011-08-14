@@ -16,6 +16,7 @@ local getMicroTime = love.timer.getMicroTime
 
 -- systems
 local RenderSystemClass = getClass 'pud.system.RenderSystem'
+local TimeSystemClass = getClass 'pud.system.TimeSystem'
 local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
 
 -- level
@@ -49,6 +50,7 @@ function st:enter()
 
 	-- create systems
 	RenderSystem = RenderSystemClass()
+	TimeSystem = TimeSystemClass()
 	CollisionSystem = CollisionSystemClass(self._level)
 
 	self._level:createEntities()
@@ -177,6 +179,7 @@ end
 function st:leave()
 	collectgarbage('restart')
 	RenderSystem:destroy()
+	TimeSystem:destroy()
 	CollisionSystem:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
