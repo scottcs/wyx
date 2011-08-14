@@ -26,15 +26,9 @@ end
 function ComponentMediator:send(msg, ...)
 	if self._listeners[msg] then
 		for comp in self._listeners[msg]:listeners() do
-			comp:receive(message(msg, ...))
+			comp:receive(message(msg), ...)
 		end
 	end
-end
-
--- ask all of the given components to attach themselves to this
--- ComponentMediator with messages they wish to listen for.
-function ComponentMediator:registerComponents(components)
-	for _,comp in pairs(components) do comp:attachMessages(self) end
 end
 
 -- attach a component to the given message
