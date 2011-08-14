@@ -317,6 +317,9 @@ function Level:_bakeLights(blackout)
 			vector(_mult[1][oct], _mult[2][oct]),
 			vector(_mult[3][oct], _mult[4][oct]))
 	end
+
+	-- make sure hero is always lit
+	self._lightmap[heroPos.x][heroPos.y] = 'lit'
 end
 
 -- get a color table of the lighting for the specified point
