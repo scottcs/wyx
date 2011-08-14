@@ -19,6 +19,8 @@ local sumFunc = function(t)
 					sum[key] = sum[key] and sum[key] + val or val
 				end
 			end
+		elseif type(v) == 'boolean' then
+			if sum == nil then sum = v else sum = sum and v end
 		end
 	end
 
