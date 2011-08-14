@@ -31,7 +31,10 @@ function TimeSystem:destroy()
 end
 
 -- register an object
-function TimeSystem:register(obj, debt)
+function TimeSystem:register(comp, debt)
+	local obj = comp:getMediator()
+	assert(obj, 'Could not register component: %s', tostring(comp))
+
 	debt = debt or 0
 	if debt < 0 then debt = -debt end
 

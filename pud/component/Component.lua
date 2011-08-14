@@ -49,11 +49,12 @@ function Component:_createProperties(newProperties)
 	end
 end
 
--- set the mediator who owns this component
+-- set/get the mediator who owns this component
 function Component:setMediator(mediator)
 	verifyClass('pud.component.ComponentMediator', mediator)
 	self._mediator = mediator
 end
+function Component:getMediator() return self._mediator end
 
 -- attach all of this component's messages to its mediator
 function Component:attachMessages()
