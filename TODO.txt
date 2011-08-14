@@ -12,7 +12,7 @@ Implement Components:
   d get hero created from data into Level
   d draw hero
   d get hero movement working with keyboard again
-	+ don't hardcode hero inside Level and play state, use a "prime entity" pointer
+	d don't hardcode hero inside Level and play state, use a "prime entity" pointer
 	+ get hero command queue working again
   +   stop hardcoding MoveCommand:execute() inside Level
 	+   including OpenDoorCommand

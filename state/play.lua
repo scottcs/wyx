@@ -46,7 +46,7 @@ function st:enter()
 	love.keyboard.setKeyRepeat(100, 200)
 	self._level = Level()
 	self._level:createEntities()
-	self._level:setPlayerControlledHero()
+	self._level:setPlayerControlled()
 	self._level:generateSimpleGridMap()
 	self:_createMapView()
 	self:_createCamera()
@@ -65,7 +65,7 @@ end
 
 function st:CommandEvent(e)
 	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getHero() then return end
+	if command:getTarget() ~= self._level:getPrimeEntity() then return end
 end
 
 function st:ZoneTriggerEvent(e)
@@ -97,7 +97,7 @@ function st:_createCamera()
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._cam:home()
-	self._cam:followTarget(self._level:getHero())
+	self._cam:followTarget(self._level:getPrimeEntity())
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -232,7 +232,7 @@ function st:keypressed(key, unicode)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		x = function()
-			self._cam:followTarget(self._level:getHero())
+			self._cam:followTarget(self._level:getPrimeEntity())
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		f3 = function() if debug then self._debug = not self._debug end end,

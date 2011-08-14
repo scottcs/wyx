@@ -86,8 +86,8 @@ function Level:update(dt)
 			self._accum = self._accum - TICK
 			--[[
 			local nextActor = self._timeManager:tick()
-			local numHeroCommands = self._hero:getPendingCommandCount()
-			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
+			local numPrimeEntityCommands = self._primeEntity:getPendingCommandCount()
+			self._doTick = nextActor ~= self._primeEntity or numPrimeEntityCommands > 0
 			]]--
 		end
 	end
@@ -136,8 +136,8 @@ function Level:_attemptMove(entity)
 end
 
 function Level:_moveEntities()
-	local heroMoved = self:_attemptMove(self._hero)
-	if heroMoved then
+	local primeMoved = self:_attemptMove(self._primeEntity)
+	if primeMoved then
 		self._needViewUpdate = true
 		self:_bakeLights()
 	end
@@ -161,13 +161,13 @@ end
 function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
-	if self._hero then
+	if self._primeEntity then
 		local ups = {}
 		for _,name in ipairs(self._map:getPortalNames()) do
 			if string.match(name, "^up%d") then ups[#ups+1] = name end
 		end
 		self._startPosition = self._map:getPortal(ups[Random(#ups)])
-		self._hero:send(message('SET_POSITION'), self._startPosition)
+		self._primeEntity:send(message('SET_POSITION'), self._startPosition)
 		self:_bakeLights(true)
 	end
 	builder:destroy()
@@ -214,18 +214,19 @@ end
 
 function Level:createEntities()
 	-- TODO: choose hero rather than hardcode Warrior
-	self._hero = self._heroFactory:createEntity('Warrior')
+	self._primeEntity = self._heroFactory:createEntity('Warrior')
+	self._entities[#self._entities+1] = self._primeEntity
 end
 
-function Level:setPlayerControlledHero()
+function Level:setPlayerControlled()
 	local PIC = getClass 'pud.component.PlayerInputComponent'
 	local player = PIC()
-	self._heroFactory:setInputComponent(self._hero, player)
+	self._heroFactory:setInputComponent(self._primeEntity, player)
 end
 
 function Level:CommandEvent(e)
 	local command = e:getCommand()
-	if command:getTarget() ~= self._hero then return end
+	if command:getTarget() ~= self._primeEntity then return end
 	if isClass(OpenDoorCommand, command) then
 		command:setOnComplete(self._bakeLights, self)
 	elseif isClass(MoveCommand, command) then
@@ -236,9 +237,9 @@ function Level:CommandEvent(e)
 	self._needViewUpdate = true
 end
 
-function Level:getHero() return self._hero end
+function Level:getPrimeEntity() return self._primeEntity end
 
--- bake the lighting for the current hero position
+-- bake the lighting for the current prime entity position
 local _mult = {
 	{ 1,  0,  0, -1, -1,  0,  0,  1},
 	{ 0,  1, -1,  0,  0, -1,  1,  0},
@@ -317,19 +318,19 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local radius = self._hero:query('Visibility')
-	local heroPos = self._hero:query('Position')
+	local radius = self._primeEntity:query('Visibility')
+	local primePos = self._primeEntity:query('Position')
 
 	self:_resetLights(blackout)
 
 	for oct=1,8 do
-		self:_castLight(heroPos, 1, 1, 0, radius,
+		self:_castLight(primePos, 1, 1, 0, radius,
 			vector(_mult[1][oct], _mult[2][oct]),
 			vector(_mult[3][oct], _mult[4][oct]))
 	end
 
-	-- make sure hero is always lit
-	self._lightmap[heroPos.x][heroPos.y] = 'lit'
+	-- make sure prime entity is always lit
+	self._lightmap[primePos.x][primePos.y] = 'lit'
 end
 
 -- get a color table of the lighting for the specified point
