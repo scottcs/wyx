@@ -1,8 +1,6 @@
 local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
 
-local ViewComponent = getClass 'pud.component.ViewComponent'
-
 local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
@@ -90,10 +88,23 @@ end
 
 -- register with the relevant systems any ViewComponents the entity has
 function EntityFactory:_registerViews(entity)
-	local views = entity:getComponentsByClass(ViewComponent)
-	if views then
-		for _,view in pairs(views) do
-			RenderSystem:register(view, self._renderLevel)
+	local ViewComponent = getClass 'pud.component.ViewComponent'
+	local comps = entity:getComponentsByClass(ViewComponent)
+
+	if comps then
+		for _,comp in pairs(comps) do
+			RenderSystem:register(comp, self._renderLevel)
+		end
+	end
+end
+
+-- register with the relevant systems any CollisionComponents the entity has
+function EntityFactory:_registerCollisions(entity)
+	local CollisionComponent = getClass 'pud.component.CollisionComponent'
+	local comps = entity:getComponentsByClass(CollisionComponent)
+	if comps then
+		for _,comp in pairs(comps) do
+			CollisionSystem:register(comp)
 		end
 	end
 end
