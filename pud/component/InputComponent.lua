@@ -1,7 +1,8 @@
 local Class = require 'lib.hump.class'
 local ControllerComponent = getClass 'pud.component.ControllerComponent'
 local message = require 'pud.component.message'
-local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
+local CommandEvent = getClass 'pud.event.CommandEvent'
+local MoveCommand = getClass 'pud.command.MoveCommand'
 
 
 -- InputComponent
@@ -20,7 +21,8 @@ end
 
 -- tell the mediator to move along vector v
 function InputComponent:move(v)
-	GameEvents:push(EntityPositionEvent(self._mediator, v))
+	local command = MoveCommand(self._mediator, v)
+	CommandEvents:push(CommandEvent(command))
 end
 
 
