@@ -7,23 +7,12 @@ local message = require 'pud.component.message'
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
-	function(self, target, vector, node)
+	function(self, target, vector)
 		verifyClass('pud.component.ComponentMediator', target)
 		verify('vector', vector)
 
 		Command.construct(self, target)
-
-		if target.getStepSize then
-			local step = target:getStepSize()
-			if step then
-				self._vector = vector
-				self._vector.x = self._vector.x * step.x
-				self._vector.y = self._vector.y * step.y
-			end
-		end
-
-		self._vector = self._vector or vector
-		self._node = node
+		self._vector = vector
 	end
 }
 
