@@ -90,8 +90,6 @@ function Level:update(dt)
 			]]--
 		end
 	end
-
-	self:_moveEntities()
 end
 
 function Level:_attemptMove(entity)
