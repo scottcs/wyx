@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local ViewComponent = getClass 'pud.component.ViewComponent'
 local property = require 'pud.component.property'
+local message = require 'pud.component.message'
 local vector = require 'lib.hump.vector'
 
 -- GraphicsComponent
@@ -86,7 +87,7 @@ function GraphicsComponent:_updateFB(new, old)
 
 	love.graphics.setRenderTarget(self._backfb)
 	love.graphics.setColor(1,1,1)
-	love.graphics.drawq(self._quad)
+	love.graphics.drawq(self._tileset, self._quad, 0, 0)
 	love.graphics.setRenderTarget()
 
 	self._fb, self._backfb = self._backfb, self._fb
