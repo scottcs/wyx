@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local property = require 'pud.component.property'
+local message = require 'pud.component.message'
 
 -- Component
 --
@@ -51,8 +52,10 @@ end
 
 -- attach all of this component's messages to its mediator
 function Component:attachMessages()
-	for _,msg in pairs(_attachMessages) do
-		self._mediator:attach(message(msg), self)
+	if self._attachMessages then
+		for _,msg in pairs(self._attachMessages) do
+			self._mediator:attach(message(msg), self)
+		end
 	end
 end
 
@@ -68,9 +71,6 @@ function Component:receive(msg, ...) end
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
 function Component:getProperty(p) return self._properties[p] end
-
--- attach this component to the messages it wants to receive
-function Component:attachMessages() end
 
 
 -- the class
