@@ -39,20 +39,14 @@ function MotionComponent:_setProperty(prop, data)
 	self._properties[prop] = data
 end
 
-function MotionComponent:_setPosition(pos)
-	self:_setProperty(property('Position'), pos)
-	self._mediator:send(message('HAS_MOVED'), pos)
-end
-
-function MotionComponent:_move(pos)
-	local oldpos = self._mediator:query(property('Position'))
+function MotionComponent:_move(pos, oldpos)
 	self:_setProperty(property('Position'), pos)
 	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
 end
 
 function MotionComponent:receive(msg, ...)
 	if msg == message('COLLIDE_NONE') then self:_move(...) end
-	if msg == message('SET_POSITION') then self:_setPosition(...) end
+	if msg == message('SET_POSITION') then self:_move(...) end
 end
 
 

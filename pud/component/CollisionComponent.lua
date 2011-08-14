@@ -35,7 +35,8 @@ function CollisionComponent:_setProperty(prop, data)
 	self._properties[prop] = data
 end
 
-function CollisionComponent:_collideCheck(level, pos)
+function CollisionComponent:_collideCheck(level, pos, oldpos)
+	print(pos, oldpos)
 	local collision = false
 	local entities = level:getEntitiesAtLocation(pos)
 	if entities then
@@ -73,7 +74,7 @@ function CollisionComponent:_collideCheck(level, pos)
 		end
 	end
 
-	if not collision then entity:send(message('COLLIDE_NONE')) end
+	if not collision then entity:send(message('COLLIDE_NONE'), pos, oldpos) end
 end
 
 function CollisionComponent:receive(msg, ...)
