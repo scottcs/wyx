@@ -25,8 +25,6 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		self._attachMessages = {'HAS_MOVED', 'DRAW'}
-		self:_makeQuad()
-		local size = nearestPO2(self._properties[property('TileSize')])
 	end
 }
 
@@ -36,6 +34,7 @@ function GraphicsComponent:destroy()
 	self._quad = nil
 	self._fb = nil
 	self._backfb = nil
+	self._size = nil
 	ViewComponent.destroy(self)
 end
 
@@ -66,39 +65,45 @@ function GraphicsComponent:receive(msg, ...)
 	if msg == message('HAS_MOVED') then self:_updateFB(...) end
 end
 
+function GraphicsComponent:setMediator(mediator)
+	ViewComponent.setMediator(self, mediator)
+	self._size = self._mediator:query(property('TileSize'))
+	self:_makeQuad()
+end
+
 function GraphicsComponent:_makeQuad()
-	local size = self._properties[property('TileSize')]
-	local pos = self._properties[property('TileCoords')]
+	local pos = self._mediator:query(property('TileCoords'))
 	verify('table', pos)
-	pos.x, pos.y = (pos.x-1)*size, (pos.y-1)*size
+	pos.x, pos.y = (pos.x-1)*self._size, (pos.y-1)*self._size
 
 	self._quad = newQuad(
-		pos.x, pos.y, size, size,
+		pos.x, pos.y, self._size, self._size,
 		self._tileset:getWidth(), self._tileset:getHeight())
 end
 
 function GraphicsComponent:_updateFB(new, old)
-	if old then
-		local v = new - old
-		if (self._movingLeft and v.x > 0)
-			or (not self._movingLeft and v.x < 0)
-		then
-			self._movingLeft = v.x < 0
-			self._quad:flip(1)
+	if self._mediator then
+		if old then
+			local v = new - old
+			if (self._movingLeft and v.x > 0)
+				or (not self._movingLeft and v.x < 0)
+			then
+				self._movingLeft = v.x < 0
+				self._quad:flip(1)
+			end
 		end
+
+		self._drawX, self._drawY = (new.x-1)*self._size, (new.y-1)*self._size
+
+		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
+
+		setRenderTarget(self._backfb)
+		setColor(1,1,1)
+		drawq(self._tileset, self._quad, 0, 0)
+		setRenderTarget()
+
+		self._fb, self._backfb = self._backfb, self._fb
 	end
-
-	local size = self._properties[property('TileSize')]
-	self._drawX, self._drawY = (new.x-1)*size, (new.y-1)*size
-
-	self._backfb = self._backfb or newFramebuffer(size, size)
-
-	setRenderTarget(self._backfb)
-	setColor(1,1,1)
-	drawq(self._tileset, self._quad, 0, 0)
-	setRenderTarget()
-
-	self._fb, self._backfb = self._backfb, self._fb
 end
 
 function GraphicsComponent:draw()
