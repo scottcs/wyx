@@ -70,7 +70,7 @@ function TimeSystem:tick()
 		local ap = self._actionPoints
 		local speed = obj:query(property('Speed'))
 		speed = speed + obj:query(property('SpeedBonus'))
-			
+
 		ap[obj] = ap[obj] + speed
 
 		-- spend all action points
@@ -81,6 +81,7 @@ function TimeSystem:tick()
 					ap[obj] = ap[obj] - nextCommand:execute(ap[obj])
 				end
 			until nil == nextCommand or self._actionPoints[obj] <= 0
+		end
 	end
 end
 
