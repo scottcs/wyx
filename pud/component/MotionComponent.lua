@@ -3,6 +3,7 @@ local ModelComponent = getClass 'pud.component.ModelComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 local vector = require 'lib.hump.vector'
+local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
 
 -- MotionComponent
@@ -42,6 +43,7 @@ end
 function MotionComponent:_move(pos, oldpos)
 	self:_setProperty(property('Position'), pos)
 	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
+	GameEvents:push(EntityPositionEvent(self._mediator, pos, oldpos))
 end
 
 function MotionComponent:receive(msg, ...)
