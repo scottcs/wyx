@@ -228,6 +228,8 @@ function Level:CommandEvent(e)
 	self._needViewUpdate = true
 end
 
+function Level:getHero() return self._hero end
+
 -- bake the lighting for the current hero position
 local _mult = {
 	{ 1,  0,  0, -1, -1,  0,  0,  1},
