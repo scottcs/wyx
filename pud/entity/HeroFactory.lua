@@ -48,6 +48,14 @@ function HeroFactory:setInputComponent(entity, component)
 	entity:addComponent(component)
 end
 
+-- set time component explicitly
+function HeroFactory:setTimeComponent(entity, component)
+	local TimeComponent = getClass 'pud.component.TimeComponent'
+	verifyClass(TimeComponent, component)
+	entity:removeComponent(TimeComponent)
+	entity:addComponent(component)
+end
+
 
 -- the class
 return HeroFactory

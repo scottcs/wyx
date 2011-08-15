@@ -170,8 +170,11 @@ end
 
 function Level:setPlayerControlled()
 	local PIC = getClass 'pud.component.PlayerInputComponent'
-	local player = PIC()
-	self._heroFactory:setInputComponent(self._primeEntity, player)
+	local PTC = getClass 'pud.component.PlayerTimeComponent'
+	local input = PIC()
+	local time = PTC()
+	self._heroFactory:setInputComponent(self._primeEntity, input)
+	self._heroFactory:setTimeComponent(self._primeEntity, time)
 end
 
 function Level:EntityPositionEvent(e)
