@@ -102,8 +102,6 @@ function EventManager:getRegisteredEvents(obj)
 end
 
 -- notify a specific event, notifying all listeners of the event.
--- note: it is recommended to use push() and flush() rather than call notify()
--- directly.
 function EventManager:notify(event)
 	verifyClass(Event, event)
 	local key = event:getEventKey()

@@ -2,7 +2,16 @@ local Class = require 'lib.hump.class'
 
 local math_floor = math.floor
 local math_max = math.max
-local collectgarbage = collectgarbage
+local pairs, tostring, collectgarbage = pairs, tostring, collectgarbage
+local getMicroTime = love.timer.getMicroTime
+local newFramebuffer = love.graphics.newFramebuffer
+local setColor = love.graphics.setColor
+local gprint = love.graphics.print
+local draw = love.graphics.draw
+local setRenderTarget = love.graphics.setRenderTarget
+local setFont = love.graphics.setFont
+local rectangle = love.graphics.rectangle
+local nearestPO2 = nearestPO2
 
 local MARGIN = 8
 local LABEL = 50
@@ -29,9 +38,9 @@ local DebugHUD = Class{name='DebugHUD',
 		self._font = GameFont.debug
 		self._fontH = GameFont.debug:getHeight()
 		local size = nearestPO2(math_max(WIDTH, HEIGHT))
-		self._fb = love.graphics.newFramebuffer(size, size)
+		self._fb = newFramebuffer(size, size)
 		self._info = {}
-		self._start = love.timer.getMicroTime() + 0.2
+		self._start = getMicroTime() + 0.2
 
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
@@ -143,7 +152,7 @@ end
 
 local _accum = {}
 function DebugHUD:_updateInfo(key, dt)
-	local time = love.timer.getMicroTime()
+	local time = getMicroTime()
 	if self._start > time then return end
 
 	_accum[key] = _accum[key] and _accum[key] + dt or dt
@@ -198,17 +207,17 @@ function DebugHUD:update(dt)
 end
 
 function DebugHUD:_drawFB()
-	love.graphics.setRenderTarget(self._fb)
+	setRenderTarget(self._fb)
 
-	love.graphics.setFont(self._font)
+	setFont(self._font)
 
-	love.graphics.setColor(BG)
-	love.graphics.rectangle('fill',
+	setColor(BG)
+	rectangle('fill',
 		self._bg.x, self._bg.y, self._bg.w, self._bg.h)
 
-	love.graphics.setColor(NORMAL)
+	setColor(NORMAL)
 	for i=1,#self._topRow do
-		love.graphics.print(self._topRow[i].name,
+		gprint(self._topRow[i].name,
 			self._topRow[i].x, self._topRow[i].y)
 	end
 
@@ -216,34 +225,34 @@ function DebugHUD:_drawFB()
 		local info = self._info[k]
 
 		if info.cur then
-			love.graphics.setColor(NORMAL)
-			love.graphics.print(k..': ', MARGIN*2, info.y)
-			love.graphics.setColor(info.color)
-			love.graphics.print(tostring(info.cur), info.x, info.y)
+			setColor(NORMAL)
+			gprint(k..': ', MARGIN*2, info.y)
+			setColor(info.color)
+			gprint(tostring(info.cur), info.x, info.y)
 		end
 
 		if info.warning then
-			love.graphics.setColor(info.warnColor)
-			love.graphics.print(tostring(info.warning), info.warnX, info.warnY)
+			setColor(info.warnColor)
+			gprint(tostring(info.warning), info.warnX, info.warnY)
 		end
 
 		if info.best then
-			love.graphics.setColor(info.bestColor)
-			love.graphics.print(tostring(info.best), info.bestX, info.bestY)
+			setColor(info.bestColor)
+			gprint(tostring(info.best), info.bestX, info.bestY)
 		end
 
 		if info.worst then
-			love.graphics.setColor(info.worstColor)
-			love.graphics.print(tostring(info.worst), info.worstX, info.worstY)
+			setColor(info.worstColor)
+			gprint(tostring(info.worst), info.worstX, info.worstY)
 		end
 	end
 
-	love.graphics.setRenderTarget()
+	setRenderTarget()
 end
 
 function DebugHUD:draw()
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.draw(self._fb)
+	setColor(1, 1, 1)
+	draw(self._fb)
 end
 
 

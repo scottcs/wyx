@@ -8,6 +8,7 @@ DEFAULT_COST = 1
 local Command = Class{name='Command',
 	function(self, target)
 		self._target = target
+		self._cost = DEFAULT_COST
 	end
 }
 
@@ -40,7 +41,7 @@ end
 -- execute the command
 function Command:execute(currAP)
 	self:_doOnComplete()
-	return self._cost or DEFAULT_COST
+	return self._cost
 end
 
 

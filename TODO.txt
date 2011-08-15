@@ -4,19 +4,21 @@ d Event tables should be weak tables
 d write isClass and getClass
 
 Implement Components:
+  d clean up unused code
+  - fix tests
   d make sure *Entity classes verify that necessary components exist on init.
   d remove Rect from Entity
   d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
   o get entities created from data into Level
   o draw entities
-	- support lua in properties when read from file
+  - support lua in properties when read from file
   d get hero created from data into Level
   d draw hero
   d get hero movement working with keyboard again
-	d don't hardcode hero inside Level and play state, use a "prime entity" pointer
-	d get hero command queue working again
+  d don't hardcode hero inside Level and play state, use a "prime entity" pointer
+  d get hero command queue working again
   d   stop hardcoding MoveCommand:execute() inside Level
-	d   including OpenDoorCommand
+  d   including OpenDoorCommand
   d ModelComponent - game data and helper methods
   o   HealthComponent - hp info
   d   TimeComponent - speed/action point info

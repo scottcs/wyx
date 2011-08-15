@@ -24,6 +24,25 @@ function CombatComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
+function CombatComponent:_setProperty(prop, data)
+	prop = property(prop)
+	if nil == data then data = property.default(prop) end
+
+	if   prop == property('Attack')
+		or prop == property('Defense')
+		or prop == property('AttackBonus')
+		or prop == property('DefenseBonus')
+	then
+		-- TODO: commented out because I'm giving strings right now, thinking I
+		-- can support lua code in the property
+		--verify('number', data)
+	else
+		error('CombatComponent does not support property: '..tostring(prop))
+	end
+
+	ModelComponent._setProperty(self, prop, data)
+end
+
 
 -- the class
 return CombatComponent

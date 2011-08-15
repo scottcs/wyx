@@ -12,6 +12,8 @@ local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local nearestPO2 = nearestPO2
 
+local verify, assert, tostring = verify, assert, tostring
+
 -- GraphicsComponent
 --
 local GraphicsComponent = Class{name='GraphicsComponent',
@@ -25,13 +27,18 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 		})
 		ViewComponent.construct(self, properties)
 		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED'}
+		self._frames = {}
+		self._curFrame = 'right'
 	end
 }
 
 -- destructor
 function GraphicsComponent:destroy()
+	for k in pairs(self._frames) do self._frames[k] = nil end
+	self._frames = nil
+	self._curFrame = nil
+	self._topFrame = nil
 	self._tileset = nil
-	self._quad = nil
 	self._fb = nil
 	self._backfb = nil
 	self._size = nil
@@ -48,9 +55,13 @@ function GraphicsComponent:_setProperty(prop, data)
 		assert(self._tileset ~= nil, 'Invalid TileSet: %s', tostring(data))
 	elseif prop == property('TileCoords') then
 		verify('table', data)
-		assert(data.x and data.y, 'Invalid TileCoords: %s', tostring(data))
-		verify('number', data.x, data.y)
-		data = vector(data.x, data.y)
+		local newData = {}
+		for k,v in pairs(data) do
+			assert(v.x and v.y, 'Invalid TileCoords: %s', tostring(v))
+			verify('number', v.x, v.y)
+			newData[k] = vector(v.x, v.y)
+		end
+		data = newData
 	elseif prop == property('TileSize') then
 		verify('number', data)
 	elseif prop == property('Visibility') then
@@ -59,11 +70,11 @@ function GraphicsComponent:_setProperty(prop, data)
 		error('GraphicsComponent does not support property: %s', tostring(prop))
 	end
 
-	self._properties[prop] = data
+	ViewComponent._setProperty(self, prop, data)
 end
 
 function GraphicsComponent:receive(msg, ...)
-	if     msg == message('ENTITY_CREATED') then self:_makeQuad(...)
+	if     msg == message('ENTITY_CREATED') then self:_makeQuads(...)
 	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
 	end
 end
@@ -72,36 +83,86 @@ function GraphicsComponent:setMediator(mediator)
 	ViewComponent.setMediator(self, mediator)
 end
 
-function GraphicsComponent:_makeQuad()
-	self._size = self._size or self._mediator:query(property('TileSize'))
-	local pos = self._mediator:query(property('TileCoords'))
-	verify('table', pos)
-	pos.x, pos.y = (pos.x-1)*self._size, (pos.y-1)*self._size
+function GraphicsComponent:_newQuad(frame, coords)
+	local tilesetW = self._tileset:getWidth()
+	local tilesetH = self._tileset:getHeight()
+	coords = coords:clone()
+	coords.x, coords.y = (coords.x-1)*self._size, (coords.y-1)*self._size
 
-	self._quad = newQuad(
-		pos.x, pos.y, self._size, self._size,
-		self._tileset:getWidth(), self._tileset:getHeight())
+	self._frames[frame] = newQuad(
+		coords.x, coords.y,
+		self._size, self._size,
+		tilesetW, tilesetH)
+end
+
+function GraphicsComponent:_makeQuads()
+	self._size = self._size or self:getProperty(property('TileSize'))
+	local tileCoords = self:getProperty(property('TileCoords'))
+
+	for frame,coords in pairs(tileCoords) do
+		self._topFrame = self._topFrame or frame
+		self:_newQuad(frame, coords)
+	end
+
+	if self._frames.right and not self._frames.left then
+		self:_newQuad('left', tileCoords.right)
+		self._frames.left:flip(true)
+	elseif self._frames.left and not self._frames.right then
+		self:_newQuad('right', tileCoords.left)
+		self._frames.right:flip(true)
+	end
+
+	if self._frames.frontright and not self._frames.frontleft then
+		self:_newQuad('frontleft', tileCoords.frontright)
+		self._frames.frontleft:flip(true)
+	elseif self._frames.frontleft and not self._frames.frontright then
+		self:_newQuad('frontright', tileCoords.frontleft)
+		self._frames.frontright:flip(true)
+	end
+
+	if self._frames.backright and not self._frames.backleft then
+		self:_newQuad('backleft', tileCoords.backright)
+		self._frames.backleft:flip(true)
+	elseif self._frames.backleft and not self._frames.backright then
+		self:_newQuad('backright', tileCoords.backleft)
+		self._frames.backright:flip(true)
+	end
 end
 
 function GraphicsComponent:_updateFB(new, old)
 	if self._mediator then
+		local newFrame
+
 		if old then
 			local v = new - old
-			if (self._movingLeft and v.x > 0)
-				or (not self._movingLeft and v.x < 0)
-			then
-				self._movingLeft = v.x < 0
-				self._quad:flip(1)
+			local xstr, ystr
+
+			if     v.x > 0 then xstr = 'right'
+			elseif v.x < 0 then xstr = 'left'
+			end
+
+			if     v.y > 0 then ystr = 'front'
+			elseif v.y < 0 then ystr = 'back'
+			end
+
+			if xstr and ystr and self._frames[ystr..xstr] then
+				newFrame = ystr..xstr
+			elseif ystr and self._frames[ystr] then
+				newFrame = ystr
+			elseif xstr and self._frames[xstr] then
+				newFrame = xstr
 			end
 		end
 
-		self._drawX, self._drawY = (new.x-1)*self._size, (new.y-1)*self._size
+		self._curFrame = newFrame or self._curFrame
+		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
+		self._drawX, self._drawY = (new.x-1)*self._size, (new.y-1)*self._size
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
 		setRenderTarget(self._backfb)
 		setColor(1,1,1)
-		drawq(self._tileset, self._quad, 0, 0)
+		drawq(self._tileset, frame, 0, 0)
 		setRenderTarget()
 
 		self._fb, self._backfb = self._backfb, self._fb
