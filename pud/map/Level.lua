@@ -24,6 +24,7 @@ local property = require 'pud.component.property'
 
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
+local enumerate = love.filesystem.enumerate
 
 -- Level
 --
@@ -95,7 +96,7 @@ function Level:needViewUpdate() return self._needViewUpdate == true end
 function Level:postViewUpdate() self._needViewUpdate = false end
 
 function Level:generateFileMap(file)
-	local maps = love.filesystem.enumerate('map')
+	local maps = enumerate('map')
 	file = file or maps[Random(#maps)]
 	local builder = FileMapBuilder('map/'..file)
 	self:_generateMap(builder)
