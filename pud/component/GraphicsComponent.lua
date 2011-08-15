@@ -59,7 +59,7 @@ function GraphicsComponent:_setProperty(prop, data)
 		error('GraphicsComponent does not support property: %s', tostring(prop))
 	end
 
-	self._properties[prop] = data
+	ViewComponent._setProperty(self, prop, data)
 end
 
 function GraphicsComponent:receive(msg, ...)

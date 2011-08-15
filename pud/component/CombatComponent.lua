@@ -38,7 +38,7 @@ function CombatComponent:_setProperty(prop, data)
 		error('CombatComponent does not support property: '..tostring(prop))
 	end
 
-	self._properties[prop] = data
+	ModelComponent._setProperty(self, prop, data)
 end
 
 
