@@ -5,6 +5,7 @@ d write isClass and getClass
 
 Implement Components:
   + clean up unused code
+  + fix tests
   d make sure *Entity classes verify that necessary components exist on init.
   d remove Rect from Entity
   d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
