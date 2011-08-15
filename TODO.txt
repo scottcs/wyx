@@ -14,12 +14,12 @@ Implement Components:
   d draw hero
   d get hero movement working with keyboard again
 	d don't hardcode hero inside Level and play state, use a "prime entity" pointer
-	+ get hero command queue working again
-  +   stop hardcoding MoveCommand:execute() inside Level
+	d get hero command queue working again
+  d   stop hardcoding MoveCommand:execute() inside Level
 	+   including OpenDoorCommand
   d ModelComponent - game data and helper methods
   o   HealthComponent - hp info
-  o   TimeComponent - speed/action point info
+  d   TimeComponent - speed/action point info
   -   CombatComponent - determines attack rolls vs target, sends messages
   d   CollisionComponent - decides if collision occurs, sends messages
   d   MotionComponent - moves the entity
@@ -37,7 +37,7 @@ Implement Components:
   o UISystem - handles User Interface
   o CombatSystem - determines outcome of combat using CombatComponents
   + CollisionSystem - figures out when things collide
-  + TimeSystem - determines whose turn it is
+  d TimeSystem - determines whose turn it is
 
 For v0.1.0:
   o add monsters
