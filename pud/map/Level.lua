@@ -171,13 +171,8 @@ function Level:getEntitiesAtLocation(pos)
 	return #ents > 0 and ents or nil
 end
 
-function Level:sendToAllEntities(msg, ...)
-	for _,entity in pairs(self._entities) do
-		entity:send(message(msg), ...)
-	end
-end
-
 function Level:createEntities()
+	-- TODO: get entities algorithmically rather than hardcoding
 	for i=1,5 do
 		self._entities[i] = self._enemyFactory:createEntity('GoblinGrunt')
 	end
