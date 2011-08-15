@@ -8,6 +8,7 @@ local FileMapBuilder = getClass 'pud.map.FileMapBuilder'
 local SimpleGridMapBuilder = getClass 'pud.map.SimpleGridMapBuilder'
 local MapNode = getClass 'pud.map.MapNode'
 local DoorMapType = getClass 'pud.map.DoorMapType'
+local FloorMapType = getClass 'pud.map.FloorMapType'
 
 -- events
 local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
@@ -110,24 +111,36 @@ end
 function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
-	if self._primeEntity then
-		local ups = {}
-		for _,name in ipairs(self._map:getPortalNames()) do
-			if string.match(name, "^up%d") then ups[#ups+1] = name end
+
+	local numEntities = #self._entities
+	for i=1,numEntities do
+		local entity = self._entities[i]
+
+		if entity == self._primeEntity then
+			local ups = {}
+			for _,name in ipairs(self._map:getPortalNames()) do
+				if string.match(name, "^up%d") then ups[#ups+1] = name end
+			end
+			local pos = self._map:getPortal(ups[Random(#ups)])
+			entity:send(message('SET_POSITION'), pos, pos)
+			self:_bakeLights(true)
+		else
+			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
+			local pos = vector()
+			local clear = false
+			repeat
+				pos.x = Random(mapW)
+				pos.y = Random(mapH)
+				local mt = self._map:getLocation(pos):getMapType()
+				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(pos)
+			until clear
+			entity:send(message('SET_POSITION'), pos, pos)
 		end
-		self._startPosition = self._map:getPortal(ups[Random(#ups)])
-		self._primeEntity:send(
-			message('SET_POSITION'),
-			self._startPosition,
-			self._startPosition)
-		self:_bakeLights(true)
 	end
+
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
-
--- get the start vector
-function Level:getStartVector() return self._startPosition:clone() end
 
 -- get the size of the map
 function Level:getMapSize() return self._map:getSize() end
@@ -165,6 +178,10 @@ function Level:sendToAllEntities(msg, ...)
 end
 
 function Level:createEntities()
+	for i=1,5 do
+		self._entities[i] = self._enemyFactory:createEntity('GoblinGrunt')
+	end
+
 	-- TODO: choose hero rather than hardcode Warrior
 	self._primeEntity = self._heroFactory:createEntity('Warrior')
 	self._entities[#self._entities+1] = self._primeEntity
