@@ -16,9 +16,7 @@ function Component:destroy()
 	for k in pairs(self._properties) do self._properties[k] = nil end
 	self._properties = nil
 	if self._attachMessages then
-		for _,msg in pairs(self._attachMessages) do
-			self._mediator:detach(message(msg), self)
-		end
+		self:detachMessages()
 		self._attachMessages = nil
 	end
 	self._mediator = nil
@@ -61,6 +59,15 @@ function Component:attachMessages()
 	if self._attachMessages then
 		for _,msg in pairs(self._attachMessages) do
 			self._mediator:attach(message(msg), self)
+		end
+	end
+end
+
+-- detach all of this component's messages to its mediator
+function Component:detachMessages()
+	if self._attachMessages then
+		for _,msg in pairs(self._attachMessages) do
+			self._mediator:detach(message(msg), self)
 		end
 	end
 end
