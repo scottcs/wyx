@@ -33,7 +33,9 @@ function CombatComponent:_setProperty(prop, data)
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
 	then
-		verify('number', data)
+		-- TODO: commented out because I'm giving strings right now, thinking I
+		-- can support lua code in the property
+		--verify('number', data)
 	else
 		error('CombatComponent does not support property: '..tostring(prop))
 	end
