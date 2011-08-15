@@ -11,6 +11,7 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 
 -- events
 local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
+local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
@@ -41,7 +42,7 @@ local Level = Class{name='Level',
 		self._lightmap = {}
 		self._entities = {}
 
-		GameEvents:register(self, EntityPositionEvent)
+		GameEvents:register(self, {EntityPositionEvent, MapNodeUpdateEvent})
 	end
 }
 
@@ -185,6 +186,11 @@ function Level:EntityPositionEvent(e)
 		self:_bakeLights()
 		self._needViewUpdate = true
 	end
+end
+
+function Level:MapNodeUpdateEvent(e)
+	self:_bakeLights()
+	self._needViewUpdate = true
 end
 
 function Level:getPrimeEntity() return self._primeEntity end

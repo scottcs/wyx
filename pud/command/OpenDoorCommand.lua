@@ -26,6 +26,9 @@ function OpenDoorCommand:execute()
 	local style = self._node:getMapType():getStyle()
 	self._node:setMapType(DoorMapType('open', style))
 
+	local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
+	GameEvents:notify(MapNodeUpdateEvent(self._node))
+
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	return Command.execute(self)
