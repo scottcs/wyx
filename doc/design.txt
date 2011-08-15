@@ -5,7 +5,7 @@ each level contains:
    5 monsters
    1 boss
    3 traps
-   
+
    1 entrance
    1 exit
 
@@ -223,7 +223,7 @@ resources needed:
             pressed
          icons for stats: attack, defense, hp, (xp?), (level?)
          mouse cursor
-         
+
    sound:
       clachiinnng - attack hit
       whooosh - attack miss

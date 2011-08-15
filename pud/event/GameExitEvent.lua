@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Event = require 'pud.event.Event'
+local Event = getClass 'pud.event.Event'
 
 -- Game Exit - fires when the game has nothing more to do
 local GameExitEvent = Class{name='GameExitEvent',

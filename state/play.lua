@@ -7,30 +7,33 @@
 
 local st = GameState.new()
 
-local DebugHUD = debug and require 'pud.debug.DebugHUD'
-local MessageHUD = require 'pud.view.MessageHUD'
+local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
+local MessageHUD = getClass 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
 local collectgarbage = collectgarbage
+local getMicroTime = love.timer.getMicroTime
+
+-- systems
+local RenderSystemClass = getClass 'pud.system.RenderSystem'
+local TimeSystemClass = getClass 'pud.system.TimeSystem'
+local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
+local TICK = 0.01
 
 -- level
-local Level = require 'pud.map.Level'
+local Level = getClass 'pud.map.Level'
 
 -- Camera
-local GameCam = require 'pud.view.GameCam'
+local GameCam = getClass 'pud.view.GameCam'
 local vector = require 'lib.hump.vector'
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MoveCommand = require 'pud.command.MoveCommand'
+local CommandEvent = getClass 'pud.event.CommandEvent'
+local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
+local MoveCommand = getClass 'pud.command.MoveCommand'
 
 -- views
-local TileMapView = require 'pud.view.TileMapView'
-local HeroView = require 'pud.view.HeroView'
-
--- controllers
-local HeroPlayerController = require 'pud.controller.HeroPlayerController'
+local TileMapView = getClass 'pud.view.TileMapView'
 
 -- memory and framerate management constants
 local TARGET_FRAME_TIME_60 = 1/60
@@ -42,12 +45,19 @@ local _lastCollect
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
+
+	-- create level
 	self._level = Level()
+
+	-- create systems
+	RenderSystem = RenderSystemClass()
+	TimeSystem = TimeSystemClass()
+	CollisionSystem = CollisionSystemClass(self._level)
+
 	self._level:createEntities()
+	self._level:setPlayerControlled()
 	self._level:generateSimpleGridMap()
-	self:_createEntityControllers()
 	self:_createMapView()
-	self:_createEntityViews()
 	self:_createCamera()
 	if debug then
 		self:_createDebugHUD()
@@ -62,33 +72,17 @@ function st:enter()
 	collectgarbage('stop')
 end
 
-function st:_createEntityViews()
-	local tileW, tileH = self._view:getTileSize()
-	local heroX, heroY = Random(16), Random(2)
-	local quad = love.graphics.newQuad(
-		(heroX-1)*tileW, (heroY-1)*tileH,
-		tileW, tileH,
-		Image.char:getWidth(), Image.char:getHeight())
-	local floorquad = self._view:getFloorQuad()
-
-	if self._heroView then self._heroView:destroy() end
-	self._heroView = HeroView(self._level:getHero(), tileW, tileH)
-	self._heroView:set(Image.char, quad, Image.dungeon, floorquad)
-end
-
 function st:CommandEvent(e)
 	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getHero() then return end
+	if command:getTarget() ~= self._level:getPrimeEntity() then return end
 end
 
 function st:ZoneTriggerEvent(e)
-	local message = e:isLeaving() and 'Leaving' or 'Entering'
-	message = message..' Zone: '..tostring(e:getZone())
-	self:_displayMessage(message)
-end
-
-function st:_createEntityControllers()
-	self._heroController = HeroPlayerController(self._level:getHero())
+	if self._level:getPrimeEntity() == e:getEntity() then
+		local message = e:isLeaving() and 'Leaving' or 'Entering'
+		message = message..' Zone: '..tostring(e:getZone())
+		self:_displayMessage(message)
+	end
 end
 
 function st:_createMapView(viewClass)
@@ -114,7 +108,7 @@ function st:_createCamera()
 	local max = vector(mapTileW - min.x, mapTileH - min.y)
 	self._cam:setLimits(min, max)
 	self._cam:home()
-	self._cam:followTarget(self._level:getHero())
+	self._cam:followTarget(self._level:getPrimeEntity())
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -139,17 +133,25 @@ end
 -- idle function, called when there are spare cycles
 function st:idle(start)
 	local cycles = 0
-	while love.timer.getMicroTime() - start < IDLE_TIME do
+	local time_left = getMicroTime() - start
+	while time_left < IDLE_TIME do
 		cycles = cycles + 1
 		collectgarbage('step', 0)
 		collectgarbage('stop')
+		time_left = getMicroTime() - start
 	end
 	return cycles
 end
 
+local _accum = 0
 function st:update(dt)
-	local start = love.timer.getMicroTime() - dt
-	if self._level then self._level:update(dt) end
+	local start = getMicroTime() - dt
+
+	_accum = _accum + dt
+	if _accum > TICK then
+		_accum = _accum - TICK
+		TimeSystem:tick()
+	end
 
 	if self._level:needViewUpdate() then
 		self._view:setViewport(self._cam:getViewport())
@@ -177,7 +179,7 @@ end
 function st:draw()
 	self._cam:predraw()
 	self._view:draw()
-	self._heroView:draw()
+	RenderSystem:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
@@ -185,6 +187,9 @@ end
 
 function st:leave()
 	collectgarbage('restart')
+	RenderSystem:destroy()
+	TimeSystem:destroy()
+	CollisionSystem:destroy()
 	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
@@ -197,10 +202,6 @@ function st:leave()
 	self._messageHUD = nil
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil
-	self._heroView:destroy()
-	self._heroView = nil
-	self._heroController:destroy()
-	self._heroController = nil
 end
 
 function st:_postZoomIn(vp)
@@ -218,14 +219,12 @@ function st:keypressed(key, unicode)
 			self._view:setAnimate(false)
 			self._level:generateSimpleGridMap()
 			self:_createMapView()
-			self:_createEntityViews()
 			self:_createCamera()
 		end,
 		f = function()
 			self._view:setAnimate(false)
 			self._level:generateFileMap()
 			self:_createMapView()
-			self:_createEntityViews()
 			self:_createCamera()
 		end,
 
@@ -254,7 +253,7 @@ function st:keypressed(key, unicode)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		x = function()
-			self._cam:followTarget(self._level:getHero())
+			self._cam:followTarget(self._level:getPrimeEntity())
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		f3 = function() if debug then self._debug = not self._debug end end,

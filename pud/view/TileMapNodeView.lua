@@ -1,18 +1,21 @@
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.map.MapNode'
-local MapNodeView = require 'pud.view.MapNodeView'
+local MapNodeView = getClass 'pud.view.MapNodeView'
 local math_max = math.max
+
+local newFramebuffer = love.graphics.newFramebuffer
+local newQuad = love.graphics.newQuad
+local setRenderTarget = love.graphics.setRenderTarget
+local drawq = love.graphics.drawq
+local draw = love.graphics.draw
+local setColor = love.graphics.setColor
+local nearestPO2 = nearestPO2
 
 -- TileMapNodeView
 --
 local TileMapNodeView = Class{name='TileMapNodeView',
 	inherits=MapNodeView,
 	function(self, node, width, height)
-		assert(node and type(node) == 'table'
-			and node.is_a and node:is_a(MapNode),
-			'TileMapNodeView expects a MapNode in its constructor (was %s)',
-			type(node))
-
+		verifyClass('pud.map.MapNode', node)
 		width = width or TILEW
 		height = height or TILEH
 		MapNodeView.construct(self, 0, 0, width, height)
@@ -37,15 +40,15 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 
 	if nil == fb then
 		local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
-		fb = love.graphics.newFramebuffer(size, size)
+		fb = newFramebuffer(size, size)
 
-		love.graphics.setRenderTarget(fb)
+		setRenderTarget(fb)
 
-		love.graphics.setColor(1,1,1)
-		if bgquad then love.graphics.drawq(tileset, bgquad, 0, 0) end
-		love.graphics.drawq(tileset, quad, 0, 0)
+		setColor(1,1,1)
+		if bgquad then drawq(tileset, bgquad, 0, 0) end
+		drawq(tileset, quad, 0, 0)
 
-		love.graphics.setRenderTarget()
+		setRenderTarget()
 
 		_fbcache[self._key] = fb
 	end
@@ -84,7 +87,7 @@ end
 -- draw the frame buffer
 function TileMapNodeView:draw()
 	if self._fb and self._isDrawing == false then
-		love.graphics.draw(self._fb, self._drawX, self._drawY)
+		draw(self._fb, self._drawX, self._drawY)
 	end
 end
 

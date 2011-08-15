@@ -1,6 +1,5 @@
 
 -- common utilities used throughout the program
-require 'pud.loveutil'
 require 'pud.util'
 require 'random'
 
@@ -10,8 +9,8 @@ require 'random'
          --]]--
 
 --debug = nil
-doProfile = true
-local doGlobalProfile = doProfile and true
+doProfile = false
+local doGlobalProfile = doProfile and false
 
 --[[ Profiler Setup ]]--
 local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
@@ -64,7 +63,7 @@ end
          --]]--
 
 GameState = require 'lib.hump.gamestate'
-EventManager = require 'pud.event.EventManager'
+EventManager = getClass 'pud.event.EventManager'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -72,6 +71,32 @@ tween = require 'lib.tween'
          --[[--
        <3 LÖVE <3
          --]]--
+
+
+local function _makeADir(dir)
+	if not love.filesystem.mkdir(dir) then
+		local savedir = love.filesystem.getSaveDirectory()
+		error('Could not create directory: '..savedir..'/'..tostring(dir))
+	end
+end
+
+local function _makeSaveDirectories()
+	for _,dir in ipairs({
+		--[[
+		'font',
+		'music',
+		'image',
+		'sound',
+		'map',
+		'entity/item',
+		'entity/enemy',
+		'entity/hero',
+		'skill',
+		]]--
+		'save',
+		'morgue',
+	}) do _makeADir(dir) end
+end
 
 function love.load()
 	-- start the profiler
@@ -97,6 +122,11 @@ function love.load()
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
+
+	-- make sure the save directories are created
+	_makeSaveDirectories()
+
+	--_testJSON('GoblinGrunt')
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
@@ -147,7 +177,7 @@ local function _getModifiers()
 	return mods
 end
 
-local KeyboardEvent = require 'pud.event.KeyboardEvent'
+local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 
 function love.keypressed(key, unicode)
 	local mods = _getModifiers()
@@ -160,7 +190,7 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = require 'pud.event.MouseEvent'
+local MouseEvent = getClass 'pud.event.MouseEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()

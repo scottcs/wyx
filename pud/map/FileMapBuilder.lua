@@ -1,14 +1,13 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
-local Rect = require 'pud.kit.Rect'
-local MapBuilder = require 'pud.map.MapBuilder'
-local MapType = require 'pud.map.MapType'
-local FloorMapType = require 'pud.map.FloorMapType'
-local WallMapType = require 'pud.map.WallMapType'
-local DoorMapType = require 'pud.map.DoorMapType'
-local StairMapType = require 'pud.map.StairMapType'
-local TrapMapType = require 'pud.map.TrapMapType'
-local MapNode = require 'pud.map.MapNode'
+local Rect = getClass 'pud.kit.Rect'
+local MapBuilder = getClass 'pud.map.MapBuilder'
+local MapType = getClass 'pud.map.MapType'
+local FloorMapType = getClass 'pud.map.FloorMapType'
+local WallMapType = getClass 'pud.map.WallMapType'
+local DoorMapType = getClass 'pud.map.DoorMapType'
+local StairMapType = getClass 'pud.map.StairMapType'
+local TrapMapType = getClass 'pud.map.TrapMapType'
+local MapNode = getClass 'pud.map.MapNode'
 local vector = require 'lib.hump.vector'
 
 -- FileMapBuilder
@@ -37,7 +36,7 @@ function FileMapBuilder:init(filename)
 	MapBuilder.init(self)
 
 	-- check if the filename is actually a map name
-	if not string.find(filename, '^map/%a+%.lua') then
+	if not string.find(filename, '^map/%S-%.lua') then
 		filename = 'map/'..filename..'.lua'
 	end
 
@@ -80,15 +79,15 @@ end
 
 local _findVariant = function(mtype, n)
 	local variants
-	if mtype:is_a(FloorMapType) then
+	if isClass(FloorMapType, mtype) then
 		variants = {'normal', 'worn', 'interior', 'rug'}
-	elseif mtype:is_a(WallMapType) then
+	elseif isClass(WallMapType, mtype) then
 		variants = {'normal', 'worn', 'torch'}
-	elseif mtype:is_a(DoorMapType) then
+	elseif isClass(DoorMapType, mtype) then
 		variants = {'shut', 'open'}
-	elseif mtype:is_a(StairMapType) then
+	elseif isClass(StairMapType, mtype) then
 		variants = {'up', 'down'}
-	elseif mtype:is_a(TrapMapType) then
+	elseif isClass(TrapMapType, mtype) then
 		variants = {'normal'}
 	end
 
@@ -190,7 +189,7 @@ end
 function FileMapBuilder:postProcessStep(node, point)
 	local mapType = node:getMapType()
 
-	if mapType:is_a(StairMapType) then
+	if isClass(StairMapType, mapType) then
 		local variant = mapType:getVariant()
 		self._stairs = self._stairs or {}
 		self._stairs[variant] =
