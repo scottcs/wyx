@@ -78,7 +78,7 @@ function st:CommandEvent(e)
 end
 
 function st:ZoneTriggerEvent(e)
-	if self._level:getPrimeEntity() == e:getTarget() then
+	if self._level:getPrimeEntity() == e:getEntity() then
 		local message = e:isLeaving() and 'Leaving' or 'Entering'
 		message = message..' Zone: '..tostring(e:getZone())
 		self:_displayMessage(message)
