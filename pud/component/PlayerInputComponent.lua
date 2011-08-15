@@ -21,12 +21,8 @@ function PlayerInputComponent:destroy()
 end
 
 function PlayerInputComponent:_setProperty(prop, data)
-	prop = property(prop)
-	if prop == property('CanOpenDoors') then
-		self._properties[prop] = true
-	else
-		InputComponent._setProperty(self, prop, data)
-	end
+	if prop == property('CanOpenDoors') then data = true end
+	InputComponent._setProperty(self, prop, data)
 end
 
 -- on keyboard input, issue the appropriate command
@@ -34,12 +30,32 @@ function PlayerInputComponent:KeyboardEvent(e)
 	if #(e:getModifiers()) == 0 then
 		local key = e:getKey()
 		local doTick = false
-		switch(key) {
-			up    = function() self:move(vector( 0, -1)) doTick = true end,
-			down  = function() self:move(vector( 0,  1)) doTick = true end,
-			left  = function() self:move(vector(-1,  0)) doTick = true end,
-			right = function() self:move(vector( 1,  0)) doTick = true end,
-		}
+
+		if key == 'up' or key == 'k' or key == 'kp8' then
+			self:move(vector( 0, -1))
+			doTick = true
+		elseif key == 'down' or key == 'j' or key == 'kp2' then
+			self:move(vector( 0,  1))
+			doTick = true
+		elseif key == 'left' or key == 'h' or key == 'kp4' then
+			self:move(vector(-1,  0))
+			doTick = true
+		elseif key == 'right' or key == 'l' or key == 'kp6' then
+			self:move(vector( 1,  0))
+			doTick = true
+		elseif key == 'y' or key == 'kp7' then
+			self:move(vector(-1,  -1))
+			doTick = true
+		elseif key == 'u' or key == 'kp9' then
+			self:move(vector( 1,  -1))
+			doTick = true
+		elseif key == 'b' or key == 'kp1' then
+			self:move(vector(-1,   1))
+			doTick = true
+		elseif key == 'n' or key == 'kp3' then
+			self:move(vector( 1,   1))
+			doTick = true
+		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end
 	end

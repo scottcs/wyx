@@ -35,17 +35,6 @@ function EntityFactory:_getEntityInfo(entityName)
 	return obj
 end
 
--- create a new component from the given string representation of a component
--- class.
-function EntityFactory:_newComponent(componentString, props)
-	local new = getClass('pud.component.'..componentString)
-	local component = new(props)
-	verifyClass('pud.component.Component', component)
-	assert(component.__class, 'invalid component')
-
-	return component
-end
-
 -- check for required components, and add any that are missing
 function EntityFactory:_addMissingRequiredComponents(entity)
 	if self._requiredComponents then
@@ -63,6 +52,16 @@ function EntityFactory:_addDefaultComponent(entity, componentClass)
 	entity:addComponent(componentClass())
 end
 
+-- create a new component from the given string representation of a component
+-- class.
+function EntityFactory:_newComponent(componentString, props)
+	local new = getClass('pud.component.'..componentString)
+	local component = new(props)
+	verifyClass('pud.component.Component', component)
+	assert(component.__class, 'invalid component')
+
+	return component
+end
 
 -- return the component objects described by the info table
 function EntityFactory:_getComponents(info)

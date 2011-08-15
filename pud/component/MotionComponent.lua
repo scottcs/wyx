@@ -35,7 +35,7 @@ function MotionComponent:_setProperty(prop, data)
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end
 
-	self._properties[prop] = data
+	ModelComponent._setProperty(self, prop, data)
 end
 
 function MotionComponent:_move(pos, oldpos)

@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local Component = getClass 'pud.component.Component'
 local ListenerBag = getClass 'pud.kit.ListenerBag'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'

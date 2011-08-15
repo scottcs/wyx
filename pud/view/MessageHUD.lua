@@ -2,6 +2,16 @@ local Class = require 'lib.hump.class'
 local math_max = math.max
 local math_floor = math.floor
 
+local getMicroTime = love.timer.getMicroTime
+local newFramebuffer = love.graphics.newFramebuffer
+local setFont = love.graphics.setFont
+local gprint = love.graphics.print
+local rectangle = love.graphics.rectangle
+local setRenderTarget = love.graphics.setRenderTarget
+local draw = love.graphics.draw
+local setColor = love.graphics.setColor
+local nearestPO2 = nearestPO2
+
 local MARGIN = 8
 
 -- MessageHUD
@@ -14,14 +24,14 @@ local MessageHUD = Class{name='MessageHUD',
 		local h = self._fontH + MARGIN*2
 		self._w, self._h = w, h
 		local size = nearestPO2(math_max(w, h))
-		self._fb = love.graphics.newFramebuffer(size, size)
+		self._fb = newFramebuffer(size, size)
 		local imageData = self._fb:getImageData()
 		local fbW = imageData:getWidth()
 		local fbH = imageData:getHeight()
 		self._fbX = math_floor(WIDTH/2 - w/2)
 		self._fbY = math_floor(HEIGHT - h*1.5)
 		self._message = message
-		self._finish = love.timer.getMicroTime() + seconds + 0.3
+		self._finish = getMicroTime() + seconds + 0.3
 		self._fadeColor = {1,1,1,0}
 		self:_drawFB()
 		self._inID = tween(0.3, self._fadeColor, {1,1,1,1}, 'inSine')
@@ -50,7 +60,7 @@ end
 
 function MessageHUD:update(dt)
 	if not self._finish then return end
-	local time = love.timer.getMicroTime()
+	local time = getMicroTime()
 	if time > self._finish then
 		self._finish = nil
 		self._outID = tween(0.3, self._fadeColor, {1,1,1,0}, 'outQuint')
@@ -59,24 +69,24 @@ end
 
 function MessageHUD:_drawFB()
 	self._isDrawing = true
-	love.graphics.setRenderTarget(self._fb)
+	setRenderTarget(self._fb)
 
-	love.graphics.setFont(self._font)
+	setFont(self._font)
 
-	love.graphics.setColor(0,0,0,0.7)
-	love.graphics.rectangle('fill', 0, 0, self._w, self._h)
+	setColor(0,0,0,0.7)
+	rectangle('fill', 0, 0, self._w, self._h)
 
-	love.graphics.setColor(1,1,1)
-	love.graphics.print(self._message, MARGIN, MARGIN)
+	setColor(1,1,1)
+	gprint(self._message, MARGIN, MARGIN)
 
-	love.graphics.setRenderTarget()
+	setRenderTarget()
 	self._isDrawing = false
 end
 
 function MessageHUD:draw()
 	if self._isDrawing == false then
-		love.graphics.setColor(self._fadeColor)
-		love.graphics.draw(self._fb, self._fbX, self._fbY)
+		setColor(self._fadeColor)
+		draw(self._fb, self._fbX, self._fbY)
 	end
 end
 

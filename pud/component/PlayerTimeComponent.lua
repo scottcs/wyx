@@ -19,12 +19,8 @@ function PlayerTimeComponent:destroy()
 end
 
 function PlayerTimeComponent:_setProperty(prop, data)
-	prop = property(prop)
-	if prop == property('DoTick') then
-		self._properties[prop] = false
-	else
-		TimeComponent._setProperty(self, prop, data)
-	end
+	if prop == property('DoTick') then data = false end
+	TimeComponent._setProperty(self, prop, data)
 end
 
 function PlayerTimeComponent:receive(msg, ...)

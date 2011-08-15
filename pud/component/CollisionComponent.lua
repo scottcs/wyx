@@ -41,7 +41,7 @@ function CollisionComponent:_setProperty(prop, data)
 		error('CollisionComponent does not support property: '..tostring(prop))
 	end
 
-	self._properties[prop] = data
+	ModelComponent._setProperty(self, prop, data)
 end
 
 function CollisionComponent:receive(msg, ...)

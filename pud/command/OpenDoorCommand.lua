@@ -17,7 +17,6 @@ local OpenDoorCommand = Class{name='OpenDoorCommand',
 
 -- destructor
 function OpenDoorCommand:destroy()
-	self._pos = nil
 	self._node = nil
 	Command.destroy(self)
 end
