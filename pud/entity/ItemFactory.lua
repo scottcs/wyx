@@ -7,14 +7,12 @@ local ItemFactory = Class{name='ItemFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'item')
-		self._renderLevel = 5
-		--[[
+		self._renderLevel = 10
 		self._requiredComponents = {
-			getClass 'pud.component.PositionComponent',
+			getClass 'pud.component.MotionComponent',
 			getClass 'pud.component.GraphicsComponent',
-			getClass 'pud.component.InfoPanelComponent',
+			--getClass 'pud.component.InfoPanelComponent',
 		}
-		]]--
 	end
 }
 
@@ -22,6 +20,8 @@ local ItemFactory = Class{name='ItemFactory',
 function ItemFactory:destroy()
 	EntityFactory.destroy(self)
 end
+
+-- TODO: figure out how to set CanMove to false
 
 -- the class
 return ItemFactory
