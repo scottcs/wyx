@@ -3,7 +3,9 @@
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
-			"TileCoords": {"right": {"x": 11, "y": 1}},
+			"TileCoords": {
+				"right": {"x": 11, "y": 1},
+				},
 		},
 		"HealthComponent": {
 			"Health": "DEFAULT_HERO_HEALTH",
