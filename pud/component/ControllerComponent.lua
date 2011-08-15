@@ -23,6 +23,16 @@ function ControllerComponent:destroy()
 	Component.destroy(self)
 end
 
+function ControllerComponent:_setProperty(prop, data)
+	prop = property(prop)
+	if nil == data then data = property.default(prop) end
+
+	if prop == property('CanOpenDoors') then
+		verify('boolean', data)
+	end
+
+	Component._setProperty(self, prop, data)
+end
 
 -- tell the mediator to move along vector v
 function ControllerComponent:move(v)
