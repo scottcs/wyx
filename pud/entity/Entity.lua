@@ -3,7 +3,6 @@ local ComponentMediator = getClass 'pud.component.ComponentMediator'
 local property = require 'pud.component.property'
 local queryFunc = require 'pud.entity.queryFunc'
 
-local querySum = queryFunc.sum
 local verify, verifyClass, isClass = verify, verifyClass, isClass
 local type, pairs, tostring = type, pairs, tostring
 
@@ -50,8 +49,12 @@ function Entity:getType() return self._type end
 -- class can be a parent component class or derived component class.
 function Entity:getComponentsByClass(class)
 	local components = {}
+	local count = 1
 	for _,comp in pairs(self._components) do
-		if isClass(class, comp) then components[#components+1] = comp end
+		if isClass(class, comp) then
+			components[count] = comp
+			count = count + 1
+		end
 	end
 	return #components > 0 and components or nil
 end
@@ -95,10 +98,8 @@ end
 -- responses to the given function and return the result. by default, the
 -- 'sum' function is used.
 function Entity:query(prop, func)
-	prop = property(prop)
-	func = func or querySum
 	if type(func) == 'string' then func = queryFunc[func] end
-	verify('function', func)
+	func = func or queryFunc.sum
 	
 	local values = {}
 	local numValues = 1
@@ -109,7 +110,7 @@ function Entity:query(prop, func)
 			numValues = numValues+1
 		end
 	end
-	return #values > 0 and func(values) or nil
+	return numValues > 0 and func(values) or nil
 end
 
 

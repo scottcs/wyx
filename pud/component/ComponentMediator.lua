@@ -21,10 +21,11 @@ end
 
 -- send a message to all attached components
 function ComponentMediator:send(msg, ...)
+	msg = message(msg)
 	if self._listeners[msg] then
 		for comp in self._listeners[msg]:listeners() do
-			--if debug then print(comp,message(msg)) end
-			comp:receive(message(msg), ...)
+			--if debug then print(comp,msg) end
+			comp:receive(msg, ...)
 		end
 	end
 end
