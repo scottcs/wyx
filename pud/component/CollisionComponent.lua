@@ -31,7 +31,7 @@ end
 
 function CollisionComponent:_setProperty(prop, data)
 	prop = property(prop)
-	data = data or property.default(prop)
+	if nil == data then data = property.default(prop) end
 
 	if prop == property('BlockedBy') then
 		verify('table', data)

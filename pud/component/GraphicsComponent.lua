@@ -40,7 +40,8 @@ end
 
 function GraphicsComponent:_setProperty(prop, data)
 	prop = property(prop)
-	data = data or property.default(prop)
+	if nil == data then data = property.default(prop) end
+
 	if prop == property('TileSet') then
 		verify('string', data)
 		self._tileset = Image[data]

@@ -24,7 +24,7 @@ end
 
 function MotionComponent:_setProperty(prop, data)
 	prop = property(prop)
-	data = data or property.default(prop)
+	if nil == data then data = property.default(prop) end
 
 	if prop == property('Position') then
 		verify('table', data)
