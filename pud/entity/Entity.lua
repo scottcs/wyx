@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local ComponentMediator = getClass 'pud.component.ComponentMediator'
+local property = require 'pud.component.property'
 local queryFunc = require 'pud.entity.queryFunc'
 
 local querySum = queryFunc.sum
