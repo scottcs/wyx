@@ -53,7 +53,7 @@ end
 
 local _getComponentName = function(component)
 	verifyClass('pud.component.Component', component)
-	return tostring(component.__class)
+	return tostring(component.__class or component)
 end
 
 -- add a component to the entity
