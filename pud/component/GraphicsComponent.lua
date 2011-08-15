@@ -107,16 +107,25 @@ function GraphicsComponent:_makeQuads()
 	if self._frames.right and not self._frames.left then
 		self:_newQuad('left', tileCoords.right)
 		self._frames.left:flip(true)
+	elseif self._frames.left and not self._frames.right then
+		self:_newQuad('right', tileCoords.left)
+		self._frames.right:flip(true)
 	end
 
 	if self._frames.frontright and not self._frames.frontleft then
 		self:_newQuad('frontleft', tileCoords.frontright)
 		self._frames.frontleft:flip(true)
+	elseif self._frames.frontleft and not self._frames.frontright then
+		self:_newQuad('frontright', tileCoords.frontleft)
+		self._frames.frontright:flip(true)
 	end
 
 	if self._frames.backright and not self._frames.backleft then
 		self:_newQuad('backleft', tileCoords.backright)
 		self._frames.backleft:flip(true)
+	elseif self._frames.backleft and not self._frames.backright then
+		self:_newQuad('backright', tileCoords.backleft)
+		self._frames.backright:flip(true)
 	end
 end
 
