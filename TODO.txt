@@ -34,8 +34,8 @@ Implement Components:
   o     AIInputComponent - AI routines, sends same messages as input component
   d RenderSystem - lets ViewComponents register, draws
   x InputSystem - ticks InputComponents
-  o   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
-  o AISystem - ticks AIComponents
+  x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
+  x AISystem - ticks AIComponents
   o UISystem - handles User Interface
   o CombatSystem - determines outcome of combat using CombatComponents
   d CollisionSystem - figures out when things collide
