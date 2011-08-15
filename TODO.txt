@@ -1,14 +1,79 @@
-[X] change FileMapLoader to consider all files in map dir
-[ ] add monsters
-[ ] save/load
-[ ] add combat
-[ ] add interface
-[ ] add items (as composites?)
-[ ] maptypes as composites?
-[ ] make stairs work (generate new map)
-[ ] wizard mode
-[ ] map as quad-tree (or something)?
-[ ] can hero background be transparent?
-[ ] make hero movement smoother (possibly only move camera when near edges?)
-[-] don't animate or update dim tiles
-[-] support sprite batches if framebuffers are unsupported
+d change FileMapLoader to consider all files in map dir
+d change dungeon sets to mix colors for walls, floors and stairs
+d Event tables should be weak tables
+d write isClass and getClass
+
+Implement Components:
+  d make sure *Entity classes verify that necessary components exist on init.
+  d remove Rect from Entity
+  d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
+  o get entities created from data into Level
+  o draw entities
+	- support lua in properties when read from file
+  d get hero created from data into Level
+  d draw hero
+  d get hero movement working with keyboard again
+	d don't hardcode hero inside Level and play state, use a "prime entity" pointer
+	d get hero command queue working again
+  d   stop hardcoding MoveCommand:execute() inside Level
+	d   including OpenDoorCommand
+  d ModelComponent - game data and helper methods
+  o   HealthComponent - hp info
+  d   TimeComponent - speed/action point info
+  -   CombatComponent - determines attack rolls vs target, sends messages
+  d   CollisionComponent - decides if collision occurs, sends messages
+  d   MotionComponent - moves the entity
+  d ViewComponent = anything that will be drawn
+  d   GraphicsComponent - what to draw
+  o   InfoPanelComponent - just a guess here... mouseover info panel thingy
+  d ControllerComponent - modifies the model based on circumstance
+  d   InputComponent
+  d     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
+  o     AIInputComponent - AI routines, sends same messages as input component
+  d RenderSystem - lets ViewComponents register, draws
+  x InputSystem - ticks InputComponents
+  o   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
+  o AISystem - ticks AIComponents
+  o UISystem - handles User Interface
+  o CombatSystem - determines outcome of combat using CombatComponents
+  d CollisionSystem - figures out when things collide
+  d TimeSystem - determines whose turn it is
+
+For v0.1.0:
+  o add monsters
+  o save/load
+  o add combat
+  o add interface
+  o add items [as composites?]
+
+Beyond v0.1.0:
+  - maptypes as composites?
+  o make stairs work [generate new map]
+  - wizard mode
+  - map as quad-tree [or something?]
+  - poisson disk sampling for decoration/item/monster placement [map gen too?]
+  o can hero background be transparent?
+  - make hero movement smoother [possibly only move camera when near edges?]
+  x don't animate or update dim tiles
+  x support sprite batches if framebuffers are unsupported
+
+NOTES:
+Entity knows nothing about Component implementations. It contains no state
+like position or visual representation.
+  * This means remove Rect inheritance and add position to a ModelComponent.
+  * it contains only lifetime management and identifier scoping.
+  * can query components for type.
+
+Properties:
+  ? want to assume it's lua code if not property.isproperty? If so, then the
+    whole property() thing is useless. Wait, this makes no sense. isproperty
+    just checks if it's a valid property, not the content.
+
+Events:
+  * Don't have chains of objects observing other objects, observing other
+    objects. One layer of observer relationships is best (unless you use an
+    Event Aggregator).
+      * this is because it is very hard to debug. it's not obvious where calls
+        came from because they are messages sent at some point from somewhere.
+  ? currently I am queueing and flushing events... is this necessary or even
+    wise? Might account for performance issues? Look into it!

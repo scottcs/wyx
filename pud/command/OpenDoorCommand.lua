@@ -1,41 +1,38 @@
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'
-local Command = require 'pud.command.Command'
-local Map = require 'pud.map.Map'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Command = getClass 'pud.command.Command'
+local DoorMapType = getClass 'pud.map.DoorMapType'
+local property = require 'pud.component.property'
 
 -- Open Door - fires when a door is opened
 local OpenDoorCommand = Class{name='OpenDoorCommand',
 	inherits=Command,
-	function(self, target, pos, map)
+	function(self, target, node)
 		Command.construct(self, target)
 
-		assert(vector.isvector(pos),
-			'OpenDoorCommand expects a vector (was %s)', type(pos))
-		assert(map and type(map) == 'table' and map.is_a and map:is_a(Map),
-			'OpenDoorCommand expects a Map (was %s)', type(map))
+		verifyClass('pud.map.MapNode', node)
 
-		self._pos = pos
-		self._map = map
+		self._node = node
 	end
 }
 
 -- destructor
 function OpenDoorCommand:destroy()
 	self._pos = nil
-	self._map = nil
+	self._node = nil
 	Command.destroy(self)
 end
 
 function OpenDoorCommand:execute()
-	local node = self._map:getLocation(self._pos.x, self._pos.y)
-	local style = node:getMapType():getStyle()
-	node:setMapType(DoorMapType('open', style))
-	Command.execute(self)
-end
+	local style = self._node:getMapType():getStyle()
+	self._node:setMapType(DoorMapType('open', style))
 
-function OpenDoorCommand:getMapPosition() return self._pos end
+	local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
+	GameEvents:notify(MapNodeUpdateEvent(self._node))
+
+	self._cost = self._target:query(property('MoveCost'))
+	self._cost = self._cost or self._target:query(property('DefaultCost'))
+	return Command.execute(self)
+end
 
 -- the class
 return OpenDoorCommand

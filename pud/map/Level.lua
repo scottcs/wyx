@@ -2,25 +2,25 @@ local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'
 
 -- map classes
-local Map = require 'pud.map.Map'
-local MapDirector = require 'pud.map.MapDirector'
-local FileMapBuilder = require 'pud.map.FileMapBuilder'
-local SimpleGridMapBuilder = require 'pud.map.SimpleGridMapBuilder'
-local MapUpdateFinishedEvent = require 'pud.event.MapUpdateFinishedEvent'
-local ZoneTriggerEvent = require 'pud.event.ZoneTriggerEvent'
-local MapNode = require 'pud.map.MapNode'
-local DoorMapType = require 'pud.map.DoorMapType'
+local Map = getClass 'pud.map.Map'
+local MapDirector = getClass 'pud.map.MapDirector'
+local FileMapBuilder = getClass 'pud.map.FileMapBuilder'
+local SimpleGridMapBuilder = getClass 'pud.map.SimpleGridMapBuilder'
+local MapNode = getClass 'pud.map.MapNode'
+local DoorMapType = getClass 'pud.map.DoorMapType'
 
 -- events
-local CommandEvent = require 'pud.event.CommandEvent'
-local OpenDoorCommand = require 'pud.command.OpenDoorCommand'
+local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
+local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
+local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
+local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
 -- entities
-local HeroEntity = require 'pud.entity.HeroEntity'
-
--- time manager
-local TimeManager = require 'pud.time.TimeManager'
-local TICK = 0.01
+local HeroFactory = getClass 'pud.entity.HeroFactory'
+local EnemyFactory = getClass 'pud.entity.EnemyFactory'
+local ItemFactory = getClass 'pud.entity.ItemFactory'
+local message = getClass 'pud.component.message'
+local property = require 'pud.component.property'
 
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
@@ -29,9 +29,9 @@ local math_round = function(x) return math_floor(x+0.5) end
 --
 local Level = Class{name='Level',
 	function(self)
-		self._timeManager = TimeManager()
-		self._doTick = false
-		self._accum = 0
+		self._heroFactory = HeroFactory()
+		self._enemyFactory = EnemyFactory()
+		self._itemFactory = ItemFactory()
 
 		-- lighting color value table
 		self._lightColor = {
@@ -40,88 +40,54 @@ local Level = Class{name='Level',
 			lit = {1,1,1},
 		}
 		self._lightmap = {}
+		self._entities = {}
 
-		CommandEvents:register(self, CommandEvent)
+		GameEvents:register(self, {EntityPositionEvent, MapNodeUpdateEvent})
 	end
 }
 
 -- destructor
 function Level:destroy()
-	CommandEvents:unregisterAll(self)
+	GameEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
-	self._hero:destroy()
-	self._hero = nil
-	self._doTick = nil
-	self._timeManager:destroy()
-	self._timeManager = nil
+	self._heroFactory:destroy()
+	self._heroFactory = nil
+	self._enemyFactory:destroy()
+	self._enemyFactory = nil
+	self._itemFactory:destroy()
+	self._itemFactory = nil
+	for k in pairs(self._entities) do
+		self._entities[k]:destroy()
+		self._entities[k] = nil
+	end
+	self._entities = nil
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
 	self._lightmap = nil
 end
 
-function Level:update(dt)
-	if self._doTick then
-		self._accum = self._accum + dt
-		if self._accum > TICK then
-			self._accum = self._accum - TICK
-			local nextActor = self._timeManager:tick()
-			local numHeroCommands = self._hero:getPendingCommandCount()
-			self._doTick = nextActor ~= self._hero or numHeroCommands > 0
-		end
-	end
+function Level:_triggerZones(entity, pos, oldpos)
+	if pos ~= oldpos then
+		local zonesFrom = self._map:getZonesFromPoint(oldpos)
+		local zonesTo = self._map:getZonesFromPoint(pos)
 
-	self:_moveEntities()
-end
-
-function Level:_attemptMove(entity)
-	local moved = false
-
-	if entity:wantsToMove() then
-		local to = entity:getMovePosition()
-		local node = self._map:getLocation(to.x, to.y)
-
-		local oldEntityPos = entity:getPositionVector()
-		entity:move(to, node)
-		local entityPos = entity:getPositionVector()
-
-		if entityPos ~= oldEntityPos then
-			moved = true
-			local zonesFrom = self._map:getZonesFromPoint(oldEntityPos)
-			local zonesTo = self._map:getZonesFromPoint(entityPos)
-
-			if zonesFrom then
-				for zone in pairs(zonesFrom) do
-					if zonesTo and zonesTo[zone] then
-						zonesTo[zone] = nil
-					else
-						GameEvents:push(ZoneTriggerEvent(entity, zone, true))
-					end
-				end
-			end
-
-			if zonesTo then
-				for zone in pairs(zonesTo) do
-					GameEvents:push(ZoneTriggerEvent(entity, zone, false))
+		if zonesFrom then
+			for zone in pairs(zonesFrom) do
+				if zonesTo and zonesTo[zone] then
+					zonesTo[zone] = nil
+				else
+					GameEvents:push(ZoneTriggerEvent(entity, zone, true))
 				end
 			end
 		end
 
-		if node:getMapType():isType(DoorMapType('shut')) then
-			local command = OpenDoorCommand(entity, to, self._map)
-			CommandEvents:push(CommandEvent(command))
+		if zonesTo then
+			for zone in pairs(zonesTo) do
+				GameEvents:push(ZoneTriggerEvent(entity, zone, false))
+			end
 		end
-	end
-
-	return moved
-end
-
-function Level:_moveEntities()
-	local heroMoved = self:_attemptMove(self._hero)
-	if heroMoved then
-		self._needViewUpdate = true
-		self:_bakeLights()
 	end
 end
 
@@ -143,13 +109,16 @@ end
 function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
-	if self._hero then
+	if self._primeEntity then
 		local ups = {}
 		for _,name in ipairs(self._map:getPortalNames()) do
 			if string.match(name, "^up%d") then ups[#ups+1] = name end
 		end
 		self._startPosition = self._map:getPortal(ups[Random(#ups)])
-		self._hero:setPosition(self._startPosition)
+		self._primeEntity:send(
+			message('SET_POSITION'),
+			self._startPosition,
+			self._startPosition)
 		self:_bakeLights(true)
 	end
 	builder:destroy()
@@ -177,26 +146,56 @@ function Level:isMap(map) return map == self._map end
 -- return true if the given point exists on the map
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
--- return the hero entity
-function Level:getHero() return self._hero end
-
-function Level:createEntities()
-	self._hero = HeroEntity()
-	self._hero:setSize(1, 1)
-	self._timeManager:register(self._hero, 0)
+-- return the entities at the given location
+function Level:getEntitiesAtLocation(pos)
+	local ents = {}
+	for _,entity in pairs(self._entities) do
+		if entity:query(property('Position')) == pos then
+			ents[#ents+1] = entity
+		end
+	end
+	return #ents > 0 and ents or nil
 end
 
-function Level:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._hero then return end
-	if command:is_a(OpenDoorCommand) then
-		command:setOnComplete(self._bakeLights, self)
+function Level:sendToAllEntities(msg, ...)
+	for _,entity in pairs(self._entities) do
+		entity:send(message(msg), ...)
 	end
-	self._doTick = true
+end
+
+function Level:createEntities()
+	-- TODO: choose hero rather than hardcode Warrior
+	self._primeEntity = self._heroFactory:createEntity('Warrior')
+	self._entities[#self._entities+1] = self._primeEntity
+end
+
+function Level:setPlayerControlled()
+	local PIC = getClass 'pud.component.PlayerInputComponent'
+	local PTC = getClass 'pud.component.PlayerTimeComponent'
+	local input = PIC()
+	local time = PTC()
+	self._heroFactory:setInputComponent(self._primeEntity, input)
+	self._heroFactory:setTimeComponent(self._primeEntity, time)
+end
+
+function Level:EntityPositionEvent(e)
+	local entity = e:getEntity()
+	self:_triggerZones(entity, e:getDestination(), e:getOrigin())
+
+	if entity == self._primeEntity then
+		self:_bakeLights()
+		self._needViewUpdate = true
+	end
+end
+
+function Level:MapNodeUpdateEvent(e)
+	self:_bakeLights()
 	self._needViewUpdate = true
 end
 
--- bake the lighting for the current hero position
+function Level:getPrimeEntity() return self._primeEntity end
+
+-- bake the lighting for the current prime entity position
 local _mult = {
 	{ 1,  0,  0, -1, -1,  0,  0,  1},
 	{ 0,  1, -1,  0,  0, -1,  1,  0},
@@ -275,16 +274,19 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local radius = self._hero:getVisibilityRadius()
-	local heroPos = self._hero:getPositionVector()
+	local radius = self._primeEntity:query('Visibility')
+	local primePos = self._primeEntity:query('Position')
 
 	self:_resetLights(blackout)
 
 	for oct=1,8 do
-		self:_castLight(heroPos, 1, 1, 0, radius,
+		self:_castLight(primePos, 1, 1, 0, radius,
 			vector(_mult[1][oct], _mult[2][oct]),
 			vector(_mult[3][oct], _mult[4][oct]))
 	end
+
+	-- make sure prime entity is always lit
+	self._lightmap[primePos.x][primePos.y] = 'lit'
 end
 
 -- get a color table of the lighting for the specified point

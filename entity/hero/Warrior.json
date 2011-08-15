@@ -1,0 +1,22 @@
+{
+	"name": "Warrior",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {"x": 11, "y": 1},
+		},
+		"HealthComponent": {
+			"Health": "DEFAULT_HERO_HEALTH",
+		},
+		"CombatComponent": {
+			"Attack": "DEFAULT_HERO_ATTACK",
+			"Defense": "Random(LEVEL, 2 * LEVEL)",
+		},
+		"TimeComponent": {
+			"AttackCost": 1.5,
+			"DefaultCost": 1,
+			"Speed": 1,
+		},
+		"MotionComponent",
+	}
+}

@@ -1,7 +1,6 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
-local MapNode = require 'pud.map.MapNode'
-local Rect = require 'pud.kit.Rect'
+local MapNode = getClass 'pud.map.MapNode'
+local Rect = getClass 'pud.kit.Rect'
 local vector = require 'lib.hump.vector'
 
 local table_concat = table.concat
@@ -62,30 +61,31 @@ function Map:setAuthor(author) self._author = author end
 
 -- set the given map location to the given map node
 function Map:setLocation(x, y, node)
-	verify('number', x, y)
-	assert(x >= 1 and x <= self:getWidth(), 'setLocation x is out of range')
-	assert(y >= 1 and y <= self:getHeight(), 'setLocation y is out of range')
-	assert(node and node.is_a and node:is_a(MapNode),
-		'attempt to call setLocation without a MapNode (was %s)',
-		node and node.is_a and tostring(node) or type(node))
+	local pos = vector.isvector(x) and x or vector(x, y)
+	assert(pos.x >= 1 and pos.x <= self:getWidth(),
+		'setLocation x is out of range')
+	assert(pos.y >= 1 and pos.y <= self:getHeight(),
+		'setLocation y is out of range')
+	verifyClass(MapNode, node)
 
 	-- destroy the old node
-	if self._layout[y] and self._layout[y][x] then
-		self._layout[y][x]:destroy()
+	if self._layout[pos.y] and self._layout[pos.y][pos.x] then
+		self._layout[pos.y][pos.x]:destroy()
 	end
 
 	-- assign the new node
-	self._layout[y] = self._layout[y] or {}
-	self._layout[y][x] = node
+	self._layout[pos.y] = self._layout[pos.y] or {}
+	self._layout[pos.y][pos.x] = node
 end
 
 -- retrieve the map node of a given location
 function Map:getLocation(x, y)
-	if x >= 1 and x <= self:getWidth()
-		and y >= 1 and y <= self:getHeight()
-		and self._layout[y] and self._layout[y][x]
+	local pos = vector.isvector(x) and x or vector(x, y)
+	if pos.x >= 1 and pos.x <= self:getWidth()
+		and pos.y >= 1 and pos.y <= self:getHeight()
+		and self._layout[pos.y] and self._layout[pos.y][pos.x]
 	then
-		return self._layout[y][x]
+		return self._layout[pos.y][pos.x]
 	end
 	return nil
 end
@@ -94,17 +94,14 @@ end
 -- to the list of portals
 function Map:setPortal(name, point, map, mappoint)
 	verify('string', name)
-	assert(vector.isvector(point),
-		'vector expected for point argument (was %s)', type(point))
+	verify('vector', point)
 	assert(self:containsPoint(point),
 		'portal point is not within map borders: %s', tostring(point))
 
 	local link
 	if nil ~= map and nil ~= mappoint then
-		assert(vector.isvector(mappoint),
-			'vector expected for mappoint argument (was %s)', type(mappoint))
-		assert(map and type(map) == 'table' and map.is_a and map:is_a(Map),
-			'map expected (was %s, %s)', tostring(map), type(map))
+		verify('vector', mappoint)
+		verifyClass(Map, map)
 		assert(map:containsPoint(mappoint),
 			'portal mappoint is not within its map borders: %s', tostring(mappoint))
 
@@ -140,9 +137,7 @@ end
 
 -- create a zone
 function Map:setZone(name, rect)
-	assert(rect and type(rect) == 'table' and rect.is_a and rect:is_a(Rect),
-		'setZone expects a rect (was %s, %s)', tostring(rect), type(rect))
-
+	verifyClass(Rect, rect)
 	if self._zones[name] then self._zones[name]:destroy() end
 	self._zones[name] = rect:clone()
 end

@@ -1,6 +1,5 @@
-require 'pud.util'
 local Class = require 'lib.hump.class'
-local Event = require 'pud.event.Event'
+local Event = getClass 'pud.event.Event'
 
 -- Game Over - fires when the game is over
 -- params:

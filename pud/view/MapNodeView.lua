@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Rect = require 'pud.kit.Rect'
+local Rect = getClass 'pud.kit.Rect'
 
 -- MapNodeView
 -- prototype class for other MapNode view classes

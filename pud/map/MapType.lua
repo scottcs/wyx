@@ -71,10 +71,7 @@ end
 function MapType:isType(...)
 	for i=1,select('#', ...) do
 		local mapType = select(i, ...)
-		assert(type(mapType) == 'table'
-			and mapType.is_a and mapType:is_a(MapType),
-			'MapType:isType() expects a MapType (was %s, %s)',
-			tostring(mapType), type(mapType))
+		verifyClass(MapType, mapType)
 
 		if mapType:is_a(self.__class)
 			and mapType:getVariant() == self:getVariant()
