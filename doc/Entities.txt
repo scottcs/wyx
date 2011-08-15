@@ -15,6 +15,14 @@ All entity files are written in a text format called JSON (see www.json.org
 for info). This is a fairly simple format consisting of nested key-value
 pairs. If an entity file is not valid JSON, Pud will error.
 
+You do not have to specify all properties for a component. If required
+properties are missing, Pud will fill them in with defaults (see
+"Component Properties" in Components.txt for default values).
+
+Likewise, you do not have to specify all components. Any required components
+will be created with default values by Pud (see "Default Components" in
+Components.txt for a list).
+
 Here is an example of a very simple Enemy entity file,
 "pud/entity/enemy/goblin.json":
 

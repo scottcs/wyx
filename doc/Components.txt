@@ -226,4 +226,33 @@ Component Properties
     TimeComponent).
 
 
+Default Components
+==================
+These are the components that will be created for each kind of entity, whether
+you specify them in the entity file or not. (In other words, if
+MotionComponent is missing from an enemy entity, Pud will create a default
+MotionComponent for the entity.)
+
+Hero:
+    GraphicsComponent
+    HealthComponent
+    CombatComponent
+    CollisionComponent
+    MotionComponent
+    TimeComponent
+    InputComponent
+
+Enemy:
+    GraphicsComponent
+    HealthComponent
+    CombatComponent
+    CollisionComponent
+    MotionComponent
+    AITimeComponent
+    AIInputComponent
+
+Item:
+    MotionComponent
+    GraphicsComponent
+
 
