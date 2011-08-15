@@ -180,6 +180,7 @@ function Level:createEntities()
 	-- TODO: choose hero rather than hardcode Warrior
 	self._primeEntity = self._heroFactory:createEntity('Warrior')
 	self._entities[#self._entities+1] = self._primeEntity
+	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
 end
 
 function Level:setPlayerControlled()
@@ -300,6 +301,23 @@ function Level:_bakeLights(blackout)
 
 	-- make sure prime entity is always lit
 	self._lightmap[primePos.x][primePos.y] = 'lit'
+
+	-- tell entities what their lights are
+	local numEntities = #self._entities
+	local msg = message('SCREEN_STATUS')
+	local position = property('Position')
+	for i=1,numEntities do
+		local ent = self._entities[i]
+		local pos = ent:query(position)
+		local status = 'black'
+		if    self._lightmap
+			and self._lightmap[pos.x]
+			and self._lightmap[pos.x][pos.y]
+		then
+			status = self._lightmap[pos.x][pos.y]
+		end
+		ent:send(msg, status)
+	end
 end
 
 -- get a color table of the lighting for the specified point

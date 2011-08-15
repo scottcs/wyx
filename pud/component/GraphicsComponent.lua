@@ -14,6 +14,9 @@ local nearestPO2 = nearestPO2
 
 local verify, assert, tostring = verify, assert, tostring
 
+local COLOR_DIM = {0.5, 0.5, 0.5}
+local COLOR_NORMAL = {1, 1, 1}
+
 -- GraphicsComponent
 --
 local GraphicsComponent = Class{name='GraphicsComponent',
@@ -26,9 +29,11 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		ViewComponent.construct(self, properties)
-		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED'}
+		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED', 'SCREEN_STATUS'}
 		self._frames = {}
 		self._curFrame = 'right'
+		self._lit = 'black'
+		self._color = COLOR_NORMAL
 	end
 }
 
@@ -73,8 +78,18 @@ function GraphicsComponent:_setProperty(prop, data)
 	ViewComponent._setProperty(self, prop, data)
 end
 
+function GraphicsComponent:_setScreenStatus(status)
+	self._lit = status
+	if status == 'dim' then
+		self._color = COLOR_DIM
+	else
+		self._color = COLOR_NORMAL
+	end
+end
+
 function GraphicsComponent:receive(msg, ...)
 	if     msg == message('ENTITY_CREATED') then self:_makeQuads(...)
+	elseif msg == message('SCREEN_STATUS') then self:_setScreenStatus(...)
 	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
 	end
 end
@@ -170,8 +185,8 @@ function GraphicsComponent:_updateFB(new, old)
 end
 
 function GraphicsComponent:draw()
-	if self._fb then
-		setColor(1,1,1)
+	if self._lit ~= 'black' and self._fb then
+		setColor(self._color)
 		draw(self._fb, self._drawX, self._drawY)
 	end
 end
