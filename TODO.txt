@@ -16,7 +16,7 @@ Implement Components:
 	d don't hardcode hero inside Level and play state, use a "prime entity" pointer
 	d get hero command queue working again
   d   stop hardcoding MoveCommand:execute() inside Level
-	+   including OpenDoorCommand
+	d   including OpenDoorCommand
   d ModelComponent - game data and helper methods
   o   HealthComponent - hp info
   d   TimeComponent - speed/action point info
@@ -31,12 +31,12 @@ Implement Components:
   d     PlayerInputComponent - which keys/mouse buttons to listen for, messages to send when they are pressed
   o     AIInputComponent - AI routines, sends same messages as input component
   d RenderSystem - lets ViewComponents register, draws
-  + InputSystem - ticks InputComponents
+  x InputSystem - ticks InputComponents
   o   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   o AISystem - ticks AIComponents
   o UISystem - handles User Interface
   o CombatSystem - determines outcome of combat using CombatComponents
-  + CollisionSystem - figures out when things collide
+  d CollisionSystem - figures out when things collide
   d TimeSystem - determines whose turn it is
 
 For v0.1.0:
