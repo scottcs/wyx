@@ -10,6 +10,8 @@ local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local nearestPO2 = nearestPO2
 
+local verifyClass, setmetatable, pairs = verifyClass, setmetatable, pairs
+
 -- TileMapNodeView
 --
 local TileMapNodeView = Class{name='TileMapNodeView',

@@ -1,11 +1,11 @@
 local Class = require 'lib.hump.class'
 local Camera = require 'lib.hump.camera'
 local vector = require 'lib.hump.vector'
-local Rect = getClass 'pud.kit.Rect'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
 local math_max, math_min = math.max, math.min
+local verify, verifyClass, select, pairs = verify, verifyClass, select, pairs
 
 local _zoomLevels = {1, 0.5, 0.25}
 
@@ -127,7 +127,7 @@ function GameCam:followTarget(t)
 	self:receive(message('HAS_MOVED'), t:query(property('Position')))
 end
 
--- unfollow a target Rect
+-- unfollow a target
 function GameCam:unfollowTarget()
 	if self._target then
 		self._target:detach(message('HAS_MOVED'), self)
@@ -237,6 +237,7 @@ function GameCam:getViewport(translate, zoom)
 	local tl, br = vector(0,0), vector(WIDTH, HEIGHT)
 	local vp1 = self:toWorldCoords(pos, zoom, tl)
 	local vp2 = self:toWorldCoords(pos, zoom, br)
+	local Rect = getClass 'pud.kit.Rect'
 	return Rect(vp1, vp2-vp1)
 end
 
