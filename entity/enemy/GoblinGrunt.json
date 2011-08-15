@@ -3,22 +3,9 @@
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
-			"TileCoords": {"x": 1, "y": 6},
-		},
-		"HealthComponent": {
-			"Health": "DEFAULT_ENEMY_HEALTH",
-		},
-		"CombatComponent": {
-			"Attack": "DEFAULT_ENEMY_ATTACK",
-			"Defense": "Random(LEVEL, 2 * LEVEL)",
-		},
-		"TimeComponent": {
-			"AttackCost": 1.5,
-			"DefaultCost": 1,
-			"Speed": 1,
-		},
-		"MotionComponent": {
-			"BlockedBy": {"wall": "ANY", "door": "shut"},
+			"TileCoords": {
+				"right": {"x": 1, "y": 6},
+			},
 		},
 	}
 }
