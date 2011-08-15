@@ -20,6 +20,15 @@ function PlayerInputComponent:destroy()
 	InputComponent.destroy(self)
 end
 
+function PlayerInputComponent:_setProperty(prop, data)
+	prop = property(prop)
+	if prop == property('CanOpenDoors') then
+		self._properties[prop] = true
+	else
+		InputComponent._setProperty(self, prop, data)
+	end
+end
+
 -- on keyboard input, issue the appropriate command
 function PlayerInputComponent:KeyboardEvent(e)
 	if #(e:getModifiers()) == 0 then
