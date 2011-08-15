@@ -41,7 +41,7 @@ end
 function MotionComponent:_move(pos, oldpos)
 	self:_setProperty(property('Position'), pos)
 	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
-	GameEvents:push(EntityPositionEvent(self._mediator, pos, oldpos))
+	GameEvents:notify(EntityPositionEvent(self._mediator, pos, oldpos))
 end
 
 function MotionComponent:receive(msg, ...)
