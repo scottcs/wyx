@@ -54,6 +54,7 @@ property.MoveCost          = 1
 property.Speed             = 1
 property.SpeedBonus        = 0
 property.IsExhausted       = false
+property.DoTick            = true
 
 -- weaknesses
 property.CrushWeakness     = 0

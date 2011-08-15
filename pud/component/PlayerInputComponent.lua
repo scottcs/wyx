@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local vector = require 'lib.hump.vector'
 local InputComponent = getClass 'pud.component.InputComponent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local property = require 'pud.component.property'
 
 -- PlayerInputComponent
 --
@@ -31,7 +32,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 			right = function() self:move(vector( 1,  0)) doTick = true end,
 		}
 
-		if doTick then TimeSystem:tick() end
+		if doTick then self:_setProperty(property('DoTick'), true) end
 	end
 end
 

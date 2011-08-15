@@ -65,7 +65,8 @@ function TimeSystem:tick()
 		obj = self._timeTravelers:front()
 	end
 
-	if self._timeTravelers:size() > 0 then
+	local doTick = obj:query(property('DoTick'), 'boolor')
+	if doTick and self._timeTravelers:size() > 0 then
 		-- rotate so that the front is now the back and front.right is front
 		self._timeTravelers:rotate_forward()
 
@@ -85,6 +86,8 @@ function TimeSystem:tick()
 				end
 			until nil == nextCommand or self._actionPoints[obj] <= 0
 		end
+
+		obj:send(message('TIME_TICK'))
 	end
 end
 

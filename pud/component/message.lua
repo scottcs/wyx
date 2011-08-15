@@ -22,6 +22,9 @@ message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
 message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 
+-- TimeComponent messages
+message.TIME_TICK             = 'TIME_TICK'
+
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},
 	{__call = function(_, msg) return get(msg) end})

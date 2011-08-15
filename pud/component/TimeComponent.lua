@@ -16,8 +16,10 @@ local TimeComponent = Class{name='TimeComponent',
 			'Speed',
 			'SpeedBonus',
 			'IsExhausted',
+			'DoTick',
 		})
 		ModelComponent.construct(self, properties)
+		self._attachMessages = {'TIME_TICK'}
 	end
 }
 
