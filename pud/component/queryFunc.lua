@@ -81,16 +81,13 @@ local productFunc = function(t)
 end
 
 local boolAndFunc = function(t)
-	local bool = true
-	local count = 0
 	for k,v in pairs(t) do
 		if type(v) == 'boolean' then
-			bool = bool and v
-			count = count + 1
+			if not v then return false end
 		end
 	end
 
-	return count>0 and bool
+	return true
 end
 
 local boolOrFunc = function(t)
