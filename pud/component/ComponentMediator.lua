@@ -26,6 +26,7 @@ end
 function ComponentMediator:send(msg, ...)
 	if self._listeners[msg] then
 		for comp in self._listeners[msg]:listeners() do
+			--if debug then print(comp,message(msg)) end
 			comp:receive(message(msg), ...)
 		end
 	end
