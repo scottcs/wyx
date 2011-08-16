@@ -64,6 +64,7 @@ function Level:destroy()
 		self._entities[k] = nil
 	end
 	self._entities = nil
+	self._primeEntity = nil
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
@@ -112,7 +113,11 @@ function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
 
+	self:removeAllEntities()
+	self:createEntities()
+
 	local setPosition = message('SET_POSITION')
+	local remove = {}
 
 	local numEntities = #self._entities
 	for i=1,numEntities do
@@ -130,14 +135,24 @@ function Level:_generateMap(builder)
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
 			local pos = vector()
 			local clear = false
+			local tries = mapW*mapH
 			repeat
 				pos.x = Random(mapW)
 				pos.y = Random(mapH)
 				local mt = self._map:getLocation(pos):getMapType()
 				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(pos)
-			until clear
-			entity:send(setPosition, pos, pos)
+				tries = tries - 1
+			until clear or tries == 0
+			if clear and tries > 0 then
+				entity:send(setPosition, pos, pos)
+			else
+				remove[#remove+1] = entity
+			end
 		end
+	end
+
+	for i=1,#remove do
+		self:removeEntity(remove[i])
 	end
 
 	builder:destroy()
@@ -187,9 +202,36 @@ function Level:createEntities()
 	end
 
 	-- TODO: choose hero rather than hardcode Warrior
-	self._primeEntity = self._heroFactory:createEntity('Warrior')
+	self._primeEntity = self._primeEntity or self._heroFactory:createEntity('Warrior')
 	self._entities[#self._entities+1] = self._primeEntity
 	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
+end
+
+function Level:removeAllEntities()
+	local num = #self._entities
+	for i=1,num do
+		if self._entities[i] ~= self._primeEntity then
+			self._entities[i]:destroy()
+		end
+
+		self._entities[i] = nil
+	end
+end
+
+function Level:removeEntity(entity)
+	local num = #self._entities
+	local newEntities = {}
+	local count = 1
+	for i=1,num do
+		local e = self._entities[i]
+		if entity == e then
+			entity:destroy()
+		else
+			newEntities[count] = e
+			count = count + 1
+		end
+	end
+	self._entities = newEntities
 end
 
 function Level:setPlayerControlled()

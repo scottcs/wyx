@@ -54,9 +54,8 @@ function st:enter()
 	TimeSystem = TimeSystemClass()
 	CollisionSystem = CollisionSystemClass(self._level)
 
-	self._level:createEntities()
-	self._level:setPlayerControlled()
 	self._level:generateSimpleGridMap()
+	self._level:setPlayerControlled()
 	self:_createMapView()
 	self:_createCamera()
 	if debug then
