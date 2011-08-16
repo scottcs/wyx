@@ -87,6 +87,11 @@ end
 -- precondition: msg is a valid component message
 function Component:receive(msg, ...) end
 
+-- evaluate a string property as if it were lua code
+function Component:_evaluate(prop, ...)
+	return 1
+end
+
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
 function Component:getProperty(p, intermediate, ...)

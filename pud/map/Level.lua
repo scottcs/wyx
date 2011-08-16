@@ -14,7 +14,9 @@ local FloorMapType = getClass 'pud.map.FloorMapType'
 local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
 local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
+local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
+local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 
 -- entities
 local HeroFactory = getClass 'pud.entity.HeroFactory'
@@ -44,7 +46,11 @@ local Level = Class{name='Level',
 		self._lightmap = {}
 		self._entities = {}
 
-		GameEvents:register(self, {EntityPositionEvent, MapNodeUpdateEvent})
+		GameEvents:register(self, {
+			EntityPositionEvent,
+			EntityDeathEvent,
+			MapNodeUpdateEvent
+		})
 	end
 }
 
@@ -252,6 +258,20 @@ function Level:EntityPositionEvent(e)
 		self._needViewUpdate = true
 	end
 end
+
+function Level:EntityDeathEvent(e)
+	local entity = e:getEntity()
+	local reason = e:getReason()
+
+	if entity == self._primeEntity then
+		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
+	else
+		local msg = entity:getName()..' '..reason
+		GameEvents:push(DisplayPopupMessageEvent(msg))
+		self:removeEntity(entity)
+	end
+end
+
 
 function Level:MapNodeUpdateEvent(e)
 	self:_bakeLights()

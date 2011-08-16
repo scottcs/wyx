@@ -30,6 +30,7 @@ local vector = require 'lib.hump.vector'
 -- events
 local CommandEvent = getClass 'pud.event.CommandEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
+local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local MoveCommand = getClass 'pud.command.MoveCommand'
 
 -- views
@@ -63,7 +64,7 @@ function st:enter()
 		self._debug = true
 	end
 	CommandEvents:register(self, CommandEvent)
-	GameEvents:register(self, ZoneTriggerEvent)
+	GameEvents:register(self, {ZoneTriggerEvent, DisplayPopupMessageEvent})
 
 	-- turn off garbage collector... we'll collect manually when we have spare
 	-- time (in update())
@@ -82,6 +83,11 @@ function st:ZoneTriggerEvent(e)
 		message = message..' Zone: '..tostring(e:getZone())
 		self:_displayMessage(message)
 	end
+end
+
+function st:DisplayPopupMessageEvent(e)
+	local message = e:getMessage()
+	if message then self:_displayMessage(message) end
 end
 
 function st:_createMapView(viewClass)

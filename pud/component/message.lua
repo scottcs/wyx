@@ -36,6 +36,13 @@ message.SCREEN_STATUS         = 'SCREEN_STATUS'
 -- TimeComponent messages
 message.TIME_TICK             = 'TIME_TICK'
 
+-- CombatComponent messages
+message.COMBAT_DAMAGE         = 'COMBAT_DAMAGE'
+
+-- HealthComponent messages
+message.ENTITY_DEATH          = 'ENTITY_DEATH'
+message.HEALTH_UPDATE         = 'HEALTH_UPDATE'
+
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},
 	{__call = function(_, msg) return get(msg) end})
