@@ -9,9 +9,11 @@ Implement Components:
   d make sure *Entity classes verify that necessary components exist on init.
   d remove Rect from Entity
   d EntityFactory: query new Entities for ViewComponents, register with RenderSystem
-  + get entities created from data into Level
+  o get entities created from data into Level
   d draw entities
-  + need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth")
+  o need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth")
+  + remove association between TimeSystem (& CollisionSystem) and ComponentMediator
+  + fix infinite loop when there are more entities than floor tiles
   - support lua in properties when read from file
   d get hero created from data into Level
   d draw hero
@@ -21,9 +23,9 @@ Implement Components:
   d   stop hardcoding MoveCommand:execute() inside Level
   d   including OpenDoorCommand
   d ModelComponent - game data and helper methods
-  o   HealthComponent - hp info
+  +   HealthComponent - hp info
   d   TimeComponent - speed/action point info
-  -   CombatComponent - determines attack rolls vs target, sends messages
+  +   CombatComponent - determines attack rolls vs target, sends messages
   d   CollisionComponent - decides if collision occurs, sends messages
   d   MotionComponent - moves the entity
   d ViewComponent = anything that will be drawn
@@ -38,7 +40,7 @@ Implement Components:
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   x AISystem - ticks AIComponents
   o UISystem - handles User Interface
-  o CombatSystem - determines outcome of combat using CombatComponents
+  + CombatSystem - determines outcome of combat using CombatComponents
   d CollisionSystem - figures out when things collide
   d TimeSystem - determines whose turn it is
 
