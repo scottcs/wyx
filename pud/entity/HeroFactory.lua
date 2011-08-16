@@ -52,8 +52,13 @@ end
 function HeroFactory:setTimeComponent(entity, component)
 	local TimeComponent = getClass 'pud.component.TimeComponent'
 	verifyClass(TimeComponent, component)
-	entity:removeComponent(TimeComponent)
+	local currentComps = entity:getComponentsByClass(TimeComponent)
+	for _,comp in pairs(currentComps) do
+		comp:exhaust()
+		entity:removeComponent(comp)
+	end
 	entity:addComponent(component)
+	TimeSystem:register(component)
 end
 
 
