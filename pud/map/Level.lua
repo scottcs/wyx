@@ -27,6 +27,7 @@ local property = require 'pud.component.property'
 
 local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
+local match = string.match
 local enumerate = love.filesystem.enumerate
 
 -- Level
@@ -132,7 +133,7 @@ function Level:_generateMap(builder)
 		if entity == self._primeEntity then
 			local ups = {}
 			for _,name in ipairs(self._map:getPortalNames()) do
-				if string.match(name, "^up%d") then ups[#ups+1] = name end
+				if match(name, "^up%d") then ups[#ups+1] = name end
 			end
 			local pos = self._map:getPortal(ups[Random(#ups)])
 			entity:send(setPosition, pos, pos)
@@ -203,12 +204,16 @@ end
 
 function Level:createEntities()
 	-- TODO: get entities algorithmically rather than hardcoding
-	for i=1,5 do
-		self._entities[i] = self._enemyFactory:createEntity('GoblinGrunt')
+	local enemy = enumerate('entity/enemy')
+	for i=1,10 do
+		local enemyName = match(enemy[Random(#enemy)], "(%w+)%.json")
+		self._entities[i] = self._enemyFactory:createEntity(enemyName)
 	end
 
 	-- TODO: choose hero rather than hardcode Warrior
-	self._primeEntity = self._primeEntity or self._heroFactory:createEntity('Warrior')
+	local hero = enumerate('entity/hero')
+	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
+	self._primeEntity = self._primeEntity or self._heroFactory:createEntity(heroName)
 	self._entities[#self._entities+1] = self._primeEntity
 	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
 end
