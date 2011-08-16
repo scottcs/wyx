@@ -78,12 +78,15 @@ function CombatComponent:_attack(opponent)
 	oDefense = oDefense + opponent:query(property('DefenseBonus'))
 	local attack = self._mediator:query(property('Attack'))
 	attack = attack + self._mediator:query(property('AttackBonus'))
-	attack = attack + (Random:number() > 0.5 and 1 or 0)
-
-	if attack > oDefense then
-		local name = self._mediator:getName() or tostring(self._mediator)
-		opponent:send(message('COMBAT_DAMAGE'), -1, name)
+	
+	-- TODO: damage properties
+	local damage = -10
+	if attack < oDefense then
+		damage = damage + oDefense
 	end
+
+	local name = self._mediator:getName() or tostring(self._mediator)
+	opponent:send(message('COMBAT_DAMAGE'), damage, name)
 end
 
 
