@@ -57,8 +57,10 @@ function Component:getMediator() return self._mediator end
 -- attach all of this component's messages to its mediator
 function Component:attachMessages()
 	if self._attachMessages then
-		for _,msg in pairs(self._attachMessages) do
-			self._mediator:attach(message(msg), self)
+		local num = #self._attachMessages
+		for i=1,num do
+			local msg = message(self._attachMessages[i])
+			self._mediator:attach(msg, self)
 		end
 	end
 end
@@ -66,8 +68,10 @@ end
 -- detach all of this component's messages to its mediator
 function Component:detachMessages()
 	if self._attachMessages then
-		for _,msg in pairs(self._attachMessages) do
-			self._mediator:detach(message(msg), self)
+		local num = #self._attachMessages
+		for i=1,num do
+			local msg = message(self._attachMessages[i])
+			self._mediator:detach(msg, self)
 		end
 	end
 end

@@ -112,6 +112,8 @@ function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
 
+	local setPosition = message('SET_POSITION')
+
 	local numEntities = #self._entities
 	for i=1,numEntities do
 		local entity = self._entities[i]
@@ -122,7 +124,7 @@ function Level:_generateMap(builder)
 				if string.match(name, "^up%d") then ups[#ups+1] = name end
 			end
 			local pos = self._map:getPortal(ups[Random(#ups)])
-			entity:send(message('SET_POSITION'), pos, pos)
+			entity:send(setPosition, pos, pos)
 			self:_bakeLights(true)
 		else
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
@@ -134,7 +136,7 @@ function Level:_generateMap(builder)
 				local mt = self._map:getLocation(pos):getMapType()
 				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(pos)
 			until clear
-			entity:send(message('SET_POSITION'), pos, pos)
+			entity:send(setPosition, pos, pos)
 		end
 	end
 
@@ -163,12 +165,19 @@ function Level:isPointInMap(...) return self._map:containsPoint(...) end
 -- return the entities at the given location
 function Level:getEntitiesAtLocation(pos)
 	local ents = {}
-	for _,entity in pairs(self._entities) do
-		if entity:query(property('Position')) == pos then
-			ents[#ents+1] = entity
+	local positionProp = property('Position')
+	local numEntities = #self._entities
+	local entCount = 0
+
+	for i=1,numEntities do
+		local entity = self._entities[i]
+		if entity:query(positionProp) == pos then
+			entCount = entCount + 1
+			ents[entCount] = entity
 		end
 	end
-	return #ents > 0 and ents or nil
+
+	return entCount > 0 and ents or nil
 end
 
 function Level:createEntities()
@@ -305,10 +314,11 @@ function Level:_bakeLights(blackout)
 	-- tell entities what their lights are
 	local numEntities = #self._entities
 	local msg = message('SCREEN_STATUS')
-	local position = property('Position')
+	local positionProp = property('Position')
+
 	for i=1,numEntities do
 		local ent = self._entities[i]
-		local pos = ent:query(position)
+		local pos = ent:query(positionProp)
 		local status = 'black'
 		if    self._lightmap
 			and self._lightmap[pos.x]

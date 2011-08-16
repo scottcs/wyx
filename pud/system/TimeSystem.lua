@@ -57,23 +57,28 @@ end
 -- progresses through deque and update time entity
 function TimeSystem:tick()
 	local obj = self._timeTravelers:front()
+	local isExhaustedProp = property('IsExhausted')
 
 	-- check for exhausted objects and remove them
-	while obj and obj:query(property('IsExhausted'), 'boolor') do
+	while obj and obj:query(isExhaustedProp, 'boolor') do
 		self._timeTravelers:pop_front()
 		self._actionPoints[obj] = nil
 		obj = self._timeTravelers:front()
 	end
 
 	local doTick = obj:query(property('DoTick'), 'boolor')
+	local speedProp = property('Speed')
+	local speedBonusProp = property('SpeedBonus')
+	local timeTickMsg = message('TIME_TICK')
+
 	if doTick and self._timeTravelers:size() > 0 then
 		-- rotate so that the front is now the back and front.right is front
 		self._timeTravelers:rotate_forward()
 
 		-- increase action points by the object's speed
 		local ap = self._actionPoints
-		local speed = obj:query(property('Speed'))
-		speed = speed + obj:query(property('SpeedBonus'))
+		local speed = obj:query(speedProp)
+		speed = speed + obj:query(speedBonusProp)
 
 		ap[obj] = ap[obj] + speed
 
@@ -87,7 +92,7 @@ function TimeSystem:tick()
 			until nil == nextCommand or self._actionPoints[obj] <= 0
 		end
 
-		obj:send(message('TIME_TICK'))
+		obj:send(timeTickMsg)
 	end
 end
 
