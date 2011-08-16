@@ -1,10 +1,10 @@
 {
-	"name": "Warrior",
+	"name": "FemaleArcher",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 11, "y": 1},
+				"right": {"x": 1, "y": 2},
 				},
 		},
 		"TimeComponent": {

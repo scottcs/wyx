@@ -1,10 +1,10 @@
 {
-	"name": "Warrior",
+	"name": "Mage",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 11, "y": 1},
+				"right": {"x": 5, "y": 1},
 				},
 		},
 		"TimeComponent": {

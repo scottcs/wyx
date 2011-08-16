@@ -1,10 +1,10 @@
 {
-	"name": "GoblinGrunt",
+	"name": "DeepDwarfMonk",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 1, "y": 6},
+				"right": {"x": 8, "y": 5},
 			},
 		},
 		"HealthComponent": {

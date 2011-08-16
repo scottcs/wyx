@@ -1,10 +1,10 @@
 {
-	"name": "Warrior",
+	"name": "Pirate",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 11, "y": 1},
+				"right": {"x": 12, "y": 1},
 				},
 		},
 		"TimeComponent": {
