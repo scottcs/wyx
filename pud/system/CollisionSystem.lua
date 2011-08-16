@@ -21,12 +21,15 @@ function CollisionSystem:destroy()
 end
 
 -- register an object
-function CollisionSystem:register(obj)
+function CollisionSystem:register(comp)
+	local obj = comp:getMediator()
+	assert(obj, 'Could not register component: %s', tostring(comp))
 	self._registered:push(obj)
 end
 
 -- unregister an object
-function CollisionSystem:unregister(obj)
+function CollisionSystem:unregister(comp)
+	local obj = comp:getMediator()
 	self._registered:pop(obj)
 end
 
