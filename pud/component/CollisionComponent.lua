@@ -56,6 +56,29 @@ function CollisionComponent:receive(msg, ...)
 	end
 end
 
+function CollisionComponent:getProperty(p, intermediate, ...)
+	if p == property('BlockedBy') then
+		local node = select(1, ...)
+		if node then
+			local mapType = node:getMapType()
+			local mt = match(tostring(mapType.__class), '^(%w+)MapType')
+			local v = mapType:getVariant()
+			local prop = self._properties[p]
+			local blocked = (prop[mt] and (v == prop[mt] or prop[mt] == 'ALL'))
+			return (blocked or intermediate)
+		else
+			return true
+		end
+	elseif p == property('CanMove') then
+		local prop = self._properties[p]
+		if nil == intermediate then return prop end
+		print(prop or intermediate)
+		return (prop or intermediate)
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
+end
+
 
 -- the class
 return CollisionComponent

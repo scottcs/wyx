@@ -94,6 +94,18 @@ function GraphicsComponent:receive(msg, ...)
 	end
 end
 
+function GraphicsComponent:getProperty(p, intermediate, ...)
+	local prop = self._properties[p]
+
+	if     p == property('TileSet') then
+		return prop
+	elseif p == property('TileCoords') then
+		return prop
+	else
+		return ViewComponent.getProperty(self, p, intermediate, ...)
+	end
+end
+
 function GraphicsComponent:setMediator(mediator)
 	ViewComponent.setMediator(self, mediator)
 end

@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local ComponentMediator = getClass 'pud.component.ComponentMediator'
 local property = require 'pud.component.property'
-local queryFunc = require 'pud.entity.queryFunc'
 
 local verify, verifyClass, isClass = verify, verifyClass, isClass
 local type, pairs, tostring = type, pairs, tostring
@@ -94,23 +93,14 @@ function Entity:removeComponent(component)
 	end
 end
 
--- query all components for a property, collect their responses, then feed the
--- responses to the given function and return the result. by default, the
--- 'sum' function is used.
-function Entity:query(prop, func)
-	if type(func) == 'string' then func = queryFunc[func] end
-	func = func or queryFunc.sum
-	
-	local values = {}
-	local numValues = 1
+-- query all components for a property, passing the intermediate result each
+-- time, to allow the component to modify the result as it sees fit.
+function Entity:query(prop, ...)
+	local result
 	for k in pairs(self._components) do
-		local v = self._components[k]:getProperty(prop)
-		if v ~= nil then
-			values[numValues] = v
-			numValues = numValues+1
-		end
+		result = self._components[k]:getProperty(prop, result, ...)
 	end
-	return numValues > 0 and func(values) or nil
+	return result
 end
 
 

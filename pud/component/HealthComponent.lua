@@ -33,9 +33,11 @@ function HealthComponent:_setProperty(prop, data)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		-- TODO: commented out because I'm giving strings right now, thinking I
-		-- can support lua code in the property
-		--verify('number', data)
+		if type(data) == 'string' then
+			verify('number', self:_evaluate(data))
+		else
+			verify('number', data)
+		end
 	else
 		error('HealthComponent does not support property: '..tostring(prop))
 	end
@@ -43,6 +45,27 @@ function HealthComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
+function HealthComponent:_evaluate(prop)
+	return 1
+end
+
+function HealthComponent:getProperty(p, intermediate, ...)
+	if   prop == property('Health')
+		or prop == property('MaxHealth')
+		or prop == property('HealthBonus')
+		or prop == property('MaxHealthBonus')
+	then
+		local prop = self._properties[p]
+		local doEval = type(prop) == 'string'
+
+		if doEval then prop = self:_evaluate(prop) end
+
+		if not intermediate then return prop end
+		return prop + intermediate
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
+end
 
 -- the class
 return HealthComponent

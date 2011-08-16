@@ -34,6 +34,7 @@ function CombatComponent:_setProperty(prop, data)
 		or prop == property('DefenseBonus')
 	then
 		if type(data) == 'string' then
+			verify('number', self:_evaluate(data))
 		else
 			verify('number', data)
 		end
@@ -42,6 +43,28 @@ function CombatComponent:_setProperty(prop, data)
 	end
 
 	ModelComponent._setProperty(self, prop, data)
+end
+
+function CombatComponent:_evaluate(prop)
+	return 1
+end
+
+function CombatComponent:getProperty(p, intermediate, ...)
+	if   prop == property('Attack')
+		or prop == property('Defense')
+		or prop == property('AttackBonus')
+		or prop == property('DefenseBonus')
+	then
+		local prop = self._properties[p]
+		local doEval = type(prop) == 'string'
+
+		if doEval then prop = self:_evaluate(prop) end
+
+		if not intermediate then return prop end
+		return prop + intermediate
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
 end
 
 

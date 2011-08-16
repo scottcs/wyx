@@ -58,7 +58,7 @@ function TimeComponent:exhaust()
 end
 
 function TimeComponent:shouldTick()
-	return self._mediator:query(property('DoTick'), 'boolor')
+	return self._mediator:query(property('DoTick'))
 end
 
 function TimeComponent:getTotalSpeed()
@@ -69,6 +69,16 @@ end
 
 function TimeComponent:onTick()
 	self._mediator:send(message('TIME_TICK'))
+end
+
+function TimeComponent:getProperty(p, intermediate, ...)
+	if p == property('DoTick') then
+		local prop = self._properties[p]
+		if nil == intermediate then return prop end
+		return (prop or intermediate)
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
 end
 
 

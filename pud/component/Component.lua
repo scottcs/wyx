@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
+local vector = require 'lib.hump.vector'
 
 -- Component
 --
@@ -88,7 +89,19 @@ function Component:receive(msg, ...) end
 
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
-function Component:getProperty(p) return self._properties[p] end
+function Component:getProperty(p, intermediate, ...)
+	local prop = self._properties[p]
+	if nil == prop then return intermediate end
+	if nil == intermediate then return prop end
+
+	if type(prop) == 'number' or vector.isvector(prop) then
+		return prop + intermediate
+	elseif type(prop) == 'boolean' then
+		return (prop and intermediate)
+	else
+		error('Please implement getProperty() for: '..tostring(self.__class))
+	end
+end
 
 
 -- the class

@@ -61,21 +61,7 @@ function CollisionSystem:check(obj, pos)
 
 	if not collision then
 		local node = self._level:getMapNode(pos)
-		local blocked = false
-		local mapType = node:getMapType()
-		local variant = mapType:getVariant()
-		local mt = match(tostring(mapType.__class), '^(%w+)MapType')
-		if mt then
-			blocked = obj:query(property('BlockedBy'), function(t)
-				for _,p in pairs(t) do
-					if p[mt] and (variant == p[mt] or p[mt] == 'ALL') then
-						return true
-					end
-				end
-				return false
-			end)
-		end
-		if blocked then
+		if obj:query(property('BlockedBy'), node) then
 			obj:send(message('COLLIDE_BLOCKED'), node)
 			collision = true
 		end
