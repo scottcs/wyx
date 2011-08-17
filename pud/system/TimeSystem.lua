@@ -69,8 +69,8 @@ end
 function TimeSystem:tick()
 	local comp = self._timeTravelers:front()
 
-	-- check for exhausted components and remove them
-	while comp and comp:isExhausted() do
+	-- check for exhausted or destroyed components and remove them
+	while comp and (not comp._properties or comp:isExhausted()) do
 		self._timeTravelers:pop_front()
 		self._actionPoints[comp] = nil
 		comp = self._timeTravelers:front()

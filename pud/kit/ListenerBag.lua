@@ -1,5 +1,7 @@
 local Class = require 'lib.hump.class'
 
+local pairs = pairs
+
 -- ListenerBag
 --
 local ListenerBag = Class{name='ListenerBag',
@@ -32,7 +34,12 @@ function ListenerBag:exists(obj) return self._queue[obj] ~= nil end
 -- example: for obj in queue:listeners() do obj:something() end
 function ListenerBag:listeners()
 	local l = {}
-	for obj in pairs(self._queue) do l[#l+1] = obj end
+	local n = 1
+	for obj in pairs(self._queue) do
+		l[n] = obj
+		n = n + 1
+	end
+
 	local i = 0
 	return function() i = i + 1; return l[i] end
 end

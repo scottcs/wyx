@@ -9,12 +9,12 @@ require 'random'
          --]]--
 
 --debug = nil
-doProfile = false
+doProfile = true
 local doGlobalProfile = doProfile and false
 
 --[[ Profiler Setup ]]--
 local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
-local useProfiler = 1
+local useProfiler = 3
 if doProfile and useProfiler >= 1 and useProfiler <= #profilers then
 	local prof = profilers[useProfiler]
 	if prof == 'pepperfish' then

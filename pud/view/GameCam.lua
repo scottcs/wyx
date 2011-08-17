@@ -130,7 +130,9 @@ end
 -- unfollow a target
 function GameCam:unfollowTarget()
 	if self._target then
-		self._target:detach(message('HAS_MOVED'), self)
+		if self._target:getID() then
+			self._target:detach(message('HAS_MOVED'), self)
+		end
 		self._target = nil
 		self._targetSize = nil
 	end

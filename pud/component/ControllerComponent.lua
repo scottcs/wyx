@@ -44,7 +44,7 @@ function ControllerComponent:_tryToManipulateMap(node)
 	local mapType = node:getMapType()
 
 	if mapType:isType(DoorMapType('shut')) then
-		if self._mediator:query(property('CanOpenDoors'), 'booland') then
+		if self._mediator:query(property('CanOpenDoors')) then
 			local command = OpenDoorCommand(self._mediator, node)
 			CommandEvents:push(CommandEvent(command))
 		end

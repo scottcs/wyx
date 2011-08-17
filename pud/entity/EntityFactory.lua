@@ -122,7 +122,7 @@ end
 
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
-	local entity = Entity(self._kind, entityName, self:_getComponents(info))
+	local entity = Entity(self._kind, info.name, self:_getComponents(info))
 	self:_addMissingRequiredComponents(entity)
 	entity:send(message('ENTITY_CREATED'))
 
