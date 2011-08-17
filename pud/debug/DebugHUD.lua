@@ -3,7 +3,7 @@ local Class = require 'lib.hump.class'
 local math_floor = math.floor
 local math_max = math.max
 local pairs, tostring, collectgarbage = pairs, tostring, collectgarbage
-local getMicroTime = love.timer.getMicroTime
+local getTime = love.timer.getTime
 local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local gprint = love.graphics.print
@@ -40,7 +40,7 @@ local DebugHUD = Class{name='DebugHUD',
 		local size = nearestPO2(math_max(WIDTH, HEIGHT))
 		self._fb = newFramebuffer(size, size)
 		self._info = {}
-		self._start = getMicroTime() + 0.2
+		self._start = getTime() + 0.2
 
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
@@ -152,7 +152,7 @@ end
 
 local _accum = {}
 function DebugHUD:_updateInfo(key, dt)
-	local time = getMicroTime()
+	local time = getTime()
 	if self._start > time then return end
 
 	_accum[key] = _accum[key] and _accum[key] + dt or dt
@@ -201,9 +201,12 @@ function DebugHUD:_updateInfo(key, dt)
 
 end
 
+local _lastTime = getTime()
 function DebugHUD:update(dt)
-	for k in pairs(self._info) do self:_updateInfo(k, dt) end
+	local realDT = getTime() - _lastTime
+	for k in pairs(self._info) do self:_updateInfo(k, realDT) end
 	self:_drawFB()
+	_lastTime = getTime()
 end
 
 function DebugHUD:_drawFB()
