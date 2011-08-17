@@ -184,7 +184,7 @@ function love.keypressed(key, unicode)
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:notify(KeyboardEvent(key, unicode, mods))
+		InputEvents:push(KeyboardEvent(key, unicode, mods))
 	end
 end
 
@@ -193,7 +193,7 @@ local MouseEvent = getClass 'pud.event.MouseEvent'
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
 	local btns = _getButtons()
-	InputEvents:notify(MouseEvent(x, y, button,
+	InputEvents:push(MouseEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))
