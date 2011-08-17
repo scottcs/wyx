@@ -32,6 +32,8 @@ local CommandEvent = getClass 'pud.event.CommandEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local MoveCommand = getClass 'pud.command.MoveCommand'
+local CommandEvents = CommandEvents
+local GameEvents = GameEvents
 
 -- views
 local TileMapView = getClass 'pud.view.TileMapView'

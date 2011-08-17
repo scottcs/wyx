@@ -5,6 +5,7 @@ local CommandEvent = getClass 'pud.event.CommandEvent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
+local CommandEvents = CommandEvents
 local table_sort = table.sort
 
 -- TimeSystem

@@ -29,6 +29,7 @@ local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
 local enumerate = love.filesystem.enumerate
+local GameEvents = GameEvents
 
 -- Level
 --

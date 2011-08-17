@@ -4,6 +4,7 @@ local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
+local GameEvents = GameEvents
 
 -- HealthComponent
 --

@@ -3,6 +3,8 @@ local Command = getClass 'pud.command.Command'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local property = require 'pud.component.property'
 
+local GameEvents = GameEvents
+
 -- Open Door - fires when a door is opened
 local OpenDoorCommand = Class{name='OpenDoorCommand',
 	inherits=Command,

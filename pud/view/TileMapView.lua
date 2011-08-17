@@ -20,6 +20,7 @@ local setmetatable, pairs, ipairs = setmetatable, pairs, ipairs
 local warning = warning
 local isClass, verifyClass, verify = isClass, verifyClass, verify
 
+local GameEvents = GameEvents
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
 local setRenderTarget = love.graphics.setRenderTarget

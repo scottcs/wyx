@@ -5,6 +5,7 @@ local message = require 'pud.component.message'
 local vector = require 'lib.hump.vector'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
+local GameEvents = GameEvents
 
 -- MotionComponent
 --

@@ -7,6 +7,8 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
+local CommandEvents = CommandEvents
+
 -- ControllerComponent
 --
 local ControllerComponent = Class{name='ControllerComponent',

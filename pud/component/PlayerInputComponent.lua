@@ -4,6 +4,8 @@ local InputComponent = getClass 'pud.component.InputComponent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 local property = require 'pud.component.property'
 
+local InputEvents = InputEvents
+
 -- PlayerInputComponent
 --
 local PlayerInputComponent = Class{name='PlayerInputComponent',
