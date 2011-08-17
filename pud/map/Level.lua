@@ -213,7 +213,7 @@ function Level:createEntities()
 	-- TODO: choose hero rather than hardcode Warrior
 	local hero = enumerate('entity/hero')
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	self._primeEntity = self._primeEntity or self._heroFactory:createEntity(heroName)
+	self._primeEntity = self._heroFactory:createEntity(heroName)
 	self._entities[#self._entities+1] = self._primeEntity
 	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
 end
@@ -221,10 +221,7 @@ end
 function Level:removeAllEntities()
 	local num = #self._entities
 	for i=1,num do
-		if self._entities[i] ~= self._primeEntity then
-			self._entities[i]:destroy()
-		end
-
+		self._entities[i]:destroy()
 		self._entities[i] = nil
 	end
 end
