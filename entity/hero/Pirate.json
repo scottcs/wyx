@@ -6,6 +6,7 @@
 			"TileCoords": {
 				"right": {"x": 12, "y": 1},
 				},
+			"Visibility": 4,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,
