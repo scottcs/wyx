@@ -220,6 +220,36 @@ local handlers = love.handlers
 local clear = love.graphics.clear
 local present = love.graphics.present
 
+-- determine how much time it takes to clean up garbage in a single frame
+local function getGarbageTime(timePerFrame)
+	collectgarbage('stop')
+	local preCount = collectgarbage('count')
+	local dummy
+	local time = timePerFrame
+
+	-- spend an entire frame creating tables
+	while time > 0 do
+		local start = getTime()
+		dummy = {Random:number()}
+		time = time - (getTime() - start)
+	end
+
+	time = 0
+	-- test the length of time it takes to clear the garbage
+	while time < timePerFrame and collectgarbage('count') > preCount do
+		local start = getTime()
+		collectgarbage('step', 0)
+		collectgarbage('stop')
+		time = time + (getTime() - start)
+	end
+
+	time = time * (timePerFrame/500) -- spread collection out over 500 frames
+
+	collectgarbage('restart')
+
+	return time
+end
+
 local function idle(maxTime)
 	local start = getTime()
 	local time = 0
@@ -235,8 +265,8 @@ function love.run()
 
 	local FPS = 60
 	local dt = 1/FPS
-	local idletime = dt * 0.00005
 	local time
+	local idletime = getGarbageTime(dt)
 
 	-- disable automatic garbage collector
 	collectgarbage('stop')

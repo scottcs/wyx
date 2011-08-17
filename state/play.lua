@@ -123,6 +123,7 @@ function st:_displayMessage(message, time)
 end
 
 function st:update(dt)
+	profiler.start()
 	TimeSystem:tick()
 
 	if self._level:needViewUpdate() then
@@ -133,6 +134,7 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
+	profiler.stop()
 end
 
 function st:draw()
