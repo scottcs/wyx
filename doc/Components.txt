@@ -1,0 +1,258 @@
+This file documents pud Components and properties, and their default values.
+
+Component Hierarchy
+===================
+|- ModelComponent
+ `|- CollisionComponent
+  |- CombatComponent
+  |- HealthComponent
+  |- MotionComponent
+  |- TimeComponent
+   `|- PlayerTimeComponent
+    |- AITimeComponent
+|- ViewComponent
+ `|- GraphicsComponent
+|- ControllerComponent
+ `|- InputComponent
+   `|- PlayerInputComponent
+    |- AIInputComponent
+
+
+Component Properties
+====================
+* ModelComponent
+    This is a parent to most data-oriented components. It does not have any
+    properties of its own. You won't normally specify this in an entity file.
+
+* ViewComponent
+    This is a parent to most drawing components. It does not have any
+    properties of its own. You won't normally specify this in an entity file.
+
+* ControllerComponent
+    This is a parent to most deterministic components. All child components of
+    this component share its properties.  You won't normally specify this in
+    an entity file.
+
+    "CanOpenDoors": false
+        If true, the entity can open doors. If false, the entity cannot.
+
+* CollisionComponent
+    This component decides whether the entity has collided with something when
+    it attempts to move (or teleport, or anything else that changes its
+    position).
+
+    "BlockedBy": {"Wall": "ALL", "Door": "shut"}
+        This is a list of MapNode types that will block this entity when it
+        tries to change position. Possible values are:
+            Wall:       - wall tiles
+                ALL         - all walls
+                normal      - normal (horizontal) walls
+                vertical    - vertical walls
+                worn        - worn (horizontal broken) walls
+                torch       - walls with torches
+            Floor:      - floor tiles
+                ALL         - all floors
+                normal      - normal floors
+                worn        - worn (broken) floors
+                interior    - interior floors
+                rug         - rug tiles
+            Door:       - door tiles
+                ALL         - all doors
+                open        - open doors
+                shut        - shut doors
+            Stair       - stair tiles
+                ALL         - all stairs
+                up          - up stairs
+                down        - down stairs
+            Trap        - trap tiles
+                ALL         - all traps
+                normal      - normal traps
+
+    "CanMove": true
+        If true, the entity is allowed to move. If false, it is not.
+
+* CombatComponent
+    This component determines the outcome of combat between entities.
+
+    "Attack": 1
+        The base attack value of the entity.
+
+    "Defense": 1
+        The base defense value of the entity.
+
+    "AttackBonus": 0
+        Bonus Attack value for the entity (will be added in most
+        calculations). This is generally not supplied on heros or enemies, but
+        might be found on items.
+
+    "DefenseBonus": 0
+        Bonus Defense value for the entity (see AttackBonus for notes).
+
+* GraphicsComponent
+    This component defines the visual representation of the entity (i.e. its
+    Tile).
+
+    "TileSet": "dungeon"
+        This property provides a string that describes a png filename in the
+        image/ directory. The default, "dungeon" is actually
+        "image/dungeon.png". You can provide your own png file, if you like
+        (though keep in mind that tilesets with many tiles in one image are
+        much more efficient than single tile files).
+
+        Say you make a whole new set of enemies, and call it killerfish.png.
+        Make sure the file exists as "pud/image/killerfish.png", and then you
+        can specify it here with "TileSet": "killerfish".
+
+    "TileSize": 32
+        The size of tiles within the TileSet. All tiles are square.
+
+    "TileCoords": {"right": {"x": 1, "y": 1}}
+        This property provides a list of frames for the entity, and
+        coordinates for each frame within the TileSet. Note that coordinates
+        start at 1, and are multiples of TileSize (in other words, the
+        x coordinate describes the number of tiles to count right from the
+        left side of the TileSet, and the y coordinate describes the number
+        tiles to count down from the top of the TileSet).
+
+        Notice that each coordinate pair is itself enclosed in curly braces.
+
+        Pud treats the following frame names as directional frames (for the
+        eight cardinal directions): "front", "back", "left", "right",
+        "frontleft", "frontright", "backleft", "backright". If any of the left
+        or right frames are missing, Pud will simply flip its counterpart (for
+        example, if "left" is missing, Pud will flip "right" to make left...
+        if "backright" is missing, Pud will flip "backleft" to make
+        "backright", etc).
+
+        Pud will also use the first frame it finds, if it cannot find a frame
+        for a particular direction. So if you only supply "front", for
+        example, Pud will use "front" for every direction.
+
+        An example of how to specify multiple frames:
+            "TileCoords": {
+                "left": {"x": 2, "y": 5},
+                "frontleft": {"x": 3, "y": 5},
+                "front": {"x": 4, "y": 5},
+            }
+
+    "Visibility": 6
+        This is the radius of visibility for the entity (i.e. how many tiles
+        away from its position can it see).
+
+* HealthComponent
+    This component defines health properties for the entity.
+
+    "Health": 1
+        The base current health value.
+
+    "MaxHealth": 1
+        The base maximum health value.
+
+    "HealthBonus": 0
+        Bonus Health value for the entity (see AttackBonus for notes).
+
+    "MaxHealthBonus": 0
+        Bonus Maximum Health value for the entity (see AttackBonus for notes).
+
+* InputComponent
+    This component handles input given to the entity. It is usually not
+    specified in an entity file, since its child components
+    (PlayerInputComponent, AIInputComponent) are more specific.  This
+    component has no properties of its own, but it accepts the same properties
+    as its parent components (namely, ControllerComponent).
+
+* PlayerInputComponent
+    This component monitors keyboard and mouse input and determines what the
+    entity should do based on this input. This component has no properties of
+    its own, but it accepts the same properties as its parent components
+    (namely, ControllerComponent).
+
+* AIInputComponent
+    This component uses various algorithms to determine what the entity should
+    be doing. This component has no properties of its own, but it accepts the
+    same properties as its parent components (namely, ControllerComponent).
+
+* MotionComponent
+    This component keeps track of the entity's position and provides the means
+    for it to move (as opposed to CollisionComponent, which just determines
+    whether or not the entity *can* move).
+
+    "Position": {"x": 1, "y": 1}
+        The map coordinates of the entity. Usually not provided in the entity
+        file, but rather determined by the game after map creation.
+
+* TimeComponent
+    This component determines how long each action taken by the entity takes.
+
+    "DefaultCost": 1
+        This is the default cost (in Action Points) of an action, which is
+        used if a more specific cost cannot be found.
+
+    "AttackCost": 1
+        How many Action Points it costs for this entity to make an attack.
+
+    "MoveCost": 1
+        How many Action Points it costs for this entity to move.
+
+    "Speed": 1
+        This is the number of Action Points the entity earns each turn.
+        Higher numbers mean the entity will have more Action Points to spend
+        on every turn, therefore making the entity accomplish more and appear
+        to be faster.
+
+    "SpeedBonus": 0
+        Bonus value for Speed (see AttackBonus for notes).
+
+    "IsExhausted": false
+        If true, the entity has become exhausted and will be removed from the
+        TimeSystem altogether (and will have no more turns). This is generally
+        not specified in the entity file.
+
+    "DoTick": true
+        If true, the entity will have its turn every time the TimeSystem
+        "ticks". If false, the TimeSystem will wait until this property is
+        true. This is mostly used to wait for human input, and is generally
+        not specified in the entity file.
+
+* PlayerTimeComponent
+    This component is a human player specific version of the TimeComponent. It
+    is usually not specified in the entity file, as the game determines
+    whether to use Player components at runtime. It accepts the same
+    properties as its parents (namely, TimeComponent).
+
+* AITimeComponent
+    This component is an Artificial Intelligence specific version of the
+    TimeComponent. It accepts the same properties as its parents (namely,
+    TimeComponent).
+
+
+Default Components
+==================
+These are the components that will be created for each kind of entity, whether
+you specify them in the entity file or not. (In other words, if
+MotionComponent is missing from an enemy entity, Pud will create a default
+MotionComponent for the entity.)
+
+Hero:
+    GraphicsComponent
+    HealthComponent
+    CombatComponent
+    CollisionComponent
+    MotionComponent
+    TimeComponent
+    InputComponent
+
+Enemy:
+    GraphicsComponent
+    HealthComponent
+    CombatComponent
+    CollisionComponent
+    MotionComponent
+    AITimeComponent
+    AIInputComponent
+
+Item:
+    MotionComponent
+    GraphicsComponent
+
+

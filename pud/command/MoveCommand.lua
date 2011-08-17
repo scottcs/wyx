@@ -28,7 +28,7 @@ function MoveCommand:execute(currAP)
 
 	CollisionSystem:check(self._target, newpos)
 
-	local canMove = self._target:query(property('CanMove'), 'booland')
+	local canMove = self._target:query(property('CanMove'))
 	if not canMove then return 0 end
 
 	self._target:send(message('SET_POSITION'), newpos, pos)

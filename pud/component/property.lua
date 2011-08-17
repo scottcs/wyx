@@ -4,15 +4,31 @@ local property = {}
 local isproperty = function(prop) return property[prop] ~= nil end
 
 -- get a valid property name
+local getcache = {}
 local get = function(prop)
-	assert(isproperty(prop), 'invalid component property: %s', prop)
-	return prop
+	local ret = getcache[prop]
+
+	if ret == nil then
+		assert(isproperty(prop), 'invalid component property: %s', prop)
+		ret = prop
+		getcache[prop] = ret
+	end
+
+	return ret
 end
 
 -- get a property's default value
+local defaultcache = setmetatable({}, {__mode = 'v'})
 local default = function(prop)
-	assert(isproperty(prop), 'invalid component property: %s', prop)
-	return property[prop]
+	local ret = defaultcache[prop]
+
+	if ret == nil then
+		assert(isproperty(prop), 'invalid component property: %s', prop)
+		ret = property[prop]
+		defaultcache[prop] = ret
+	end
+
+	return ret
 end
 
 -------------------------------------------------

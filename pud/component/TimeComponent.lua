@@ -19,7 +19,6 @@ local TimeComponent = Class{name='TimeComponent',
 			'DoTick',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'TIME_TICK'}
 	end
 }
 
@@ -48,6 +47,38 @@ function TimeComponent:_setProperty(prop, data)
 	end
 
 	ModelComponent._setProperty(self, prop, data)
+end
+
+function TimeComponent:isExhausted()
+	return self:getProperty(property('IsExhausted'))
+end
+
+function TimeComponent:exhaust()
+	self:_setProperty('IsExhausted', true)
+end
+
+function TimeComponent:shouldTick()
+	return self._mediator:query(property('DoTick'))
+end
+
+function TimeComponent:getTotalSpeed()
+	local speed = self._mediator:query(property('Speed'))
+	speed = speed + self._mediator:query(property('SpeedBonus'))
+	return speed
+end
+
+function TimeComponent:onTick()
+	self._mediator:send(message('TIME_TICK'))
+end
+
+function TimeComponent:getProperty(p, intermediate, ...)
+	if p == property('DoTick') then
+		local prop = self._properties[p]
+		if nil == intermediate then return prop end
+		return (prop or intermediate)
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
 end
 
 

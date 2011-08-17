@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
+local vector = require 'lib.hump.vector'
 
 -- Component
 --
@@ -57,8 +58,10 @@ function Component:getMediator() return self._mediator end
 -- attach all of this component's messages to its mediator
 function Component:attachMessages()
 	if self._attachMessages then
-		for _,msg in pairs(self._attachMessages) do
-			self._mediator:attach(message(msg), self)
+		local num = #self._attachMessages
+		for i=1,num do
+			local msg = message(self._attachMessages[i])
+			self._mediator:attach(msg, self)
 		end
 	end
 end
@@ -66,8 +69,10 @@ end
 -- detach all of this component's messages to its mediator
 function Component:detachMessages()
 	if self._attachMessages then
-		for _,msg in pairs(self._attachMessages) do
-			self._mediator:detach(message(msg), self)
+		local num = #self._attachMessages
+		for i=1,num do
+			local msg = message(self._attachMessages[i])
+			self._mediator:detach(msg, self)
 		end
 	end
 end
@@ -82,9 +87,26 @@ end
 -- precondition: msg is a valid component message
 function Component:receive(msg, ...) end
 
+-- evaluate a string property as if it were lua code
+function Component:_evaluate(prop, ...)
+	return 1
+end
+
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
-function Component:getProperty(p) return self._properties[p] end
+function Component:getProperty(p, intermediate, ...)
+	local prop = self._properties[p]
+	if nil == prop then return intermediate end
+	if nil == intermediate then return prop end
+
+	if type(prop) == 'number' or vector.isvector(prop) then
+		return prop + intermediate
+	elseif type(prop) == 'boolean' then
+		return (prop and intermediate)
+	else
+		error('Please implement getProperty() for: '..tostring(self.__class))
+	end
+end
 
 
 -- the class

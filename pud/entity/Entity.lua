@@ -1,6 +1,9 @@
 local Class = require 'lib.hump.class'
 local ComponentMediator = getClass 'pud.component.ComponentMediator'
+local property = require 'pud.component.property'
 
+local verify, verifyClass, isClass = verify, verifyClass, isClass
+local type, pairs, tostring = type, pairs, tostring
 
 -- Entity
 --
@@ -45,8 +48,12 @@ function Entity:getType() return self._type end
 -- class can be a parent component class or derived component class.
 function Entity:getComponentsByClass(class)
 	local components = {}
+	local count = 1
 	for _,comp in pairs(self._components) do
-		if isClass(class, comp) then components[#components+1] = comp end
+		if isClass(class, comp) then
+			components[count] = comp
+			count = count + 1
+		end
 	end
 	return #components > 0 and components or nil
 end
@@ -85,6 +92,17 @@ function Entity:removeComponent(component)
 		self._components[name] = nil
 	end
 end
+
+-- query all components for a property, passing the intermediate result each
+-- time, to allow the component to modify the result as it sees fit.
+function Entity:query(prop, ...)
+	local result
+	for k in pairs(self._components) do
+		result = self._components[k]:getProperty(prop, result, ...)
+	end
+	return result
+end
+
 
 
 -- the class

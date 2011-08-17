@@ -16,7 +16,7 @@ local EnemyFactory = Class{name='EnemyFactory',
 			getClass 'pud.component.CombatComponent',
 			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.MotionComponent',
-			--getClass 'pud.component.AIComponent',
+			--getClass 'pud.component.AIInputComponent',
 		}
 	end
 }

@@ -1,11 +1,12 @@
 {
-	"name": "Warrior",
+	"name": "FemaleArcher",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 11, "y": 1},
+				"right": {"x": 1, "y": 2},
 				},
+			"Visibility": 10,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,

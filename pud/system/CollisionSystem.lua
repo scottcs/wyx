@@ -21,12 +21,15 @@ function CollisionSystem:destroy()
 end
 
 -- register an object
-function CollisionSystem:register(obj)
+function CollisionSystem:register(comp)
+	local obj = comp:getMediator()
+	assert(obj, 'Could not register component: %s', tostring(comp))
 	self._registered:push(obj)
 end
 
 -- unregister an object
-function CollisionSystem:unregister(obj)
+function CollisionSystem:unregister(comp)
+	local obj = comp:getMediator()
 	self._registered:pop(obj)
 end
 
@@ -35,16 +38,21 @@ function CollisionSystem:check(obj, pos)
 	local collision = false
 	local oldpos = obj:query(property('Position'))
 	local entities = self._level:getEntitiesAtLocation(pos)
+	local collideEnemy = message('COLLIDE_ENEMY')
+	local collideHero = message('COLLIDE_HERO')
+
 
 	if entities then
-		for _,otherEntity in pairs(entities) do
+		local numEntities = #entities
+		for i=1,numEntities do
+			local otherEntity = entities[i]
 			if otherEntity ~= obj and self._registered:exists(otherEntity) then
 				local otherEntityType = otherEntity:getType()
 				if otherEntityType == 'enemy' then
-					obj:send(message('COLLIDE_ENEMY'), otherEntity)
+					obj:send(collideEnemy, otherEntity)
 					collision = true
 				elseif otherEntityType == 'hero' then
-					obj:sent(message('COLLIDE_HERO'), otherEntity)
+					obj:send(collideHero, otherEntity)
 					collision = true
 				end
 			end
@@ -53,21 +61,7 @@ function CollisionSystem:check(obj, pos)
 
 	if not collision then
 		local node = self._level:getMapNode(pos)
-		local blocked = false
-		local mapType = node:getMapType()
-		local variant = mapType:getVariant()
-		local mt = match(tostring(mapType.__class), '^(%w+)MapType')
-		if mt then
-			blocked = obj:query(property('BlockedBy'), function(t)
-				for _,p in pairs(t) do
-					if p[mt] and (variant == p[mt] or p[mt] == 'ALL') then
-						return true
-					end
-				end
-				return false
-			end)
-		end
-		if blocked then
+		if obj:query(property('BlockedBy'), node) then
 			obj:send(message('COLLIDE_BLOCKED'), node)
 			collision = true
 		end

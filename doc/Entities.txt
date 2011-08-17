@@ -1,0 +1,75 @@
+Entities are a generic term for Heros, Enemies, and Items in Pud. An entity is
+simply a collection of Components.
+
+A Component is just some behavior and associated properties, wrapped up in a
+re-usable container. See Components.txt for a list of currently available
+Components and their properties.
+
+To make a new entity, just create a new file in the appropriate directory, and
+the game will see it. The format for entity files is fairly straightforward;
+it's just the name of the entity and a list of the Components and properties
+that you wish to override (that is, if you do not provide a Component or
+property that the entity requires, a default will be supplied by Pud).
+
+All entity files are written in a text format called JSON (see www.json.org
+for info). This is a fairly simple format consisting of nested key-value
+pairs. If an entity file is not valid JSON, Pud will error.
+
+You do not have to specify all properties for a component. If required
+properties are missing, Pud will fill them in with defaults (see
+"Component Properties" in Components.txt for default values).
+
+Likewise, you do not have to specify all components. Any required components
+will be created with default values by Pud (see "Default Components" in
+Components.txt for a list).
+
+Here is an example of a very simple Enemy entity file,
+"pud/entity/enemy/goblin.json":
+
+{
+	"name": "Goblin",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {"x": 1, "y": 6},
+				"front": {"x": 2, "y": 6},
+			}
+		},
+		"CombatComponent": {
+			"Attack": 12,
+			"Defense": 14,
+		},
+		"AITimeComponent": {
+			"AttackCost": 1.5,
+			"Speed": 0.5,
+		},
+		"CollisionComponent": {
+			"BlockedBy": {
+				"Wall": "ALL",
+				"Door": "shut",
+				"Stair": "ALL",
+				"Trap": "ALL",
+			},
+		},
+	}
+}
+
+
+Here is an example of a very simple Item entity file,
+"pud/entity/item/broadsword.json":
+
+{
+	"name": "Broadsword",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"normal": {"x": 3, "y": 1},
+			}
+		},
+		"CombatComponent": {
+			"AttackBonus": 4,
+		},
+	}
+}
