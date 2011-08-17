@@ -12,7 +12,7 @@ Implement Components:
   d get entities created from data into Level
   d draw entities
   o need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth")
-	+ change Level representation of enemy to be by position in a table for faster lookup
+	o change Level representation of enemy to be by position in a table for faster lookup
   d remove association between TimeSystem (& CollisionSystem) and ComponentMediator
   d fix infinite loop when there are more entities than floor tiles
   - support lua in properties when read from file
