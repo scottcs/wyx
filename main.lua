@@ -33,6 +33,12 @@ if doProfile then
 	require 'profiler'
 	print('analyze profile with '
 		..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
+else
+	local dummy = function() end
+	profiler = {
+		start = dummy,
+		stop = dummy
+	}
 end
 
 
@@ -189,7 +195,9 @@ end
 
 local collectgarbage = collectgarbage
 local getTime = love.timer.getTime
+local getDelta = love.timer.getDelta
 local sleep = love.timer.sleep
+local step = love.timer.step
 local event = love.event
 local poll = love.event.poll
 local audio = love.audio
@@ -241,10 +249,10 @@ end
 function love.run()
 	if love.load then love.load(arg) end
 
-	local FPS = 60
-	local dt = 1/FPS
+	local dtTarget = 1/60  -- 60 Hz
+	local dt = 0
 	local time
-	local idletime = getGarbageTime(dt)
+	local idletime = getGarbageTime(dtTarget)
 
 	-- disable automatic garbage collector
 	collectgarbage('stop')
@@ -270,6 +278,9 @@ function love.run()
 			end
 		end
 
+		step()
+		dt = getDelta()
+
 		if love.update then love.update(dt) end
 
 		clear()
@@ -280,8 +291,10 @@ function love.run()
 		idle(idletime)
 
 		local timeWorked = getTime() - time
-		if timeWorked < dt then
-			sleep((dt-timeWorked) * 1000)
+		if timeWorked < dtTarget then
+			local sleepTime = (dtTarget-timeWorked) * 1000
+			sleepTime = sleepTime > 1 and 1 or sleepTime
+			if sleepTime > 0 then sleep(sleepTime) end
 		end
 	end
 end
