@@ -60,13 +60,11 @@ function GraphicsComponent:_setProperty(prop, data)
 		assert(self._tileset ~= nil, 'Invalid TileSet: %s', tostring(data))
 	elseif prop == property('TileCoords') then
 		verify('table', data)
-		local newData = {}
 		for k,v in pairs(data) do
-			assert(v.x and v.y, 'Invalid TileCoords: %s', tostring(v))
-			verify('number', v.x, v.y)
-			newData[k] = vector(v.x, v.y)
+			verify('string', k)
+			assert(#v == 2, 'Invalid TileCoords: %s', tostring(v))
+			verify('number', v[1], v[2])
 		end
-		data = newData
 	elseif prop == property('TileSize') then
 		verify('number', data)
 	elseif prop == property('Visibility') then
@@ -113,11 +111,10 @@ end
 function GraphicsComponent:_newQuad(frame, coords)
 	local tilesetW = self._tileset:getWidth()
 	local tilesetH = self._tileset:getHeight()
-	coords = coords:clone()
-	coords.x, coords.y = (coords.x-1)*self._size, (coords.y-1)*self._size
+	local x, y = (coords[1]-1)*self._size, (coords[2]-1)*self._size
 
 	self._frames[frame] = newQuad(
-		coords.x, coords.y,
+		x, y,
 		self._size, self._size,
 		tilesetW, tilesetH)
 end

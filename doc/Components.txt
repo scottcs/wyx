@@ -106,7 +106,7 @@ Component Properties
     "TileSize": 32
         The size of tiles within the TileSet. All tiles are square.
 
-    "TileCoords": {"right": {"x": 1, "y": 1}}
+    "TileCoords": {"front": {1, 1}}
         This property provides a list of frames for the entity, and
         coordinates for each frame within the TileSet. Note that coordinates
         start at 1, and are multiples of TileSize (in other words, the
@@ -130,9 +130,9 @@ Component Properties
 
         An example of how to specify multiple frames:
             "TileCoords": {
-                "left": {"x": 2, "y": 5},
-                "frontleft": {"x": 3, "y": 5},
-                "front": {"x": 4, "y": 5},
+                "left": {2, 5},
+                "frontleft": {3, 5},
+                "front": {4, 5},
             }
 
     "Visibility": 6
@@ -177,7 +177,7 @@ Component Properties
     for it to move (as opposed to CollisionComponent, which just determines
     whether or not the entity *can* move).
 
-    "Position": {"x": 1, "y": 1}
+    "Position": {1, 1}
         The map coordinates of the entity. Usually not provided in the entity
         file, but rather determined by the game after map creation.
 
