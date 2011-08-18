@@ -268,12 +268,13 @@ end
 
 function Level:EntityDeathEvent(e)
 	local entity = e:getEntity()
-	local reason = e:getReason()
+	local reason = e:getReason() or "unknown reason"
 
 	if entity == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
 	else
-		local msg = entity:getName()..' '..reason
+		local name = entity and entity:getName() or "unknown entity"
+		local msg = name..' '..reason
 		GameEvents:push(DisplayPopupMessageEvent(msg))
 		self:removeEntity(entity)
 	end
