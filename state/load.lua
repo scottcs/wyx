@@ -23,7 +23,7 @@ function st:init()
 			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		debug = love.graphics.newImageFont('font/lofi_verysmall.png',
+		verysmall = love.graphics.newImageFont('font/lofi_verysmall.png',
 			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),

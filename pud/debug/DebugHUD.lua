@@ -35,8 +35,8 @@ end
 --
 local DebugHUD = Class{name='DebugHUD',
 	function(self)
-		self._font = GameFont.debug
-		self._fontH = GameFont.debug:getHeight()
+		self._font = GameFont.verysmall
+		self._fontH = GameFont.verysmall:getHeight()
 		local size = nearestPO2(math_max(WIDTH, HEIGHT))
 		self._fb = newFramebuffer(size, size)
 		self._info = {}
