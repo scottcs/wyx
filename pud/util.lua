@@ -134,7 +134,14 @@ function verifyClass(class, ...)
 	return true
 end
 
-
+-------------------------
+-- 2d vector functions --
+-------------------------
+local sqrt = math.sqrt
+vec2 = {}
+function vec2.len2(x, y) return x*x + y*y end
+function vec2.len(x, y) return sqrt(vec2.len2(x, y)) end
+function vec2.equal(x1, y1, x2, y2) return x1 == x2 and y1 == y2 end
 
          --[[--
       LÖVE UTILITIES

@@ -161,15 +161,15 @@ function GraphicsComponent:_updateFB(new, old)
 		local newFrame
 
 		if old then
-			local v = new - old
+			local x, y = new[1]-old[1], new[2]-old[2]
 			local xstr, ystr
 
-			if     v.x > 0 then xstr = 'right'
-			elseif v.x < 0 then xstr = 'left'
+			if     x > 0 then xstr = 'right'
+			elseif x < 0 then xstr = 'left'
 			end
 
-			if     v.y > 0 then ystr = 'front'
-			elseif v.y < 0 then ystr = 'back'
+			if     y > 0 then ystr = 'front'
+			elseif y < 0 then ystr = 'back'
 			end
 
 			if xstr and ystr and self._frames[ystr..xstr] then
@@ -184,7 +184,7 @@ function GraphicsComponent:_updateFB(new, old)
 		self._curFrame = newFrame or self._curFrame
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
-		self._drawX, self._drawY = (new.x-1)*self._size, (new.y-1)*self._size
+		self._drawX, self._drawY = (new[1]-1)*self._size, (new[2]-1)*self._size
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
 		setRenderTarget(self._backfb)

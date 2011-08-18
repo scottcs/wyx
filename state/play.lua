@@ -22,14 +22,10 @@ local Level = getClass 'pud.map.Level'
 
 -- Camera
 local GameCam = getClass 'pud.view.GameCam'
-local vector = require 'lib.hump.vector'
 
 -- events
-local CommandEvent = getClass 'pud.event.CommandEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
-local MoveCommand = getClass 'pud.command.MoveCommand'
-local CommandEvents = CommandEvents
 local GameEvents = GameEvents
 
 -- views
@@ -55,13 +51,7 @@ function st:enter()
 		self:_createDebugHUD()
 		self._debug = true
 	end
-	CommandEvents:register(self, CommandEvent)
 	GameEvents:register(self, {ZoneTriggerEvent, DisplayPopupMessageEvent})
-end
-
-function st:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getPrimeEntity() then return end
 end
 
 function st:ZoneTriggerEvent(e)
@@ -91,14 +81,14 @@ function st:_createCamera()
 	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
 
 	if not self._cam then
-		self._cam = GameCam(vector(startX, startY), zoom)
+		self._cam = GameCam(startX, startY, zoom)
 	else
-		self._cam:setHome(vector(startX, startY))
+		self._cam:setHome(startX, startY)
 	end
 
-	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
-	local max = vector(mapTileW - min.x, mapTileH - min.y)
-	self._cam:setLimits(min, max)
+	local minX, minY = math_floor(tileW/2), math_floor(tileH/2)
+	local maxX, maxY = mapTileW - minX, mapTileH - minY
+	self._cam:setLimits(minX, minY, maxX, maxY)
 	self._cam:home()
 	self._cam:followTarget(self._level:getPrimeEntity())
 	self._view:setViewport(self._cam:getViewport())
@@ -123,7 +113,7 @@ function st:_displayMessage(message, time)
 end
 
 function st:update(dt)
-	profiler.start()
+	--profiler.start()
 	TimeSystem:tick()
 
 	if self._level:needViewUpdate() then
@@ -134,7 +124,7 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
-	profiler.stop()
+	--profiler.stop()
 end
 
 function st:draw()
@@ -150,7 +140,6 @@ function st:leave()
 	RenderSystem:destroy()
 	TimeSystem:destroy()
 	CollisionSystem:destroy()
-	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
 	self._keyDelay = nil
@@ -194,13 +183,13 @@ function st:keypressed(key, unicode)
 		pageup = function()
 			if not self._cam:isAnimating() then
 				self._view:setAnimate(false)
-				self._view:setViewport(self._cam:getViewport(nil, 1))
+				self._view:setViewport(self._cam:getViewport(1))
 				self._cam:zoomOut(self._view.setAnimate, self._view, true)
 			end
 		end,
 		pagedown = function()
 			if not self._cam:isAnimating() then
-				local vp = self._cam:getViewport(nil, -1)
+				local vp = self._cam:getViewport(-1)
 				self._cam:zoomIn(self._postZoomIn, self, vp)
 			end
 		end,

@@ -153,11 +153,11 @@ function Map:isInZone(point, zone)
 end
 
 -- get the zone name that the point is in (if any)
-function Map:getZonesFromPoint(point)
+function Map:getZonesFromPoint(x, y)
 	local zones = {}
 	local num = 0
 	for name,rect in pairs(self._zones) do
-		if rect:containsPoint(point) then
+		if rect:containsPoint(x, y) then
 			zones[name] = true
 			num = num + 1
 		end

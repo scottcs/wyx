@@ -7,38 +7,41 @@ local message = require 'pud.component.message'
 --
 local MoveCommand = Class{name='MoveCommand',
 	inherits=Command,
-	function(self, target, vector)
+	function(self, target, x, y)
 		verifyClass('pud.component.ComponentMediator', target)
-		verify('vector', vector)
+		verify('number', x, y)
 
 		Command.construct(self, target)
-		self._vector = vector
+		self._x = x
+		self._y = y
 	end
 }
 
 -- destructor
 function MoveCommand:destroy()
-	self._vector = nil
+	self._x = nil
+	self._y = nil
 	Command.destroy(self)
 end
 
 function MoveCommand:execute(currAP)
 	local pos = self._target:query(property('Position'))
-	local newpos = pos + self._vector
+	local newX, newY = pos[1] + self._x, pos[2] + self._y
 
-	CollisionSystem:check(self._target, newpos)
+	CollisionSystem:check(self._target, newX, newY)
 
 	local canMove = self._target:query(property('CanMove'))
 	if not canMove then return 0 end
 
-	self._target:send(message('SET_POSITION'), newpos, pos)
+	self._target:send(message('SET_POSITION'), {newX, newY}, pos)
 
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	return Command.execute(self)
 end
 
-function MoveCommand:getVector() return self._vector:clone() end
+function MoveCommand:getX() return self._x end
+function MoveCommand:getY() return self._y end
 
 -- the class
 return MoveCommand

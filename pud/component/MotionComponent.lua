@@ -29,9 +29,8 @@ function MotionComponent:_setProperty(prop, data)
 
 	if prop == property('Position') then
 		verify('table', data)
-		assert(data.x and data.y, 'Invalid Position: %s', tostring(data))
-		verify('number', data.x, data.y)
-		data = vector(data.x, data.y)
+		assert(#data == 2, 'Invalid Position: %s', tostring(data))
+		verify('number', data[1], data[2])
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end
@@ -42,7 +41,9 @@ end
 function MotionComponent:_move(pos, oldpos)
 	self:_setProperty(property('Position'), pos)
 	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
-	GameEvents:notify(EntityPositionEvent(self._mediator, pos, oldpos))
+	GameEvents:notify(
+		EntityPositionEvent(self._mediator, pos[1], pos[2], oldpos[1], oldpos[2])
+	)
 end
 
 function MotionComponent:receive(msg, ...)
