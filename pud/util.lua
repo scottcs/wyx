@@ -138,10 +138,14 @@ end
 -- 2d vector functions --
 -------------------------
 local sqrt = math.sqrt
+local format = string.format
 vec2 = {}
 function vec2.len2(x, y) return x*x + y*y end
 function vec2.len(x, y) return sqrt(vec2.len2(x, y)) end
 function vec2.equal(x1, y1, x2, y2) return x1 == x2 and y1 == y2 end
+function vec2.tostring(x, y) return format("(%d,%d)", x,y) end
+function vec2.tostringf(x, y) return format("(%.2f,%.2f)", x,y) end
+
 
          --[[--
       LÖVE UTILITIES

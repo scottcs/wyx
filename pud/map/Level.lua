@@ -137,9 +137,8 @@ function Level:_generateMap(builder)
 			for _,name in ipairs(self._map:getPortalNames()) do
 				if match(name, "^up%d") then ups[#ups+1] = name end
 			end
-			local v = self._map:getPortal(ups[Random(#ups)])
-			local pos = {v.x, v.y}
-			entity:send(setPosition, pos, pos)
+			local x, y = self._map:getPortal(ups[Random(#ups)])
+			entity:send(setPosition, x, y, x, y)
 			self:_bakeLights(true)
 		else
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
@@ -154,8 +153,7 @@ function Level:_generateMap(builder)
 				tries = tries - 1
 			until clear or tries == 0
 			if clear and tries > 0 then
-				local pos = {x, y}
-				entity:send(setPosition, pos, pos)
+				entity:send(setPosition, x, y, x, y)
 			else
 				remove[#remove+1] = entity
 			end

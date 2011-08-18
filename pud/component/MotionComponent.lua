@@ -23,12 +23,15 @@ function MotionComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
-function MotionComponent:_setProperty(prop, data)
+function MotionComponent:_setProperty(prop, data, ...)
 	prop = property(prop)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('Position') then
-		verify('table', data)
+		if type(data) == 'number' then
+			local x, y = data, select(1,...)
+			data = {x, y}
+		end
 		assert(#data == 2, 'Invalid Position: %s', tostring(data))
 		verify('number', data[1], data[2])
 	else
@@ -38,11 +41,11 @@ function MotionComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
-function MotionComponent:_move(pos, oldpos)
-	self:_setProperty(property('Position'), pos)
-	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
+function MotionComponent:_move(posX, posY, oldposX, oldposY)
+	self:_setProperty(property('Position'), posX, posY)
+	self._mediator:send(message('HAS_MOVED'), posX, posY, oldposX, oldposY)
 	GameEvents:notify(
-		EntityPositionEvent(self._mediator, pos[1], pos[2], oldpos[1], oldpos[2])
+		EntityPositionEvent(self._mediator, posX, posY, oldposX, oldposY)
 	)
 end
 

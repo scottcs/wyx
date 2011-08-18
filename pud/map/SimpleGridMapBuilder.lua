@@ -8,7 +8,6 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 local StairMapType = getClass 'pud.map.StairMapType'
 local TrapMapType = getClass 'pud.map.TrapMapType'
 local Rect = getClass 'pud.kit.Rect'
-local vector = require 'lib.hump.vector'
 
 local math_floor = math.floor
 
@@ -390,7 +389,7 @@ function SimpleGridMapBuilder:addPortals()
 		local node = self._map:getLocation(x, y)
 		if node:getMapType():is_a(FloorMapType) then
 			node:setMapType(StairMapType(direction))
-			self._map:setPortal(direction..tostring(num), vector(x, y))
+			self._map:setPortal(direction..tostring(num), x, y)
 			stairs = stairs - 1
 		end
 	end
@@ -398,7 +397,7 @@ end
 
 -- post process step
 -- a single step in the post process loop
-function SimpleGridMapBuilder:postProcessStep(node, point)
+function SimpleGridMapBuilder:postProcessStep(node, x, y)
 	local mapType = node:getMapType()
 	local variant = mapType:getVariant()
 

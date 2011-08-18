@@ -99,11 +99,11 @@ function GameCam:getZoom()
 end
 
 -- receive - receives messages from followed ComponentMediator
-function GameCam:receive(msg, pos)
+function GameCam:receive(msg, x, y)
 	if msg == message('HAS_MOVED') then
 		local size = self._targetSize
-		self._x = (pos[1]-1) * size + size/2
-		self._y = (pos[2]-1) * size + size/2
+		self._x = (x-1) * size + size/2
+		self._y = (y-1) * size + size/2
 		self._x, self._y = self:_correctPos(self._x, self._y)
 	end
 end
@@ -118,7 +118,8 @@ function GameCam:followTarget(t)
 	self._target = t
 
 	-- set the initial position
-	self:receive(message('HAS_MOVED'), t:query(property('Position')))
+	local pos = t:query(property('Position'))
+	self:receive(message('HAS_MOVED'), pos[1], pos[2])
 end
 
 -- unfollow a target

@@ -156,12 +156,12 @@ function GraphicsComponent:_makeQuads()
 	end
 end
 
-function GraphicsComponent:_updateFB(new, old)
+function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 	if self._mediator then
 		local newFrame
 
-		if old then
-			local x, y = new[1]-old[1], new[2]-old[2]
+		if oldX and oldY then
+			local x, y = newX-oldX, newY-oldY
 			local xstr, ystr
 
 			if     x > 0 then xstr = 'right'
@@ -184,7 +184,7 @@ function GraphicsComponent:_updateFB(new, old)
 		self._curFrame = newFrame or self._curFrame
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
-		self._drawX, self._drawY = (new[1]-1)*self._size, (new[2]-1)*self._size
+		self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
 		setRenderTarget(self._backfb)

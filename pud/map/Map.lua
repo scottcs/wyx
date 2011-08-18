@@ -90,29 +90,35 @@ function Map:getLocation(x, y)
 	return nil
 end
 
+local vec2_tostring = vec2.tostring
+
 -- add the given point, and the map and point it links to,
 -- to the list of portals
-function Map:setPortal(name, point, map, mappoint)
+function Map:setPortal(name, pointX, pointY, map, mapPointX, mapPointY)
 	verify('string', name)
-	verify('vector', point)
-	assert(self:containsPoint(point),
-		'portal point is not within map borders: %s', tostring(point))
+	verify('number', pointX, pointY)
+	assert(self:containsPoint(pointX, pointY),
+		'portal point is not within map borders: %s',
+		vec2_tostring(pointX, pointY))
 
 	local link
-	if nil ~= map and nil ~= mappoint then
-		verify('vector', mappoint)
+	if nil ~= map and nil ~= mapPointX and nil ~= mapPointY then
+		verify('number', mapPointX, mapPointY)
 		verifyClass(Map, map)
-		assert(map:containsPoint(mappoint),
-			'portal mappoint is not within its map borders: %s', tostring(mappoint))
+		assert(map:containsPoint(mapPointX, mapPointY),
+			'portal mappoint is not within its map borders: %s',
+			vec2_tostring(mapPointX, mapPointY))
 
 		link = {
 			map = map,
-			point = mappoint,
+			pointX = mapPointX,
+			pointY = mapPointY,
 		}
 	end
 
 	self._portals[name] = {
-		point = point,
+		pointX = pointX,
+		pointY = pointY,
 		link = link,
 	}
 end
@@ -121,7 +127,7 @@ end
 function Map:getPortal(name)
 	local portal = self._portals[name]
 	if portal then
-		return portal.point, portal.link
+		return portal.pointX, portal.pointY, portal.link
 	else
 		return nil
 	end
@@ -143,13 +149,13 @@ function Map:setZone(name, rect)
 end
 
 -- check if a point is within a zone
-function Map:isInZone(point, zone)
+function Map:isInZone(x, y, zone)
 	if not self._zones[name] then
 		warning('Zone not found: %s', tostring(zone))
 		return false
 	end
 
-	return self._zones[name]:containsPoint(point)
+	return self._zones[name]:containsPoint(x, y)
 end
 
 -- get the zone name that the point is in (if any)

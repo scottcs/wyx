@@ -33,7 +33,7 @@ function MoveCommand:execute(currAP)
 	local canMove = self._target:query(property('CanMove'))
 	if not canMove then return 0 end
 
-	self._target:send(message('SET_POSITION'), {newX, newY}, pos)
+	self._target:send(message('SET_POSITION'), newX, newY, pos[1], pos[2])
 
 	self._cost = self._target:query(property('MoveCost'))
 	self._cost = self._cost or self._target:query(property('DefaultCost'))
