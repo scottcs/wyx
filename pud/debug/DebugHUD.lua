@@ -3,7 +3,7 @@ local Class = require 'lib.hump.class'
 local math_floor = math.floor
 local math_max = math.max
 local pairs, tostring, collectgarbage = pairs, tostring, collectgarbage
-local getMicroTime = love.timer.getMicroTime
+local getTime = love.timer.getTime
 local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local gprint = love.graphics.print
@@ -21,26 +21,22 @@ local CLEAR_DELAY = 4
 local TARGET_FRAME_TIME_60 = 1/60
 local TARGET_FRAME_TIME_30 = 1/30
 
-local WARN1 = {1, 0.9, 0}
-local WARN2 = {1, 0, 0}
-local GOOD = {0, 1, 0}
-local NORMAL = {0.9, 0.9, 0.9}
-local BG = {0.1, 0.1, 0.9, 0.7}
-
-local function _getColor(t)
-	return {t[1], t[2], t[3], t[4]}
-end
+local WARN1 = colors.YELLOW
+local WARN2 = colors.RED
+local GOOD = colors.GREEN
+local NORMAL = colors.GREY90
+local BG = {255*0.1, 255*0.1, 255*0.9, 255*0.7}
 
 -- DebugHUD
 --
 local DebugHUD = Class{name='DebugHUD',
 	function(self)
-		self._font = GameFont.debug
-		self._fontH = GameFont.debug:getHeight()
+		self._font = GameFont.verysmall
+		self._fontH = GameFont.verysmall:getHeight()
 		local size = nearestPO2(math_max(WIDTH, HEIGHT))
 		self._fb = newFramebuffer(size, size)
 		self._info = {}
-		self._start = getMicroTime() + 0.2
+		self._start = getTime() + 0.2
 
 		self:_set('mem', {
 			gridX = 1, gridY = 2,
@@ -152,7 +148,7 @@ end
 
 local _accum = {}
 function DebugHUD:_updateInfo(key, dt)
-	local time = getMicroTime()
+	local time = getTime()
 	if self._start > time then return end
 
 	_accum[key] = _accum[key] and _accum[key] + dt or dt
@@ -201,9 +197,12 @@ function DebugHUD:_updateInfo(key, dt)
 
 end
 
+local _lastTime = getTime()
 function DebugHUD:update(dt)
-	for k in pairs(self._info) do self:_updateInfo(k, dt) end
+	local realDT = getTime() - _lastTime
+	for k in pairs(self._info) do self:_updateInfo(k, realDT) end
 	self:_drawFB()
+	_lastTime = getTime()
 end
 
 function DebugHUD:_drawFB()
@@ -251,7 +250,7 @@ function DebugHUD:_drawFB()
 end
 
 function DebugHUD:draw()
-	setColor(1, 1, 1)
+	setColor(colors.WHITE)
 	draw(self._fb)
 end
 

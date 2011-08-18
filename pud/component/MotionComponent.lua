@@ -2,9 +2,9 @@ local Class = require 'lib.hump.class'
 local ModelComponent = getClass 'pud.component.ModelComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
-local vector = require 'lib.hump.vector'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 
+local GameEvents = GameEvents
 
 -- MotionComponent
 --
@@ -22,15 +22,17 @@ function MotionComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
-function MotionComponent:_setProperty(prop, data)
+function MotionComponent:_setProperty(prop, data, ...)
 	prop = property(prop)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('Position') then
-		verify('table', data)
-		assert(data.x and data.y, 'Invalid Position: %s', tostring(data))
-		verify('number', data.x, data.y)
-		data = vector(data.x, data.y)
+		if type(data) == 'number' then
+			local x, y = data, select(1,...)
+			data = {x, y}
+		end
+		assert(#data == 2, 'Invalid Position: %s', tostring(data))
+		verify('number', data[1], data[2])
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end
@@ -38,10 +40,12 @@ function MotionComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
-function MotionComponent:_move(pos, oldpos)
-	self:_setProperty(property('Position'), pos)
-	self._mediator:send(message('HAS_MOVED'), pos, oldpos)
-	GameEvents:notify(EntityPositionEvent(self._mediator, pos, oldpos))
+function MotionComponent:_move(posX, posY, oldposX, oldposY)
+	self:_setProperty(property('Position'), posX, posY)
+	self._mediator:send(message('HAS_MOVED'), posX, posY, oldposX, oldposY)
+	GameEvents:notify(
+		EntityPositionEvent(self._mediator, posX, posY, oldposX, oldposY)
+	)
 end
 
 function MotionComponent:receive(msg, ...)

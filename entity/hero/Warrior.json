@@ -4,7 +4,7 @@
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 11, "y": 1},
+				"right": {11, 1},
 				},
 		},
 		"TimeComponent": {

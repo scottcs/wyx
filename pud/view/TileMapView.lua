@@ -20,6 +20,7 @@ local setmetatable, pairs, ipairs = setmetatable, pairs, ipairs
 local warning = warning
 local isClass, verifyClass, verify = isClass, verifyClass, verify
 
+local GameEvents = GameEvents
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
 local setRenderTarget = love.graphics.setRenderTarget
@@ -68,6 +69,7 @@ local TileMapView = Class{name='TileMapView',
 		self._tiles = {}
 		self._animatedTiles = {}
 		self._drawTiles = {}
+		self._animatedDrawTiles = {}
 		self._doAnimate = true
 
 		self._animTick = 0.25
@@ -114,6 +116,11 @@ function TileMapView:destroy()
 	end
 	self._drawTiles = nil
 
+	for i in ipairs(self._animatedDrawTiles) do
+		self._animatedDrawTiles[i] = nil
+	end
+	self._animatedDrawTiles = nil
+
 	if self._mapViewport then self._mapViewport:destroy() end
 	self._mapViewport = nil
 
@@ -127,34 +134,40 @@ function TileMapView:setViewport(rect)
 
 	if self._mapViewport then self._mapViewport:destroy() end
 
-	local tl, br = rect:getBBoxVectors()
+	local x1,y1, x2,y2 = rect:getBBox()
 	local mapW, mapH = self._level:getMapSize()
 
-	tl.x = math_max(1, math_floor(tl.x/self._tileW)-2)
-	tl.y = math_max(1, math_floor(tl.y/self._tileH)-2)
-	br.x = math_min(mapW, math_floor(br.x/self._tileW)+2)
-	br.y = math_min(mapH, math_floor(br.y/self._tileH)+2)
+	x1 = math_max(1, math_floor(x1/self._tileW)-2)
+	y1 = math_max(1, math_floor(y1/self._tileH)-2)
+	x2 = math_min(mapW, math_floor(x2/self._tileW)+2)
+	y2 = math_min(mapH, math_floor(y2/self._tileH)+2)
 
-	self._mapViewport = Rect(tl, br-tl)
+	self._mapViewport = Rect(x1, y1, x2-x1, y2-y1)
 
 	local num = #self._drawTiles
 	for i=1,num do self._drawTiles[i] = nil end
+	local num = #self._animatedDrawTiles
+	for i=1,num do self._animatedDrawTiles[i] = nil end
 
 	num = #self._tiles
+	local count = 1
 	for i=1,num do
 		local t = self._tiles[i]
 		local color = self:_shouldDraw(t)
 		if nil ~= color then
-			self._drawTiles[#self._drawTiles+1] = {tile=t, color=color}
+			self._drawTiles[count] = {tile=t, color=color}
+			count = count + 1
 		end
 	end
 
 	num = #self._animatedTiles
+	count = 1
 	for i=1,num do
 		local t = self._animatedTiles[i]
 		local color = self:_shouldDraw(t)
 		if nil ~= color then
-			self._drawTiles[#self._drawTiles+1] = {tile=t, color=color}
+			self._animatedDrawTiles[count] = {tile=t, color=color}
+			count = count + 1
 		end
 	end
 
@@ -173,33 +186,6 @@ end
 
 function TileMapView:isAnimate() return self._doAnimate == true end
 
--- update the animated tiles
-function TileMapView:update(dt)
-	local updated = 0
-	updated = updated + self:_updateTiles(dt)
-	updated = updated + self:_updateAnimatedTiles(dt)
-	if updated > 0 then self:_drawFB() end
-end
-
-function TileMapView:_updateAnimatedTiles(dt)
-	self._dt = self._dt + dt
-	local updated = 0
-
-	if self._doAnimate and self._dt > self._animTick then
-		self._dt = self._dt - self._animTick
-		local numTiles = #self._drawTiles
-		for i=1,numTiles do
-			local t = self._drawTiles[i]
-			if isClass(AnimatedTile, t.tile) then
-				t.tile:update()
-				updated = updated + 1
-			end
-		end
-	end
-
-	return updated
-end
-
 local _floorCache = setmetatable({}, {__mode='v'})
 function TileMapView:getFloorQuad()
 	local floorquad = _floorCache[self._floorStyle]
@@ -214,6 +200,31 @@ function TileMapView:getFloorQuad()
 	return floorquad
 end
 
+-- update the animated tiles
+function TileMapView:update(dt)
+	local updated = 0
+	updated = updated + self:_updateTiles(dt)
+	updated = updated + self:_updateAnimatedTiles(dt)
+	if updated > 0 then self:_drawFB() end
+end
+
+function TileMapView:_updateAnimatedTiles(dt)
+	self._dt = self._dt + dt
+	local updated = 0
+
+	if self._doAnimate and self._dt > self._animTick then
+		self._dt = self._dt - self._animTick
+		local numTiles = #self._animatedDrawTiles
+		for i=1,numTiles do
+			local t = self._animatedDrawTiles[i]
+			t.tile:update()
+			updated = updated + 1
+		end
+	end
+
+	return updated
+end
+
 function TileMapView:_updateTiles(dt)
 	local floorquad = self:getFloorQuad()
 	local updated = 0
@@ -221,18 +232,16 @@ function TileMapView:_updateTiles(dt)
 	local numTiles = #self._drawTiles
 	for i=1,numTiles do
 		local t = self._drawTiles[i]
-		if isClass(TileMapNodeView, t.tile) then
-			local key = t.tile:getKey()
-			t.tile:update()
-			if key ~= t.tile:getKey() then
-				local node = t.tile:getNode()
-				local quad = self:_getQuad(node)
-				if quad then
-					local bgquad
-					if self:_shouldDrawFloor(node) then bgquad = floorquad end
-					t.tile:setTile(self._set, quad, bgquad)
-					updated = updated + 1
-				end
+		local key = t.tile:getKey()
+		t.tile:update()
+		if key ~= t.tile:getKey() then
+			local node = t.tile:getNode()
+			local quad = self:_getQuad(node)
+			if quad then
+				local bgquad
+				if self:_shouldDrawFloor(node) then bgquad = floorquad end
+				t.tile:setTile(self._set, quad, bgquad)
+				updated = updated + 1
 			end
 		end
 	end
@@ -416,13 +425,10 @@ function TileMapView:_shouldDrawFloor(node)
 end
 
 function TileMapView:_shouldDraw(tile)
-	local pos = tile:getPositionVector()
-	if self._mapViewport:containsPoint(pos)
-		and self._level:isPointInMap(pos)
-	then
-		return self._level:getLightingColor(pos)
-	end
-	return nil
+	local x, y = tile:getPosition()
+	if not self._mapViewport:containsPoint(x, y) then return nil end
+	if not self._level:isPointInMap(x, y) then return nil end
+	return self._level:getLightingColor(x, y)
 end
 
 -- draw to the framebuffer
@@ -433,6 +439,13 @@ function TileMapView:_drawFB()
 		local numTiles = #self._drawTiles
 		for i=1,numTiles do
 			local t = self._drawTiles[i]
+			setColor(t.color)
+			t.tile:draw()
+		end
+		
+		local numTiles = #self._animatedDrawTiles
+		for i=1,numTiles do
+			local t = self._animatedDrawTiles[i]
 			setColor(t.color)
 			t.tile:draw()
 		end
@@ -447,7 +460,7 @@ end
 -- draw the framebuffer to the screen
 function TileMapView:draw()
 	if self._frontfb then
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		draw(self._frontfb)
 	end
 end

@@ -70,7 +70,7 @@ function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
 	if self._numFrames > 0 and self._fb[frame] and tileset then
 		self._isDrawing = true
 		setRenderTarget(self._fb[frame])
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		if bgquad then drawq(tileset, bgquad, 0, 0) end
 		drawq(tileset, quad, 0, 0)
 		setRenderTarget()

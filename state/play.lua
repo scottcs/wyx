@@ -11,37 +11,25 @@ local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
 local MessageHUD = getClass 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
-local collectgarbage = collectgarbage
-local getMicroTime = love.timer.getMicroTime
 
 -- systems
 local RenderSystemClass = getClass 'pud.system.RenderSystem'
 local TimeSystemClass = getClass 'pud.system.TimeSystem'
 local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
-local TICK = 0.01
 
 -- level
 local Level = getClass 'pud.map.Level'
 
 -- Camera
 local GameCam = getClass 'pud.view.GameCam'
-local vector = require 'lib.hump.vector'
 
 -- events
-local CommandEvent = getClass 'pud.event.CommandEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
-local MoveCommand = getClass 'pud.command.MoveCommand'
+local GameEvents = GameEvents
 
 -- views
 local TileMapView = getClass 'pud.view.TileMapView'
-
--- memory and framerate management constants
-local TARGET_FRAME_TIME_60 = 1/60
-local TARGET_FRAME_TIME_30 = 1/30
-local IDLE_TIME = TARGET_FRAME_TIME_60 * 0.99
-local COLLECT_THRESHOLD = 10000000/1024 -- 10 megs
-local _lastCollect
 
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
@@ -63,18 +51,7 @@ function st:enter()
 		self:_createDebugHUD()
 		self._debug = true
 	end
-	CommandEvents:register(self, CommandEvent)
 	GameEvents:register(self, {ZoneTriggerEvent, DisplayPopupMessageEvent})
-
-	-- turn off garbage collector... we'll collect manually when we have spare
-	-- time (in update())
-	_lastCollect = collectgarbage('count')
-	collectgarbage('stop')
-end
-
-function st:CommandEvent(e)
-	local command = e:getCommand()
-	if command:getTarget() ~= self._level:getPrimeEntity() then return end
 end
 
 function st:ZoneTriggerEvent(e)
@@ -104,14 +81,14 @@ function st:_createCamera()
 	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
 
 	if not self._cam then
-		self._cam = GameCam(vector(startX, startY), zoom)
+		self._cam = GameCam(startX, startY, zoom)
 	else
-		self._cam:setHome(vector(startX, startY))
+		self._cam:setHome(startX, startY)
 	end
 
-	local min = vector(math_floor(tileW/2), math_floor(tileH/2))
-	local max = vector(mapTileW - min.x, mapTileH - min.y)
-	self._cam:setLimits(min, max)
+	local minX, minY = math_floor(tileW/2), math_floor(tileH/2)
+	local maxX, maxY = mapTileW - minX, mapTileH - minY
+	self._cam:setLimits(minX, minY, maxX, maxY)
 	self._cam:home()
 	self._cam:followTarget(self._level:getPrimeEntity())
 	self._view:setViewport(self._cam:getViewport())
@@ -135,28 +112,8 @@ function st:_displayMessage(message, time)
 	end, self)
 end
 
--- idle function, called when there are spare cycles
-function st:idle(start)
-	local cycles = 0
-	local time_left = getMicroTime() - start
-	while time_left < IDLE_TIME do
-		cycles = cycles + 1
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-		time_left = getMicroTime() - start
-	end
-	return cycles
-end
-
-local _accum = 0
 function st:update(dt)
-	local start = getMicroTime() - dt
-
-	_accum = _accum + dt
-	if _accum > TICK then
-		_accum = _accum - TICK
-		TimeSystem:tick()
-	end
+	TimeSystem:tick()
 
 	if self._level:needViewUpdate() then
 		self._view:setViewport(self._cam:getViewport())
@@ -166,19 +123,6 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
-
-	local cycles = self:idle(start)
-
-	-- if we're on a slow machine that doesn't get much idle time, then
-	-- collect garbage every COLLECT_THRESHOLD megs
-	if cycles == 0 then
-		local count = collectgarbage('count')
-		if _lastCollect - count > COLLECT_THRESHOLD then
-			collectgarbage('collect')
-			collectgarbage('stop')
-			_lastCollect = collectgarbage('count')
-		end
-	end
 end
 
 function st:draw()
@@ -191,11 +135,9 @@ function st:draw()
 end
 
 function st:leave()
-	collectgarbage('restart')
 	RenderSystem:destroy()
 	TimeSystem:destroy()
 	CollisionSystem:destroy()
-	CommandEvents:unregisterAll(self)
 	GameEvents:unregisterAll(self)
 	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
 	self._keyDelay = nil
@@ -239,13 +181,13 @@ function st:keypressed(key, unicode)
 		pageup = function()
 			if not self._cam:isAnimating() then
 				self._view:setAnimate(false)
-				self._view:setViewport(self._cam:getViewport(nil, 1))
+				self._view:setViewport(self._cam:getViewport(1))
 				self._cam:zoomOut(self._view.setAnimate, self._view, true)
 			end
 		end,
 		pagedown = function()
 			if not self._cam:isAnimating() then
-				local vp = self._cam:getViewport(nil, -1)
+				local vp = self._cam:getViewport(-1)
 				self._cam:zoomIn(self._postZoomIn, self, vp)
 			end
 		end,

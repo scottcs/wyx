@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local MapNode = getClass 'pud.map.MapNode'
 local Rect = getClass 'pud.kit.Rect'
-local vector = require 'lib.hump.vector'
 
 local table_concat = table.concat
 local math_floor = math.floor
@@ -61,58 +60,60 @@ function Map:setAuthor(author) self._author = author end
 
 -- set the given map location to the given map node
 function Map:setLocation(x, y, node)
-	local pos = vector.isvector(x) and x or vector(x, y)
-	assert(pos.x >= 1 and pos.x <= self:getWidth(),
-		'setLocation x is out of range')
-	assert(pos.y >= 1 and pos.y <= self:getHeight(),
-		'setLocation y is out of range')
+	assert(x >= 1 and x <= self:getWidth(), 'setLocation x is out of range')
+	assert(y >= 1 and y <= self:getHeight(), 'setLocation y is out of range')
 	verifyClass(MapNode, node)
 
 	-- destroy the old node
-	if self._layout[pos.y] and self._layout[pos.y][pos.x] then
-		self._layout[pos.y][pos.x]:destroy()
+	if self._layout[y] and self._layout[y][x] then
+		self._layout[y][x]:destroy()
 	end
 
 	-- assign the new node
-	self._layout[pos.y] = self._layout[pos.y] or {}
-	self._layout[pos.y][pos.x] = node
+	self._layout[y] = self._layout[y] or {}
+	self._layout[y][x] = node
 end
 
 -- retrieve the map node of a given location
 function Map:getLocation(x, y)
-	local pos = vector.isvector(x) and x or vector(x, y)
-	if pos.x >= 1 and pos.x <= self:getWidth()
-		and pos.y >= 1 and pos.y <= self:getHeight()
-		and self._layout[pos.y] and self._layout[pos.y][pos.x]
+	if x >= 1 and x <= self:getWidth()
+		and y >= 1 and y <= self:getHeight()
+		and self._layout[y] and self._layout[y][x]
 	then
-		return self._layout[pos.y][pos.x]
+		return self._layout[y][x]
 	end
 	return nil
 end
 
+local vec2_tostring = vec2.tostring
+
 -- add the given point, and the map and point it links to,
 -- to the list of portals
-function Map:setPortal(name, point, map, mappoint)
+function Map:setPortal(name, pointX, pointY, map, mapPointX, mapPointY)
 	verify('string', name)
-	verify('vector', point)
-	assert(self:containsPoint(point),
-		'portal point is not within map borders: %s', tostring(point))
+	verify('number', pointX, pointY)
+	assert(self:containsPoint(pointX, pointY),
+		'portal point is not within map borders: %s',
+		vec2_tostring(pointX, pointY))
 
 	local link
-	if nil ~= map and nil ~= mappoint then
-		verify('vector', mappoint)
+	if nil ~= map and nil ~= mapPointX and nil ~= mapPointY then
+		verify('number', mapPointX, mapPointY)
 		verifyClass(Map, map)
-		assert(map:containsPoint(mappoint),
-			'portal mappoint is not within its map borders: %s', tostring(mappoint))
+		assert(map:containsPoint(mapPointX, mapPointY),
+			'portal mappoint is not within its map borders: %s',
+			vec2_tostring(mapPointX, mapPointY))
 
 		link = {
 			map = map,
-			point = mappoint,
+			pointX = mapPointX,
+			pointY = mapPointY,
 		}
 	end
 
 	self._portals[name] = {
-		point = point,
+		pointX = pointX,
+		pointY = pointY,
 		link = link,
 	}
 end
@@ -121,7 +122,7 @@ end
 function Map:getPortal(name)
 	local portal = self._portals[name]
 	if portal then
-		return portal.point, portal.link
+		return portal.pointX, portal.pointY, portal.link
 	else
 		return nil
 	end
@@ -143,21 +144,21 @@ function Map:setZone(name, rect)
 end
 
 -- check if a point is within a zone
-function Map:isInZone(point, zone)
+function Map:isInZone(x, y, zone)
 	if not self._zones[name] then
 		warning('Zone not found: %s', tostring(zone))
 		return false
 	end
 
-	return self._zones[name]:containsPoint(point)
+	return self._zones[name]:containsPoint(x, y)
 end
 
 -- get the zone name that the point is in (if any)
-function Map:getZonesFromPoint(point)
+function Map:getZonesFromPoint(x, y)
 	local zones = {}
 	local num = 0
 	for name,rect in pairs(self._zones) do
-		if rect:containsPoint(point) then
+		if rect:containsPoint(x, y) then
 			zones[name] = true
 			num = num + 1
 		end

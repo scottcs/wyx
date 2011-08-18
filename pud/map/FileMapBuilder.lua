@@ -8,7 +8,8 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 local StairMapType = getClass 'pud.map.StairMapType'
 local TrapMapType = getClass 'pud.map.TrapMapType'
 local MapNode = getClass 'pud.map.MapNode'
-local vector = require 'lib.hump.vector'
+
+local unpack = unpack
 
 -- FileMapBuilder
 local FileMapBuilder = Class{name='FileMapBuilder',
@@ -173,12 +174,13 @@ function FileMapBuilder:addFeatures()
 		if type(points) ~= 'table' and #points ~= 4 then
 			warning('Invalid zone data for %s', name)
 		else
-			local tl,br = vector(points[1], points[2]),vector(points[3], points[4])
-			if not (self._map:containsPoint(tl) and self._map:containsPoint(br))
+			local x1, y1, x2, y2 = unpack(points)
+			if not (self._map:containsPoint(x1, y1)
+				and self._map:containsPoint(x2, y2))
 			then
 				warning('Zone boundaries for %s extend beyond map boundaries.', name)
 			else
-				self._map:setZone(name, Rect(tl, br - tl))
+				self._map:setZone(name, Rect(x1, y1, x2-x1, y2-y1))
 			end
 		end
 	end
@@ -186,7 +188,7 @@ end
 
 -- post process step
 -- a single step in the post process loop
-function FileMapBuilder:postProcessStep(node, point)
+function FileMapBuilder:postProcessStep(node, x, y)
 	local mapType = node:getMapType()
 
 	if isClass(StairMapType, mapType) then
@@ -194,7 +196,7 @@ function FileMapBuilder:postProcessStep(node, point)
 		self._stairs = self._stairs or {}
 		self._stairs[variant] =
 		self._stairs[variant] and self._stairs[variant]+1 or 1
-		self._map:setPortal(variant..tostring(self._stairs[variant]), point)
+		self._map:setPortal(variant..tostring(self._stairs[variant]), x, y)
 	end
 
 	if self._mapdata.handleDetail then

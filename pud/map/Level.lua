@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local vector = require 'lib.hump.vector'
 
 -- map classes
 local Map = getClass 'pud.map.Map'
@@ -29,6 +28,7 @@ local math_floor = math.floor
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
 local enumerate = love.filesystem.enumerate
+local GameEvents = GameEvents
 
 -- Level
 --
@@ -40,9 +40,9 @@ local Level = Class{name='Level',
 
 		-- lighting color value table
 		self._lightColor = {
-			black = {0,0,0},
-			dim = {0.4, 0.4, 0.4},
-			lit = {1,1,1},
+			black = colors.BLACK,
+			dim = colors.GREY40,
+			lit = colors.WHITE,
 		}
 		self._lightmap = {}
 		self._entities = {}
@@ -78,10 +78,12 @@ function Level:destroy()
 	self._lightmap = nil
 end
 
-function Level:_triggerZones(entity, pos, oldpos)
-	if pos ~= oldpos then
-		local zonesFrom = self._map:getZonesFromPoint(oldpos)
-		local zonesTo = self._map:getZonesFromPoint(pos)
+local vec2_equal = vec2.equal
+
+function Level:_triggerZones(entity, posX, posY, oldposX, oldposY)
+	if not vec2_equal(posX, posY, oldposX, oldposY) then
+		local zonesFrom = self._map:getZonesFromPoint(oldposX, oldposY)
+		local zonesTo = self._map:getZonesFromPoint(posX, posY)
 
 		if zonesFrom then
 			for zone in pairs(zonesFrom) do
@@ -135,23 +137,23 @@ function Level:_generateMap(builder)
 			for _,name in ipairs(self._map:getPortalNames()) do
 				if match(name, "^up%d") then ups[#ups+1] = name end
 			end
-			local pos = self._map:getPortal(ups[Random(#ups)])
-			entity:send(setPosition, pos, pos)
+			local x, y = self._map:getPortal(ups[Random(#ups)])
+			entity:send(setPosition, x, y, x, y)
 			self:_bakeLights(true)
 		else
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
-			local pos = vector()
+			local x, y
 			local clear = false
 			local tries = mapW*mapH
 			repeat
-				pos.x = Random(mapW)
-				pos.y = Random(mapH)
-				local mt = self._map:getLocation(pos):getMapType()
-				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(pos)
+				x = Random(mapW)
+				y = Random(mapH)
+				local mt = self._map:getLocation(x, y):getMapType()
+				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
 				tries = tries - 1
 			until clear or tries == 0
 			if clear and tries > 0 then
-				entity:send(setPosition, pos, pos)
+				entity:send(setPosition, x, y, x, y)
 			else
 				remove[#remove+1] = entity
 			end
@@ -185,7 +187,7 @@ function Level:isMap(map) return map == self._map end
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
 -- return the entities at the given location
-function Level:getEntitiesAtLocation(pos)
+function Level:getEntitiesAtLocation(x, y)
 	local ents = {}
 	local positionProp = property('Position')
 	local numEntities = #self._entities
@@ -193,7 +195,8 @@ function Level:getEntitiesAtLocation(pos)
 
 	for i=1,numEntities do
 		local entity = self._entities[i]
-		if entity:query(positionProp) == pos then
+		local ePos = entity:query(positionProp)
+		if ePos[1] == x and ePos[2] == y then
 			entCount = entCount + 1
 			ents[entCount] = entity
 		end
@@ -253,7 +256,9 @@ end
 
 function Level:EntityPositionEvent(e)
 	local entity = e:getEntity()
-	self:_triggerZones(entity, e:getDestination(), e:getOrigin())
+	local dX, dY = e:getDestination()
+	local oX, oY = e:getOrigin()
+	self:_triggerZones(entity, dX, dY, oX, oY)
 
 	if entity == self._primeEntity then
 		self:_bakeLights()
@@ -263,12 +268,13 @@ end
 
 function Level:EntityDeathEvent(e)
 	local entity = e:getEntity()
-	local reason = e:getReason()
+	local reason = e:getReason() or "unknown reason"
 
 	if entity == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
 	else
-		local msg = entity:getName()..' '..reason
+		local name = entity and entity:getName() or "unknown entity"
+		local msg = name..' '..reason
 		GameEvents:push(DisplayPopupMessageEvent(msg))
 		self:removeEntity(entity)
 	end
@@ -291,7 +297,7 @@ local _mult = {
 }
 
 -- recursive light casting function
-function Level:_castLight(c, row, first, last, radius, x, y)
+function Level:_castLight(c, row, first, last, radius, x1, y1, x2, y2)
 	if first < last then return end
 	local radiusSq = radius*radius
 	local new_first
@@ -304,7 +310,7 @@ function Level:_castLight(c, row, first, last, radius, x, y)
 			dx = dx + 1
 
 			-- translate the dx, dy coordinates into map coordinates
-			local mp = vector(c.x + dx * x.x + dy * x.y, c.y + dx * y.x + dy * y.y)
+			local mpX, mpY = c[1] + dx * x1 + dy * y1,  c[2] + dx * x2 + dy * y2
 			-- lSlope and rSlope store the slopes of the left and right
 			-- extremeties of the square we're considering
 			local lSlope, rSlope = (dx-0.5)/(dy+0.5), (dx+0.5)/(dy-0.5)
@@ -313,13 +319,13 @@ function Level:_castLight(c, row, first, last, radius, x, y)
 			if not (first < rSlope) then
 				-- our light beam is touching this square; light it
 				if dx*dx + dy*dy < radiusSq then
-					self._lightmap[mp.x][mp.y] = 'lit'
+					self._lightmap[mpX][mpY] = 'lit'
 				end
 
-				local node = self._map:getLocation(mp.x, mp.y)
+				local node = self._map:getLocation(mpX, mpY)
 				if blocked then
 					-- we're scanning a row of blocked squares
-					if not (self:isPointInMap(mp) and node:isTransparent()) then
+					if not (self:isPointInMap(mpX, mpY) and node:isTransparent()) then
 						new_first = rSlope
 						-- Note: this would be a continue statement... make sure nothing
 						-- else is calculated after this
@@ -328,12 +334,12 @@ function Level:_castLight(c, row, first, last, radius, x, y)
 						first = new_first
 					end
 				else
-					if not (self:isPointInMap(mp) and node:isTransparent())
+					if not (self:isPointInMap(mpX, mpY) and node:isTransparent())
 						and j < radius
 					then
 						-- this is a blocking square, start a child scan
 						blocked = true
-						self:_castLight(c, j+1, first, lSlope, radius, x, y)
+						self:_castLight(c, j+1, first, lSlope, radius, x1, y1, x2, y2)
 						new_first = rSlope
 					end
 				end
@@ -346,14 +352,15 @@ end
 
 function Level:_resetLights(blackout)
 	-- make old lit positions dim
-	for x=1,self._map:getWidth() do
+	local w, h = self._map:getWidth(), self._map:getHeight()
+	for x=1,w do
 		self._lightmap[x] = self._lightmap[x] or {}
-		for y=1,self._map:getHeight() do
+		local mapx = self._lightmap[x]
+		for y=1,h do
 			if blackout then
-				self._lightmap[x][y] = 'black'
+				mapx[y] = 'black'
 			else
-				self._lightmap[x][y] = self._lightmap[x][y] or 'black'
-				if self._lightmap[x][y] == 'lit' then self._lightmap[x][y] = 'dim' end
+				mapx[y] = mapx[y] == 'lit' and 'dim' or (mapx[y] or 'black')
 			end
 		end
 	end
@@ -368,12 +375,12 @@ function Level:_bakeLights(blackout)
 
 	for oct=1,8 do
 		self:_castLight(primePos, 1, 1, 0, radius,
-			vector(_mult[1][oct], _mult[2][oct]),
-			vector(_mult[3][oct], _mult[4][oct]))
+			_mult[1][oct], _mult[2][oct],
+			_mult[3][oct], _mult[4][oct])
 	end
 
 	-- make sure prime entity is always lit
-	self._lightmap[primePos.x][primePos.y] = 'lit'
+	self._lightmap[primePos[1]][primePos[2]] = 'lit'
 
 	-- tell entities what their lights are
 	local numEntities = #self._entities
@@ -385,18 +392,18 @@ function Level:_bakeLights(blackout)
 		local pos = ent:query(positionProp)
 		local status = 'black'
 		if    self._lightmap
-			and self._lightmap[pos.x]
-			and self._lightmap[pos.x][pos.y]
+			and self._lightmap[pos[1]]
+			and self._lightmap[pos[1]][pos[2]]
 		then
-			status = self._lightmap[pos.x][pos.y]
+			status = self._lightmap[pos[1]][pos[2]]
 		end
 		ent:send(msg, status)
 	end
 end
 
 -- get a color table of the lighting for the specified point
-function Level:getLightingColor(p)
-	local color = self._lightmap[p.x][p.y] or 'black'
+function Level:getLightingColor(x, y)
+	local color = self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
 

@@ -23,7 +23,7 @@ function st:init()
 			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		debug = love.graphics.newImageFont('font/lofi_verysmall.png',
+		verysmall = love.graphics.newImageFont('font/lofi_verysmall.png',
 			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
@@ -32,26 +32,19 @@ function st:init()
 end
 
 function st:enter()
-	self.fadeColor = {0,0,0,1}
+	self.fadeColor = colors.clone(colors.BLACK)
 	self.nextState = State.play
 	self.lines = self.lines or {
 		{
 			text = "Loading...",
 			font = GameFont.big,
-			color = {1, 0, 0},
+			color = colors.RED,
 			x = WIDTH/2,
 			y = HEIGHT/2,
 		},
-		debug and {
-			text = "(press F3 for demo mode)",
-			font = GameFont.small,
-			color = {.2, .2, .2},
-			x = WIDTH/2,
-			y = HEIGHT-GameFont.small:getHeight()/2,
-		} or nil,
 	}
 
-	tween(0.3, self.fadeColor, {0,0,0,0}, 'inSine',
+	tween(0.3, self.fadeColor, colors.BLACK_A00, 'inSine',
 		self.load, self)
 end
 
@@ -72,7 +65,7 @@ function st:load()
 end
 
 function st:fadeout()
-	tween(0.3, self.fadeColor, {0,0,0,1}, 'outQuint',
+	tween(0.3, self.fadeColor, colors.BLACK, 'outQuint',
 		GameState.switch, self.nextState)
 end
 
@@ -93,10 +86,5 @@ function st:draw()
 	end
 end
 
-if debug then
-	function st:keypressed(key, unicode)
-		if 'f3' == key then self.nextState = State.demo end
-	end
-end
 
 return st

@@ -46,7 +46,7 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 
 		setRenderTarget(fb)
 
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		if bgquad then drawq(tileset, bgquad, 0, 0) end
 		drawq(tileset, quad, 0, 0)
 
@@ -59,7 +59,8 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 end
 
 function TileMapNodeView:_resetKey()
-	self._key = self._node:getMapType():getKey()
+	local mt = self._node:getMapType()
+	self._key = mt:getKey()
 end
 
 -- update the tile for this node if it has changed

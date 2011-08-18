@@ -48,7 +48,7 @@ property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
 
 -- motion properties
-property.Position          = {x=1, y=1}
+property.Position          = {1, 1}
 
 -- collision properties
 property.BlockedBy         = {Wall='ALL', Door='shut'}
@@ -56,7 +56,7 @@ property.CanMove           = true
 
 -- graphics properties
 property.TileSet           = 'dungeon'
-property.TileCoords        = {x=1, y=1}
+property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
 property.Visibility        = 6
 
