@@ -22,18 +22,12 @@ do
 	end
 end
 
-local vector = require 'lib.hump.vector'
-
 -- verify that all the given objects are of the given type
 function verify(theType, ...)
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		local xType = type(x)
-		if theType == 'vector' then
-			assert(vector.isvector(x), 'vector expected (was %s)', xType)
-		else
-			assert(xType == theType, '%s expected (was %s)', theType, xType)
-		end
+		assert(xType == theType, '%s expected (was %s)', theType, xType)
 	end
 	return true
 end
