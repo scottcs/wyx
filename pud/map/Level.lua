@@ -352,14 +352,15 @@ end
 
 function Level:_resetLights(blackout)
 	-- make old lit positions dim
-	for x=1,self._map:getWidth() do
+	local w, h = self._map:getWidth(), self._map:getHeight()
+	for x=1,w do
 		self._lightmap[x] = self._lightmap[x] or {}
-		for y=1,self._map:getHeight() do
+		local mapx = self._lightmap[x]
+		for y=1,h do
 			if blackout then
-				self._lightmap[x][y] = 'black'
+				mapx[y] = 'black'
 			else
-				self._lightmap[x][y] = self._lightmap[x][y] or 'black'
-				if self._lightmap[x][y] == 'lit' then self._lightmap[x][y] = 'dim' end
+				mapx[y] = mapx[y] == 'lit' and 'dim' or (mapx[y] or 'black')
 			end
 		end
 	end
