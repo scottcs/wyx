@@ -25,6 +25,8 @@ Beyond v0.1.0:
   - map as quad-tree [or something?]
   - poisson disk sampling for decoration/item/monster placement [map gen too?]
   o can hero background be transparent?
+	o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects/entities rather than MapTypes]
+	o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
   - make hero movement smoother [possibly only move camera when near edges?]
   x don't animate or update dim tiles
   x support sprite batches if framebuffers are unsupported

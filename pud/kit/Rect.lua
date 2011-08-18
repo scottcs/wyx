@@ -63,26 +63,26 @@ end
 -- get and set center coords, rounding to nearest number if requested
 function Rect:getCenter(flag)
 	local adjust = _getAdjust(flag)
-	local w, h = self:getInnerSize()
-	return self._x + adjust(w/2), self._y + adjust(h/2)
+	local w, h = self:getSize()
+	return self._x + adjust((w-1)/2), self._y + adjust((h-1)/2)
 end
 
 function Rect:setCenter(x, y, flag)
 	local adjust = _getAdjust(flag)
-	local w, h = self:getInnerSize()
-	self:setPosition(x - adjust(w/2), h - adjust(h/2))
+	local w, h = self:getSize()
+	self:setPosition(x - adjust((w-1)/2), y - adjust((h-1)/2))
 end
 
 -- get (no set) bounding box coordinates
 function Rect:getBBox()
-	local w, h = self:getInnerSize()
-	return self._x, self._y, self._x + w, self._y + h
+	local w, h = self:getSize()
+	return self._x, self._y, self._x + (w-1), self._y + (h-1)
 end
 
 -- check if a point falls within the Rect's bounding box
 function Rect:containsPoint(x, y)
-	local x1, y1 = self:getPosition()
-	local x2, y2 = x1 + self:getWidth(), y1 + self:getHeight()
+	local x1, y1 = self._x, self._y
+	local x2, y2 = x1 + self._w, y1 + self._h
 	return x >= x1 and x <= x2 and y >= y1 and y <= y2
 end
 
@@ -103,11 +103,6 @@ function Rect:getSize() return self._w, self._h end
 function Rect:setSize(w, h)
 	self:setWidth(w)
 	self:setHeight(h)
-end
-
--- get the size of the rect for use in center calculations
-function Rect:getInnerSize()
-	return self:getWidth() - 1, self:getHeight() - 1
 end
 
 -- clone this rect
