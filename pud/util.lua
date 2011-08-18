@@ -99,19 +99,23 @@ end
 
 -- return true if the given object is an instance of the given class
 function isClass(class, obj)
-	if type(class) == 'string' then class = getClass(class) end
 	if obj == nil then return false end
 
 	_verifyCache[class] = _verifyCache[class] or setmetatable({}, _mt)
 	local is = _verifyCache[class][obj]
 
 	if nil == is then
+		local theClass = type(class) == 'string' and getClass(class) or class
 		is = type(obj) == 'table'
 			and nil ~= obj.is_a
 			and type(obj.is_a) == 'function'
-			and obj:is_a(class)
+			and obj:is_a(theClass)
 
 		_verifyCache[class][obj] = is
+		if theClass ~= class then
+			_verifyCache[theClass] = _verifyCache[theClass] or setmetatable({}, _mt)
+			_verifyCache[theClass][obj] = is
+		end
 	end
 
 	return is
