@@ -400,8 +400,8 @@ function Level:_bakeLights(blackout)
 end
 
 -- get a color table of the lighting for the specified point
-function Level:getLightingColor(p)
-	local color = self._lightmap[p.x][p.y] or 'black'
+function Level:getLightingColor(x, y)
+	local color = self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
 

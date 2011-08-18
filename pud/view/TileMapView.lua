@@ -417,11 +417,11 @@ function TileMapView:_shouldDrawFloor(node)
 end
 
 function TileMapView:_shouldDraw(tile)
-	local pos = tile:getPositionVector()
-	if self._mapViewport:containsPoint(pos)
-		and self._level:isPointInMap(pos)
+	local x, y = tile:getPosition()
+	if self._mapViewport:containsPoint(x, y)
+		and self._level:isPointInMap(x, y)
 	then
-		return self._level:getLightingColor(pos)
+		return self._level:getLightingColor(x, y)
 	end
 	return nil
 end
