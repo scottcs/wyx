@@ -21,15 +21,11 @@ local CLEAR_DELAY = 4
 local TARGET_FRAME_TIME_60 = 1/60
 local TARGET_FRAME_TIME_30 = 1/30
 
-local WARN1 = {1, 0.9, 0}
-local WARN2 = {1, 0, 0}
-local GOOD = {0, 1, 0}
-local NORMAL = {0.9, 0.9, 0.9}
-local BG = {0.1, 0.1, 0.9, 0.7}
-
-local function _getColor(t)
-	return {t[1], t[2], t[3], t[4]}
-end
+local WARN1 = colors.YELLOW
+local WARN2 = colors.RED
+local GOOD = colors.GREEN
+local NORMAL = colors.GREY90
+local BG = {255*0.1, 255*0.1, 255*0.9, 255*0.7}
 
 -- DebugHUD
 --
@@ -254,7 +250,7 @@ function DebugHUD:_drawFB()
 end
 
 function DebugHUD:draw()
-	setColor(1, 1, 1)
+	setColor(colors.WHITE)
 	draw(self._fb)
 end
 

@@ -9,52 +9,36 @@ require 'random'
          --]]--
 
 --debug = nil
-doProfile = true
+doProfile = false
 local doGlobalProfile = doProfile and false
 
 --[[ Profiler Setup ]]--
-local profilers = {'pepperfish', 'luatrace', 'luaprofiler'}
-local useProfiler = 3
-if doProfile and useProfiler >= 1 and useProfiler <= #profilers then
-	local prof = profilers[useProfiler]
-	if prof == 'pepperfish' then
-		require 'lib.profiler'
-		local _profiler = newProfiler()
-		profiler = {
-			start = function() _profiler:start() end,
-			stop = function() _profiler:stop() end,
-			stopAll = function()
-				_profiler:stop()
-				local filename = 'pepperfish.out'
-				local outfile = io.open(filename, 'w+')
-				_profiler:report(outfile)
-				outfile:close()
-				print('profile written to '..filename)
-			end,
-		}
-	elseif prof == 'luatrace' then
-		local _profiler = require 'luatrace'
-		profiler = {
-			start = _profiler.tron,
-			stop = _profiler.troff,
-			stopAll = function()
-				_profiler.troff()
-				print('analyze profile with "luatrace.profile"')
-			end,
-		}
-	elseif prof == 'luaprofiler' then
-		require 'profiler'
-		local _profiler = profiler
-		profiler = {
-			start = _profiler.start,
-			stop = _profiler.stop,
-			stopAll = function()
-				_profiler.stop()
-				print('analyze profile with '
-					..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
-			end,
-		}
-	end
+local globalProfiler
+if doGlobalProfile then
+	require 'lib.profiler'
+	local _profiler = newProfiler()
+	globalProfiler = {
+		start = function() _profiler:start() end,
+		stop = function()
+			_profiler:stop()
+			local filename = 'pepperfish.out'
+			local outfile = io.open(filename, 'w+')
+			_profiler:report(outfile)
+			outfile:close()
+			print('profile written to '..filename)
+		end,
+	}
+end
+if doProfile then
+	require 'profiler'
+	print('analyze profile with '
+		..'"lua lib/summary.lua lprof_tmp.0.<stuff>.out"')
+else
+	local dummy = function() end
+	profiler = {
+		start = dummy,
+		stop = dummy
+	}
 end
 
 
@@ -100,7 +84,7 @@ end
 
 function love.load()
 	-- start the profiler
-	if doGlobalProfile then profiler.start() end
+	if doGlobalProfile then globalProfiler.start() end
 
 	-- set graphics mode
 	resizeScreen(1024, 768)
@@ -206,12 +190,14 @@ function love.quit()
 	InputEvents:destroy()
 	CommandEvents:destroy()
 
-	if doGlobalProfile then profiler.stopAll() end
+	if doGlobalProfile then globalProfiler.stop() end
 end
 
 local collectgarbage = collectgarbage
 local getTime = love.timer.getTime
+local getDelta = love.timer.getDelta
 local sleep = love.timer.sleep
+local step = love.timer.step
 local event = love.event
 local poll = love.event.poll
 local audio = love.audio
@@ -263,10 +249,10 @@ end
 function love.run()
 	if love.load then love.load(arg) end
 
-	local FPS = 60
-	local dt = 1/FPS
+	local dtTarget = 1/60  -- 60 Hz
+	local dt = 0
 	local time
-	local idletime = getGarbageTime(dt)
+	local idletime = getGarbageTime(dtTarget)
 
 	-- disable automatic garbage collector
 	collectgarbage('stop')
@@ -292,6 +278,9 @@ function love.run()
 			end
 		end
 
+		step()
+		dt = getDelta()
+
 		if love.update then love.update(dt) end
 
 		clear()
@@ -302,8 +291,10 @@ function love.run()
 		idle(idletime)
 
 		local timeWorked = getTime() - time
-		if timeWorked < dt then
-			sleep((dt-timeWorked) * 1000)
+		if timeWorked < dtTarget then
+			local sleepTime = (dtTarget-timeWorked) * 1000
+			sleepTime = sleepTime > 1 and 1 or sleepTime
+			if sleepTime > 0 then sleep(sleepTime) end
 		end
 	end
 end

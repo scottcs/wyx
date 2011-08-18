@@ -40,9 +40,9 @@ local Level = Class{name='Level',
 
 		-- lighting color value table
 		self._lightColor = {
-			black = {0,0,0},
-			dim = {0.4, 0.4, 0.4},
-			lit = {1,1,1},
+			black = colors.BLACK,
+			dim = colors.GREY40,
+			lit = colors.WHITE,
 		}
 		self._lightmap = {}
 		self._entities = {}
@@ -268,12 +268,13 @@ end
 
 function Level:EntityDeathEvent(e)
 	local entity = e:getEntity()
-	local reason = e:getReason()
+	local reason = e:getReason() or "unknown reason"
 
 	if entity == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
 	else
-		local msg = entity:getName()..' '..reason
+		local name = entity and entity:getName() or "unknown entity"
+		local msg = name..' '..reason
 		GameEvents:push(DisplayPopupMessageEvent(msg))
 		self:removeEntity(entity)
 	end
@@ -351,14 +352,15 @@ end
 
 function Level:_resetLights(blackout)
 	-- make old lit positions dim
-	for x=1,self._map:getWidth() do
+	local w, h = self._map:getWidth(), self._map:getHeight()
+	for x=1,w do
 		self._lightmap[x] = self._lightmap[x] or {}
-		for y=1,self._map:getHeight() do
+		local mapx = self._lightmap[x]
+		for y=1,h do
 			if blackout then
-				self._lightmap[x][y] = 'black'
+				mapx[y] = 'black'
 			else
-				self._lightmap[x][y] = self._lightmap[x][y] or 'black'
-				if self._lightmap[x][y] == 'lit' then self._lightmap[x][y] = 'dim' end
+				mapx[y] = mapx[y] == 'lit' and 'dim' or (mapx[y] or 'black')
 			end
 		end
 	end

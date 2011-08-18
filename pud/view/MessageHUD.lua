@@ -32,9 +32,9 @@ local MessageHUD = Class{name='MessageHUD',
 		self._fbY = math_floor(HEIGHT - h*1.5)
 		self._message = message
 		self._finish = getMicroTime() + seconds + 0.3
-		self._fadeColor = {1,1,1,0}
+		self._fadeColor = colors.clone(colors.WHITE_A00)
 		self:_drawFB()
-		self._inID = tween(0.3, self._fadeColor, {1,1,1,1}, 'inSine')
+		self._inID = tween(0.3, self._fadeColor, colors.WHITE, 'inSine')
 	end
 }
 
@@ -63,7 +63,7 @@ function MessageHUD:update(dt)
 	local time = getMicroTime()
 	if time > self._finish then
 		self._finish = nil
-		self._outID = tween(0.3, self._fadeColor, {1,1,1,0}, 'outQuint')
+		self._outID = tween(0.3, self._fadeColor, colors.WHITE_A00, 'outQuint')
 	end
 end
 
@@ -73,10 +73,10 @@ function MessageHUD:_drawFB()
 
 	setFont(self._font)
 
-	setColor(0,0,0,0.7)
+	setColor(colors.BLACK_A70)
 	rectangle('fill', 0, 0, self._w, self._h)
 
-	setColor(1,1,1)
+	setColor(colors.WHITE)
 	gprint(self._message, MARGIN, MARGIN)
 
 	setRenderTarget()
