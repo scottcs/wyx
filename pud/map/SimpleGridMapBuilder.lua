@@ -384,8 +384,8 @@ function SimpleGridMapBuilder:addPortals()
 		local direction = stairs > 3 and 'up' or 'down'
 		local num = stairs > 3 and stairs-3 or stairs
 		local room = table.remove(rooms, self._random(#rooms))
-		local tl, br = self._rooms[room]:getBBoxVectors()
-		local x, y = self._random(tl.x+1, br.x-1), self._random(tl.y+1, br.y-1)
+		local x1,y1, x2,y2 = self._rooms[room]:getBBox()
+		local x, y = self._random(x1+1, x2-1), self._random(y1+1, y2-1)
 		local node = self._map:getLocation(x, y)
 		if node:getMapType():is_a(FloorMapType) then
 			node:setMapType(StairMapType(direction))
