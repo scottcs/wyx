@@ -214,9 +214,12 @@ local scale = love.graphics.scale
 local translate = love.graphics.translate
 
 function GameCam:predraw()
+	local z = self._zoom
+	local z2 = z*2
+	local x, y = WIDTH/z2 - self._x, HEIGHT/z2 - self._y
 	push()
-	scale(self._zoom)
-	translate(-self._x, -self._y)
+	scale(z)
+	translate(x, y)
 end
 
 function GameCam:postdraw()
