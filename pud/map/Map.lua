@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local MapNode = getClass 'pud.map.MapNode'
 local Rect = getClass 'pud.kit.Rect'
-local vector = require 'lib.hump.vector'
 
 local table_concat = table.concat
 local math_floor = math.floor
@@ -61,31 +60,27 @@ function Map:setAuthor(author) self._author = author end
 
 -- set the given map location to the given map node
 function Map:setLocation(x, y, node)
-	local pos = vector.isvector(x) and x or vector(x, y)
-	assert(pos.x >= 1 and pos.x <= self:getWidth(),
-		'setLocation x is out of range')
-	assert(pos.y >= 1 and pos.y <= self:getHeight(),
-		'setLocation y is out of range')
+	assert(x >= 1 and x <= self:getWidth(), 'setLocation x is out of range')
+	assert(y >= 1 and y <= self:getHeight(), 'setLocation y is out of range')
 	verifyClass(MapNode, node)
 
 	-- destroy the old node
-	if self._layout[pos.y] and self._layout[pos.y][pos.x] then
-		self._layout[pos.y][pos.x]:destroy()
+	if self._layout[y] and self._layout[y][x] then
+		self._layout[y][x]:destroy()
 	end
 
 	-- assign the new node
-	self._layout[pos.y] = self._layout[pos.y] or {}
-	self._layout[pos.y][pos.x] = node
+	self._layout[y] = self._layout[y] or {}
+	self._layout[y][x] = node
 end
 
 -- retrieve the map node of a given location
 function Map:getLocation(x, y)
-	local pos = vector.isvector(x) and x or vector(x, y)
-	if pos.x >= 1 and pos.x <= self:getWidth()
-		and pos.y >= 1 and pos.y <= self:getHeight()
-		and self._layout[pos.y] and self._layout[pos.y][pos.x]
+	if x >= 1 and x <= self:getWidth()
+		and y >= 1 and y <= self:getHeight()
+		and self._layout[y] and self._layout[y][x]
 	then
-		return self._layout[pos.y][pos.x]
+		return self._layout[y][x]
 	end
 	return nil
 end
