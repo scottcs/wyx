@@ -81,8 +81,8 @@ end
 
 -- check if a point falls within the Rect's bounding box
 function Rect:containsPoint(x, y)
-	local x1, y1 = self:getPosition()
-	local x2, y2 = x1 + self:getWidth(), y1 + self:getHeight()
+	local x1, y1 = self._x, self._y
+	local x2, y2 = x1 + self._w, y1 + self._h
 	return x >= x1 and x <= x2 and y >= y1 and y <= y2
 end
 
