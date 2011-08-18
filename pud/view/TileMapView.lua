@@ -418,12 +418,9 @@ end
 
 function TileMapView:_shouldDraw(tile)
 	local x, y = tile:getPosition()
-	if self._mapViewport:containsPoint(x, y)
-		and self._level:isPointInMap(x, y)
-	then
-		return self._level:getLightingColor(x, y)
-	end
-	return nil
+	if not self._mapViewport:containsPoint(x, y) then return nil end
+	if not self._level:isPointInMap(x, y) then return nil end
+	return self._level:getLightingColor(x, y)
 end
 
 -- draw to the framebuffer
