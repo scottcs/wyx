@@ -2,7 +2,6 @@ local Class = require 'lib.hump.class'
 local ViewComponent = getClass 'pud.component.ViewComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
-local vector = require 'lib.hump.vector'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad

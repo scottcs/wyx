@@ -2,7 +2,6 @@ local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
 local message = require 'pud.component.message'
 
-local vector = require 'lib.hump.vector'
 local json = require 'lib.dkjson'
 
 
