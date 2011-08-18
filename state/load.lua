@@ -42,13 +42,6 @@ function st:enter()
 			x = WIDTH/2,
 			y = HEIGHT/2,
 		},
-		debug and {
-			text = "(press F3 for demo mode)",
-			font = GameFont.small,
-			color = {.2, .2, .2},
-			x = WIDTH/2,
-			y = HEIGHT-GameFont.small:getHeight()/2,
-		} or nil,
 	}
 
 	tween(0.3, self.fadeColor, {0,0,0,0}, 'inSine',
@@ -93,10 +86,5 @@ function st:draw()
 	end
 end
 
-if debug then
-	function st:keypressed(key, unicode)
-		if 'f3' == key then self.nextState = State.demo end
-	end
-end
 
 return st
