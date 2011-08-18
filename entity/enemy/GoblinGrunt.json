@@ -4,7 +4,7 @@
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 1, "y": 6},
+				"right": {1, 6},
 			},
 		},
 		"HealthComponent": {

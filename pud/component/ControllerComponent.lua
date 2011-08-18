@@ -36,9 +36,9 @@ function ControllerComponent:_setProperty(prop, data)
 	Component._setProperty(self, prop, data)
 end
 
--- tell the mediator to move along vector v
-function ControllerComponent:move(v)
-	local command = MoveCommand(self._mediator, v)
+-- tell the mediator to move along x, y
+function ControllerComponent:move(x, y)
+	local command = MoveCommand(self._mediator, x, y)
 	CommandEvents:push(CommandEvent(command))
 end
 

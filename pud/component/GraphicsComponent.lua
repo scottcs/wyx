@@ -2,7 +2,6 @@ local Class = require 'lib.hump.class'
 local ViewComponent = getClass 'pud.component.ViewComponent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
-local vector = require 'lib.hump.vector'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
@@ -60,13 +59,11 @@ function GraphicsComponent:_setProperty(prop, data)
 		assert(self._tileset ~= nil, 'Invalid TileSet: %s', tostring(data))
 	elseif prop == property('TileCoords') then
 		verify('table', data)
-		local newData = {}
 		for k,v in pairs(data) do
-			assert(v.x and v.y, 'Invalid TileCoords: %s', tostring(v))
-			verify('number', v.x, v.y)
-			newData[k] = vector(v.x, v.y)
+			verify('string', k)
+			assert(#v == 2, 'Invalid TileCoords: %s', tostring(v))
+			verify('number', v[1], v[2])
 		end
-		data = newData
 	elseif prop == property('TileSize') then
 		verify('number', data)
 	elseif prop == property('Visibility') then
@@ -113,11 +110,10 @@ end
 function GraphicsComponent:_newQuad(frame, coords)
 	local tilesetW = self._tileset:getWidth()
 	local tilesetH = self._tileset:getHeight()
-	coords = coords:clone()
-	coords.x, coords.y = (coords.x-1)*self._size, (coords.y-1)*self._size
+	local x, y = (coords[1]-1)*self._size, (coords[2]-1)*self._size
 
 	self._frames[frame] = newQuad(
-		coords.x, coords.y,
+		x, y,
 		self._size, self._size,
 		tilesetW, tilesetH)
 end
@@ -156,20 +152,20 @@ function GraphicsComponent:_makeQuads()
 	end
 end
 
-function GraphicsComponent:_updateFB(new, old)
+function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 	if self._mediator then
 		local newFrame
 
-		if old then
-			local v = new - old
+		if oldX and oldY then
+			local x, y = newX-oldX, newY-oldY
 			local xstr, ystr
 
-			if     v.x > 0 then xstr = 'right'
-			elseif v.x < 0 then xstr = 'left'
+			if     x > 0 then xstr = 'right'
+			elseif x < 0 then xstr = 'left'
 			end
 
-			if     v.y > 0 then ystr = 'front'
-			elseif v.y < 0 then ystr = 'back'
+			if     y > 0 then ystr = 'front'
+			elseif y < 0 then ystr = 'back'
 			end
 
 			if xstr and ystr and self._frames[ystr..xstr] then
@@ -184,7 +180,7 @@ function GraphicsComponent:_updateFB(new, old)
 		self._curFrame = newFrame or self._curFrame
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
-		self._drawX, self._drawY = (new.x-1)*self._size, (new.y-1)*self._size
+		self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
 		setRenderTarget(self._backfb)

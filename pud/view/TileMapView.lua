@@ -128,15 +128,15 @@ function TileMapView:setViewport(rect)
 
 	if self._mapViewport then self._mapViewport:destroy() end
 
-	local tl, br = rect:getBBoxVectors()
+	local x1,y1, x2,y2 = rect:getBBox()
 	local mapW, mapH = self._level:getMapSize()
 
-	tl.x = math_max(1, math_floor(tl.x/self._tileW)-2)
-	tl.y = math_max(1, math_floor(tl.y/self._tileH)-2)
-	br.x = math_min(mapW, math_floor(br.x/self._tileW)+2)
-	br.y = math_min(mapH, math_floor(br.y/self._tileH)+2)
+	x1 = math_max(1, math_floor(x1/self._tileW)-2)
+	y1 = math_max(1, math_floor(y1/self._tileH)-2)
+	x2 = math_min(mapW, math_floor(x2/self._tileW)+2)
+	y2 = math_min(mapH, math_floor(y2/self._tileH)+2)
 
-	self._mapViewport = Rect(tl, br-tl)
+	self._mapViewport = Rect(x1, y1, x2-x1, y2-y1)
 
 	local num = #self._drawTiles
 	for i=1,num do self._drawTiles[i] = nil end
@@ -417,11 +417,11 @@ function TileMapView:_shouldDrawFloor(node)
 end
 
 function TileMapView:_shouldDraw(tile)
-	local pos = tile:getPositionVector()
-	if self._mapViewport:containsPoint(pos)
-		and self._level:isPointInMap(pos)
+	local x, y = tile:getPosition()
+	if self._mapViewport:containsPoint(x, y)
+		and self._level:isPointInMap(x, y)
 	then
-		return self._level:getLightingColor(pos)
+		return self._level:getLightingColor(x, y)
 	end
 	return nil
 end

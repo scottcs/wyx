@@ -8,7 +8,6 @@ local DoorMapType = getClass 'pud.map.DoorMapType'
 local StairMapType = getClass 'pud.map.StairMapType'
 local TrapMapType = getClass 'pud.map.TrapMapType'
 local Rect = getClass 'pud.kit.Rect'
-local vector = require 'lib.hump.vector'
 
 local math_floor = math.floor
 
@@ -385,12 +384,12 @@ function SimpleGridMapBuilder:addPortals()
 		local direction = stairs > 3 and 'up' or 'down'
 		local num = stairs > 3 and stairs-3 or stairs
 		local room = table.remove(rooms, self._random(#rooms))
-		local tl, br = self._rooms[room]:getBBoxVectors()
-		local x, y = self._random(tl.x+1, br.x-1), self._random(tl.y+1, br.y-1)
+		local x1,y1, x2,y2 = self._rooms[room]:getBBox()
+		local x, y = self._random(x1+1, x2-1), self._random(y1+1, y2-1)
 		local node = self._map:getLocation(x, y)
 		if node:getMapType():is_a(FloorMapType) then
 			node:setMapType(StairMapType(direction))
-			self._map:setPortal(direction..tostring(num), vector(x, y))
+			self._map:setPortal(direction..tostring(num), x, y)
 			stairs = stairs - 1
 		end
 	end
@@ -398,7 +397,7 @@ end
 
 -- post process step
 -- a single step in the post process loop
-function SimpleGridMapBuilder:postProcessStep(node, point)
+function SimpleGridMapBuilder:postProcessStep(node, x, y)
 	local mapType = node:getMapType()
 	local variant = mapType:getVariant()
 

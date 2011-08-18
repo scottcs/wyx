@@ -22,18 +22,12 @@ do
 	end
 end
 
-local vector = require 'lib.hump.vector'
-
 -- verify that all the given objects are of the given type
 function verify(theType, ...)
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		local xType = type(x)
-		if theType == 'vector' then
-			assert(vector.isvector(x), 'vector expected (was %s)', xType)
-		else
-			assert(xType == theType, '%s expected (was %s)', theType, xType)
-		end
+		assert(xType == theType, '%s expected (was %s)', theType, xType)
 	end
 	return true
 end
@@ -134,6 +128,17 @@ function verifyClass(class, ...)
 	return true
 end
 
+-------------------------
+-- 2d vector functions --
+-------------------------
+local sqrt = math.sqrt
+local format = string.format
+vec2 = {}
+function vec2.len2(x, y) return x*x + y*y end
+function vec2.len(x, y) return sqrt(vec2.len2(x, y)) end
+function vec2.equal(x1, y1, x2, y2) return x1 == x2 and y1 == y2 end
+function vec2.tostring(x, y) return format("(%d,%d)", x,y) end
+function vec2.tostringf(x, y) return format("(%.2f,%.2f)", x,y) end
 
 
          --[[--

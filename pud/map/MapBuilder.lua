@@ -2,7 +2,6 @@ local Class = require 'lib.hump.class'
 local Map = getClass 'pud.map.Map'
 local MapNode = getClass 'pud.map.MapNode'
 local WallMapType = getClass 'pud.map.WallMapType'
-local vector = require 'lib.hump.vector'
 
 -- MapBuilder
 local MapBuilder = Class{name='MapBuilder',
@@ -30,7 +29,7 @@ function MapBuilder:addPortals() end
 
 -- post process step
 -- a single step in the post process loop
-function MapBuilder:postProcessStep(node, point) end
+function MapBuilder:postProcessStep(node, x, y) end
 
 -- perform any post processing necessary
 function MapBuilder:postProcess()
@@ -55,7 +54,7 @@ function MapBuilder:postProcess()
 				end
 			end
 
-			self:postProcessStep(node, vector(x, y))
+			self:postProcessStep(node, x, y)
 		end
 	end
 end
