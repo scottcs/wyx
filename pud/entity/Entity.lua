@@ -19,6 +19,7 @@ local Entity = Class{name = 'Entity',
 		self._name = name
 		self._type = entityType
 		self._components = {}
+		self._componentCache = setmetatable({}, {__mode = 'kv'})
 
 		if components ~= nil then
 			for _,comp in pairs(components) do
@@ -37,6 +38,8 @@ function Entity:destroy()
 		self._components[k] = nil
 	end
 	self._components = nil
+	self:_clearComponentCache()
+	self._componentCache = nil
 	ComponentMediator.destroy(self)
 end
 
@@ -44,18 +47,29 @@ function Entity:getID() return self._id end
 function Entity:getName() return self._name end
 function Entity:getType() return self._type end
 
+function Entity:_clearComponentCache()
+	for k in pairs(self._componentCache) do self._componentCache[k] = nil end
+end
+
 -- return a list of all components of the given type.
 -- class can be a parent component class or derived component class.
 function Entity:getComponentsByClass(class)
-	local components = {}
-	local count = 1
-	for _,comp in pairs(self._components) do
-		if isClass(class, comp) then
-			components[count] = comp
-			count = count + 1
+	local components = self._componentCache[class]
+
+	if nil == components then
+		components = {}
+		local count = 1
+		for _,comp in pairs(self._components) do
+			if isClass(class, comp) then
+				components[count] = comp
+				count = count + 1
+			end
 		end
+		if #components == 0 then components = false end
+		self._componentCache[class] = components
 	end
-	return #components > 0 and components or nil
+
+	return components ~= false and components or nil
 end
 
 local _getComponentName = function(component)
@@ -70,6 +84,8 @@ function Entity:addComponent(component)
 	component:setMediator(self)
 	component:attachMessages()
 	self._components[name] = component
+
+	self:_clearComponentCache()
 end
 
 -- remove a component from the entity
@@ -91,6 +107,8 @@ function Entity:removeComponent(component)
 		self._components[name]:destroy()
 		self._components[name] = nil
 	end
+
+	self:_clearComponentCache()
 end
 
 -- query all components for a property, passing the intermediate result each
