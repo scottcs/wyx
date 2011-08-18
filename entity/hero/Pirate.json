@@ -4,7 +4,7 @@
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {"x": 12, "y": 1},
+				"right": {12, 1},
 				},
 			"Visibility": 4,
 		},

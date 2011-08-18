@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
-local vector = require 'lib.hump.vector'
 
 -- Component
 --
@@ -99,7 +98,7 @@ function Component:getProperty(p, intermediate, ...)
 	if nil == prop then return intermediate end
 	if nil == intermediate then return prop end
 
-	if type(prop) == 'number' or vector.isvector(prop) then
+	if type(prop) == 'number' then
 		return prop + intermediate
 	elseif type(prop) == 'boolean' then
 		return (prop and intermediate)

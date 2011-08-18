@@ -5,29 +5,33 @@ local Event = getClass 'pud.event.Event'
 --
 local EntityPositionEvent = Class{name='EntityPositionEvent',
 	inherits=Event,
-	function(self, entity, to, from)
+	function(self, entity, toX, toY, fromX, fromY)
 		verifyClass('pud.entity.Entity', entity)
-		verify('vector', to, from)
+		verify('number', toX, toY, fromX, fromY)
 
 		Event.construct(self, 'Entity Position Event')
 
 		self._entity = entity
-		self._to = to
-		self._from = from
+		self._toX = toX
+		self._toY = toY
+		self._fromX = fromX
+		self._fromY = fromY
 	end
 }
 
 -- destructor
 function EntityPositionEvent:destroy()
 	self._entity = nil
-	self._to = nil
-	self._from = nil
+		self._toX = nil
+		self._toY = nil
+		self._fromX = nil
+		self._fromY = nil
 	Event.destroy(self)
 end
 
 function EntityPositionEvent:getEntity() return self._entity end
-function EntityPositionEvent:getDestination() return self._to:clone() end
-function EntityPositionEvent:getOrigin() return self._from:clone() end
+function EntityPositionEvent:getDestination() return self._toX, self._toY end
+function EntityPositionEvent:getOrigin() return self._fromX, self._fromY end
 
 -- the class
 return EntityPositionEvent

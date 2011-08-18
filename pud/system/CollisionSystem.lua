@@ -34,10 +34,10 @@ function CollisionSystem:unregister(comp)
 end
 
 -- check for collision between the given object and position
-function CollisionSystem:check(obj, pos)
+function CollisionSystem:check(obj, x, y)
 	local collision = false
 	local oldpos = obj:query(property('Position'))
-	local entities = self._level:getEntitiesAtLocation(pos)
+	local entities = self._level:getEntitiesAtLocation(x, y)
 	local collideEnemy = message('COLLIDE_ENEMY')
 	local collideHero = message('COLLIDE_HERO')
 
@@ -60,7 +60,7 @@ function CollisionSystem:check(obj, pos)
 	end
 
 	if not collision then
-		local node = self._level:getMapNode(pos)
+		local node = self._level:getMapNode(x, y)
 		if obj:query(property('BlockedBy'), node) then
 			obj:send(message('COLLIDE_BLOCKED'), node)
 			collision = true
@@ -68,7 +68,7 @@ function CollisionSystem:check(obj, pos)
 	end
 
 	if not collision then
-		obj:send(message('COLLIDE_NONE'), pos, oldpos)
+		obj:send(message('COLLIDE_NONE'), x, y, oldpos[1], oldpos[2])
 	end
 
 	return collision
