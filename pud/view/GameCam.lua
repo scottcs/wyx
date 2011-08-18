@@ -133,13 +133,13 @@ function GameCam:unfollowTarget()
 	end
 end
 
--- center on initial vector
+-- center on initial position
 function GameCam:home()
 	self:unfollowTarget()
 	self._x, self._y = self:_correctPos(self._homeX, self._homeY)
 end
 
--- change home vector
+-- change home position
 function GameCam:setHome(x, y)
 	self._homeX, self._homeY = x, y
 end
