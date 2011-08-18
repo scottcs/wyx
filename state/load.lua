@@ -32,19 +32,19 @@ function st:init()
 end
 
 function st:enter()
-	self.fadeColor = {0,0,0,1}
+	self.fadeColor = colors.clone(colors.BLACK)
 	self.nextState = State.play
 	self.lines = self.lines or {
 		{
 			text = "Loading...",
 			font = GameFont.big,
-			color = {1, 0, 0},
+			color = colors.RED,
 			x = WIDTH/2,
 			y = HEIGHT/2,
 		},
 	}
 
-	tween(0.3, self.fadeColor, {0,0,0,0}, 'inSine',
+	tween(0.3, self.fadeColor, colors.BLACK_A00, 'inSine',
 		self.load, self)
 end
 
@@ -65,7 +65,7 @@ function st:load()
 end
 
 function st:fadeout()
-	tween(0.3, self.fadeColor, {0,0,0,1}, 'outQuint',
+	tween(0.3, self.fadeColor, colors.BLACK, 'outQuint',
 		GameState.switch, self.nextState)
 end
 

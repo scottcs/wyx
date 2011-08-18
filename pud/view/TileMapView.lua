@@ -445,7 +445,7 @@ end
 -- draw the framebuffer to the screen
 function TileMapView:draw()
 	if self._frontfb then
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		draw(self._frontfb)
 	end
 end

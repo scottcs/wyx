@@ -174,40 +174,33 @@ Sound = Proxy(function(k)
 end)
 
 
------------------------------
--- float values for colors --
------------------------------
-do
-	local type, setmetatable, table_concat = type, setmetatable, table.concat
-	local sc = love.graphics.setColor
-	local sbg = love.graphics.setBackgroundColor
+-------------------
+-- common colors --
+-------------------
+colors = {}
+local p100 = 255
+local p50 = p100*0.5
+local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
+local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
 
-	local _colorCache = setmetatable({}, {__mode='v'})
-	local function color(r, g, b, a)
-		local col = type(r) == 'table' and r or {r,g,b,a}
-		local key = table_concat(col, '-')
-		local c = _colorCache[key]
-
-		if c == nil then
-			if    col[1] <= 1 and col[1] >= 0
-				and col[2] <= 1 and col[2] >= 0
-				and col[3] <= 1 and col[3] >= 0
-				and (not col[4] or (col[4] <= 1 and col[4] >= 0))
-			then
-				c = {255*col[1], 255*col[2], 255*col[3], 255*(col[4] or 1)}
-			else
-				c = {col[1], col[2], col[3], (col[4] or 1)}
-			end
-			_colorCache[key] = c
-		end
-
-		return c[1], c[2], c[3], c[4]
-	end
-
-	function love.graphics.setColor(r,g,b,a) sc(color(r,g,b,a)) end
-	function love.graphics.setBackgroundColor(r,g,b,a) sbg(color(r,g,b,a)) end
-end
-
+colors.WHITE = {p100, p100, p100, p100}
+colors.WHITE_A00 = {p100, p100, p100, 0}
+colors.BLACK = {0, 0, 0, p100}
+colors.BLACK_A70 = {0, 0, 0, p70}
+colors.BLACK_A00 = {0, 0, 0, 0}
+colors.YELLOW = {p100, p90, 0, p100}
+colors.RED = {p100, 0, 0, p100}
+colors.GREEN = {0, p100, 0, p100}
+colors.GREY90 = {p90, p90, p90, p100}
+colors.GREY80 = {p80, p80, p80, p100}
+colors.GREY70 = {p70, p70, p70, p100}
+colors.GREY60 = {p60, p60, p60, p100}
+colors.GREY50 = {p50, p50, p50, p100}
+colors.GREY40 = {p40, p40, p40, p100}
+colors.GREY30 = {p30, p30, p30, p100}
+colors.GREY20 = {p20, p20, p20, p100}
+colors.GREY10 = {p10, p10, p10, p100}
+function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
 
 -------------------
 -- resize screen --

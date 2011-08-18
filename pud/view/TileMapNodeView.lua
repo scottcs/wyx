@@ -46,7 +46,7 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 
 		setRenderTarget(fb)
 
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		if bgquad then drawq(tileset, bgquad, 0, 0) end
 		drawq(tileset, quad, 0, 0)
 

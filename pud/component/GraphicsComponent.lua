@@ -13,8 +13,8 @@ local nearestPO2 = nearestPO2
 
 local verify, assert, tostring = verify, assert, tostring
 
-local COLOR_DIM = {0.5, 0.5, 0.5}
-local COLOR_NORMAL = {1, 1, 1}
+local COLOR_DIM = colors.GREY40
+local COLOR_NORMAL = colors.WHITE
 
 -- GraphicsComponent
 --
@@ -184,7 +184,7 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
 		setRenderTarget(self._backfb)
-		setColor(1,1,1)
+		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
 		setRenderTarget()
 

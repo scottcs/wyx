@@ -40,9 +40,9 @@ local Level = Class{name='Level',
 
 		-- lighting color value table
 		self._lightColor = {
-			black = {0,0,0},
-			dim = {0.4, 0.4, 0.4},
-			lit = {1,1,1},
+			black = colors.BLACK,
+			dim = colors.GREY40,
+			lit = colors.WHITE,
 		}
 		self._lightmap = {}
 		self._entities = {}
