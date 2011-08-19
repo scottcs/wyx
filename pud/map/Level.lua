@@ -209,17 +209,19 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: get entities algorithmically rather than hardcoding
-	local enemy = enumerate('entity/enemy')
+	-- TODO: get entities algorithmically
+	local enemyEntities = EnemyDB:getByELevel(1,30)
+	local numEnemyEntities = #enemyEntities
 	for i=1,10 do
-		local enemyName = match(enemy[Random(#enemy)], "(%w+)%.json")
-		self._entities[i] = self._enemyFactory:createEntity(enemyName)
+		local which = enemyEntities[Random(numEnemyEntities)]
+		self._entities[i] = self._enemyFactory:createEntity(which)
 	end
 
-	-- TODO: choose hero rather than hardcode Warrior
+	-- TODO: choose hero from interface
 	local hero = enumerate('entity/hero')
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	self._primeEntity = self._heroFactory:createEntity(heroName)
+	local which = HeroDB:getByFilename(heroName)
+	self._primeEntity = self._heroFactory:createEntity(which)
 	self._entities[#self._entities+1] = self._primeEntity
 	local primeEntity = EntityRegistry:get(self._primeEntity)
 	primeEntity:send(message('SCREEN_STATUS'), 'lit')
