@@ -1,5 +1,6 @@
 Implement Components:
   - fix tests
+	d add registry for entities
   + need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth")
 	o change Level representation of enemy to be by position in a table for faster lookup
   - support lua in properties when read from file
@@ -33,6 +34,3 @@ Beyond v0.1.0:
 
 NOTES:
 
-  Events:
-  ? currently I am queueing and flushing events... is this necessary or even
-    wise? Might account for performance issues? Look into it!
