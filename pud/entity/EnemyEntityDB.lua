@@ -2,6 +2,9 @@ local Class = require 'lib.hump.class'
 local EntityDB = getClass 'pud.entity.EntityDB'
 local property = require 'pud.component.property'
 
+local math_floor = math.floor
+local _round = function(x) return math_floor(x+0.5) end
+
 -- EnemyEntityDB
 --
 local EnemyEntityDB = Class{name='EnemyEntityDB',
@@ -43,7 +46,7 @@ function EnemyEntityDB:_calculateELevel(info)
 		defense = info.components.CombatComponent.Defense
 	end
 
-	return (maxHealth*0.5) + (attack*0.25) + (defense*0.25)
+	return _round((maxHealth*0.5) + (attack*0.25) + (defense*0.25))
 end
 
 -- the class
