@@ -8,6 +8,7 @@ Implement Components:
   -   InfoPanelComponent - just a guess here... mouseover info panel thingy
   +     AIInputComponent - AI routines, sends same messages as input component
 	+       Simple random AI for testing
+	+ AttackCommand
   x InputSystem - ticks InputComponents
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   x AISystem - ticks AIComponents
