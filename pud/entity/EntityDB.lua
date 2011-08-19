@@ -65,7 +65,7 @@ function EntityDB:load()
 	for i=1,numFiles do
 		local filename = entityFiles[i]
 
-		local contents, size = read(filename)
+		local contents, size = read(path..'/'..filename)
 
 		-- these files should be at mininmum 27 bytes
 		if size < 27 then
@@ -98,8 +98,8 @@ function EntityDB:_processEntityInfo(info)
 	info.name = info.name or format("%s %s (%d)",
 		info.family, info.kind, info.variation)
 
-	self._byFilename[filename] = info
-	self._byName[name] = info
+	self._byFilename[info.filename] = info
+	self._byName[info.name] = info
 
 	local size, key
 
