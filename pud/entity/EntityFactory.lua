@@ -36,8 +36,8 @@ function EntityFactory:_getEntityInfo(entityName)
 end
 
 function EntityFactory:_processEntityInfo(info)
-	info.family = info.family or "Unknown Family"
-	info.kind = info.kind or "Unknown Kind"
+	info.family = info.family or "FAMILY?"
+	info.kind = info.kind or "KIND?"
 	info.variation = info.variation or 1
 	info.name = info.name or format("%s %s (%d)",
 		info.family, info.kind, info.variation)
@@ -131,7 +131,7 @@ end
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
 	self:_processEntityInfo(info)
-	local entity = Entity(self._etype, info.name, self:_getComponents(info))
+	local entity = Entity(self._etype, info, self:_getComponents(info))
 	EntityRegistry:register(entity)
 	self:_addMissingRequiredComponents(entity)
 	entity:send(message('ENTITY_CREATED'))
