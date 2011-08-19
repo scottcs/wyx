@@ -47,9 +47,16 @@ end
          --]]--
 
 GameState = require 'lib.hump.gamestate'
-EventManager = getClass 'pud.event.EventManager'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
+
+
+         --[[--
+      LOCAL CLASSES
+         --]]--
+
+local EventManager = getClass 'pud.event.EventManager'
+local EntityRegistryClass = getClass 'pud.entity.EntityRegistry'
 
 
          --[[--
@@ -106,6 +113,9 @@ function love.load()
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
+
+	-- greate global entity registry
+	EntityRegistry = EntityRegistryClass()
 
 	-- make sure the save directories are created
 	_makeSaveDirectories()
@@ -185,6 +195,8 @@ end
 
 function love.quit()
 	tween.stopAll()
+
+	EntityRegistry:destroy()
 
 	GameEvents:destroy()
 	InputEvents:destroy()

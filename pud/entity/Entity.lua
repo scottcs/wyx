@@ -33,13 +33,16 @@ local Entity = Class{name = 'Entity',
 function Entity:destroy()
 	self._id = nil
 	self._name = nil
+
+	self:_clearComponentCache()
+	self._componentCache = nil
+
 	for k in pairs(self._components) do
 		self._components[k]:destroy()
 		self._components[k] = nil
 	end
 	self._components = nil
-	self:_clearComponentCache()
-	self._componentCache = nil
+
 	ComponentMediator.destroy(self)
 end
 

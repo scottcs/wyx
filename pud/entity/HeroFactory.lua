@@ -41,7 +41,8 @@ end
 ]]--
 
 -- set input component explicitly
-function HeroFactory:setInputComponent(entity, component)
+function HeroFactory:setInputComponent(id, component)
+	local entity = EntityRegistry:get(id)
 	local InputComponent = getClass 'pud.component.InputComponent'
 	verifyClass(InputComponent, component)
 	entity:removeComponent(InputComponent)
@@ -49,7 +50,8 @@ function HeroFactory:setInputComponent(entity, component)
 end
 
 -- set time component explicitly
-function HeroFactory:setTimeComponent(entity, component)
+function HeroFactory:setTimeComponent(id, component)
+	local entity = EntityRegistry:get(id)
 	local TimeComponent = getClass 'pud.component.TimeComponent'
 	verifyClass(TimeComponent, component)
 	local currentComps = entity:getComponentsByClass(TimeComponent)
