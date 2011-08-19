@@ -1,10 +1,12 @@
 {
-	"name": "GreenSlime",
+	"family": "Imp",
+	"kind": "Red",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {3, 12},
+				"right": {1, 10},
 			},
 		},
 		"HealthComponent": {

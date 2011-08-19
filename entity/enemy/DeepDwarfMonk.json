@@ -1,5 +1,7 @@
 {
-	"name": "DeepDwarfMonk",
+	"family": "Deep Dwarf",
+	"kind": "Monk",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

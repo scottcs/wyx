@@ -74,6 +74,9 @@ function CombatComponent:getProperty(p, intermediate, ...)
 end
 
 function CombatComponent:_attack(opponent)
+	if type(opponent) == 'number' then
+		opponent = EntityRegistry:get(opponent)
+	end
 	local oDefense = opponent:query(property('Defense'))
 	oDefense = oDefense + opponent:query(property('DefenseBonus'))
 	local attack = self._mediator:query(property('Attack'))

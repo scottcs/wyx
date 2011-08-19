@@ -1,5 +1,7 @@
 {
-	"name": "Priest",
+	"family": "Human",
+	"kind": "Priest",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

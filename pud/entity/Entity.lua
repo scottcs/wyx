@@ -10,14 +10,20 @@ local type, pairs, tostring = type, pairs, tostring
 local _id = 0
 local Entity = Class{name = 'Entity',
 	inherits=ComponentMediator,
-	function(self, entityType, name, components)
+	function(self, etype, info, components)
 		ComponentMediator.construct(self)
 		_id = _id + 1
 		self._id = _id
 
-		verify('string', name, entityType)
-		self._name = name
-		self._type = entityType
+		verify('string', etype)
+		verify('table', info)
+
+		self._name = info.name
+		self._etype = etype
+		self._family = info.family
+		self._kind = info.kind
+		self._variation = info.variation
+		self._elevel = info.elevel
 		self._components = {}
 		self._componentCache = setmetatable({}, {__mode = 'kv'})
 
@@ -33,19 +39,26 @@ local Entity = Class{name = 'Entity',
 function Entity:destroy()
 	self._id = nil
 	self._name = nil
+
+	self:_clearComponentCache()
+	self._componentCache = nil
+
 	for k in pairs(self._components) do
 		self._components[k]:destroy()
 		self._components[k] = nil
 	end
 	self._components = nil
-	self:_clearComponentCache()
-	self._componentCache = nil
+
 	ComponentMediator.destroy(self)
 end
 
 function Entity:getID() return self._id end
 function Entity:getName() return self._name end
-function Entity:getType() return self._type end
+function Entity:getEntityType() return self._etype end
+function Entity:getFamily() return self._family end
+function Entity:getKind() return self._kind end
+function Entity:getVariation() return self._variation end
+function Entity:getELevel() return self._elevel end
 
 function Entity:_clearComponentCache()
 	for k in pairs(self._componentCache) do self._componentCache[k] = nil end

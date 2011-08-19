@@ -6,8 +6,10 @@ local Event = getClass 'pud.event.Event'
 local ZoneTriggerEvent = Class{name='ZoneTriggerEvent',
 	inherits=Event,
 	function(self, entity, zone, isLeaving)
-		verifyClass('pud.entity.Entity', entity)
+		verify('number', entity)
 		verify('string', zone)
+		assert(EntityRegistry:exists(entity),
+			'ZoneTriggerEvent: entity %d does not exist', entity)
 
 		Event.construct(self, 'Zone Trigger Event')
 

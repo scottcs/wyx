@@ -6,8 +6,10 @@ local Event = getClass 'pud.event.Event'
 local EntityPositionEvent = Class{name='EntityPositionEvent',
 	inherits=Event,
 	function(self, entity, toX, toY, fromX, fromY)
-		verifyClass('pud.entity.Entity', entity)
-		verify('number', toX, toY, fromX, fromY)
+		if type(entity) ~= 'number' then entity = entity:getID() end
+		verify('number', entity, toX, toY, fromX, fromY)
+		assert(EntityRegistry:exists(entity),
+			'EntitiyPositionEvent: entity %d does not exist', entity)
 
 		Event.construct(self, 'Entity Position Event')
 
@@ -22,10 +24,10 @@ local EntityPositionEvent = Class{name='EntityPositionEvent',
 -- destructor
 function EntityPositionEvent:destroy()
 	self._entity = nil
-		self._toX = nil
-		self._toY = nil
-		self._fromX = nil
-		self._fromY = nil
+	self._toX = nil
+	self._toY = nil
+	self._fromX = nil
+	self._fromY = nil
 	Event.destroy(self)
 end
 

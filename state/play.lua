@@ -161,7 +161,7 @@ function st:keypressed(key, unicode)
 	local _,zoomAmt = self._cam:getZoom()
 
 	switch(key) {
-		escape = function() love.event.push('q') end,
+		escape = function() GameState.switch(State.shutdown) end,
 		m = function()
 			self._view:setAnimate(false)
 			self._level:generateSimpleGridMap()

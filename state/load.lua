@@ -7,6 +7,11 @@
 
 local st = GameState.new()
 
+-- global entity databases
+local HeroEntityDB = getClass 'pud.entity.HeroEntityDB'
+local EnemyEntityDB = getClass 'pud.entity.EnemyEntityDB'
+local ItemEntityDB = getClass 'pud.entity.ItemEntityDB'
+
 local math_max = math.max
 
 local _loading = 'Loading...'
@@ -28,7 +33,6 @@ function st:init()
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 	}
-
 end
 
 function st:enter()
@@ -44,37 +48,64 @@ function st:enter()
 		},
 	}
 
-	tween(0.3, self.fadeColor, colors.BLACK_A00, 'inSine',
-		self.load, self)
+	local numLines = #self.lines
+	for i=1,numLines do
+		local l = self.lines[i]
+		l.drawX = l.x - l.font:getWidth(l.text)/2
+		l.drawY = l.y - l.font:getHeight()
+	end
+
+	self._fadeIn = 0
 end
 
 function st:load()
-	local start = love.timer.getMicroTime()
+	local start = love.timer.getTime()
 
 	-- load normal fonts
 	for _,size in ipairs{14, 15, 16, 18, 20, 24} do
 		local f = Font[size]
 	end
 
-	-- fade out to next state
-	-- load time is added to cron time because next update dt will be
-	-- close to stop - start
-	local stop = love.timer.getMicroTime()
-	local loadTime = math_max(1, stop - start)
-	cron.after(.1 + loadTime, self.fadeout, self)
+	-- load entities
+	HeroDB = HeroEntityDB()
+	EnemyDB = EnemyEntityDB()
+	ItemDB = ItemEntityDB()
+
+	HeroDB:load()
+	EnemyDB:load()
+	ItemDB:load()
+
+	local loadTime = love.timer.getTime() - start
+	self._fadeOut = loadTime
 end
 
-function st:fadeout()
-	tween(0.3, self.fadeColor, colors.BLACK, 'outQuint',
-		GameState.switch, self.nextState)
+function st:update(dt)
+	if self._fadeIn then
+		self._fadeIn = self._fadeIn + dt
+		if self._fadeIn > 0.3 then
+			self._fadeIn = nil
+			tween(0.3, self.fadeColor, colors.BLACK_A00, 'inSine',
+				self.load, self)
+		end
+	end
+
+	if self._fadeOut then
+		self._fadeOut = self._fadeOut + dt
+		if self._fadeOut > 1 then
+			self._fadeOut = nil
+			tween(0.3, self.fadeColor, colors.BLACK, 'outQuint',
+				GameState.switch, self.nextState)
+		end
+	end
 end
 
 function st:draw()
-	for _,l in ipairs(self.lines) do
+	local numLines = #self.lines
+	for i=1,numLines do
+		local l = self.lines[i]
 		love.graphics.setFont(l.font)
 		love.graphics.setColor(l.color)
-		love.graphics.print(l.text,
-			l.x - l.font:getWidth(l.text)/2, l.y-l.font:getHeight())
+		love.graphics.print(l.text, l.drawX, l.drawY)
 	end
 
 	-- fader

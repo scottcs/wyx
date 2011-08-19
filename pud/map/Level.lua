@@ -18,9 +18,9 @@ local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 
 -- entities
-local HeroFactory = getClass 'pud.entity.HeroFactory'
-local EnemyFactory = getClass 'pud.entity.EnemyFactory'
-local ItemFactory = getClass 'pud.entity.ItemFactory'
+local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
+local EnemyEntityFactory = getClass 'pud.entity.EnemyEntityFactory'
+local ItemEntityFactory = getClass 'pud.entity.ItemEntityFactory'
 local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -34,9 +34,9 @@ local GameEvents = GameEvents
 --
 local Level = Class{name='Level',
 	function(self)
-		self._heroFactory = HeroFactory()
-		self._enemyFactory = EnemyFactory()
-		self._itemFactory = ItemFactory()
+		self._heroFactory = HeroEntityFactory()
+		self._enemyFactory = EnemyEntityFactory()
+		self._itemFactory = ItemEntityFactory()
 
 		-- lighting color value table
 		self._lightColor = {
@@ -60,18 +60,18 @@ function Level:destroy()
 	GameEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
+
 	self._heroFactory:destroy()
 	self._heroFactory = nil
 	self._enemyFactory:destroy()
 	self._enemyFactory = nil
 	self._itemFactory:destroy()
 	self._itemFactory = nil
-	for k in pairs(self._entities) do
-		self._entities[k]:destroy()
-		self._entities[k] = nil
-	end
+
+	for k in pairs(self._entities) do self._entities[k] = nil end
 	self._entities = nil
 	self._primeEntity = nil
+
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
@@ -130,14 +130,15 @@ function Level:_generateMap(builder)
 
 	local numEntities = #self._entities
 	for i=1,numEntities do
-		local entity = self._entities[i]
+		local entityID = self._entities[i]
 
-		if entity == self._primeEntity then
+		if entityID == self._primeEntity then
 			local ups = {}
 			for _,name in ipairs(self._map:getPortalNames()) do
 				if match(name, "^up%d") then ups[#ups+1] = name end
 			end
 			local x, y = self._map:getPortal(ups[Random(#ups)])
+			local entity = EntityRegistry:get(entityID)
 			entity:send(setPosition, x, y, x, y)
 			self:_bakeLights(true)
 		else
@@ -153,6 +154,7 @@ function Level:_generateMap(builder)
 				tries = tries - 1
 			until clear or tries == 0
 			if clear and tries > 0 then
+				local entity = EntityRegistry:get(entityID)
 				entity:send(setPosition, x, y, x, y)
 			else
 				remove[#remove+1] = entity
@@ -194,11 +196,12 @@ function Level:getEntitiesAtLocation(x, y)
 	local entCount = 0
 
 	for i=1,numEntities do
-		local entity = self._entities[i]
+		local entityID = self._entities[i]
+		local entity = EntityRegistry:get(entityID)
 		local ePos = entity:query(positionProp)
 		if ePos[1] == x and ePos[2] == y then
 			entCount = entCount + 1
-			ents[entCount] = entity
+			ents[entCount] = entityID
 		end
 	end
 
@@ -206,36 +209,41 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: get entities algorithmically rather than hardcoding
-	local enemy = enumerate('entity/enemy')
+	-- TODO: get entities algorithmically
+	local enemyEntities = EnemyDB:getByELevel(1,30)
+	local numEnemyEntities = #enemyEntities
 	for i=1,10 do
-		local enemyName = match(enemy[Random(#enemy)], "(%w+)%.json")
-		self._entities[i] = self._enemyFactory:createEntity(enemyName)
+		local which = enemyEntities[Random(numEnemyEntities)]
+		self._entities[i] = self._enemyFactory:createEntity(which)
 	end
 
-	-- TODO: choose hero rather than hardcode Warrior
+	-- TODO: choose hero from interface
 	local hero = enumerate('entity/hero')
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	self._primeEntity = self._heroFactory:createEntity(heroName)
+	local which = HeroDB:getByFilename(heroName)
+	self._primeEntity = self._heroFactory:createEntity(which)
 	self._entities[#self._entities+1] = self._primeEntity
-	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	primeEntity:send(message('SCREEN_STATUS'), 'lit')
 end
 
 function Level:removeAllEntities()
 	local num = #self._entities
 	for i=1,num do
-		self._entities[i]:destroy()
+		local entity = EntityRegistry:unregister(self._entities[i])
+		entity:destroy()
 		self._entities[i] = nil
 	end
 end
 
-function Level:removeEntity(entity)
+function Level:removeEntity(entityID)
 	local num = #self._entities
 	local newEntities = {}
 	local count = 1
 	for i=1,num do
 		local e = self._entities[i]
-		if entity == e then
+		if entityID == e then
+			local entity = EntityRegistry:unregister(entityID)
 			entity:destroy()
 		else
 			newEntities[count] = e
@@ -267,16 +275,17 @@ function Level:EntityPositionEvent(e)
 end
 
 function Level:EntityDeathEvent(e)
-	local entity = e:getEntity()
+	local entityID = e:getEntity()
 	local reason = e:getReason() or "unknown reason"
 
-	if entity == self._primeEntity then
+	if entityID == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
 	else
+		local entity = EntityRegistry:get(entityID)
 		local name = entity and entity:getName() or "unknown entity"
 		local msg = name..' '..reason
 		GameEvents:push(DisplayPopupMessageEvent(msg))
-		self:removeEntity(entity)
+		self:removeEntity(entityID)
 	end
 end
 
@@ -368,8 +377,9 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local radius = self._primeEntity:query('Visibility')
-	local primePos = self._primeEntity:query('Position')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local radius = primeEntity:query('Visibility')
+	local primePos = primeEntity:query('Position')
 
 	self:_resetLights(blackout)
 
@@ -388,7 +398,7 @@ function Level:_bakeLights(blackout)
 	local positionProp = property('Position')
 
 	for i=1,numEntities do
-		local ent = self._entities[i]
+		local ent = EntityRegistry:get(self._entities[i])
 		local pos = ent:query(positionProp)
 		local status = 'black'
 		if    self._lightmap

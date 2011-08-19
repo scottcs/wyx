@@ -1,5 +1,7 @@
 {
-	"name": "SkeletonMage",
+	"family": "Skeleton",
+	"kind": "Mage",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

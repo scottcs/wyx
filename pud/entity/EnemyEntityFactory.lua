@@ -1,9 +1,9 @@
 local Class = require 'lib.hump.class'
 local EntityFactory = getClass 'pud.entity.EntityFactory'
 
--- EnemyFactory
+-- EnemyEntityFactory
 -- creates entities based on data files
-local EnemyFactory = Class{name='EnemyFactory',
+local EnemyEntityFactory = Class{name='EnemyEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'enemy')
@@ -22,9 +22,9 @@ local EnemyFactory = Class{name='EnemyFactory',
 }
 
 -- destructor
-function EnemyFactory:destroy()
+function EnemyEntityFactory:destroy()
 	EntityFactory.destroy(self)
 end
 
 -- the class
-return EnemyFactory
+return EnemyEntityFactory
