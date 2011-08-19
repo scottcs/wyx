@@ -7,6 +7,7 @@ local message = require 'pud.component.message'
 local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
+		self._messages = {}
 		self:_createProperties(newProperties)
 	end
 }
@@ -15,10 +16,11 @@ local Component = Class{name='Component',
 function Component:destroy()
 	for k in pairs(self._properties) do self._properties[k] = nil end
 	self._properties = nil
-	if self._attachMessages then
-		self:detachMessages()
-		self._attachMessages = nil
-	end
+
+	self:detachMessages()
+	for k in pairs(self._messages) do self._messages[k] = nil end
+	self._messages = nil
+
 	self._mediator = nil
 end
 
@@ -47,6 +49,15 @@ function Component:_createProperties(newProperties)
 	end
 end
 
+-- add messages that will be attached
+function Component:_addMessages(...)
+	local num = select('#', ...)
+	for i=1,num do
+		local msg = message(select(i, ...))
+		self._messages[msg] = true
+	end
+end
+
 -- set/get the mediator who owns this component
 function Component:setMediator(mediator)
 	verifyClass('pud.component.ComponentMediator', mediator)
@@ -56,23 +67,15 @@ function Component:getMediator() return self._mediator end
 
 -- attach all of this component's messages to its mediator
 function Component:attachMessages()
-	if self._attachMessages then
-		local num = #self._attachMessages
-		for i=1,num do
-			local msg = message(self._attachMessages[i])
-			self._mediator:attach(msg, self)
-		end
+	for msg in pairs(self._messages) do
+		self._mediator:attach(msg, self)
 	end
 end
 
 -- detach all of this component's messages to its mediator
 function Component:detachMessages()
-	if self._attachMessages then
-		local num = #self._attachMessages
-		for i=1,num do
-			local msg = message(self._attachMessages[i])
-			self._mediator:detach(msg, self)
-		end
+	for msg in pairs(self._messages) do
+		self._mediator:detach(msg, self)
 	end
 end
 

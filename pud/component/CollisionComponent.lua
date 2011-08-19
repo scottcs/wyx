@@ -15,12 +15,12 @@ local CollisionComponent = Class{name='CollisionComponent',
 			'CanMove',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {
+		self:_addMessages(
 			'COLLIDE_ENEMY',
 			'COLLIDE_HERO',
 			'COLLIDE_BLOCKED',
 			'COLLIDE_NONE'
-		}
+		)
 	end
 }
 

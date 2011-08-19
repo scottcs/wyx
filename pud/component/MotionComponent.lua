@@ -13,7 +13,7 @@ local MotionComponent = Class{name='MotionComponent',
 	function(self, properties)
 		ModelComponent._addRequiredProperties(self, {'Position'})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'SET_POSITION'}
+		self:_addMessages('SET_POSITION')
 	end
 }
 

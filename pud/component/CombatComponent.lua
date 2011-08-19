@@ -16,7 +16,7 @@ local CombatComponent = Class{name='CombatComponent',
 			'DefenseBonus',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COLLIDE_ENEMY', 'COLLIDE_HERO'}
+		self:_addMessages('COLLIDE_ENEMY', 'COLLIDE_HERO')
 	end
 }
 

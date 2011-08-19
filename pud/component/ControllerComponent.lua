@@ -16,7 +16,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 	function(self, newProperties)
 		Component._addRequiredProperties(self, {'CanOpenDoors'})
 		Component.construct(self, newProperties)
-		self._attachMessages = {'COLLIDE_BLOCKED'}
+		self:_addMessages('COLLIDE_BLOCKED')
 	end
 }
 

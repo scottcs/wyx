@@ -28,7 +28,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		ViewComponent.construct(self, properties)
-		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED', 'SCREEN_STATUS'}
+		self:_addMessages('ENTITY_CREATED', 'HAS_MOVED', 'SCREEN_STATUS')
 		self._frames = {}
 		self._curFrame = 'right'
 		self._lit = 'black'

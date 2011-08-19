@@ -18,7 +18,7 @@ local HealthComponent = Class{name='HealthComponent',
 			'MaxHealthBonus',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COMBAT_DAMAGE', 'ENTITY_DEATH'}
+		self:_addMessages('COMBAT_DAMAGE', 'ENTITY_DEATH')
 	end
 }
 

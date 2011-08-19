@@ -12,7 +12,7 @@ local PlayerInputComponent = Class{name='PlayerInputComponent',
 	inherits=InputComponent,
 	function(self, properties)
 		InputComponent.construct(self, properties)
-		self._attachMessages = {'TIME_TICK'}
+		self:_addMessages('TIME_TICK')
 		InputEvents:register(self, KeyboardEvent)
 	end
 }
