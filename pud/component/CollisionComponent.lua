@@ -19,8 +19,7 @@ local CollisionComponent = Class{name='CollisionComponent',
 			'COLLIDE_ENEMY',
 			'COLLIDE_HERO',
 			'COLLIDE_BLOCKED',
-			'COLLIDE_NONE'
-		)
+			'COLLIDE_NONE')
 	end
 }
 
