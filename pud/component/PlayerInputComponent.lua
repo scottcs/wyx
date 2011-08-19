@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local InputComponent = getClass 'pud.component.InputComponent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
 local InputEvents = InputEvents
@@ -11,6 +12,7 @@ local PlayerInputComponent = Class{name='PlayerInputComponent',
 	inherits=InputComponent,
 	function(self, properties)
 		InputComponent.construct(self, properties)
+		self._attachMessages = {'TIME_TICK'}
 		InputEvents:register(self, KeyboardEvent)
 	end
 }
@@ -61,6 +63,15 @@ function PlayerInputComponent:KeyboardEvent(e)
 		if doTick then self:_setProperty(property('DoTick'), true) end
 	end
 end
+
+function PlayerInputComponent:receive(msg, ...)
+	if msg == message('TIME_TICK') then
+		self:_setProperty(property('DoTick'), false)
+	else
+		InputComponent.receive(self, msg, ...)
+	end
+end
+
 
 -- the class
 return PlayerInputComponent
