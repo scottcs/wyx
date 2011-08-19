@@ -75,12 +75,10 @@ function EntityDB:load()
 		local info, pos, err = json.decode(contents)
 		if err then error(err) end
 
+		filename = match(filename, "(%w+).json") or filename
 		info.filename = filename
 		self:_processEntityInfo(info)
 	end
-
-	local inspect = require 'lib.inspect'
-	print('###########',inspect(self._byELevel))
 end
 
 -- process information read from entity file and store for easy retrieval
