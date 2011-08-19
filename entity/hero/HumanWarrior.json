@@ -1,5 +1,7 @@
 {
-	"name": "Warrior",
+	"family": "Human",
+	"kind": "Warrior",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

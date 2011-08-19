@@ -1,12 +1,12 @@
 {
-	"family": "Goblin",
-	"kind": "Grunt",
+	"family": "Imp",
+	"kind": "White",
 	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 6},
+				"right": {2, 10},
 			},
 		},
 		"HealthComponent": {

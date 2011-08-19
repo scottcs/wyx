@@ -1,21 +1,21 @@
 {
-	"family": "Goblin",
-	"kind": "Grunt",
-	"variation": 1,
+	"family": "Skeleton",
+	"kind": "Mage",
+	"variation": 2,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 6},
+				"right": {4, 7},
 			},
 		},
 		"HealthComponent": {
-			"Health": 24,
-			"MaxHealth": 24,
+			"Health": 4,
+			"MaxHealth": 4,
 		}
 		"CombatComponent": {
-			"Attack": 2,
-			"Defense": 3,
+			"Attack": 6,
+			"Defense": 5,
 		}
 	}
 }

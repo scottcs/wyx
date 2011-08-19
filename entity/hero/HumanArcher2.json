@@ -1,12 +1,14 @@
 {
-	"name": "Pirate",
+	"family": "Human",
+	"kind": "Archer",
+	"variation": 2,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {12, 1},
+				"right": {1, 2},
 				},
-			"Visibility": 4,
+			"Visibility": 10,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,

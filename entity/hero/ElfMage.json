@@ -1,12 +1,14 @@
 {
-	"name": "FemaleArcher",
+	"family": "Elf",
+	"kind": "Mage",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 2},
+				"right": {5, 1},
 				},
-			"Visibility": 10,
+			"Visibility": 8,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,

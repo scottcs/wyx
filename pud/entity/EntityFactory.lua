@@ -3,24 +3,25 @@ local Entity = getClass 'pud.entity.Entity'
 local message = require 'pud.component.message'
 
 local json = require 'lib.dkjson'
+local format = string.format
 
 
 -- EntityFactory
 -- creates entities based on data files
 local EntityFactory = Class{name='EntityFactory',
-	function(self, kind)
-		self._kind = kind or 'UNKNOWN'
+	function(self, etype)
+		self._etype = etype or 'UNKNOWN'
 		self._renderLevel = 30
 	end
 }
 
 -- destructor
 function EntityFactory:destroy()
-	self._kind = nil
+	self._etype = nil
 end
 
 function EntityFactory:_getEntityInfo(entityName)
-	local filename = 'entity/'..self._kind..'/'..entityName..'.json'
+	local filename = 'entity/'..self._etype..'/'..entityName..'.json'
 	local contents, size = love.filesystem.read(filename)
 
 	-- these files should be at mininmum 27 bytes
@@ -32,6 +33,14 @@ function EntityFactory:_getEntityInfo(entityName)
 	if err then error(err) end
 
 	return obj
+end
+
+function EntityFactory:_processEntityInfo(info)
+	info.family = info.family or "Unknown Family"
+	info.kind = info.kind or "Unknown Kind"
+	info.variation = info.variation or 1
+	info.name = info.name or format("%s %s (%d)",
+		info.family, info.kind, info.variation)
 end
 
 -- check for required components, and add any that are missing
@@ -121,7 +130,8 @@ end
 
 function EntityFactory:createEntity(entityName)
 	local info = self:_getEntityInfo(entityName)
-	local entity = Entity(self._kind, info.name, self:_getComponents(info))
+	self:_processEntityInfo(info)
+	local entity = Entity(self._etype, info.name, self:_getComponents(info))
 	EntityRegistry:register(entity)
 	self:_addMissingRequiredComponents(entity)
 	entity:send(message('ENTITY_CREATED'))

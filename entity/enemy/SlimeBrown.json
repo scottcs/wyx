@@ -1,10 +1,12 @@
 {
-	"name": "Imp",
+	"family": "Slime",
+	"kind": "Brown",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 10},
+				"right": {2, 12},
 			},
 		},
 		"HealthComponent": {
