@@ -48,7 +48,7 @@ function CollisionSystem:check(obj, x, y)
 			local otherEntityID = entities[i]
 			local otherEntity = EntityRegistry:get(otherEntityID)
 			if otherEntity ~= obj and self._registered:exists(otherEntity) then
-				local otherEntityType = otherEntity:getType()
+				local otherEntityType = otherEntity:getEntityType()
 				if otherEntityType == 'enemy' then
 					obj:send(collideEnemy, otherEntityID)
 					collision = true

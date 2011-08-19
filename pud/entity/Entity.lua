@@ -54,7 +54,7 @@ end
 
 function Entity:getID() return self._id end
 function Entity:getName() return self._name end
-function Entity:getType() return self._type end
+function Entity:getEntityType() return self._etype end
 function Entity:getFamily() return self._family end
 function Entity:getKind() return self._kind end
 function Entity:getVariation() return self._variation end

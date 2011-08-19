@@ -35,7 +35,7 @@ function EntityRegistry:register(entity)
 	verifyClass('pud.entity.Entity', entity)
 	local id = entity:getID()
 	local name = entity:getName()
-	local etype = entity:getType()
+	local etype = entity:getEntityType()
 	verify('number', id)
 	verify('string', name, etype)
 
