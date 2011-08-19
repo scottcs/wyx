@@ -78,7 +78,7 @@ function TimeSystem:tick()
 	end
 
 	if self._timeTravelers:size() > 0 and comp:shouldTick() then
-		-- rotate so that the front is now the back and front.right is front
+		-- rotate the deque
 		self._timeTravelers:rotate_forward()
 
 		-- increase action points by the componet's speed

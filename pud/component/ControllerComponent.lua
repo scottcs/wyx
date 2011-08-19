@@ -39,7 +39,7 @@ end
 -- tell the mediator to move along x, y
 function ControllerComponent:move(x, y)
 	local command = MoveCommand(self._mediator, x, y)
-	CommandEvents:push(CommandEvent(command))
+	CommandEvents:notify(CommandEvent(command))
 end
 
 function ControllerComponent:_tryToManipulateMap(node)
@@ -48,7 +48,7 @@ function ControllerComponent:_tryToManipulateMap(node)
 	if mapType:isType(DoorMapType('shut')) then
 		if self._mediator:query(property('CanOpenDoors')) then
 			local command = OpenDoorCommand(self._mediator, node)
-			CommandEvents:push(CommandEvent(command))
+			CommandEvents:notify(CommandEvent(command))
 		end
 	end
 end
