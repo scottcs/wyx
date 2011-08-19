@@ -6,8 +6,12 @@ Implement Components:
 	o change Level representation of enemy to be by position in a table for faster lookup
   o support lua in properties when read from file
   -   InfoPanelComponent - just a guess here... mouseover info panel thingy
-  +     AIInputComponent - AI routines, sends same messages as input component
-	+       Simple random AI for testing
+  d     AIInputComponent - AI routines, sends same messages as input component
+	d       Simple random AI for testing
+	+ fix enemy drawing
+	+    flickering
+	+    lighting not updated until next frame
+	+    if out of player sight, don't draw
 	+ AttackCommand
   x InputSystem - ticks InputComponents
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
