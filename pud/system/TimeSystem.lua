@@ -86,6 +86,7 @@ function TimeSystem:tick()
 		local speed = comp:getTotalSpeed()
 
 		ap[comp] = ap[comp] + speed
+		comp:onTick(ap[comp])
 
 		-- spend all action points
 		if self._commandQueues[comp] then
@@ -94,10 +95,8 @@ function TimeSystem:tick()
 				if nextCommand then
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
 				end
-			until nil == nextCommand or self._actionPoints[comp] <= 0
+			until nil == nextCommand or ap[comp] <= 0
 		end
-
-		comp:onTick()
 	end
 end
 
