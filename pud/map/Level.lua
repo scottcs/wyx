@@ -18,9 +18,9 @@ local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 
 -- entities
-local HeroFactory = getClass 'pud.entity.HeroFactory'
-local EnemyFactory = getClass 'pud.entity.EnemyFactory'
-local ItemFactory = getClass 'pud.entity.ItemFactory'
+local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
+local EnemyEntityFactory = getClass 'pud.entity.EnemyEntityFactory'
+local ItemEntityFactory = getClass 'pud.entity.ItemEntityFactory'
 local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -34,9 +34,9 @@ local GameEvents = GameEvents
 --
 local Level = Class{name='Level',
 	function(self)
-		self._heroFactory = HeroFactory()
-		self._enemyFactory = EnemyFactory()
-		self._itemFactory = ItemFactory()
+		self._heroFactory = HeroEntityFactory()
+		self._enemyFactory = EnemyEntityFactory()
+		self._itemFactory = ItemEntityFactory()
 
 		-- lighting color value table
 		self._lightColor = {

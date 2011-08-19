@@ -1,9 +1,9 @@
 local Class = require 'lib.hump.class'
 local EntityFactory = getClass 'pud.entity.EntityFactory'
 
--- ItemFactory
+-- ItemEntityFactory
 -- creates entities based on data files
-local ItemFactory = Class{name='ItemFactory',
+local ItemEntityFactory = Class{name='ItemEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'item')
@@ -17,11 +17,11 @@ local ItemFactory = Class{name='ItemFactory',
 }
 
 -- destructor
-function ItemFactory:destroy()
+function ItemEntityFactory:destroy()
 	EntityFactory.destroy(self)
 end
 
 -- TODO: figure out how to set CanMove to false
 
 -- the class
-return ItemFactory
+return ItemEntityFactory
