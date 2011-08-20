@@ -209,14 +209,6 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,30)
-	local numEnemyEntities = #enemyEntities
-	for i=1,10 do
-		local which = enemyEntities[Random(numEnemyEntities)]
-		self._entities[i] = self._enemyFactory:createEntity(which)
-	end
-
 	-- TODO: choose hero from interface
 	local hero = enumerate('entity/hero')
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
@@ -224,7 +216,14 @@ function Level:createEntities()
 	self._primeEntity = self._heroFactory:createEntity(which)
 	self._entities[#self._entities+1] = self._primeEntity
 	local primeEntity = EntityRegistry:get(self._primeEntity)
-	primeEntity:send(message('SCREEN_STATUS'), 'lit')
+
+	-- TODO: get entities algorithmically
+	local enemyEntities = EnemyDB:getByELevel(1,30)
+	local numEnemyEntities = #enemyEntities
+	for i=2,11 do
+		local which = enemyEntities[Random(numEnemyEntities)]
+		self._entities[i] = self._enemyFactory:createEntity(which)
+	end
 end
 
 function Level:removeAllEntities()
@@ -413,7 +412,7 @@ end
 
 -- get a color table of the lighting for the specified point
 function Level:getLightingColor(x, y)
-	local color = self._lightmap[x][y] or 'black'
+	local color = self._lightmap[x] and self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
 
