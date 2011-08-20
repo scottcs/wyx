@@ -33,6 +33,10 @@ function st:init()
 			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		console = love.graphics.newImageFont('font/grafx2.png',
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
 	}
 end
 

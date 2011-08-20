@@ -12,7 +12,7 @@ local colors = colors
 
 local MARGIN = 8
 local BUFFER_SIZE = 1000
-local FONT = GameFont.verysmall
+local FONT = GameFont.console
 local FONT_H = FONT:getHeight()
 local DRAWLINES = math.floor(HEIGHT/FONT_H)-2
 local START_Y = math.floor(HEIGHT - (MARGIN + FONT_H*2))
