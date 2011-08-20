@@ -2,7 +2,10 @@ Implement Components:
   - fix tests
 	d add registry for entities
   d need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth") [sort of did this... calculate elevel instead]
-	+ console for info/debugging
+	d console for info/debugging
+	o   log console to file (with an option)
+	o   maybe different levels of messages [only log certain lines?]
+	o   allow input and create some awesome commands
 	o change Level representation of enemy to be by position in a table for faster lookup
   o support lua in properties when read from file
   -   InfoPanelComponent - just a guess here... mouseover info panel thingy
