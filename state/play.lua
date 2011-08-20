@@ -31,6 +31,10 @@ local GameEvents = GameEvents
 -- views
 local TileMapView = getClass 'pud.view.TileMapView'
 
+local setRenderTarget = love.graphics.setRenderTarget
+local setColor = love.graphics.setColor
+local draw = love.graphics.draw
+
 function st:enter()
 	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
 	love.keyboard.setKeyRepeat(100, 200)
@@ -42,6 +46,10 @@ function st:enter()
 	RenderSystem = RenderSystemClass()
 	TimeSystem = TimeSystemClass()
 	CollisionSystem = CollisionSystemClass(self._level)
+
+	local size = nearestPO2(math.max(WIDTH, HEIGHT))
+	self._ffb = self._ffb or love.graphics.newFramebuffer(size, size)
+	self._bfb = self._bfb or love.graphics.newFramebuffer(size, size)
 
 	self._level:generateSimpleGridMap()
 	self._level:setPlayerControlled()
@@ -123,14 +131,29 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
+
+	self:_updateFB()
 end
 
-function st:draw()
+function st:_updateFB()
+	setRenderTarget(self._bfb)
+
 	self._cam:predraw()
 	self._view:draw()
 	RenderSystem:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
+
+	setRenderTarget()
+
+	self._ffb, self._bfb = self._bfb, self._ffb
+end
+
+function st:draw()
+	if self._ffb then
+		setColor(colors.WHITE)
+		draw(self._ffb, 0, 0)
+	end
 	if self._debug then self._debugHUD:draw() end
 end
 
@@ -149,6 +172,8 @@ function st:leave()
 	self._messageHUD = nil
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil
+	self._ffb = nil
+	self._bfb = nil
 end
 
 function st:_postZoomIn(vp)
