@@ -11,11 +11,13 @@ local setFont = love.graphics.setFont
 local colors = colors
 
 local MARGIN = 8
-local BUFFER_SIZE = 100
-local FONT = Font[16]
+local BUFFER_SIZE = 1000
+local FONT = GameFont.verysmall
 local FONT_H = FONT:getHeight()
-local DRAWLINES = math.floor(HEIGHT/FONT_H)-3
-local START_Y = math.floor(HEIGHT - (MARGIN + FONT_H))
+local DRAWLINES = math.floor(HEIGHT/FONT_H)-2
+local START_Y = math.floor(HEIGHT - (MARGIN + FONT_H*2))
+
+print(FONT_H,DRAWLINES,START_Y)
 
 -- Console
 --
@@ -27,6 +29,8 @@ local Console = Class{name='Console',
 		local size = nearestPO2(math.max(WIDTH, HEIGHT))
 		self._ffb = love.graphics.newFramebuffer(size, size)
 		self._bfb = love.graphics.newFramebuffer(size, size)
+
+		self:_drawFB()
 	end
 }
 
@@ -46,14 +50,14 @@ function Console:clear()
 	self:_drawFB()
 end
 
-function Console:pgup()
+function Console:pageup()
 	self._firstLine = self._firstLine + DRAWLINES
-	local max = self._buffer:size() - DRAWLINES
+	local max = 1+(self._buffer:size() - DRAWLINES)
 	if self._firstLine > max then self._firstLine = max end
 	self:_drawFB()
 end
 
-function Console:pgdn()
+function Console:pagedown()
 	self._firstLine = self._firstLine - DRAWLINES
 	if self._firstLine < 0 then self._firstLine = 0 end
 	self:_drawFB()
@@ -65,12 +69,14 @@ function Console:bottom()
 end
 
 function Console:top()
-	self._firstLine = self._buffer:size() - DRAWLINES
+	self._firstLine = 1+(self._buffer:size() - DRAWLINES)
 	self:_drawFB()
 end
 
 function Console:hide() self._show = false end
 function Console:show() self._show = true end
+function Console:toggle() self._show = not self._show end
+function Console:isVisible() return self._show == true end
 
 function Console:print(msg, ...)
 	if select('#', ...) > 0 then msg = format(msg, ...) end
