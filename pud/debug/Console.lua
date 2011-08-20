@@ -23,6 +23,7 @@ local Console = Class{name='Console',
 	function(self)
 		self._buffer = Deque()
 		self._firstLine = 0
+		self._drawColor = colors.WHITE
 
 		local size = nearestPO2(math.max(WIDTH, HEIGHT))
 		self._ffb = love.graphics.newFramebuffer(size, size)
@@ -36,15 +37,21 @@ local Console = Class{name='Console',
 function Console:destroy()
 	self._buffer:destroy()
 	self._buffer = nil
+	self._drawColor = nil
 	self._show = nil
 	self._firstLine = nil
 	self._ffb = nil
 	self._bfb = nil
 end
 
+function Console:_setDrawColor()
+	self._drawColor = self._firstLine == 0 and colors.WHITE or colors.ORANGE
+end
+
 function Console:clear()
 	self._buffer:clear()
 	self._firstLine = 0
+	self:_setDrawColor()
 	self:_drawFB()
 end
 
@@ -52,22 +59,26 @@ function Console:pageup()
 	self._firstLine = self._firstLine + DRAWLINES
 	local max = 1+(self._buffer:size() - DRAWLINES)
 	if self._firstLine > max then self._firstLine = max end
+	self:_setDrawColor()
 	self:_drawFB()
 end
 
 function Console:pagedown()
 	self._firstLine = self._firstLine - DRAWLINES
 	if self._firstLine < 0 then self._firstLine = 0 end
+	self:_setDrawColor()
 	self:_drawFB()
 end
 
 function Console:bottom()
 	self._firstLine = 0
+	self:_setDrawColor()
 	self:_drawFB()
 end
 
 function Console:top()
 	self._firstLine = 1+(self._buffer:size() - DRAWLINES)
+	self:_setDrawColor()
 	self:_drawFB()
 end
 
@@ -80,7 +91,7 @@ function Console:print(msg, ...)
 	if select('#', ...) > 0 then msg = format(msg, ...) end
 	self._buffer:push_front(msg)
 	if self._buffer:size() > BUFFER_SIZE then self._buffer:pop_back() end
-	self:_drawFB()
+	if self._firstLine == 0 then self:_drawFB() end
 end
 
 function Console:_drawFB()
@@ -115,7 +126,7 @@ end
 
 function Console:draw()
 	if self._show and self._ffb then
-		setColor(colors.WHITE)
+		setColor(self._drawColor)
 		draw(self._ffb, 0, 0)
 	end
 end
