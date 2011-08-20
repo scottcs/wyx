@@ -63,8 +63,8 @@ end
 
 function st:ZoneTriggerEvent(e)
 	if self._level:getPrimeEntity() == e:getEntity() then
-		local message = e:isLeaving() and 'Leaving' or 'Entering'
-		message = message..' Zone: '..tostring(e:getZone())
+		local message = e:isLeaving() and '- Zone: ' or '+ Zone: '
+		message = message..tostring(e:getZone())
 		self._console:print(message)
 	end
 end

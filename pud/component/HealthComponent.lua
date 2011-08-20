@@ -50,7 +50,7 @@ end
 
 function HealthComponent:_sendDeathMessage(actor)
 	local msg
-	if actor then msg = 'killed by '..tostring(actor)
+	if actor then msg = tostring(actor)
 	else msg = 'ceased to exist' end
 	self._mediator:send(message('ENTITY_DEATH'), msg)
 end

@@ -283,7 +283,7 @@ function Level:EntityDeathEvent(e)
 	else
 		local entity = EntityRegistry:get(entityID)
 		local name = entity and entity:getName() or "unknown entity"
-		local msg = name..' '..reason
+		local msg = 'Death: '..name..' ['..reason..']'
 		GameEvents:push(ConsoleEvent(msg))
 		self:removeEntity(entityID)
 	end
