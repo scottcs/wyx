@@ -14,6 +14,7 @@ local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
 local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 
@@ -284,7 +285,7 @@ function Level:EntityDeathEvent(e)
 		local entity = EntityRegistry:get(entityID)
 		local name = entity and entity:getName() or "unknown entity"
 		local msg = name..' '..reason
-		GameEvents:push(DisplayPopupMessageEvent(msg))
+		GameEvents:push(ConsoleEvent(msg))
 		self:removeEntity(entityID)
 	end
 end
