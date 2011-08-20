@@ -13,6 +13,7 @@ local EnemyEntityDB = getClass 'pud.entity.EnemyEntityDB'
 local ItemEntityDB = getClass 'pud.entity.ItemEntityDB'
 
 local math_max = math.max
+local colors = colors
 
 local _loading = 'Loading...'
 local _x, _y

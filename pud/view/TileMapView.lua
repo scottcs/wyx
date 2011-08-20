@@ -26,6 +26,7 @@ local newQuad = love.graphics.newQuad
 local setRenderTarget = love.graphics.setRenderTarget
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
+local colors = colors
 local nearestPO2 = nearestPO2
 
 -- TileMapView

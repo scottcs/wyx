@@ -7,6 +7,7 @@ local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local nearestPO2 = nearestPO2
+local colors = colors
 
 local error, assert, pairs, type, unpack = error, assert, pairs, type, unpack
 
