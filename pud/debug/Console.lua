@@ -17,8 +17,6 @@ local FONT_H = FONT:getHeight()
 local DRAWLINES = math.floor(HEIGHT/FONT_H)-2
 local START_Y = math.floor(HEIGHT - (MARGIN + FONT_H*2))
 
-print(FONT_H,DRAWLINES,START_Y)
-
 -- Console
 --
 local Console = Class{name='Console',
