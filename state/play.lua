@@ -111,6 +111,8 @@ function st:_createDebugHUD()
 end
 
 function st:_displayMessage(message, time)
+	self._console:print(message)
+
 	if self._messageHUD then
 		cron.cancel(self._messageID)
 		self._messageHUD:destroy()
