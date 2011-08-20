@@ -12,6 +12,7 @@ local setRenderTarget = love.graphics.setRenderTarget
 local setFont = love.graphics.setFont
 local rectangle = love.graphics.rectangle
 local nearestPO2 = nearestPO2
+local colors = colors
 
 local MARGIN = 8
 local LABEL = 50

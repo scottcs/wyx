@@ -8,6 +8,7 @@ local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
+local colors = colors
 local nearestPO2 = nearestPO2
 
 local verifyClass, setmetatable, pairs = verifyClass, setmetatable, pairs
