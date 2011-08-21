@@ -229,6 +229,26 @@ function resizeScreen(width, height)
 end
 
 
+-------------------------
+-- render target stack --
+-------------------------
+local setRenderTarget = love.graphics.setRenderTarget
+local Deque = getClass 'pud.kit.Deque'
+local rtStack = Deque()
+
+function pushRenderTarget(target)
+	if target then rtStack:push_back(target) end
+	setRenderTarget(target)
+end
+
+function popRenderTarget()
+	rtStack:pop_back()
+	local target = rtStack:back()
+	setRenderTarget(target)
+end
+
+
+
          --[[--
       AUDIO MANAGER
          --]]--

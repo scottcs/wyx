@@ -4,7 +4,7 @@ local math_max = math.max
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
@@ -45,13 +45,13 @@ function TileMapNodeView:_getfb(tileset, quad, bgquad)
 		local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
 		fb = newFramebuffer(size, size)
 
-		setRenderTarget(fb)
+		pushRenderTarget(fb)
 
 		setColor(colors.WHITE)
 		if bgquad then drawq(tileset, bgquad, 0, 0) end
 		drawq(tileset, quad, 0, 0)
 
-		setRenderTarget()
+		popRenderTarget()
 
 		_fbcache[self._key] = fb
 	end

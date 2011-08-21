@@ -8,7 +8,7 @@ local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local gprint = love.graphics.print
 local draw = love.graphics.draw
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setFont = love.graphics.setFont
 local rectangle = love.graphics.rectangle
 local nearestPO2 = nearestPO2
@@ -207,7 +207,7 @@ function DebugHUD:update(dt)
 end
 
 function DebugHUD:_drawFB()
-	setRenderTarget(self._fb)
+	pushRenderTarget(self._fb)
 
 	setFont(self._font)
 
@@ -247,7 +247,7 @@ function DebugHUD:_drawFB()
 		end
 	end
 
-	setRenderTarget()
+	popRenderTarget()
 end
 
 function DebugHUD:draw()

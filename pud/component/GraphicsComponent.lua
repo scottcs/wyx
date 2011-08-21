@@ -5,7 +5,7 @@ local message = require 'pud.component.message'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
@@ -184,10 +184,10 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
 		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
 
-		setRenderTarget(self._backfb)
+		pushRenderTarget(self._backfb)
 		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
-		setRenderTarget()
+		popRenderTarget()
 
 		self._fb, self._backfb = self._backfb, self._fb
 	end

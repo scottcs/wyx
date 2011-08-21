@@ -4,7 +4,7 @@ local Deque = getClass 'pud.kit.Deque'
 local format = string.format
 local gprint = love.graphics.print
 local draw = love.graphics.draw
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local rectangle = love.graphics.rectangle
 local setColor = love.graphics.setColor
 local setFont = love.graphics.setFont
@@ -95,7 +95,7 @@ function Console:print(msg, ...)
 end
 
 function Console:_drawFB()
-	setRenderTarget(self._bfb)
+	pushRenderTarget(self._bfb)
 
 	setColor(colors.BLACK_A70)
 	rectangle('fill', 0, 0, WIDTH, HEIGHT)
@@ -119,7 +119,7 @@ function Console:_drawFB()
 		skip = skip + 1
 	end
 
-	setRenderTarget()
+	popRenderTarget()
 
 	self._ffb, self._bfb = self._bfb, self._ffb
 end
