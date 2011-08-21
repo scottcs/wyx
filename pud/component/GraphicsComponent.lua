@@ -203,7 +203,7 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 end
 
 function GraphicsComponent:draw()
-	if self._lit ~= 'black' and self._ffb then
+	if self._lit == 'lit' and self._ffb then
 		setColor(self._color)
 		draw(self._ffb, self._drawX, self._drawY)
 	end
