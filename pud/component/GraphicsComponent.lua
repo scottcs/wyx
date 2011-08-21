@@ -44,8 +44,8 @@ function GraphicsComponent:destroy()
 	self._curFrame = nil
 	self._topFrame = nil
 	self._tileset = nil
-	self._fb = nil
-	self._backfb = nil
+	self._ffb = nil
+	self._bfb = nil
 	self._size = nil
 	ViewComponent.destroy(self)
 end
@@ -83,6 +83,7 @@ function GraphicsComponent:_setScreenStatus(status)
 	else
 		self._color = COLOR_NORMAL
 	end
+	self:_updateFB()
 end
 
 function GraphicsComponent:receive(msg, ...)
@@ -181,22 +182,24 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		self._curFrame = newFrame or self._curFrame
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
-		self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
-		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
+		if newX and newY then
+			self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
+		end
+		self._bfb = self._bfb or newFramebuffer(self._size, self._size)
 
-		pushRenderTarget(self._backfb)
+		pushRenderTarget(self._bfb)
 		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
 		popRenderTarget()
 
-		self._fb, self._backfb = self._backfb, self._fb
+		self._ffb, self._bfb = self._bfb, self._ffb
 	end
 end
 
 function GraphicsComponent:draw()
-	if self._lit ~= 'black' and self._fb then
+	if self._lit ~= 'black' and self._ffb then
 		setColor(self._color)
-		draw(self._fb, self._drawX, self._drawY)
+		draw(self._ffb, self._drawX, self._drawY)
 	end
 end
 
