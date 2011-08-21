@@ -81,6 +81,9 @@ function TimeSystem:tick()
 	end
 
 	self._firstTraveler = self._firstTraveler or comp
+	if comp == self._firstTraveler then
+		GameEvents:notify(TimeSystemCycleEvent())
+	end
 
 	if self._timeTravelers:size() > 0 and comp:shouldTick() then
 		-- rotate the deque
@@ -102,10 +105,6 @@ function TimeSystem:tick()
 				end
 			until nil == nextCommand or ap[comp] <= 0
 		end
-	end
-
-	if comp == self._firstTraveler then
-		GameEvents:notify(TimeSystemCycleEvent())
 	end
 end
 
