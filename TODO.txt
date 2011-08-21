@@ -16,6 +16,7 @@ Implement Components:
 	+    lighting not updated until next frame
 	+    if out of player sight, don't draw
 	+ AttackCommand
+	+ WaitCommand
   x InputSystem - ticks InputComponents
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   x AISystem - ticks AIComponents
