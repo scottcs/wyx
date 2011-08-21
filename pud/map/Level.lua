@@ -17,6 +17,7 @@ local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
+local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
 
 -- entities
 local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
@@ -51,7 +52,8 @@ local Level = Class{name='Level',
 		GameEvents:register(self, {
 			EntityPositionEvent,
 			EntityDeathEvent,
-			MapNodeUpdateEvent
+			LightingStatusRequest,
+			MapNodeUpdateEvent,
 		})
 	end
 }
@@ -276,6 +278,12 @@ function Level:EntityPositionEvent(e)
 	end
 end
 
+function Level:LightingStatusRequest(e)
+	local entityID = e:getEntity()
+	local x, y = e:getPosition()
+	self:_notifyScreenStatus(entityID, x, y)
+end
+
 function Level:EntityDeathEvent(e)
 	local entityID = e:getEntity()
 	local reason = e:getReason() or "unknown reason"
@@ -404,19 +412,21 @@ end
 
 local positionProp = property('Position')
 local screenStatusMsg = message('SCREEN_STATUS')
-function Level:_notifyScreenStatus(ent)
+function Level:_notifyScreenStatus(ent, x, y)
 	local entity = EntityRegistry:get(ent)
 	local pos = entity:query(positionProp)
+	x = x or pos[1]
+	y = y or pos[2]
 	local status = 'black'
 
 	if    self._lightmap
-		and self._lightmap[pos[1]]
-		and self._lightmap[pos[1]][pos[2]]
+		and self._lightmap[x]
+		and self._lightmap[x][y]
 	then
-		status = self._lightmap[pos[1]][pos[2]]
+		status = self._lightmap[x][y]
 	end
 
-	entity:send(screenStatusMsg, status)
+	entity:send(screenStatusMsg, status, x, y)
 end
 
 -- get a color table of the lighting for the specified point

@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local ViewComponent = getClass 'pud.component.ViewComponent'
+local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
@@ -13,6 +14,7 @@ local nearestPO2 = nearestPO2
 local colors = colors
 
 local verify, assert, tostring = verify, assert, tostring
+local vec2_equal = vec2.equal
 
 local COLOR_DIM = colors.GREY40
 local COLOR_NORMAL = colors.WHITE
@@ -29,7 +31,11 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		ViewComponent.construct(self, properties)
-		self:_addMessages('ENTITY_CREATED', 'HAS_MOVED', 'SCREEN_STATUS')
+		self:_addMessages(
+			'ENTITY_CREATED',
+			'HAS_MOVED',
+			'SCREEN_STATUS',
+			'TIME_POSTTICK')
 		self._frames = {}
 		self._curFrame = 'right'
 		self._lit = 'black'
