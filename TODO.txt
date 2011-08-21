@@ -11,10 +11,10 @@ Implement Components:
   -   InfoPanelComponent - just a guess here... mouseover info panel thingy
   d     AIInputComponent - AI routines, sends same messages as input component
 	d       Simple random AI for testing
-	+ fix enemy drawing
-	+    flickering
-	+    lighting not updated until next frame
-	+    if out of player sight, don't draw
+	d fix enemy drawing
+	x    flickering
+	d    lighting not updated until next frame
+	d    if out of player sight, don't draw
 	+ AttackCommand
 	+ WaitCommand
   x InputSystem - ticks InputComponents
@@ -32,6 +32,7 @@ For v0.1.0:
   o interface
 
 Beyond v0.1.0:
+  o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen.
   o make stairs work [generate new map]
   - wizard mode
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
