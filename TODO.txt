@@ -32,17 +32,22 @@ For v0.1.0:
   o interface
 
 Beyond v0.1.0:
-  - maptypes as composites?
   o make stairs work [generate new map]
   - wizard mode
-  - map as quad-tree [or something?]
-  - poisson disk sampling for decoration/item/monster placement [map gen too?]
-  o can hero background be transparent?
-	o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects/entities rather than MapTypes]
-	o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
-  - make hero movement smoother [possibly only move camera when near edges?]
-  x don't animate or update dim tiles
+  - make hero movement smoother [tweened... possibly only move camera when near edges?]
   x support sprite batches if framebuffers are unsupported
+
+	Map:
+  - map as quad-tree [or something?]
+  ? maptypes as composites?
+  - poisson disk sampling for decoration/item/monster placement [map gen too?]
+	o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
+	o   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
+	? How to handle map deformation? Would like ability to mine/dig/etc.
+	o Create another View that can show simple representation of map nodes for Minimap.
+	o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
+	o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
+  x don't animate or update dim tiles
 
 NOTES:
 
