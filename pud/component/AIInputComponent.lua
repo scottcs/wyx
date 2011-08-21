@@ -34,7 +34,7 @@ function AIInputComponent:_determineNextAction(ap)
 	local moveCost = self._mediator:query(property('MoveCost'))
 	local allowed = self:_getAllowedDirections()
 	if allowed then
-		while ap > moveCost do
+		while ap >= moveCost do
 			local dir = allowed[Random(#allowed)]
 			local x, y = _x[dir], _y[dir]
 

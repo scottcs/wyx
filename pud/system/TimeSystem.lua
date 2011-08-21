@@ -103,7 +103,7 @@ function TimeSystem:tick()
 				if nextCommand then
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
 				end
-			until nil == nextCommand or ap[comp] <= 0
+			until nil == nextCommand or ap[comp] < 0
 		end
 
 		comp:onPostTick(ap[comp])

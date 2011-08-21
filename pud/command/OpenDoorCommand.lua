@@ -30,8 +30,7 @@ function OpenDoorCommand:execute()
 	local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 	GameEvents:notify(MapNodeUpdateEvent(self._node))
 
-	self._cost = self._target:query(property('MoveCost'))
-	self._cost = self._cost or self._target:query(property('DefaultCost'))
+	self._cost = 0
 	return Command.execute(self)
 end
 
