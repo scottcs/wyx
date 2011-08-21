@@ -141,7 +141,6 @@ function Level:_generateMap(builder)
 			local x, y = self._map:getPortal(ups[Random(#ups)])
 			local entity = EntityRegistry:get(entityID)
 			entity:send(setPosition, x, y, x, y)
-			self:_bakeLights(true)
 		else
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
 			local x, y
@@ -167,6 +166,7 @@ function Level:_generateMap(builder)
 		self:removeEntity(remove[i])
 	end
 
+	self:_bakeLights(true)
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
@@ -271,6 +271,8 @@ function Level:EntityPositionEvent(e)
 	if entity == self._primeEntity then
 		self:_bakeLights()
 		self._needViewUpdate = true
+	else
+		self:_notifyScreenStatus(entity)
 	end
 end
 
@@ -396,21 +398,25 @@ function Level:_bakeLights(blackout)
 
 	-- tell entities what their lights are
 	local numEntities = #self._entities
-	local msg = message('SCREEN_STATUS')
-	local positionProp = property('Position')
 
-	for i=1,numEntities do
-		local ent = EntityRegistry:get(self._entities[i])
-		local pos = ent:query(positionProp)
-		local status = 'black'
-		if    self._lightmap
-			and self._lightmap[pos[1]]
-			and self._lightmap[pos[1]][pos[2]]
-		then
-			status = self._lightmap[pos[1]][pos[2]]
-		end
-		ent:send(msg, status)
+	for i=1,numEntities do self:_notifyScreenStatus(self._entities[i]) end
+end
+
+local positionProp = property('Position')
+local screenStatusMsg = message('SCREEN_STATUS')
+function Level:_notifyScreenStatus(ent)
+	local entity = EntityRegistry:get(ent)
+	local pos = entity:query(positionProp)
+	local status = 'black'
+
+	if    self._lightmap
+		and self._lightmap[pos[1]]
+		and self._lightmap[pos[1]][pos[2]]
+	then
+		status = self._lightmap[pos[1]][pos[2]]
 	end
+
+	entity:send(screenStatusMsg, status)
 end
 
 -- get a color table of the lighting for the specified point
