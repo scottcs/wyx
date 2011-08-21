@@ -21,8 +21,7 @@ Implement Components:
   x AISystem - ticks AIComponents
   - UISystem - handles User Interface
   x CombatSystem - determines outcome of combat using CombatComponents
-	o Level templates
-	o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
+	o fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
 
 For v0.1.0:
   o monsters
@@ -36,6 +35,8 @@ Beyond v0.1.0:
   - wizard mode
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
   x support sprite batches if framebuffers are unsupported
+	o Level templates
+	o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
 
 	Map:
   - map as quad-tree [or something?]
