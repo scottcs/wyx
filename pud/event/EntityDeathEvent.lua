@@ -10,7 +10,7 @@ local EntityDeathEvent = Class{name='EntityDeathEvent',
 		verify('number', entity)
 		verify('string', reason)
 		assert(EntityRegistry:exists(entity),
-			'EntitiyDeathEvent: entity %d does not exist', entity)
+			'EntityDeathEvent: entity %d does not exist', entity)
 
 		Event.construct(self, 'Entity Death Event')
 
