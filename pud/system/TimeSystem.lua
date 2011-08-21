@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Deque = getClass 'pud.kit.Deque'
 local TimeComponent = getClass 'pud.component.TimeComponent'
 local CommandEvent = getClass 'pud.event.CommandEvent'
+local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
@@ -28,6 +29,7 @@ function TimeSystem:destroy()
 		self._commandQueues[k]:destroy()
 		self._commandQueues[k] = nil
 	end
+	self._firstTraveler = nil
 	self._timeTravelers = nil
 	self._actionPoints = nil
 end
@@ -74,8 +76,11 @@ function TimeSystem:tick()
 	while comp and (not comp._properties or comp:isExhausted()) do
 		self._timeTravelers:pop_front()
 		self._actionPoints[comp] = nil
+		if comp == self._firstTraveler then self._firstTraveler = nil end
 		comp = self._timeTravelers:front()
 	end
+
+	self._firstTraveler = self._firstTraveler or comp
 
 	if self._timeTravelers:size() > 0 and comp:shouldTick() then
 		-- rotate the deque
@@ -97,6 +102,10 @@ function TimeSystem:tick()
 				end
 			until nil == nextCommand or ap[comp] <= 0
 		end
+	end
+
+	if comp == self._firstTraveler then
+		GameEvents:notify(TimeSystemCycleEvent())
 	end
 end
 
