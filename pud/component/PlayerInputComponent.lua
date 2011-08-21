@@ -12,7 +12,7 @@ local PlayerInputComponent = Class{name='PlayerInputComponent',
 	inherits=InputComponent,
 	function(self, properties)
 		InputComponent.construct(self, properties)
-		self:_addMessages('TIME_TICK')
+		self:_addMessages('TIME_PRETICK')
 		InputEvents:register(self, KeyboardEvent)
 	end
 }
@@ -65,7 +65,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 end
 
 function PlayerInputComponent:receive(msg, ...)
-	if msg == message('TIME_TICK') then
+	if msg == message('TIME_PRETICK') then
 		self:_setProperty(property('DoTick'), false)
 	else
 		InputComponent.receive(self, msg, ...)

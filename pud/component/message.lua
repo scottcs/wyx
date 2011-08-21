@@ -34,7 +34,8 @@ message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 message.SCREEN_STATUS         = 'SCREEN_STATUS'
 
 -- TimeComponent messages
-message.TIME_TICK             = 'TIME_TICK'
+message.TIME_PRETICK          = 'TIME_PRETICK'
+message.TIME_POSTTICK         = 'TIME_POSTTICK'
 
 -- CombatComponent messages
 message.COMBAT_DAMAGE         = 'COMBAT_DAMAGE'

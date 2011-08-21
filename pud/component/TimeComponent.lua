@@ -67,8 +67,12 @@ function TimeComponent:getTotalSpeed()
 	return speed
 end
 
-function TimeComponent:onTick(ap)
-	self._mediator:send(message('TIME_TICK'), ap)
+function TimeComponent:onPreTick(ap)
+	self._mediator:send(message('TIME_PRETICK'), ap)
+end
+
+function TimeComponent:onPostTick(ap)
+	self._mediator:send(message('TIME_POSTTICK'), ap)
 end
 
 function TimeComponent:getProperty(p, intermediate, ...)
