@@ -188,14 +188,14 @@ function st:keypressed(key, unicode)
 	else
 		switch(key) {
 			escape = function() GameState.switch(State.shutdown) end,
-			m = function()
+			['1'] = function()
 				self._view:setAnimate(false)
 				self._level:generateSimpleGridMap()
 				self._level:setPlayerControlled()
 				self:_createMapView()
 				self:_createCamera()
 			end,
-			f = function()
+			['2'] = function()
 				self._view:setAnimate(false)
 				self._level:generateFileMap()
 				self._level:setPlayerControlled()
@@ -223,11 +223,11 @@ function st:keypressed(key, unicode)
 					self._cam:home()
 				end
 			end,
-			z = function()
+			f4 = function()
 				self._cam:unfollowTarget()
 				self._view:setViewport(self._cam:getViewport())
 			end,
-			x = function()
+			f5 = function()
 				self._cam:followTarget(self._level:getPrimeEntity())
 				self._view:setViewport(self._cam:getViewport())
 			end,
