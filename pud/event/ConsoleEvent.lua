@@ -1,14 +1,18 @@
 local Class = require 'lib.hump.class'
 local Event = getClass 'pud.event.Event'
+local format = string.format
+local select, verify = select, verify
 
 -- ConsoleEvent
 --
 local ConsoleEvent = Class{name='ConsoleEvent',
 	inherits=Event,
-	function(self, message)
+	function(self, message, ...)
 		verify('string', message)
 
 		Event.construct(self, 'Console Event')
+
+		message = select('#', ...) > 0 and format(message, ...) or message
 
 		self._message = message
 	end
