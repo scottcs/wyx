@@ -11,7 +11,7 @@ local GameEvents = GameEvents
 local MotionComponent = Class{name='MotionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		ModelComponent._addRequiredProperties(self, {'Position'})
+		ModelComponent._addRequiredProperties(self, {'Position', 'CanMove'})
 		ModelComponent.construct(self, properties)
 		self:_addMessages('SET_POSITION')
 	end
@@ -33,6 +33,8 @@ function MotionComponent:_setProperty(prop, data, ...)
 		end
 		assert(#data == 2, 'Invalid Position: %s', tostring(data))
 		verify('number', data[1], data[2])
+	elseif prop == property('CanMove') then
+		verify('boolean', data)
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end
@@ -50,6 +52,17 @@ end
 
 function MotionComponent:receive(msg, ...)
 	if     msg == message('SET_POSITION') then self:_move(...)
+	end
+end
+
+function MotionComponent:getProperty(p, intermediate, ...)
+	if p == property('CanMove') then
+		local prop = self._properties[p]
+		if nil == intermediate then return prop end
+		print(prop or intermediate)
+		return (prop or intermediate)
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
 end
 
