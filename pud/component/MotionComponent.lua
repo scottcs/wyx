@@ -59,7 +59,6 @@ function MotionComponent:getProperty(p, intermediate, ...)
 	if p == property('CanMove') then
 		local prop = self._properties[p]
 		if nil == intermediate then return prop end
-		print(prop or intermediate)
 		return (prop or intermediate)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
