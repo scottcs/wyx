@@ -108,8 +108,10 @@ function TimeSystem:tick()
 				else
 					nextCommand = nil
 				end
-			until nil == nextCommand or ap[comp] < 0
+			until nil == nextCommand or ap[comp] <= 0
 		end
+
+		if ap[comp] <= 0 then self._commandQueues[comp]:clear() end
 
 		comp:onPostTick(ap[comp])
 	end
