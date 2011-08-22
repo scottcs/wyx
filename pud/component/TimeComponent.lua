@@ -12,6 +12,7 @@ local TimeComponent = Class{name='TimeComponent',
 		ModelComponent._addRequiredProperties(self, {
 			'AttackCost',
 			'MoveCost',
+			'WaitCost',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
@@ -33,6 +34,7 @@ function TimeComponent:_setProperty(prop, data)
 
 	if   prop == property('AttackCost')
 		or prop == property('MoveCost')
+		or prop == property('WaitCost')
 		or prop == property('DefaultCost')
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
