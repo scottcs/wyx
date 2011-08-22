@@ -1,4 +1,5 @@
 local Class = require 'lib.hump.class'
+local property = require 'pud.component.property'
 
 -- default action point cost for executing a command
 -- (used by the TimeSystem for entity commands)
@@ -8,14 +9,13 @@ DEFAULT_COST = 1
 local Command = Class{name='Command',
 	function(self, target)
 		self._target = target
-		self._cost = DEFAULT_COST
 	end
 }
 
 -- destructor
 function Command:destroy()
 	self._target = nil
-	self._cost = nil
+	self._costProp = nil
 	self._onComplete = nil
 	self._onCompleteArgs = nil
 end
@@ -41,7 +41,17 @@ end
 -- execute the command
 function Command:execute(currAP)
 	self:_doOnComplete()
-	return self._cost
+	return self:cost()
+end
+
+-- return the cost of executing this command
+function Command:cost()
+	local cost = DEFAULT_COST
+	if self._target and self._target.query then
+		local prop = self._costProp or property('DefaultCost')
+		cost = self._target:query(prop)
+	end
+	return cost
 end
 
 

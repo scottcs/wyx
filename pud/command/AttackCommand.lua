@@ -12,6 +12,7 @@ local AttackCommand = Class{name='AttackCommand',
 		verifyClass('pud.component.ComponentMediator', target, targetOpponent)
 
 		Command.construct(self, target)
+		self._costProp = property('AttackCost')
 		self._opponent = targetOpponent
 	end
 }
@@ -40,8 +41,6 @@ function AttackCommand:execute(currAP)
 	GameEvents:push(ConsoleEvent('Combat: %s -> %s (%.1f)',
 		name, self._opponent:getName(), damage))
 
-	self._cost = self._target:query(property('AttackCost'))
-	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	return Command.execute(self)
 end
 
