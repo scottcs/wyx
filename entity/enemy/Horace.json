@@ -18,5 +18,8 @@
 			"Attack": 2,
 			"Defense": 3,
 		},
+		"TimeComponent": {
+			"MoveCost": 0.5,
+		},
 	}
 }
