@@ -1,9 +1,9 @@
 local Class = require 'lib.hump.class'
 local EntityFactory = getClass 'pud.entity.EntityFactory'
 
--- HeroFactory
+-- HeroEntityFactory
 -- creates entities based on data files
-local HeroFactory = Class{name='HeroFactory',
+local HeroEntityFactory = Class{name='HeroEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'hero')
@@ -23,13 +23,13 @@ local HeroFactory = Class{name='HeroFactory',
 }
 
 -- destructor
-function HeroFactory:destroy()
+function HeroEntityFactory:destroy()
 	EntityFactory.destroy(self)
 end
 
 --[[
 -- add a required component with default values
-function HeroFactory:_addDefaultComponent(entity, componentClass)
+function HeroEntityFactory:_addDefaultComponent(entity, componentClass)
 	-- check if the componentClass is InputComponent (or a subclass)
 	if isClass('pud.component.InputComponent', componentClass) then
 		-- add an AI component
@@ -41,7 +41,8 @@ end
 ]]--
 
 -- set input component explicitly
-function HeroFactory:setInputComponent(entity, component)
+function HeroEntityFactory:setInputComponent(id, component)
+	local entity = EntityRegistry:get(id)
 	local InputComponent = getClass 'pud.component.InputComponent'
 	verifyClass(InputComponent, component)
 	entity:removeComponent(InputComponent)
@@ -49,7 +50,8 @@ function HeroFactory:setInputComponent(entity, component)
 end
 
 -- set time component explicitly
-function HeroFactory:setTimeComponent(entity, component)
+function HeroEntityFactory:setTimeComponent(id, component)
+	local entity = EntityRegistry:get(id)
 	local TimeComponent = getClass 'pud.component.TimeComponent'
 	verifyClass(TimeComponent, component)
 	local currentComps = entity:getComponentsByClass(TimeComponent)
@@ -63,4 +65,4 @@ end
 
 
 -- the class
-return HeroFactory
+return HeroEntityFactory

@@ -1,12 +1,14 @@
 {
-	"name": "Mage",
+	"family": "Human",
+	"kind": "Archer",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {5, 1},
+				"right": {1, 1},
 				},
-			"Visibility": 8,
+			"Visibility": 10,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,
@@ -16,10 +18,10 @@
 		"HealthComponent": {
 			"Health": 8,
 			"MaxHealth": 8,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 4,
 			"Defense": 6,
-		}
+		},
 	}
 }

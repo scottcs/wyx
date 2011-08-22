@@ -6,8 +6,11 @@ local Event = getClass 'pud.event.Event'
 local EntityDeathEvent = Class{name='EntityDeathEvent',
 	inherits=Event,
 	function(self, entity, reason)
-		verifyClass('pud.entity.Entity', entity)
+		if type(entity) ~= number then entity = entity:getID() end
+		verify('number', entity)
 		verify('string', reason)
+		assert(EntityRegistry:exists(entity),
+			'EntityDeathEvent: entity %d does not exist', entity)
 
 		Event.construct(self, 'Entity Death Event')
 

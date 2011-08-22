@@ -110,6 +110,7 @@ end
 
 -- follow a target
 function GameCam:followTarget(t)
+	if type(t) == 'number' then t = EntityRegistry:get(t) end
 	verifyClass('pud.component.ComponentMediator', t)
 
 	self:unfollowTarget()
@@ -125,6 +126,7 @@ end
 -- unfollow a target
 function GameCam:unfollowTarget()
 	if self._target then
+		-- TODO: huh? what's this if statement for?
 		if self._target:getID() then
 			self._target:detach(message('HAS_MOVED'), self)
 		end

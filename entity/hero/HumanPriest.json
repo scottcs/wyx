@@ -1,12 +1,14 @@
 {
-	"name": "FemaleArcher",
+	"family": "Human",
+	"kind": "Priest",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 2},
+				"right": {7, 1},
 				},
-			"Visibility": 10,
+			"Visibility": 7,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,
@@ -16,10 +18,10 @@
 		"HealthComponent": {
 			"Health": 8,
 			"MaxHealth": 8,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 4,
 			"Defense": 6,
-		}
+		},
 	}
 }

@@ -1,12 +1,14 @@
 {
-	"name": "Pirate",
+	"family": "Elf",
+	"kind": "Mage",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {12, 1},
+				"right": {5, 1},
 				},
-			"Visibility": 4,
+			"Visibility": 8,
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,
@@ -16,10 +18,10 @@
 		"HealthComponent": {
 			"Health": 8,
 			"MaxHealth": 8,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 4,
 			"Defense": 6,
-		}
+		},
 	}
 }

@@ -14,13 +14,16 @@ local MapUpdateFinishedEvent = getClass 'pud.event.MapUpdateFinishedEvent'
 local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
+local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
 
 -- entities
-local HeroFactory = getClass 'pud.entity.HeroFactory'
-local EnemyFactory = getClass 'pud.entity.EnemyFactory'
-local ItemFactory = getClass 'pud.entity.ItemFactory'
+local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
+local EnemyEntityFactory = getClass 'pud.entity.EnemyEntityFactory'
+local ItemEntityFactory = getClass 'pud.entity.ItemEntityFactory'
 local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -34,9 +37,9 @@ local GameEvents = GameEvents
 --
 local Level = Class{name='Level',
 	function(self)
-		self._heroFactory = HeroFactory()
-		self._enemyFactory = EnemyFactory()
-		self._itemFactory = ItemFactory()
+		self._heroFactory = HeroEntityFactory()
+		self._enemyFactory = EnemyEntityFactory()
+		self._itemFactory = ItemEntityFactory()
 
 		-- lighting color value table
 		self._lightColor = {
@@ -46,11 +49,14 @@ local Level = Class{name='Level',
 		}
 		self._lightmap = {}
 		self._entities = {}
+		self._turns = 1
 
 		GameEvents:register(self, {
 			EntityPositionEvent,
 			EntityDeathEvent,
-			MapNodeUpdateEvent
+			LightingStatusRequest,
+			MapNodeUpdateEvent,
+			TimeSystemCycleEvent,
 		})
 	end
 }
@@ -60,22 +66,24 @@ function Level:destroy()
 	GameEvents:unregisterAll(self)
 	self._map:destroy()
 	self._map = nil
+
 	self._heroFactory:destroy()
 	self._heroFactory = nil
 	self._enemyFactory:destroy()
 	self._enemyFactory = nil
 	self._itemFactory:destroy()
 	self._itemFactory = nil
-	for k in pairs(self._entities) do
-		self._entities[k]:destroy()
-		self._entities[k] = nil
-	end
+
+	for k in pairs(self._entities) do self._entities[k] = nil end
 	self._entities = nil
 	self._primeEntity = nil
+
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
 	self._lightmap = nil
+
+	self._turns = nil
 end
 
 local vec2_equal = vec2.equal
@@ -130,16 +138,16 @@ function Level:_generateMap(builder)
 
 	local numEntities = #self._entities
 	for i=1,numEntities do
-		local entity = self._entities[i]
+		local entityID = self._entities[i]
 
-		if entity == self._primeEntity then
+		if entityID == self._primeEntity then
 			local ups = {}
 			for _,name in ipairs(self._map:getPortalNames()) do
 				if match(name, "^up%d") then ups[#ups+1] = name end
 			end
 			local x, y = self._map:getPortal(ups[Random(#ups)])
+			local entity = EntityRegistry:get(entityID)
 			entity:send(setPosition, x, y, x, y)
-			self:_bakeLights(true)
 		else
 			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
 			local x, y
@@ -153,6 +161,7 @@ function Level:_generateMap(builder)
 				tries = tries - 1
 			until clear or tries == 0
 			if clear and tries > 0 then
+				local entity = EntityRegistry:get(entityID)
 				entity:send(setPosition, x, y, x, y)
 			else
 				remove[#remove+1] = entity
@@ -164,6 +173,7 @@ function Level:_generateMap(builder)
 		self:removeEntity(remove[i])
 	end
 
+	self:_bakeLights(true)
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
@@ -194,11 +204,12 @@ function Level:getEntitiesAtLocation(x, y)
 	local entCount = 0
 
 	for i=1,numEntities do
-		local entity = self._entities[i]
+		local entityID = self._entities[i]
+		local entity = EntityRegistry:get(entityID)
 		local ePos = entity:query(positionProp)
 		if ePos[1] == x and ePos[2] == y then
 			entCount = entCount + 1
-			ents[entCount] = entity
+			ents[entCount] = entityID
 		end
 	end
 
@@ -206,36 +217,40 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: get entities algorithmically rather than hardcoding
-	local enemy = enumerate('entity/enemy')
-	for i=1,10 do
-		local enemyName = match(enemy[Random(#enemy)], "(%w+)%.json")
-		self._entities[i] = self._enemyFactory:createEntity(enemyName)
-	end
-
-	-- TODO: choose hero rather than hardcode Warrior
+	-- TODO: choose hero from interface
 	local hero = enumerate('entity/hero')
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	self._primeEntity = self._heroFactory:createEntity(heroName)
+	local which = HeroDB:getByFilename(heroName)
+	self._primeEntity = self._heroFactory:createEntity(which)
 	self._entities[#self._entities+1] = self._primeEntity
-	self._primeEntity:send(message('SCREEN_STATUS'), 'lit')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+
+	-- TODO: get entities algorithmically
+	local enemyEntities = EnemyDB:getByELevel(1,30)
+	local numEnemyEntities = #enemyEntities
+	for i=2,11 do
+		local which = enemyEntities[Random(numEnemyEntities)]
+		self._entities[i] = self._enemyFactory:createEntity(which)
+	end
 end
 
 function Level:removeAllEntities()
 	local num = #self._entities
 	for i=1,num do
-		self._entities[i]:destroy()
+		local entity = EntityRegistry:unregister(self._entities[i])
+		entity:destroy()
 		self._entities[i] = nil
 	end
 end
 
-function Level:removeEntity(entity)
+function Level:removeEntity(entityID)
 	local num = #self._entities
 	local newEntities = {}
 	local count = 1
 	for i=1,num do
 		local e = self._entities[i]
-		if entity == e then
+		if entityID == e then
+			local entity = EntityRegistry:unregister(entityID)
 			entity:destroy()
 		else
 			newEntities[count] = e
@@ -252,6 +267,7 @@ function Level:setPlayerControlled()
 	local time = PTC()
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 	self._heroFactory:setTimeComponent(self._primeEntity, time)
+	TimeSystem:setFirst(time)
 end
 
 function Level:EntityPositionEvent(e)
@@ -263,23 +279,37 @@ function Level:EntityPositionEvent(e)
 	if entity == self._primeEntity then
 		self:_bakeLights()
 		self._needViewUpdate = true
+	else
+		self:_notifyScreenStatus(entity)
 	end
+end
+
+function Level:LightingStatusRequest(e)
+	local entityID = e:getEntity()
+	local x, y = e:getPosition()
+	self:_notifyScreenStatus(entityID, x, y)
 end
 
 function Level:EntityDeathEvent(e)
-	local entity = e:getEntity()
+	local entityID = e:getEntity()
 	local reason = e:getReason() or "unknown reason"
 
-	if entity == self._primeEntity then
+	local entity = EntityRegistry:get(entityID)
+	local name = entity and entity:getName() or "unknown entity"
+	local msg = 'Death: '..name..' ['..reason..']'
+	GameEvents:push(ConsoleEvent(msg))
+
+	if entityID == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
 	else
-		local name = entity and entity:getName() or "unknown entity"
-		local msg = name..' '..reason
-		GameEvents:push(DisplayPopupMessageEvent(msg))
-		self:removeEntity(entity)
+		self:removeEntity(entityID)
 	end
+
 end
 
+function Level:TimeSystemCycleEvent(e)
+	self._turns = self._turns + 1
+end
 
 function Level:MapNodeUpdateEvent(e)
 	self:_bakeLights()
@@ -287,6 +317,7 @@ function Level:MapNodeUpdateEvent(e)
 end
 
 function Level:getPrimeEntity() return self._primeEntity end
+function Level:getTurns() return self._turns end
 
 -- bake the lighting for the current prime entity position
 local _mult = {
@@ -368,8 +399,9 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local radius = self._primeEntity:query('Visibility')
-	local primePos = self._primeEntity:query('Position')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local radius = primeEntity:query('Visibility')
+	local primePos = primeEntity:query('Position')
 
 	self:_resetLights(blackout)
 
@@ -384,26 +416,32 @@ function Level:_bakeLights(blackout)
 
 	-- tell entities what their lights are
 	local numEntities = #self._entities
-	local msg = message('SCREEN_STATUS')
-	local positionProp = property('Position')
 
-	for i=1,numEntities do
-		local ent = self._entities[i]
-		local pos = ent:query(positionProp)
-		local status = 'black'
-		if    self._lightmap
-			and self._lightmap[pos[1]]
-			and self._lightmap[pos[1]][pos[2]]
-		then
-			status = self._lightmap[pos[1]][pos[2]]
-		end
-		ent:send(msg, status)
+	for i=1,numEntities do self:_notifyScreenStatus(self._entities[i]) end
+end
+
+local positionProp = property('Position')
+local screenStatusMsg = message('SCREEN_STATUS')
+function Level:_notifyScreenStatus(ent, x, y)
+	local entity = EntityRegistry:get(ent)
+	local pos = entity:query(positionProp)
+	x = x or pos[1]
+	y = y or pos[2]
+	local status = 'black'
+
+	if    self._lightmap
+		and self._lightmap[x]
+		and self._lightmap[x][y]
+	then
+		status = self._lightmap[x][y]
 	end
+
+	entity:send(screenStatusMsg, status, x, y)
 end
 
 -- get a color table of the lighting for the specified point
 function Level:getLightingColor(x, y)
-	local color = self._lightmap[x][y] or 'black'
+	local color = self._lightmap[x] and self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
 

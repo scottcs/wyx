@@ -1,0 +1,27 @@
+{
+	"family": "Human",
+	"kind": "Pirate",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {12, 1},
+				},
+			"Visibility": 4,
+		},
+		"TimeComponent": {
+			"AttackCost": 1.5,
+			"DefaultCost": 1,
+			"Speed": 1,
+		},
+		"HealthComponent": {
+			"Health": 8,
+			"MaxHealth": 8,
+		},
+		"CombatComponent": {
+			"Attack": 4,
+			"Defense": 6,
+		},
+	}
+}

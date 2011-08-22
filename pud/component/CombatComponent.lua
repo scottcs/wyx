@@ -16,7 +16,6 @@ local CombatComponent = Class{name='CombatComponent',
 			'DefenseBonus',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COLLIDE_ENEMY', 'COLLIDE_HERO'}
 	end
 }
 
@@ -46,15 +45,6 @@ function CombatComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
-function CombatComponent:receive(msg, ...)
-	if msg == message('COLLIDE_ENEMY')
-		or msg == message('COLLIDE_HERO')
-	then
-		local opponent = select(1, ...)
-		if opponent then self:_attack(opponent) end
-	end
-end
-
 function CombatComponent:getProperty(p, intermediate, ...)
 	if   prop == property('Attack')
 		or prop == property('Defense')
@@ -71,22 +61,6 @@ function CombatComponent:getProperty(p, intermediate, ...)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
-end
-
-function CombatComponent:_attack(opponent)
-	local oDefense = opponent:query(property('Defense'))
-	oDefense = oDefense + opponent:query(property('DefenseBonus'))
-	local attack = self._mediator:query(property('Attack'))
-	attack = attack + self._mediator:query(property('AttackBonus'))
-	
-	-- TODO: damage properties
-	local damage = -10
-	if attack < oDefense then
-		damage = damage + oDefense
-	end
-
-	local name = self._mediator:getName() or tostring(self._mediator)
-	opponent:send(message('COMBAT_DAMAGE'), damage, name)
 end
 
 

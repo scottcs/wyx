@@ -195,6 +195,8 @@ colors.BLACK_A00 = {0, 0, 0, 0}
 colors.YELLOW = {p100, p90, 0, p100}
 colors.RED = {p100, 0, 0, p100}
 colors.GREEN = {0, p100, 0, p100}
+colors.ORANGE = {p100, p100*0.75, p30, p100}
+colors.BROWN = {p50, p40, p20, p100}
 colors.GREY90 = {p90, p90, p90, p100}
 colors.GREY80 = {p80, p80, p80, p100}
 colors.GREY70 = {p70, p70, p70, p100}
@@ -225,6 +227,26 @@ function resizeScreen(width, height)
 	-- global screen width/height
 	WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
 end
+
+
+-------------------------
+-- render target stack --
+-------------------------
+local setRenderTarget = love.graphics.setRenderTarget
+local Deque = getClass 'pud.kit.Deque'
+local rtStack = Deque()
+
+function pushRenderTarget(target)
+	if target then rtStack:push_back(target) end
+	setRenderTarget(target)
+end
+
+function popRenderTarget()
+	rtStack:pop_back()
+	local target = rtStack:back()
+	setRenderTarget(target)
+end
+
 
 
          --[[--

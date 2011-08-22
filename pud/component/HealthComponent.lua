@@ -18,7 +18,7 @@ local HealthComponent = Class{name='HealthComponent',
 			'MaxHealthBonus',
 		})
 		ModelComponent.construct(self, properties)
-		self._attachMessages = {'COMBAT_DAMAGE', 'ENTITY_DEATH'}
+		self:_addMessages('COMBAT_DAMAGE', 'ENTITY_DEATH')
 	end
 }
 
@@ -50,7 +50,7 @@ end
 
 function HealthComponent:_sendDeathMessage(actor)
 	local msg
-	if actor then msg = 'killed by '..tostring(actor)
+	if actor then msg = tostring(actor)
 	else msg = 'ceased to exist' end
 	self._mediator:send(message('ENTITY_DEATH'), msg)
 end

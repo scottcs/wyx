@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local Command = getClass 'pud.command.Command'
 local DoorMapType = getClass 'pud.map.DoorMapType'
-local property = require 'pud.component.property'
 
 local GameEvents = GameEvents
 
@@ -30,10 +29,9 @@ function OpenDoorCommand:execute()
 	local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 	GameEvents:notify(MapNodeUpdateEvent(self._node))
 
-	self._cost = self._target:query(property('MoveCost'))
-	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	return Command.execute(self)
 end
+
 
 -- the class
 return OpenDoorCommand

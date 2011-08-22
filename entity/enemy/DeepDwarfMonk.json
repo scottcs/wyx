@@ -1,5 +1,7 @@
 {
-	"name": "DeepDwarfMonk",
+	"family": "Deep Dwarf",
+	"kind": "Monk",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
@@ -10,10 +12,10 @@
 		"HealthComponent": {
 			"Health": 24,
 			"MaxHealth": 24,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 2,
 			"Defense": 3,
-		}
+		},
 	}
 }

@@ -1,19 +1,21 @@
 {
-	"name": "Imp",
+	"family": "Imp",
+	"kind": "White",
+	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 10},
+				"right": {2, 10},
 			},
 		},
 		"HealthComponent": {
 			"Health": 24,
 			"MaxHealth": 24,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 2,
 			"Defense": 3,
-		}
+		},
 	}
 }

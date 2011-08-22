@@ -2,36 +2,21 @@ local Class = require 'lib.hump.class'
 local Entity = getClass 'pud.entity.Entity'
 local message = require 'pud.component.message'
 
-local json = require 'lib.dkjson'
+local format = string.format
 
 
 -- EntityFactory
 -- creates entities based on data files
 local EntityFactory = Class{name='EntityFactory',
-	function(self, kind)
-		self._kind = kind or 'UNKNOWN'
+	function(self, etype)
+		self._etype = etype or 'UNKNOWN'
 		self._renderLevel = 30
 	end
 }
 
 -- destructor
 function EntityFactory:destroy()
-	self._kind = nil
-end
-
-function EntityFactory:_getEntityInfo(entityName)
-	local filename = 'entity/'..self._kind..'/'..entityName..'.json'
-	local contents, size = love.filesystem.read(filename)
-
-	-- these files should be at mininmum 27 bytes
-	if size < 27 then
-		error('File does not appear to be an entity definition: '..filename)
-	end
-
-	local obj, pos, err = json.decode(contents)
-	if err then error(err) end
-
-	return obj
+	self._etype = nil
 end
 
 -- check for required components, and add any that are missing
@@ -119,9 +104,9 @@ function EntityFactory:_registerWithTimeSystem(entity)
 	end
 end
 
-function EntityFactory:createEntity(entityName)
-	local info = self:_getEntityInfo(entityName)
-	local entity = Entity(self._kind, info.name, self:_getComponents(info))
+function EntityFactory:createEntity(info)
+	local entity = Entity(self._etype, info, self:_getComponents(info))
+	EntityRegistry:register(entity)
 	self:_addMissingRequiredComponents(entity)
 	entity:send(message('ENTITY_CREATED'))
 
@@ -129,7 +114,7 @@ function EntityFactory:createEntity(entityName)
 	self:_registerWithCollisionSystem(entity)
 	self:_registerWithTimeSystem(entity)
 
-	return entity
+	return entity:getID()
 end
 
 -- the class

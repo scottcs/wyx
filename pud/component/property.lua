@@ -49,10 +49,10 @@ property.MaxHealthBonus    = 0
 
 -- motion properties
 property.Position          = {1, 1}
+property.CanMove           = true
 
 -- collision properties
 property.BlockedBy         = {Wall='ALL', Door='shut'}
-property.CanMove           = true
 
 -- graphics properties
 property.TileSet           = 'dungeon'
@@ -67,6 +67,7 @@ property.CanOpenDoors      = false
 property.DefaultCost       = 1
 property.AttackCost        = 1
 property.MoveCost          = 1
+property.WaitCost          = 1
 property.Speed             = 1
 property.SpeedBonus        = 0
 property.IsExhausted       = false

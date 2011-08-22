@@ -1,12 +1,12 @@
 {
-	"family": "Skeleton",
-	"kind": "Mage",
+	"family": "Slime",
+	"kind": "Green",
 	"variation": 1,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {4, 7},
+				"right": {3, 12},
 			},
 		},
 		"HealthComponent": {
