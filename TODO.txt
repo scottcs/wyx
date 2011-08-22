@@ -1,13 +1,17 @@
-Implement Components:
-  - fix tests
-	d add registry for entities
-  d need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth") [sort of did this... calculate elevel instead]
+Console:
 	d console for info/debugging
 	o   log console to file (with an option)
 	o   maybe different levels of messages [only log certain lines?]
 	o   allow input and create some awesome commands
+
+Level:
+	d add registry for entities
+  d need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth") [sort of did this... calculate elevel instead]
 	o change Level representation of enemy to be by position in a table for faster lookup
   o support lua in properties when read from file
+	o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+
+Components:
   -   InfoPanelComponent - just a guess here... mouseover info panel thingy
   d     AIInputComponent - AI routines, sends same messages as input component
 	d       Simple random AI for testing
@@ -17,18 +21,21 @@ Implement Components:
 	d    if out of player sight, don't draw
 	d AttackCommand
 	d WaitCommand
-	o make time cycle always start with player
-	o    keep track of "turns"
+	d make time cycle always start with player
+	d    keep track of "turns"
   x InputSystem - ticks InputComponents
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   x AISystem - ticks AIComponents
   - UISystem - handles User Interface
   x CombatSystem - determines outcome of combat using CombatComponents
+
+Other:
+  - fix tests
 	o fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
 
 For v0.1.0:
-  o monsters
-  o combat
+  d monsters
+  d combat
   o items
   o save/load
   o interface
