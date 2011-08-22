@@ -68,6 +68,16 @@ function TimeSystem:CommandEvent(e)
 	end
 end
 
+-- set the first traveler (for determining when a cycle ends)
+function TimeSystem:setFirst(component)
+	self._firstTraveler = component
+	local comp = self._timeTravelers:front()
+	while comp and comp ~= self._firstTraveler do
+		self._timeTravelers:rotate_forward()
+		comp = self._timeTravelers:front()
+	end
+end
+
 -- progresses through deque and update time entity
 function TimeSystem:tick()
 	local comp = self._timeTravelers:front()
@@ -80,12 +90,10 @@ function TimeSystem:tick()
 		comp = self._timeTravelers:front()
 	end
 
-	self._firstTraveler = self._firstTraveler or comp
-	if comp == self._firstTraveler then
-		GameEvents:notify(TimeSystemCycleEvent())
-	end
-
-	if self._timeTravelers:size() > 0 and comp:shouldTick() then
+	if self._firstTraveler
+		and self._timeTravelers:size() > 0
+		and comp:shouldTick()
+	then
 		-- rotate the deque
 		self._timeTravelers:rotate_forward()
 
@@ -114,6 +122,10 @@ function TimeSystem:tick()
 		if ap[comp] <= 0 then self._commandQueues[comp]:clear() end
 
 		comp:onPostTick(ap[comp])
+
+		if self._timeTravelers:front() == self._firstTraveler then
+			GameEvents:notify(TimeSystemCycleEvent())
+		end
 	end
 end
 

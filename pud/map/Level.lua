@@ -262,6 +262,7 @@ function Level:setPlayerControlled()
 	local time = PTC()
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 	self._heroFactory:setTimeComponent(self._primeEntity, time)
+	TimeSystem:setFirst(time)
 end
 
 function Level:EntityPositionEvent(e)
