@@ -8,10 +8,11 @@ local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local gprint = love.graphics.print
 local draw = love.graphics.draw
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setFont = love.graphics.setFont
 local rectangle = love.graphics.rectangle
 local nearestPO2 = nearestPO2
+local colors = colors
 
 local MARGIN = 8
 local LABEL = 50
@@ -31,8 +32,8 @@ local BG = {255*0.1, 255*0.1, 255*0.9, 255*0.7}
 --
 local DebugHUD = Class{name='DebugHUD',
 	function(self)
-		self._font = GameFont.verysmall
-		self._fontH = GameFont.verysmall:getHeight()
+		self._font = GameFont.console
+		self._fontH = self._font:getHeight()
 		local size = nearestPO2(math_max(WIDTH, HEIGHT))
 		self._fb = newFramebuffer(size, size)
 		self._info = {}
@@ -206,7 +207,7 @@ function DebugHUD:update(dt)
 end
 
 function DebugHUD:_drawFB()
-	setRenderTarget(self._fb)
+	pushRenderTarget(self._fb)
 
 	setFont(self._font)
 
@@ -246,7 +247,7 @@ function DebugHUD:_drawFB()
 		end
 	end
 
-	setRenderTarget()
+	popRenderTarget()
 end
 
 function DebugHUD:draw()

@@ -8,6 +8,7 @@
 local st = GameState.new()
 
 local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
+local Console = getClass 'pud.debug.Console'
 local MessageHUD = getClass 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
@@ -26,6 +27,7 @@ local GameCam = getClass 'pud.view.GameCam'
 -- events
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local GameEvents = GameEvents
 
 -- views
@@ -47,24 +49,40 @@ function st:enter()
 	self._level:setPlayerControlled()
 	self:_createMapView()
 	self:_createCamera()
+	self._console = Console()
 	if debug then
 		self:_createDebugHUD()
 		self._debug = true
 	end
-	GameEvents:register(self, {ZoneTriggerEvent, DisplayPopupMessageEvent})
+	GameEvents:register(self, {
+		ZoneTriggerEvent,
+		DisplayPopupMessageEvent,
+		ConsoleEvent,
+	})
 end
 
 function st:ZoneTriggerEvent(e)
 	if self._level:getPrimeEntity() == e:getEntity() then
-		local message = e:isLeaving() and 'Leaving' or 'Entering'
-		message = message..' Zone: '..tostring(e:getZone())
-		self:_displayMessage(message)
+		local message = e:isLeaving() and 'Zone -:' or 'Zone +:'
+		message = message..tostring(e:getZone())
+		GameEvents:push(ConsoleEvent(message))
 	end
 end
 
 function st:DisplayPopupMessageEvent(e)
 	local message = e:getMessage()
 	if message then self:_displayMessage(message) end
+end
+
+function st:ConsoleEvent(e)
+	local message = e:getMessage()
+	if message then
+		local turns = self._level:getTurns()
+		if turns then
+			message = '<%07d> '..message
+		end
+		self._console:print(message, turns)
+	end
 end
 
 function st:_createMapView(viewClass)
@@ -99,6 +117,8 @@ function st:_createDebugHUD()
 end
 
 function st:_displayMessage(message, time)
+	GameEvents:push(ConsoleEvent(message))
+
 	if self._messageHUD then
 		cron.cancel(self._messageID)
 		self._messageHUD:destroy()
@@ -132,6 +152,7 @@ function st:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
+	if self._console then self._console:draw() end
 end
 
 function st:leave()
@@ -160,62 +181,75 @@ function st:keypressed(key, unicode)
 	local tileW, tileH = self._view:getTileSize()
 	local _,zoomAmt = self._cam:getZoom()
 
-	switch(key) {
-		escape = function() GameState.switch(State.shutdown) end,
-		m = function()
-			self._view:setAnimate(false)
-			self._level:generateSimpleGridMap()
-			self._level:setPlayerControlled()
-			self:_createMapView()
-			self:_createCamera()
-		end,
-		f = function()
-			self._view:setAnimate(false)
-			self._level:generateFileMap()
-			self._level:setPlayerControlled()
-			self:_createMapView()
-			self:_createCamera()
-		end,
-
-		-- camera
-		pageup = function()
-			if not self._cam:isAnimating() then
+	if self._console:isVisible() then
+		switch(key) {
+			['`'] = function() self._console:toggle() end,
+			escape = function() self._console:hide() end,
+			pageup = function() self._console:pageup() end,
+			pagedown = function() self._console:pagedown() end,
+			home = function() self._console:top() end,
+			['end'] = function() self._console:bottom() end,
+			f10 = function() self._console:clear() end,
+		}
+	else
+		switch(key) {
+			escape = function() GameState.switch(State.shutdown) end,
+			['1'] = function()
 				self._view:setAnimate(false)
-				self._view:setViewport(self._cam:getViewport(1))
-				self._cam:zoomOut(self._view.setAnimate, self._view, true)
-			end
-		end,
-		pagedown = function()
-			if not self._cam:isAnimating() then
-				local vp = self._cam:getViewport(-1)
-				self._cam:zoomIn(self._postZoomIn, self, vp)
-			end
-		end,
-		home = function()
-			if not self._cam:isAnimating() then
+				self._level:generateSimpleGridMap()
+				self._level:setPlayerControlled()
+				self:_createMapView()
+				self:_createCamera()
+			end,
+			['2'] = function()
+				self._view:setAnimate(false)
+				self._level:generateFileMap()
+				self._level:setPlayerControlled()
+				self:_createMapView()
+				self:_createCamera()
+			end,
+
+			-- camera
+			pageup = function()
+				if not self._cam:isAnimating() then
+					self._view:setAnimate(false)
+					self._view:setViewport(self._cam:getViewport(1))
+					self._cam:zoomOut(self._view.setAnimate, self._view, true)
+				end
+			end,
+			pagedown = function()
+				if not self._cam:isAnimating() then
+					local vp = self._cam:getViewport(-1)
+					self._cam:zoomIn(self._postZoomIn, self, vp)
+				end
+			end,
+			home = function()
+				if not self._cam:isAnimating() then
+					self._view:setViewport(self._cam:getViewport())
+					self._cam:home()
+				end
+			end,
+			f4 = function()
+				self._cam:unfollowTarget()
 				self._view:setViewport(self._cam:getViewport())
-				self._cam:home()
-			end
-		end,
-		z = function()
-			self._cam:unfollowTarget()
-			self._view:setViewport(self._cam:getViewport())
-		end,
-		x = function()
-			self._cam:followTarget(self._level:getPrimeEntity())
-			self._view:setViewport(self._cam:getViewport())
-		end,
-		f3 = function() if debug then self._debug = not self._debug end end,
-		f7 = function()
-			if self._debug then self._debugHUD:clearExtremes() end
-		end,
-		f9 = function() if self._debug then collectgarbage('collect') end end,
-		backspace = function()
-			local name = self._level:getMapName()
-			local author = self._level:getMapAuthor()
-			self:_displayMessage('Map: "'..name..'" by '..author)
-		end,
-	}
+			end,
+			f5 = function()
+				self._cam:followTarget(self._level:getPrimeEntity())
+				self._view:setViewport(self._cam:getViewport())
+			end,
+			f3 = function() if debug then self._debug = not self._debug end end,
+			f7 = function()
+				if self._debug then self._debugHUD:clearExtremes() end
+			end,
+			f9 = function() if self._debug then collectgarbage('collect') end end,
+			backspace = function()
+				local name = self._level:getMapName()
+				local author = self._level:getMapAuthor()
+				self:_displayMessage('Map: "'..name..'" by '..author)
+			end,
+			['`'] = function() self._console:show() end,
+		}
+	end
 end
 
 return st

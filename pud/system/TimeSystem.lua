@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Deque = getClass 'pud.kit.Deque'
 local TimeComponent = getClass 'pud.component.TimeComponent'
 local CommandEvent = getClass 'pud.event.CommandEvent'
+local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
@@ -28,6 +29,7 @@ function TimeSystem:destroy()
 		self._commandQueues[k]:destroy()
 		self._commandQueues[k] = nil
 	end
+	self._firstTraveler = nil
 	self._timeTravelers = nil
 	self._actionPoints = nil
 end
@@ -66,6 +68,16 @@ function TimeSystem:CommandEvent(e)
 	end
 end
 
+-- set the first traveler (for determining when a cycle ends)
+function TimeSystem:setFirst(component)
+	self._firstTraveler = component
+	local comp = self._timeTravelers:front()
+	while comp and comp ~= self._firstTraveler do
+		self._timeTravelers:rotate_forward()
+		comp = self._timeTravelers:front()
+	end
+end
+
 -- progresses through deque and update time entity
 function TimeSystem:tick()
 	local comp = self._timeTravelers:front()
@@ -74,11 +86,15 @@ function TimeSystem:tick()
 	while comp and (not comp._properties or comp:isExhausted()) do
 		self._timeTravelers:pop_front()
 		self._actionPoints[comp] = nil
+		if comp == self._firstTraveler then self._firstTraveler = nil end
 		comp = self._timeTravelers:front()
 	end
 
-	if self._timeTravelers:size() > 0 and comp:shouldTick() then
-		-- rotate so that the front is now the back and front.right is front
+	if self._firstTraveler
+		and self._timeTravelers:size() > 0
+		and comp:shouldTick()
+	then
+		-- rotate the deque
 		self._timeTravelers:rotate_forward()
 
 		-- increase action points by the componet's speed
@@ -86,18 +102,30 @@ function TimeSystem:tick()
 		local speed = comp:getTotalSpeed()
 
 		ap[comp] = ap[comp] + speed
+		comp:onPreTick(ap[comp])
 
 		-- spend all action points
 		if self._commandQueues[comp] then
 			repeat
-				local nextCommand = self._commandQueues[comp]:pop_front()
-				if nextCommand then
+				local nextCommand = self._commandQueues[comp]:front()
+				if nextCommand and nextCommand:cost() <= ap[comp] then
+					self._commandQueues[comp]:pop_front()
+					comp:onPreExecute(ap[comp])
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
+					comp:onPostExecute(ap[comp])
+				else
+					nextCommand = nil
 				end
-			until nil == nextCommand or self._actionPoints[comp] <= 0
+			until nil == nextCommand or ap[comp] <= 0
 		end
 
-		comp:onTick()
+		if ap[comp] <= 0 then self._commandQueues[comp]:clear() end
+
+		comp:onPostTick(ap[comp])
+
+		if self._timeTravelers:front() == self._firstTraveler then
+			GameEvents:notify(TimeSystemCycleEvent())
+		end
 	end
 end
 

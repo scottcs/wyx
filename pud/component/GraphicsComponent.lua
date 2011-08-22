@@ -1,17 +1,20 @@
 local Class = require 'lib.hump.class'
 local ViewComponent = getClass 'pud.component.ViewComponent'
+local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local nearestPO2 = nearestPO2
+local colors = colors
 
 local verify, assert, tostring = verify, assert, tostring
+local vec2_equal = vec2.equal
 
 local COLOR_DIM = colors.GREY40
 local COLOR_NORMAL = colors.WHITE
@@ -28,7 +31,11 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'Visibility',
 		})
 		ViewComponent.construct(self, properties)
-		self._attachMessages = {'ENTITY_CREATED', 'HAS_MOVED', 'SCREEN_STATUS'}
+		self:_addMessages(
+			'ENTITY_CREATED',
+			'HAS_MOVED',
+			'SCREEN_STATUS',
+			'TIME_POSTTICK')
 		self._frames = {}
 		self._curFrame = 'right'
 		self._lit = 'black'
@@ -43,8 +50,8 @@ function GraphicsComponent:destroy()
 	self._curFrame = nil
 	self._topFrame = nil
 	self._tileset = nil
-	self._fb = nil
-	self._backfb = nil
+	self._ffb = nil
+	self._bfb = nil
 	self._size = nil
 	ViewComponent.destroy(self)
 end
@@ -82,6 +89,7 @@ function GraphicsComponent:_setScreenStatus(status)
 	else
 		self._color = COLOR_NORMAL
 	end
+	self:_updateFB()
 end
 
 function GraphicsComponent:receive(msg, ...)
@@ -180,22 +188,24 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		self._curFrame = newFrame or self._curFrame
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
-		self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
-		self._backfb = self._backfb or newFramebuffer(self._size, self._size)
+		if newX and newY then
+			self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
+		end
+		self._bfb = self._bfb or newFramebuffer(self._size, self._size)
 
-		setRenderTarget(self._backfb)
+		pushRenderTarget(self._bfb)
 		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
-		setRenderTarget()
+		popRenderTarget()
 
-		self._fb, self._backfb = self._backfb, self._fb
+		self._ffb, self._bfb = self._bfb, self._ffb
 	end
 end
 
 function GraphicsComponent:draw()
-	if self._lit ~= 'black' and self._fb then
+	if self._lit == 'lit' and self._ffb then
 		setColor(self._color)
-		draw(self._fb, self._drawX, self._drawY)
+		draw(self._ffb, self._drawX, self._drawY)
 	end
 end
 

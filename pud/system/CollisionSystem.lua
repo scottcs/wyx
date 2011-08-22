@@ -63,13 +63,13 @@ function CollisionSystem:check(obj, x, y)
 	if not collision then
 		local node = self._level:getMapNode(x, y)
 		if obj:query(property('BlockedBy'), node) then
-			obj:send(message('COLLIDE_BLOCKED'), node)
+			obj:send(message('COLLIDE_BLOCKED'), node, x, y)
 			collision = true
 		end
 	end
 
 	if not collision then
-		obj:send(message('COLLIDE_NONE'), x, y, oldpos[1], oldpos[2])
+		obj:send(message('COLLIDE_NONE'), x, y)
 	end
 
 	return collision

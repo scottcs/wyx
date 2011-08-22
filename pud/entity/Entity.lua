@@ -109,7 +109,7 @@ function Entity:removeComponent(component)
 	else
 		-- an actual class, check for component child or self
 		for k,v in pairs(self._components) do
-			if v:is_a(component) then
+			if v == component or v:is_a(component) then
 				name = _getComponentName(component)
 				break
 			end

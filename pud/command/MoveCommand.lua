@@ -12,6 +12,7 @@ local MoveCommand = Class{name='MoveCommand',
 		verify('number', x, y)
 
 		Command.construct(self, target)
+		self._costProp = property('MoveCost')
 		self._x = x
 		self._y = y
 	end
@@ -26,17 +27,9 @@ end
 
 function MoveCommand:execute(currAP)
 	local pos = self._target:query(property('Position'))
-	local newX, newY = pos[1] + self._x, pos[2] + self._y
 
-	CollisionSystem:check(self._target, newX, newY)
+	self._target:send(message('SET_POSITION'), self._x, self._y, pos[1], pos[2])
 
-	local canMove = self._target:query(property('CanMove'))
-	if not canMove then return 0 end
-
-	self._target:send(message('SET_POSITION'), newX, newY, pos[1], pos[2])
-
-	self._cost = self._target:query(property('MoveCost'))
-	self._cost = self._cost or self._target:query(property('DefaultCost'))
 	return Command.execute(self)
 end
 

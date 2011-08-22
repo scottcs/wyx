@@ -9,7 +9,7 @@ local EntityPositionEvent = Class{name='EntityPositionEvent',
 		if type(entity) ~= 'number' then entity = entity:getID() end
 		verify('number', entity, toX, toY, fromX, fromY)
 		assert(EntityRegistry:exists(entity),
-			'EntitiyPositionEvent: entity %d does not exist', entity)
+			'EntityPositionEvent: entity %d does not exist', entity)
 
 		Event.construct(self, 'Entity Position Event')
 

@@ -134,6 +134,12 @@ function Deque:rotate_backward()
 	end
 end
 
+-- iterate through the queue
+function Deque:iterate()
+	local which = {right = self._front}
+	return function() which = which.right; return which and which.obj or nil end
+end
+
 -- removes all the objects in the Deque.
 function Deque:clear()
 	for i=1,self._size do self:pop_front() end

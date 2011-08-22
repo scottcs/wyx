@@ -7,9 +7,10 @@ local newFramebuffer = love.graphics.newFramebuffer
 local setFont = love.graphics.setFont
 local gprint = love.graphics.print
 local rectangle = love.graphics.rectangle
-local setRenderTarget = love.graphics.setRenderTarget
+local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
+local colors = colors
 local nearestPO2 = nearestPO2
 
 local MARGIN = 8
@@ -69,7 +70,7 @@ end
 
 function MessageHUD:_drawFB()
 	self._isDrawing = true
-	setRenderTarget(self._fb)
+	pushRenderTarget(self._fb)
 
 	setFont(self._font)
 
@@ -79,7 +80,7 @@ function MessageHUD:_drawFB()
 	setColor(colors.WHITE)
 	gprint(self._message, MARGIN, MARGIN)
 
-	setRenderTarget()
+	popRenderTarget()
 	self._isDrawing = false
 end
 

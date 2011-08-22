@@ -12,6 +12,7 @@ local TimeComponent = Class{name='TimeComponent',
 		ModelComponent._addRequiredProperties(self, {
 			'AttackCost',
 			'MoveCost',
+			'WaitCost',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
@@ -33,6 +34,7 @@ function TimeComponent:_setProperty(prop, data)
 
 	if   prop == property('AttackCost')
 		or prop == property('MoveCost')
+		or prop == property('WaitCost')
 		or prop == property('DefaultCost')
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
@@ -67,8 +69,20 @@ function TimeComponent:getTotalSpeed()
 	return speed
 end
 
-function TimeComponent:onTick()
-	self._mediator:send(message('TIME_TICK'))
+function TimeComponent:onPreTick(ap)
+	self._mediator:send(message('TIME_PRETICK'), ap)
+end
+
+function TimeComponent:onPostTick(ap)
+	self._mediator:send(message('TIME_POSTTICK'), ap)
+end
+
+function TimeComponent:onPreExecute(ap)
+	self._mediator:send(message('TIME_PREEXECUTE'), ap)
+end
+
+function TimeComponent:onPostExecute(ap)
+	self._mediator:send(message('TIME_POSTEXECUTE'), ap)
 end
 
 function TimeComponent:getProperty(p, intermediate, ...)

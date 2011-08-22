@@ -1,7 +1,9 @@
 local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
 local CommandEvent = getClass 'pud.event.CommandEvent'
+local WaitCommand = getClass 'pud.command.WaitCommand'
 local MoveCommand = getClass 'pud.command.MoveCommand'
+local AttackCommand = getClass 'pud.command.AttackCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
@@ -16,7 +18,11 @@ local ControllerComponent = Class{name='ControllerComponent',
 	function(self, newProperties)
 		Component._addRequiredProperties(self, {'CanOpenDoors'})
 		Component.construct(self, newProperties)
-		self._attachMessages = {'COLLIDE_BLOCKED'}
+		self:_addMessages(
+			'COLLIDE_NONE',
+			'COLLIDE_BLOCKED',
+			'COLLIDE_ENEMY',
+			'COLLIDE_HERO')
 	end
 }
 
@@ -36,26 +42,67 @@ function ControllerComponent:_setProperty(prop, data)
 	Component._setProperty(self, prop, data)
 end
 
--- tell the mediator to move along x, y
-function ControllerComponent:move(x, y)
-	local command = MoveCommand(self._mediator, x, y)
-	CommandEvents:push(CommandEvent(command))
+-- check for collisions at the given coordinates
+function ControllerComponent:_attemptMove(x, y)
+	local pos = self._mediator:query(property('Position'))
+	local newX, newY = pos[1] + x, pos[2] + y
+	CollisionSystem:check(self._mediator, newX, newY)
 end
 
-function ControllerComponent:_tryToManipulateMap(node)
-	local mapType = node:getMapType()
+function ControllerComponent:_wait()
+	self:_sendCommand(WaitCommand(self._mediator))
+end
 
-	if mapType:isType(DoorMapType('shut')) then
-		if self._mediator:query(property('CanOpenDoors')) then
-			local command = OpenDoorCommand(self._mediator, node)
-			CommandEvents:push(CommandEvent(command))
-		end
+function ControllerComponent:_move(x, y)
+	local canMove = self._mediator:query(property('CanMove'))
+	
+	if canMove then
+		self:_sendCommand(MoveCommand(self._mediator, x, y))
+	else
+		self:_wait()
 	end
 end
 
+function ControllerComponent:_tryToManipulateMap(node)
+	if node then
+		local mapType = node:getMapType()
+
+		if mapType:isType(DoorMapType('shut')) then
+			if self._mediator:query(property('CanOpenDoors')) then
+				self:_sendCommand(OpenDoorCommand(self._mediator, node))
+			end
+		else
+			self:_wait()
+		end
+	else
+		self:_wait()
+	end
+end
+
+function ControllerComponent:_attack(isHero, target)
+	local etype = self._mediator:getEntityType()
+	if isHero or 'hero' == etype then
+		self:_sendCommand(
+			AttackCommand(self._mediator, EntityRegistry:get(target))
+		)
+	else
+		self:_wait()
+	end
+end
+
+function ControllerComponent:_sendCommand(command)
+	CommandEvents:notify(CommandEvent(command))
+end
+
 function ControllerComponent:receive(msg, ...)
-	if msg == message('COLLIDE_BLOCKED') then
+	if     msg == message('COLLIDE_NONE') then
+		self:_move(...)
+	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_tryToManipulateMap(...)
+	elseif msg == message('COLLIDE_ENEMY') then
+		self:_attack(false, ...)
+	elseif msg == message('COLLIDE_HERO') then
+		self:_attack(true, ...)
 	else
 		Component.receive(self, msg, ...)
 	end

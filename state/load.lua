@@ -13,6 +13,7 @@ local EnemyEntityDB = getClass 'pud.entity.EnemyEntityDB'
 local ItemEntityDB = getClass 'pud.entity.ItemEntityDB'
 
 local math_max = math.max
+local colors = colors
 
 local _loading = 'Loading...'
 local _x, _y
@@ -32,6 +33,10 @@ function st:init()
 			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		console = love.graphics.newImageFont('font/grafx2.png',
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
 	}
 end
 
