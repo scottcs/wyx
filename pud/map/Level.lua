@@ -228,9 +228,19 @@ function Level:createEntities()
 	-- TODO: get entities algorithmically
 	local enemyEntities = EnemyDB:getByELevel(1,30)
 	local numEnemyEntities = #enemyEntities
-	for i=2,11 do
+	local count = #self._entities + 1
+	for i=1,10 do
 		local which = enemyEntities[Random(numEnemyEntities)]
-		self._entities[i] = self._enemyFactory:createEntity(which)
+		self._entities[count] = self._enemyFactory:createEntity(which)
+		count = count + 1
+	end
+
+	local itemEntities = EnemyDB:getByELevel(1,30)
+	local numItemEntities = #itemEntities
+	for i=1,10 do
+		local which = itemEntities[Random(numItemEntities)]
+		self._entities[count] = self._itemFactory:createEntity(which)
+		count = count + 1
 	end
 end
 

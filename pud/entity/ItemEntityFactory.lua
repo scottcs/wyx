@@ -21,7 +21,5 @@ function ItemEntityFactory:destroy()
 	EntityFactory.destroy(self)
 end
 
--- TODO: figure out how to set CanMove to false
-
 -- the class
 return ItemEntityFactory
