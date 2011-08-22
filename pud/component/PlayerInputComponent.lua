@@ -35,28 +35,28 @@ function PlayerInputComponent:KeyboardEvent(e)
 		local doTick = false
 
 		if key == 'up' or key == 'k' or key == 'kp8' then
-			self:move( 0, -1)
+			self:_attemptMove( 0, -1)
 			doTick = true
 		elseif key == 'down' or key == 'j' or key == 'kp2' then
-			self:move( 0,  1)
+			self:_attemptMove( 0,  1)
 			doTick = true
 		elseif key == 'left' or key == 'h' or key == 'kp4' then
-			self:move(-1,  0)
+			self:_attemptMove(-1,  0)
 			doTick = true
 		elseif key == 'right' or key == 'l' or key == 'kp6' then
-			self:move( 1,  0)
+			self:_attemptMove( 1,  0)
 			doTick = true
 		elseif key == 'y' or key == 'kp7' then
-			self:move(-1,  -1)
+			self:_attemptMove(-1,  -1)
 			doTick = true
 		elseif key == 'u' or key == 'kp9' then
-			self:move( 1,  -1)
+			self:_attemptMove( 1,  -1)
 			doTick = true
 		elseif key == 'b' or key == 'kp1' then
-			self:move(-1,   1)
+			self:_attemptMove(-1,   1)
 			doTick = true
 		elseif key == 'n' or key == 'kp3' then
-			self:move( 1,   1)
+			self:_attemptMove( 1,   1)
 			doTick = true
 		end
 

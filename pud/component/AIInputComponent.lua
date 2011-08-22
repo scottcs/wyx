@@ -35,13 +35,10 @@ function AIInputComponent:_determineNextAction(ap)
 	local moveCost = self._mediator:query(property('MoveCost'))
 	local allowed = self:_getAllowedDirections()
 	if allowed then
-		while ap >= moveCost do
-			local dir = allowed[Random(#allowed)]
-			local x, y = _x[dir], _y[dir]
+		local dir = allowed[Random(#allowed)]
+		local x, y = _x[dir], _y[dir]
 
-			self:move(x, y)
-			ap = ap - moveCost
-		end
+		self:_attemptMove(x, y)
 	end
 end
 
@@ -98,9 +95,9 @@ function AIInputComponent:receive(msg, ...)
 		self:_denyDirection(...)
 	elseif msg == message('COLLIDE_NONE') then
 		self:_allowAllDirections(...)
-	else
-		InputComponent.receive(self, msg, ...)
 	end
+
+	InputComponent.receive(self, msg, ...)
 end
 
 

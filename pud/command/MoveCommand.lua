@@ -27,9 +27,8 @@ end
 
 function MoveCommand:execute(currAP)
 	local pos = self._target:query(property('Position'))
-	local newX, newY = pos[1] + self._x, pos[2] + self._y
 
-	self._target:send(message('SET_POSITION'), newX, newY, pos[1], pos[2])
+	self._target:send(message('SET_POSITION'), self._x, self._y, pos[1], pos[2])
 
 	return Command.execute(self)
 end
