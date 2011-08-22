@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
 local CommandEvent = getClass 'pud.event.CommandEvent'
 local MoveCommand = getClass 'pud.command.MoveCommand'
+local AttackCommand = getClass 'pud.command.AttackCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
@@ -16,7 +17,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 	function(self, newProperties)
 		Component._addRequiredProperties(self, {'CanOpenDoors'})
 		Component.construct(self, newProperties)
-		self:_addMessages('COLLIDE_BLOCKED')
+		self:_addMessages('COLLIDE_BLOCKED', 'COLLIDE_ENEMY', 'COLLIDE_HERO')
 	end
 }
 
@@ -53,9 +54,21 @@ function ControllerComponent:_tryToManipulateMap(node)
 	end
 end
 
+function ControllerComponent:_attack(isHero, target)
+	local etype = self._mediator:getEntityType()
+	if isHero or 'hero' == etype then
+		local command = AttackCommand(self._mediator, EntityRegistry:get(target))
+		CommandEvents:notify(CommandEvent(command))
+	end
+end
+
 function ControllerComponent:receive(msg, ...)
 	if msg == message('COLLIDE_BLOCKED') then
 		self:_tryToManipulateMap(...)
+	elseif msg == message('COLLIDE_ENEMY') then
+		self:_attack(false, ...)
+	elseif msg == message('COLLIDE_HERO') then
+		self:_attack(true, ...)
 	else
 		Component.receive(self, msg, ...)
 	end
