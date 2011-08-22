@@ -99,11 +99,14 @@ function TimeSystem:tick()
 		-- spend all action points
 		if self._commandQueues[comp] then
 			repeat
-				local nextCommand = self._commandQueues[comp]:pop_front()
-				if nextCommand then
+				local nextCommand = self._commandQueues[comp]:front()
+				if nextCommand and nextCommand:cost() <= ap[comp] then
+					self._commandQueues[comp]:pop_front()
 					comp:onPreExecute(ap[comp])
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
 					comp:onPostExecute(ap[comp])
+				else
+					nextCommand = nil
 				end
 			until nil == nextCommand or ap[comp] < 0
 		end
