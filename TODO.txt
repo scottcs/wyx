@@ -1,5 +1,5 @@
 Items:
-  o make some test item files
+  d make some test item files
   o randomly place items in the level
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   o PickupCommand
