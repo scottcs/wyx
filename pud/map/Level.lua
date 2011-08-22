@@ -15,6 +15,7 @@ local MapNodeUpdateEvent = getClass 'pud.event.MapNodeUpdateEvent'
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
@@ -48,12 +49,14 @@ local Level = Class{name='Level',
 		}
 		self._lightmap = {}
 		self._entities = {}
+		self._turns = 1
 
 		GameEvents:register(self, {
 			EntityPositionEvent,
 			EntityDeathEvent,
 			LightingStatusRequest,
 			MapNodeUpdateEvent,
+			TimeSystemCycleEvent,
 		})
 	end
 }
@@ -79,6 +82,8 @@ function Level:destroy()
 	self._lightColor = nil
 	for k in pairs(self._lightmap) do self._lightmap[k] = nil end
 	self._lightmap = nil
+
+	self._turns = nil
 end
 
 local vec2_equal = vec2.equal
@@ -302,6 +307,9 @@ function Level:EntityDeathEvent(e)
 
 end
 
+function Level:TimeSystemCycleEvent(e)
+	self._turns = self._turns + 1
+end
 
 function Level:MapNodeUpdateEvent(e)
 	self:_bakeLights()
@@ -309,6 +317,7 @@ function Level:MapNodeUpdateEvent(e)
 end
 
 function Level:getPrimeEntity() return self._primeEntity end
+function Level:getTurns() return self._turns end
 
 -- bake the lighting for the current prime entity position
 local _mult = {

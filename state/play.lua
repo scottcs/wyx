@@ -63,9 +63,9 @@ end
 
 function st:ZoneTriggerEvent(e)
 	if self._level:getPrimeEntity() == e:getEntity() then
-		local message = e:isLeaving() and '- Zone: ' or '+ Zone: '
+		local message = e:isLeaving() and 'Zone -:' or 'Zone +:'
 		message = message..tostring(e:getZone())
-		self._console:print(message)
+		GameEvents:push(ConsoleEvent(message))
 	end
 end
 
@@ -76,7 +76,13 @@ end
 
 function st:ConsoleEvent(e)
 	local message = e:getMessage()
-	if message then self._console:print(message) end
+	if message then
+		local turns = self._level:getTurns()
+		if turns then
+			message = '<%07d> '..message
+		end
+		self._console:print(message, turns)
+	end
 end
 
 function st:_createMapView(viewClass)
@@ -111,7 +117,7 @@ function st:_createDebugHUD()
 end
 
 function st:_displayMessage(message, time)
-	self._console:print(message)
+	GameEvents:push(ConsoleEvent(message))
 
 	if self._messageHUD then
 		cron.cancel(self._messageID)
