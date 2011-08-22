@@ -8,8 +8,6 @@ Component Hierarchy
   |- HealthComponent
   |- MotionComponent
   |- TimeComponent
-   `|- PlayerTimeComponent
-    |- AITimeComponent
 |- ViewComponent
  `|- GraphicsComponent
 |- ControllerComponent
@@ -67,9 +65,6 @@ Component Properties
             Trap        - trap tiles
                 ALL         - all traps
                 normal      - normal traps
-
-    "CanMove": true
-        If true, the entity is allowed to move. If false, it is not.
 
 * CombatComponent
     This component determines the outcome of combat between entities.
@@ -181,6 +176,9 @@ Component Properties
         The map coordinates of the entity. Usually not provided in the entity
         file, but rather determined by the game after map creation.
 
+    "CanMove": true
+        If true, the entity is allowed to move. If false, it is not.
+
 * TimeComponent
     This component determines how long each action taken by the entity takes.
 
@@ -193,6 +191,9 @@ Component Properties
 
     "MoveCost": 1
         How many Action Points it costs for this entity to move.
+
+    "WaitCost": 1
+        How many Action Points it costs for this entity to skip a turn.
 
     "Speed": 1
         This is the number of Action Points the entity earns each turn.
@@ -213,17 +214,6 @@ Component Properties
         "ticks". If false, the TimeSystem will wait until this property is
         true. This is mostly used to wait for human input, and is generally
         not specified in the entity file.
-
-* PlayerTimeComponent
-    This component is a human player specific version of the TimeComponent. It
-    is usually not specified in the entity file, as the game determines
-    whether to use Player components at runtime. It accepts the same
-    properties as its parents (namely, TimeComponent).
-
-* AITimeComponent
-    This component is an Artificial Intelligence specific version of the
-    TimeComponent. It accepts the same properties as its parents (namely,
-    TimeComponent).
 
 
 Default Components
@@ -248,7 +238,7 @@ Enemy:
     CombatComponent
     CollisionComponent
     MotionComponent
-    AITimeComponent
+    TimeComponent
     AIInputComponent
 
 Item:
