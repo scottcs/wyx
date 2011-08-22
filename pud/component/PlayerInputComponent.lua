@@ -34,7 +34,10 @@ function PlayerInputComponent:KeyboardEvent(e)
 		local key = e:getKey()
 		local doTick = false
 
-		if key == 'up' or key == 'k' or key == 'kp8' then
+		if key == '.' or key == 'kp5' then
+			self:_wait()
+			doTick = true
+		elseif key == 'up' or key == 'k' or key == 'kp8' then
 			self:_attemptMove( 0, -1)
 			doTick = true
 		elseif key == 'down' or key == 'j' or key == 'kp2' then
