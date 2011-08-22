@@ -15,8 +15,10 @@ Implement Components:
 	x    flickering
 	d    lighting not updated until next frame
 	d    if out of player sight, don't draw
-	+ AttackCommand
-	+ WaitCommand
+	d AttackCommand
+	d WaitCommand
+	o make time cycle always start with player
+	o    keep track of "turns"
   x InputSystem - ticks InputComponents
   x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
   x AISystem - ticks AIComponents
