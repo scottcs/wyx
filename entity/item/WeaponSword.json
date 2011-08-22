@@ -1,0 +1,14 @@
+{
+	"family": "Weapon",
+	"kind": "Sword",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {3, 1},
+		},
+		"CombatComponent": {
+			"Attack": 3,
+		},
+	}
+}

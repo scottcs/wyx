@@ -1,0 +1,14 @@
+{
+	"family": "Armor",
+	"kind": "Padded",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {2, 2},
+		},
+		"CombatComponent": {
+			"Defense": 1,
+		},
+	}
+}

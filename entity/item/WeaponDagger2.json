@@ -1,0 +1,14 @@
+{
+	"family": "Weapon",
+	"kind": "Dagger",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {2, 1},
+		},
+		"CombatComponent": {
+			"Attack": 2,
+		},
+	}
+}

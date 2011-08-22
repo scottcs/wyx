@@ -1,0 +1,12 @@
+{
+	"family": "Ring",
+	"kind": "Far Sight",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {8, 3},
+			"Visibility": 2,
+		},
+	}
+}
