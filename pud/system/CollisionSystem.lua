@@ -69,7 +69,7 @@ function CollisionSystem:check(obj, x, y)
 	end
 
 	if not collision then
-		obj:send(message('COLLIDE_NONE'), x, y, oldpos[1], oldpos[2])
+		obj:send(message('COLLIDE_NONE'), x, y)
 	end
 
 	return collision
