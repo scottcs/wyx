@@ -33,12 +33,14 @@ end
 -- figure out what to do on next tick
 function AIInputComponent:_determineNextAction(ap)
 	local moveCost = self._mediator:query(property('MoveCost'))
-	local allowed = self:_getAllowedDirections()
-	if allowed then
-		local dir = allowed[Random(#allowed)]
-		local x, y = _x[dir], _y[dir]
+	if ap >= moveCost then
+		local allowed = self:_getAllowedDirections()
+		if allowed then
+			local dir = allowed[Random(#allowed)]
+			local x, y = _x[dir], _y[dir]
 
-		self:_attemptMove(x, y)
+			self:_attemptMove(x, y)
+		end
 	end
 end
 
