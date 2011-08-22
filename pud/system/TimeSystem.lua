@@ -101,7 +101,9 @@ function TimeSystem:tick()
 			repeat
 				local nextCommand = self._commandQueues[comp]:pop_front()
 				if nextCommand then
+					comp:onPreExecute(ap[comp])
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
+					comp:onPostExecute(ap[comp])
 				end
 			until nil == nextCommand or ap[comp] < 0
 		end

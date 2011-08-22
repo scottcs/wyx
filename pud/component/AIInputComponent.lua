@@ -15,6 +15,7 @@ local AIInputComponent = Class{name='AIInputComponent',
 		InputComponent.construct(self, properties)
 		self:_addMessages(
 			'TIME_PRETICK',
+			'TIME_POSTEXECUTE',
 			'COLLIDE_BLOCKED',
 			'COLLIDE_NONE')
 		self._directions = {}
@@ -89,7 +90,9 @@ function AIInputComponent:_allowAllDirections()
 end
 
 function AIInputComponent:receive(msg, ...)
-	if msg == message('TIME_PRETICK') then
+	if msg == message('TIME_PRETICK')
+		or msg == message('TIME_POSTEXECUTE')
+	then
 		self:_determineNextAction(...)
 	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_denyDirection(...)

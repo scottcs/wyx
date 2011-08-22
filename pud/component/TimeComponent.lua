@@ -75,6 +75,14 @@ function TimeComponent:onPostTick(ap)
 	self._mediator:send(message('TIME_POSTTICK'), ap)
 end
 
+function TimeComponent:onPreExecute(ap)
+	self._mediator:send(message('TIME_PREEXECUTE'), ap)
+end
+
+function TimeComponent:onPostExecute(ap)
+	self._mediator:send(message('TIME_POSTEXECUTE'), ap)
+end
+
 function TimeComponent:getProperty(p, intermediate, ...)
 	if p == property('DoTick') then
 		local prop = self._properties[p]
