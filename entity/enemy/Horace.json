@@ -13,10 +13,10 @@
 		"HealthComponent": {
 			"Health": 34,
 			"MaxHealth": 34,
-		}
+		},
 		"CombatComponent": {
 			"Attack": 2,
 			"Defense": 3,
-		}
+		},
 	}
 }
