@@ -1,9 +1,9 @@
 Items:
   d make some test item files
   d randomly place items in the level
-  o Entity container class.
-  o   Sortable by property.
-  o   Uses IDs.
+  d Entity container class.
+  d   Sortable by property.
+  d   Uses IDs.
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   o   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
   o     PickupCommand [Put in container from level]
