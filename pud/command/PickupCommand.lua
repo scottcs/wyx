@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Command = getClass 'pud.command.Command'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local property = require 'pud.component.property'
 local message = require 'pud.component.message'
 
@@ -24,6 +25,9 @@ end
 
 function PickupCommand:execute()
 	self._target:send(message('CONTAINER_INSERT'), self._itemID)
+	local item = EntityRegistry:get(self._itemID)
+	GameEvents:push(ConsoleEvent('Pickup: %s -> %s',
+		self._target:getName(), item:getName()))
 	return Command.execute(self)
 end
 
