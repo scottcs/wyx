@@ -219,7 +219,6 @@ function Level:createEntities()
 	local which = HeroDB:getByFilename(heroName)
 	self._primeEntity = self._heroFactory:createEntity(which)
 	self._entities:add(self._primeEntity)
-	local primeEntity = EntityRegistry:get(self._primeEntity)
 
 	-- TODO: get entities algorithmically
 	local enemyEntities = EnemyDB:getByELevel(1,100)
@@ -255,9 +254,10 @@ function Level:removeAllEntities()
 end
 
 function Level:removeEntity(entityID)
-	self._entities:remove(entityID)
-	local entity = EntityRegistry:unregister(entityID)
-	entity:destroy()
+	if self._entities:remove(entityID) then
+		local entity = EntityRegistry:unregister(entityID)
+		entity:destroy()
+	end
 end
 
 function Level:setPlayerControlled()
