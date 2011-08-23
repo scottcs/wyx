@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local InputComponent = getClass 'pud.component.InputComponent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -70,15 +71,15 @@ function PlayerInputComponent:KeyboardEvent(e)
 			self:_tryToDrop(contained and contained[1] or 1)
 			doTick = true
 		elseif key == 'i' then
-			print('Inventory:')
+			GameEvents:push(ConsoleEvent('Inventory:'))
 			local contained = self._mediator:query(property('ContainedEntities'))
 			if contained then
 				for i,e in pairs(contained) do
 					local entity = EntityRegistry:get(e)
-					print('',i,entity:getName())
+					GameEvents:push(ConsoleEvent('   %d - %s', i, entity:getName()))
 				end
 			else
-				print('','Nothing.')
+				GameEvents:push(ConsoleEvent('   Nothing.'))
 			end
 		end
 
