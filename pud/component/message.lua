@@ -28,6 +28,7 @@ message.SET_POSITION          = 'SET_POSITION'
 message.COLLIDE_NONE          = 'COLLIDE_NONE'
 message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
+message.COLLIDE_ITEM          = 'COLLIDE_ITEM'
 message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 
 -- GraphicsComponent messages

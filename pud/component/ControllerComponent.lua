@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
 local CommandEvent = getClass 'pud.event.CommandEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local WaitCommand = getClass 'pud.command.WaitCommand'
 local MoveCommand = getClass 'pud.command.MoveCommand'
 local AttackCommand = getClass 'pud.command.AttackCommand'
@@ -21,6 +22,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 		self:_addMessages(
 			'COLLIDE_NONE',
 			'COLLIDE_BLOCKED',
+			'COLLIDE_ITEM',
 			'COLLIDE_ENEMY',
 			'COLLIDE_HERO')
 	end
@@ -103,6 +105,16 @@ function ControllerComponent:receive(msg, ...)
 		self:_attack(false, ...)
 	elseif msg == message('COLLIDE_HERO') then
 		self:_attack(true, ...)
+	elseif msg == message('COLLIDE_ITEM') then
+		if self._mediator:getEntityType() == 'hero' then
+			local id = select(1, ...)
+			if id then
+				local item = EntityRegistry:get(id)
+				local name = item:getName()
+				local elevel = item:getELevel()
+				GameEvents:push(ConsoleEvent('Item found: %s (%d)', name, elevel))
+			end
+		end
 	else
 		Component.receive(self, msg, ...)
 	end

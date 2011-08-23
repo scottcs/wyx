@@ -10,6 +10,7 @@ local ItemEntityFactory = Class{name='ItemEntityFactory',
 		self._renderLevel = 10
 		self._requiredComponents = {
 			getClass 'pud.component.MotionComponent',
+			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.GraphicsComponent',
 			--getClass 'pud.component.InfoPanelComponent',
 		}
