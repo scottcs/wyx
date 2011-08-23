@@ -6,11 +6,14 @@ local WaitCommand = getClass 'pud.command.WaitCommand'
 local MoveCommand = getClass 'pud.command.MoveCommand'
 local AttackCommand = getClass 'pud.command.AttackCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
+local PickupCommand = getClass 'pud.command.PickupCommand'
+--local DropCommand = getClass 'pud.command.DropCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
 local CommandEvents = CommandEvents
+local vec2_equal = vec2.equal
 
 -- ControllerComponent
 --
@@ -95,7 +98,12 @@ end
 
 function ControllerComponent:_tryToPickup()
 	if self._onGround then
-		self:_sendCommand(PickupCommand(self._mediator, self._onGround))
+		local item = EntityRegistry:get(self._onGround)
+		local ipos = item:query(property('Position'))
+		local mpos = self._mediator:query(property('Position'))
+		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
+			self:_sendCommand(PickupCommand(self._mediator, self._onGround))
+		end
 	end
 end
 
@@ -105,7 +113,6 @@ end
 
 function ControllerComponent:receive(msg, ...)
 	if     msg == message('COLLIDE_NONE') then
-		self._onGround = nil
 		self:_move(...)
 	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_tryToManipulateMap(...)
