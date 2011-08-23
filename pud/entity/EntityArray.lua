@@ -21,30 +21,29 @@ function EntityArray:destroy()
 end
 
 -- add entities to the array
-function EntityArray:add(...)
-	verify('number', ...)
+function EntityArray:add(id)
+	verify('number', id)
 
-	local num = select('#', ...)
+	local success = false
 
-	for i=1,num do
-		local id = select(i, ...)
-		if not self._entities[id] then
-			self._entities[id] = true
-			self._count = self._count + 1
-		end
+	if not self._entities[id] then
+		self._entities[id] = true
+		success = true
 	end
+
+	return success
 end
 
 -- remove entities from the array
-function EntityArray:remove(...)
-	local num = select('#', ...)
-	for i=1,num do
-		local id = select(i, ...)
-		if self._entities[id] then
-			self._entities[id] = nil
-			self._count = self._count - 1
-		end
+function EntityArray:remove(id)
+	local success = false
+
+	if self._entities[id] then
+		self._entities[id] = nil
+		success = true
 	end
+
+	return success
 end
 
 -- return the entity table as an unsorted array of IDs.
