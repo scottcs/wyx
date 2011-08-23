@@ -6,7 +6,7 @@ Items:
   d   Uses IDs.
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   d   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
-  o     PickupCommand [Put in container from level]
+  d     PickupCommand [Put in container from level]
   o     DropCommand [Put in level from container]
   o   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
   o     AttachCommand [Equip - from container]
@@ -30,6 +30,9 @@ Components:
   o   Add a description field to JSON files.
   o   And a Portrait field.
   - UISystem - handles User Interface
+
+Interface:
+  o Need another draw routine in RenderSystem for drawing outside of camera translation.
 
 Other:
   - fix tests
