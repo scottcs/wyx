@@ -1,28 +1,38 @@
 Items:
   d make some test item files
-  o randomly place items in the level
+  d randomly place items in the level
+  o Entity container class.
+  o   Sortable by property.
+  o   Uses IDs.
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
-  o PickupCommand
-  o DropCommand
-  o EquipCommand
+  o   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
+  o     PickupCommand [Put in container from level]
+  o     DropCommand [Put in level from container]
+  o   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
+  o     AttachCommand [Equip - from container]
+  o     DetachCommand [Unequip - to container]
+  o   UsableComponent? [this needs scripting in JSON files]
+  o     UseCommand [call onUse(), potentially destroy entity]
 
 Console:
-  o log console to file (with an option)
-  o maybe different levels of messages [only log certain lines?]
-  o allow input and create some awesome commands
+  - log console to file (with an option)
+  - maybe different levels of messages [only log certain lines?]
+  - allow input and create some awesome commands
 
 Level:
-  o change Level representation of enemy to be by position in a table for faster lookup
+  - change Level representation of enemy to be by position in a table for faster lookup
   o support lua in properties when read from file
   o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
 
 Components:
-  -   InfoPanelComponent - just a guess here... mouseover info panel thingy
+  o InfoPanelComponent - just a guess here... mouseover info panel thingy
+  o   Add a description field to JSON files.
+  o   And a Portrait field.
   - UISystem - handles User Interface
 
 Other:
   - fix tests
-  o fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
+  - fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
 
 For v0.1.0:
   o items
@@ -49,6 +59,3 @@ Beyond v0.1.0:
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
   o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
   x don't animate or update dim tiles
-
-NOTES:
-
