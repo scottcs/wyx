@@ -27,7 +27,7 @@ function ContainerComponent:destroy()
 	ModelComponent.destroy(self)
 end
 
-function ContainerComponent:_setProperty(prop, data, ...)
+function ContainerComponent:_setProperty(prop, data)
 	prop = property(prop)
 	if nil == data then data = property.default(prop) end
 
