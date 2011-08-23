@@ -50,6 +50,7 @@ property.MaxHealthBonus    = 0
 -- motion properties
 property.Position          = {1, 1}
 property.CanMove           = true
+property.IsContained       = false
 
 -- collision properties
 property.BlockedBy         = {Wall='ALL', Door='shut'}

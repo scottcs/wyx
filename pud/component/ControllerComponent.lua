@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
 local CommandEvent = getClass 'pud.event.CommandEvent'
 local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local WaitCommand = getClass 'pud.command.WaitCommand'
 local MoveCommand = getClass 'pud.command.MoveCommand'
 local AttackCommand = getClass 'pud.command.AttackCommand'
@@ -97,23 +98,53 @@ end
 
 function ControllerComponent:_tryToPickup()
 	local items = EntityRegistry:getIDsByType('item')
+	local count = 0
+	local pIsContained = property('IsContained')
+	local pPosition = property('Position')
+
 	if items then
 		local num = #items
 		for i=1,num do
 			local id = items[i]
 			local item = EntityRegistry:get(id)
-			local ipos = item:query(property('Position'))
-			local mpos = self._mediator:query(property('Position'))
-			if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
-				self:_sendCommand(PickupCommand(self._mediator, id))
+			if not item:query(pIsContained) then
+				local ipos = item:query(pPosition)
+				local mpos = self._mediator:query(pPosition)
+				if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
+					self:_sendCommand(PickupCommand(self._mediator, id))
+					count = count + 1
+				end
 			end
 		end
+	end
+
+	if count == 0 then
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to pick up!'))
 	end
 end
 
 function ControllerComponent:_tryToDrop(id)
-	local item = EntityRegistry:get(id)
-	self:_sendCommand(DropCommand(self._mediator, id))
+	local contained = self._mediator:query(property('ContainedEntities'))
+	if contained then
+		local found = false
+		local num = #contained
+
+		for i=1,num do
+			if contained[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			self:_sendCommand(DropCommand(self._mediator, id))
+		else
+			GameEvents:push(DisplayPopupMessageEvent('You can\'t drop that!'))
+		end
+	else
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to drop!'))
+	end
 end
 
 function ControllerComponent:_sendCommand(command)

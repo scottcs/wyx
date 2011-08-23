@@ -11,9 +11,16 @@ local GameEvents = GameEvents
 local MotionComponent = Class{name='MotionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		ModelComponent._addRequiredProperties(self, {'Position', 'CanMove'})
+		ModelComponent._addRequiredProperties(self, {
+			'Position',
+			'CanMove',
+			'IsContained',
+		})
 		ModelComponent.construct(self, properties)
-		self:_addMessages('SET_POSITION', 'CONTAINER_REMOVED')
+		self:_addMessages(
+			'SET_POSITION',
+			'CONTAINER_INSERTED',
+			'CONTAINER_REMOVED')
 	end
 }
 
@@ -33,7 +40,9 @@ function MotionComponent:_setProperty(prop, data, ...)
 		end
 		assert(#data == 2, 'Invalid Position: %s', tostring(data))
 		verify('number', data[1], data[2])
-	elseif prop == property('CanMove') then
+	elseif prop == property('CanMove')
+		or   prop == property('IsContained')
+	then
 		verify('boolean', data)
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
@@ -52,18 +61,24 @@ end
 
 function MotionComponent:receive(msg, ...)
 	if     msg == message('SET_POSITION') then self:_move(...)
+	elseif msg == message('CONTAINER_INSERTED') then
+		self:_setProperty(property('IsContained'), true)
 	elseif msg == message('CONTAINER_REMOVED') then
 		local comp = select(1, ...)
 		local mediator = comp:getMediator()
 		local mpos = mediator:query(property('Position'))
 		local pos = self._mediator:query(property('Position'))
+
+		self:_setProperty(property('IsContained'), false)
 		self._mediator:send(message('SET_POSITION'),
 			mpos[1], mpos[2], pos[1], pos[2])
 	end
 end
 
 function MotionComponent:getProperty(p, intermediate, ...)
-	if p == property('CanMove') then
+	if   p == property('CanMove')
+		or p == property('IsContained')
+	then
 		local prop = self._properties[p]
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
