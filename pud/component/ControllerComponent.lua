@@ -66,19 +66,20 @@ function ControllerComponent:_move(x, y)
 end
 
 function ControllerComponent:_tryToManipulateMap(node)
+	local wait = true
+
 	if node then
 		local mapType = node:getMapType()
 
 		if mapType:isType(DoorMapType('shut')) then
 			if self._mediator:query(property('CanOpenDoors')) then
 				self:_sendCommand(OpenDoorCommand(self._mediator, node))
+				wait = false
 			end
-		else
-			self:_wait()
 		end
-	else
-		self:_wait()
 	end
+
+	if wait then self:_wait() end
 end
 
 function ControllerComponent:_attack(isHero, target)
