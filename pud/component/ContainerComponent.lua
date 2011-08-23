@@ -33,7 +33,7 @@ function ContainerComponent:_setProperty(prop, data, ...)
 
 	if prop == property('MaxContainerSize') then
 		verify('number', data)
-	if prop == property('ContainedEntities') then
+	elseif prop == property('ContainedEntities') then
 		verify('table', data)
 	else
 		error('ContainerComponent does not support property: %s', tostring(prop))
