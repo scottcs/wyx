@@ -8,8 +8,8 @@ local message = require 'pud.component.message'
 --
 local RingAttachmentComponent = Class{name='RingAttachmentComponent',
 	inherits=AttachmentComponent,
-	function(self, properties, 'Ring', 1)
-		AttachmentComponent.construct(self, properties)
+	function(self, properties)
+		AttachmentComponent.construct(self, properties, 'Ring', 1)
 	end
 }
 

@@ -8,8 +8,8 @@ local message = require 'pud.component.message'
 --
 local WeaponAttachmentComponent = Class{name='WeaponAttachmentComponent',
 	inherits=AttachmentComponent,
-	function(self, properties, 'Weapon', 1)
-		AttachmentComponent.construct(self, properties)
+	function(self, properties)
+		AttachmentComponent.construct(self, properties, 'Weapon', 1)
 	end
 }
 
