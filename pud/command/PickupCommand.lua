@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local Command = getClass 'pud.command.Command'
 local property = require 'pud.component.property'
+local message = require 'pud.component.message'
 
 -- PickupCommand
 --
