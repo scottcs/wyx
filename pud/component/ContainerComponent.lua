@@ -11,7 +11,7 @@ local ContainerComponent = Class{name='ContainerComponent',
 	function(self, properties)
 		ModelComponent._addRequiredProperties(self, {'MaxContainerSize'})
 		ModelComponent.construct(self, properties)
-		self:_addMessages('ALL')
+		self:_addMessages(message('ALL'))
 
 		self._entities = EntityArray()
 	end
