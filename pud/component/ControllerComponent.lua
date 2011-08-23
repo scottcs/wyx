@@ -30,6 +30,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 
 -- destructor
 function ControllerComponent:destroy()
+	self._onGround = nil
 	Component.destroy(self)
 end
 
@@ -86,10 +87,15 @@ function ControllerComponent:_attack(isHero, target)
 	local etype = self._mediator:getEntityType()
 	if isHero or 'hero' == etype then
 		self:_sendCommand(
-			AttackCommand(self._mediator, EntityRegistry:get(target))
-		)
+			AttackCommand(self._mediator, EntityRegistry:get(target)))
 	else
 		self:_wait()
+	end
+end
+
+function ControllerComponent:_tryToPickup()
+	if self._onGround then
+		self:_sendCommand(PickupCommand(self._mediator, self._onGround))
 	end
 end
 
@@ -99,6 +105,7 @@ end
 
 function ControllerComponent:receive(msg, ...)
 	if     msg == message('COLLIDE_NONE') then
+		self._onGround = nil
 		self:_move(...)
 	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_tryToManipulateMap(...)
@@ -109,6 +116,7 @@ function ControllerComponent:receive(msg, ...)
 	elseif msg == message('COLLIDE_ITEM') then
 		if self._mediator:getEntityType() == 'hero' then
 			local id = select(1, ...)
+			self._onGround = id
 			if id then
 				local item = EntityRegistry:get(id)
 				local name = item:getName()
