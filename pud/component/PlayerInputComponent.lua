@@ -72,15 +72,30 @@ function PlayerInputComponent:KeyboardEvent(e)
 			doTick = true
 		elseif key == 'i' then
 			-- XXX
-			GameEvents:push(ConsoleEvent('Inventory:'))
+			local found = false
+
 			local contained = self._mediator:query(property('ContainedEntities'))
 			if contained then
+				GameEvents:push(ConsoleEvent('Inventory:'))
+				found = true
 				for i,e in pairs(contained) do
 					local entity = EntityRegistry:get(e)
 					GameEvents:push(ConsoleEvent('   %d - %s', i, entity:getName()))
 				end
-			else
-				GameEvents:push(ConsoleEvent('   Nothing.'))
+			end
+
+			local attached = self._mediator:query(property('AttachedEntities'))
+			if attached then
+				GameEvents:push(ConsoleEvent('Equipped:'))
+				found = true
+				for i,e in pairs(attached) do
+					local entity = EntityRegistry:get(e)
+					GameEvents:push(ConsoleEvent('   %d - %s', i, entity:getName()))
+				end
+			end
+
+			if not found then
+				GameEvents:push(ConsoleEvent('You have nothing.'))
 			end
 		elseif key == 's' then
 			-- XXX
