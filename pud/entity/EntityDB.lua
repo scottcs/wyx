@@ -95,7 +95,7 @@ function EntityDB:_processEntityInfo(info)
 	end
 
 	info.variation = info.variation or 1
-	info.name = info.name or format("%s %s (%d)",
+	info.name = info.name or format("%s %s %d",
 		info.family, info.kind, info.variation)
 
 	self._byFilename[info.filename] = info
