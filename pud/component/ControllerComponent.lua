@@ -33,7 +33,6 @@ local ControllerComponent = Class{name='ControllerComponent',
 
 -- destructor
 function ControllerComponent:destroy()
-	self._onGround = nil
 	Component.destroy(self)
 end
 
@@ -97,13 +96,17 @@ function ControllerComponent:_attack(isHero, target)
 end
 
 function ControllerComponent:_tryToPickup()
-	if self._onGround then
-		local item = EntityRegistry:get(self._onGround)
-		local ipos = item:query(property('Position'))
-		local mpos = self._mediator:query(property('Position'))
-		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
-			self:_sendCommand(PickupCommand(self._mediator, self._onGround))
-			self._onGround = false
+	local items = EntityRegistry:getIDsByType('item')
+	if items then
+		local num = #items
+		for i=1,num do
+			local id = items[i]
+			local item = EntityRegistry:get(id)
+			local ipos = item:query(property('Position'))
+			local mpos = self._mediator:query(property('Position'))
+			if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
+				self:_sendCommand(PickupCommand(self._mediator, id))
+			end
 		end
 	end
 end
@@ -129,7 +132,6 @@ function ControllerComponent:receive(msg, ...)
 	elseif msg == message('COLLIDE_ITEM') then
 		if self._mediator:getEntityType() == 'hero' then
 			local id = select(1, ...)
-			self._onGround = id
 			if id then
 				local item = EntityRegistry:get(id)
 				local name = item:getName()
