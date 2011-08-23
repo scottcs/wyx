@@ -5,7 +5,9 @@
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
-			"TileCoords": {5, 1},
+			"TileCoords": {
+				"item": {5, 1},
+			},
 		},
 		"CombatComponent": {
 			"Attack": 5,
