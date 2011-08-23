@@ -5,6 +5,8 @@ local json = require 'lib.dkjson'
 local format, match, tostring = string.format, string.match, tostring
 local warning, error, pairs, verify = warning, error, pairs, verify
 local setmetatable = setmetatable
+local math_floor = math.floor
+local _round = function(x) return math_floor(x+0.5) end
 local enumerate = love.filesystem.enumerate
 local read = love.filesystem.read
 
@@ -123,9 +125,36 @@ function EntityDB:_processEntityInfo(info)
 	end
 end
 
--- calculate the elevel of this entity based on relevant properties.
+-- get the predefined weights for properties, to caluclate ELevel.
 -- this is the main reason to subclass this class.
-function EntityDB:_calculateELevel(info) return 1 end
+function EntityDB:_getPropertyWeights() return nil end
+
+-- calculate the elevel of this entity based on relevant properties.
+function EntityDB:_calculateELevel(info)
+	local props = self:_getPropertyWeights()
+	local found = {}
+
+	if info.components and props then
+		for comp,cprops in pairs(info.components) do
+			for p,t in pairs(props) do
+				local prop = t.name
+				if cprops[prop] then
+					found[p] = {weight = t.weight, value = cprops[prop]}
+				end
+			end
+		end
+	end
+
+	local elevel = 0.1
+
+	for p,t in pairs(found) do
+		local weight, value = t.weight, t.value
+		if type(value) == 'boolean' then value = value and 1 or 0 end
+		elevel = elevel + (weight * value)
+	end
+
+	return _round(elevel)
+end
 
 -- get by filename
 function EntityDB:getByFilename(filename)

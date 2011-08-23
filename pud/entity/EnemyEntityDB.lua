@@ -19,35 +19,24 @@ function EnemyEntityDB:destroy()
 	EntityDB.destroy(self)
 end
 
--- calculate the elevel of this entity based on relevant properties.
-function EnemyEntityDB:_calculateELevel(info)
-	local maxHealth = property.default('MaxHealth')
-	local attack = property.default('Defense')
-	local defense = property.default('Attack')
+function EnemyEntityDB:_getPropertyWeights()
+	local props = {
+		maxHealth  = {name = 'MaxHealth',      weight = 0.2},
+		maxHealthB = {name = 'MaxHealthBonus', weight = 0.2},
+		visibility = {name = 'Visibility',     weight = 1.3},
+		defense    = {name = 'Defense',        weight = 0.6},
+		defenseB   = {name = 'DefenseBonus',   weight = 0.6},
+		attack     = {name = 'Attack',         weight = 0.6},
+		attackB    = {name = 'AttackBonus',    weight = 0.6},
+		speed      = {name = 'Speed',          weight = 1.4},
+		speedB     = {name = 'SpeedBonus',     weight = 1.4},
+		openDoors  = {name = 'CanOpenDoors',   weight = 10},
+		canMove    = {name = 'CanMove',        weight = 10},
+	}
 
-	if info.components
-		and info.components.HealthComponent
-		and info.components.HealthComponent.MaxHealth
-	then
-		maxHealth = info.components.HealthComponent.MaxHealth
-	end
-
-	if info.components
-		and info.components.CombatComponent
-		and info.components.CombatComponent.Attack
-	then
-		attack = info.components.CombatComponent.Attack
-	end
-
-	if info.components
-		and info.components.CombatComponent
-		and info.components.CombatComponent.Defense
-	then
-		defense = info.components.CombatComponent.Defense
-	end
-
-	return _round((maxHealth*0.5) + (attack*0.25) + (defense*0.25))
+	return props
 end
+
 
 -- the class
 return EnemyEntityDB

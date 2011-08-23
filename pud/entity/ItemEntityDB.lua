@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local EntityDB = getClass 'pud.entity.EntityDB'
-local property = require 'pud.component.property'
 
 -- ItemEntityDB
 --
@@ -16,8 +15,24 @@ function ItemEntityDB:destroy()
 	EntityDB.destroy(self)
 end
 
--- calculate the elevel of this entity based on relevant properties.
-function ItemEntityDB:_calculateELevel(info) return nil end
+function ItemEntityDB:_getPropertyWeights()
+	local props = {
+		health     = {name = 'Health',         weight = 1.1},
+		healthB    = {name = 'HealthBonus',    weight = 1.1},
+		maxHealth  = {name = 'MaxHealth',      weight = 1.2},
+		maxHealthB = {name = 'MaxHealthBonus', weight = 1.2},
+		visibility = {name = 'Visibility',     weight = 1.3},
+		defense    = {name = 'Defense',        weight = 0.9},
+		defenseB   = {name = 'DefenseBonus',   weight = 0.9},
+		attack     = {name = 'Attack',         weight = 0.9},
+		attackB    = {name = 'AttackBonus',    weight = 0.9},
+		speed      = {name = 'Speed',          weight = 1.4},
+		speedB     = {name = 'SpeedBonus',     weight = 1.4},
+	}
+
+	return props
+end
+
 
 -- the class
 return ItemEntityDB
