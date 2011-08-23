@@ -36,14 +36,14 @@ end
 -------------------------------------------------
 
 -- combat properties
-property.Attack            = 1
-property.Defense           = 1
+property.Attack            = 0
+property.Defense           = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
 
 -- health properties
-property.Health            = 1
-property.MaxHealth         = 1
+property.Health            = 0
+property.MaxHealth         = 0
 property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
 
@@ -58,17 +58,17 @@ property.BlockedBy         = {Wall='ALL', Door='shut'}
 property.TileSet           = 'dungeon'
 property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
-property.Visibility        = 6
+property.Visibility        = 0
 
 -- controller properties
 property.CanOpenDoors      = false
 
 -- time properties
-property.DefaultCost       = 1
-property.AttackCost        = 1
-property.MoveCost          = 1
-property.WaitCost          = 1
-property.Speed             = 1
+property.DefaultCost       = 0
+property.AttackCost        = 0
+property.MoveCost          = 0
+property.WaitCost          = 0
+property.Speed             = 0
 property.SpeedBonus        = 0
 property.IsExhausted       = false
 property.DoTick            = true
