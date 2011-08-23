@@ -28,6 +28,7 @@ function EntityArray:add(id)
 
 	if not self._entities[id] then
 		self._entities[id] = true
+		self._count = self._count + 1
 		success = true
 	end
 
@@ -40,6 +41,7 @@ function EntityArray:remove(id)
 
 	if self._entities[id] then
 		self._entities[id] = nil
+		self._count = self._count - 1
 		success = true
 	end
 
@@ -97,7 +99,7 @@ end
 
 -- clear the array
 function EntityArray:clear()
-	for k in pairs(self._entities) do self._entities[k] = nil end
+	for k in pairs(self._entities) do self:remove(k) end
 	self._count = 0
 end
 
