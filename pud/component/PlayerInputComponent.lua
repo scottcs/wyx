@@ -71,6 +71,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 			self:_tryToDrop(contained and contained[1] or 1)
 			doTick = true
 		elseif key == 'i' then
+			-- XXX
 			GameEvents:push(ConsoleEvent('Inventory:'))
 			local contained = self._mediator:query(property('ContainedEntities'))
 			if contained then
@@ -81,6 +82,40 @@ function PlayerInputComponent:KeyboardEvent(e)
 			else
 				GameEvents:push(ConsoleEvent('   Nothing.'))
 			end
+		elseif key == 's' then
+			-- XXX
+			local attack = self._mediator:query(property('Attack'))
+			local attackBonus = self._mediator:query(property('AttackBonus'))
+			attack = attack + attackBonus
+
+			local defense = self._mediator:query(property('Defense'))
+			local defenseBonus = self._mediator:query(property('DefenseBonus'))
+			defense = defense + defenseBonus
+
+			local speed = self._mediator:query(property('Speed'))
+			local speedBonus = self._mediator:query(property('SpeedBonus'))
+			speed = speed + speedBonus
+
+			local health = self._mediator:query(property('Health'))
+			local healthBonus = self._mediator:query(property('HealthBonus'))
+			health = health + healthBonus
+
+			local maxHealth = self._mediator:query(property('MaxHealth'))
+			local maxHealthBonus = self._mediator:query(property('MaxHealthBonus'))
+			maxHealth = maxHealth + maxHealthBonus
+
+			local visibility = self._mediator:query(property('Visibility'))
+
+			GameEvents:push(ConsoleEvent('Stats:'))
+			GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
+				health, healthBonus, maxHealth, maxHealthBonus))
+			GameEvents:push(ConsoleEvent('     Att: %d (%+d)',
+				attack, attackBonus))
+			GameEvents:push(ConsoleEvent('     Def: %d (%+d)',
+				defense, defenseBonus))
+			GameEvents:push(ConsoleEvent('     Spd: %d (%+d)',
+				speed, speedBonus))
+			GameEvents:push(ConsoleEvent('     Vis: %d', visibility))
 		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end
