@@ -100,6 +100,8 @@ end
 
 function AttachmentComponent:getProperty(p, intermediate, ...)
 	if p == property('AttachedEntities') then
+		if self._entities:size() == 0 then return intermediate end
+
 		local entities = intermediate or {}
 		local num = #entities
 
