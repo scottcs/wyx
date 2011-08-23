@@ -41,17 +41,11 @@ function ContainerComponent:receive(msg, ...)
 	local continue = true
 
 	if     msg == message('CONTAINER_INSERT') then
-		local container = select(1, ...)
-		if container == self then
-			self:_insert(select(2, ...))
-			continue = false
-		end
+		self:_insert(...)
+		continue = false
 	elseif msg == message('CONTAINER_REMOVE') then
-		local container = select(1, ...)
-		if container == self then
-			self:_remove(select(2, ...))
-			continue = false
-		end
+		self:_remove(...)
+		continue = false
 	end
 
 	if continue then
