@@ -5,7 +5,7 @@ Items:
   d   Sortable by property.
   d   Uses IDs.
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
-  o   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
+  d   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
   o     PickupCommand [Put in container from level]
   o     DropCommand [Put in level from container]
   o   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
@@ -23,6 +23,7 @@ Level:
   - change Level representation of enemy to be by position in a table for faster lookup
   o support lua in properties when read from file
   o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+  +   this needs to be done in EntityDB, not in Component
 
 Components:
   o InfoPanelComponent - just a guess here... mouseover info panel thingy
