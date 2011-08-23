@@ -1,4 +1,4 @@
-local Class = require 'lib.hump.class'`
+local Class = require 'lib.hump.class'
 local ModelComponent = getClass 'pud.component.ModelComponent'
 local EntityArray = getClass 'pud.entity.EntityArray'
 local property = require 'pud.component.property'
@@ -7,7 +7,7 @@ local message = require 'pud.component.message'
 -- AttachmentComponent
 --
 local AttachmentComponent = Class{name='AttachmentComponent',
-	inherits=ModelCompoonent,
+	inherits=ModelComponent,
 	function(self, properties, family, max)
 		max = max or 1
 		verify('number', max)
