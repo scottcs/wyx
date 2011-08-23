@@ -26,7 +26,8 @@ Level:
   +   this needs to be done in EntityDB, not in Component
 
 Components:
-  o InfoPanelComponent - just a guess here... mouseover info panel thingy
+  o TooltipComponent... mouseover info panel thingy
+  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
   o   And a Portrait field.
   - UISystem - handles User Interface
