@@ -11,10 +11,10 @@
 			},
 		},
 		"CombatComponent": {
-			"Defense": 1,
+			"DefenseBonus": 1,
 		},
 		"TimeComponent": {
-			"Speed": 1,
+			"SpeedBonus": 1,
 		}
 	}
 }
