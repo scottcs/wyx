@@ -49,6 +49,7 @@ message.ENTITY_DEATH          = 'ENTITY_DEATH'
 message.HEALTH_UPDATE         = 'HEALTH_UPDATE'
 
 -- ContainerComponent messages
+message.CONTAINER_RESIZE      = 'CONTAINER_RESIZE'
 message.CONTAINER_INSERT      = 'CONTAINER_INSERT'
 message.CONTAINER_REMOVE      = 'CONTAINER_REMOVE'
 message.CONTAINER_INSERTED    = 'CONTAINER_INSERTED'

@@ -268,6 +268,8 @@ function Level:setPlayerControlled()
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 	self._heroFactory:setTimeComponent(self._primeEntity, time)
 	TimeSystem:setFirst(time)
+	local entity = EntityRegistry:get(self._primeEntity)
+	entity:send(message('CONTAINER_RESIZE'), 10)
 end
 
 function Level:EntityPositionEvent(e)

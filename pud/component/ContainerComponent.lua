@@ -46,6 +46,9 @@ function ContainerComponent:receive(msg, ...)
 	elseif msg == message('CONTAINER_REMOVE') then
 		self:_remove(...)
 		continue = false
+	elseif msg == message('CONTAINER_RESIZE') then
+		self:_resize(...)
+		continue = false
 	end
 
 	if continue then
@@ -87,6 +90,10 @@ function ContainerComponent:_remove(...)
 			end
 		end
 	end
+end
+
+function ContainerComponent:_resize(size)
+	self:_setProperty(property('MaxContainerSize'), size)
 end
 
 
