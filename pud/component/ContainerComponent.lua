@@ -9,7 +9,10 @@ local property = require 'pud.component.property'
 local ContainerComponent = Class{name='ContainerComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		ModelComponent._addRequiredProperties(self, {'MaxContainerSize'})
+		ModelComponent._addRequiredProperties(self, {
+			'MaxContainerSize',
+			'ContainedEntities',
+		})
 		ModelComponent.construct(self, properties)
 		self:_addMessages(message('ALL'))
 
@@ -30,6 +33,8 @@ function ContainerComponent:_setProperty(prop, data, ...)
 
 	if prop == property('MaxContainerSize') then
 		verify('number', data)
+	if prop == property('ContainedEntities') then
+		verify('table', data)
 	else
 		error('ContainerComponent does not support property: %s', tostring(prop))
 	end
@@ -94,6 +99,15 @@ end
 
 function ContainerComponent:_resize(size)
 	self:_setProperty(property('MaxContainerSize'), size)
+end
+
+function ContainerComponent:getProperty(p, intermediate, ...)
+	if p == property('ContainedEntities') then
+		if intermediate then return intermediate end
+		return self._entities:getArray()
+	else
+		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
 end
 
 

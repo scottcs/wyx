@@ -75,6 +75,7 @@ property.DoTick            = true
 
 -- container properties
 property.MaxContainerSize  = 0
+property.ContainedEntities = {}
 
 -- weaknesses
 property.CrushWeakness     = 0
