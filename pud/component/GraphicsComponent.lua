@@ -35,10 +35,13 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'ENTITY_CREATED',
 			'HAS_MOVED',
 			'SCREEN_STATUS',
+			'CONTAINER_INSERTED',
+			'CONTAINER_REMOVED',
 			'TIME_POSTTICK')
 		self._frames = {}
 		self._curFrame = 'right'
 		self._lit = 'black'
+		self._doDraw = true
 		self._color = COLOR_NORMAL
 	end
 }
@@ -96,6 +99,8 @@ function GraphicsComponent:receive(msg, ...)
 	if     msg == message('ENTITY_CREATED') then self:_makeQuads(...)
 	elseif msg == message('SCREEN_STATUS') then self:_setScreenStatus(...)
 	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
+	elseif msg == message('CONTAINER_INSERTED') then self._doDraw = false
+	elseif msg == message('CONTAINER_REMOVED') then self._doDraw = true
 	end
 end
 
@@ -203,7 +208,7 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 end
 
 function GraphicsComponent:draw()
-	if self._lit == 'lit' and self._ffb then
+	if self._lit == 'lit' and self._ffb and self._doDraw then
 		setColor(self._color)
 		draw(self._ffb, self._drawX, self._drawY)
 	end
