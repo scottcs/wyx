@@ -18,6 +18,7 @@ local get = function(msg)
 end
 
 -- Component messages
+message.ALL                   = 'ALL'
 message.ENTITY_CREATED        = 'ENTITY_CREATED'
 
 -- MotionComponent messages
