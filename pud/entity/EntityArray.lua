@@ -93,6 +93,7 @@ function EntityArray:size() return self._count end
 -- iterate through the array
 function EntityArray:iterate()
 	local array = self:getArray()
+	if not array then return function() end end
 	local i = 0
 	return function() i = i + 1; return array[i] end
 end
