@@ -226,21 +226,26 @@ function Level:createEntities()
 	local primeEntity = EntityRegistry:get(self._primeEntity)
 
 	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,30)
-	local numEnemyEntities = #enemyEntities
-	local count = #self._entities + 1
-	for i=1,10 do
-		local which = enemyEntities[Random(numEnemyEntities)]
-		self._entities[count] = self._enemyFactory:createEntity(which)
-		count = count + 1
+	local enemyEntities = EnemyDB:getByELevel(1,100)
+	if enemyEntities then
+		local numEnemyEntities = #enemyEntities
+		local count = #self._entities + 1
+		for i=1,10 do
+			local which = enemyEntities[Random(numEnemyEntities)]
+			self._entities[count] = self._enemyFactory:createEntity(which)
+			count = count + 1
+		end
 	end
 
-	local itemEntities = EnemyDB:getByELevel(1,30)
-	local numItemEntities = #itemEntities
-	for i=1,10 do
-		local which = itemEntities[Random(numItemEntities)]
-		self._entities[count] = self._itemFactory:createEntity(which)
-		count = count + 1
+	local itemEntities = ItemDB:getByELevel(1,100)
+	if itemEntities then
+		local numItemEntities = #itemEntities
+		local count = #self._entities + 1
+		for i=1,10 do
+			local which = itemEntities[Random(numItemEntities)]
+			self._entities[count] = self._itemFactory:createEntity(which)
+			count = count + 1
+		end
 	end
 end
 
