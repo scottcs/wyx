@@ -153,7 +153,7 @@ function EntityDB:_calculateELevel(info)
 		elevel = elevel + (weight * value)
 	end
 
-	return _round(elevel)
+	return _round(elevel*10)
 end
 
 -- get by filename
