@@ -61,6 +61,9 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == 'n' or key == 'kp3' then
 			self:_attemptMove( 1,   1)
 			doTick = true
+		elseif key == ';' or key == 'kp.' then
+			self:_tryToPickup()
+			doTick = true
 		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end
