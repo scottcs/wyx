@@ -73,6 +73,9 @@ property.SpeedBonus        = 0
 property.IsExhausted       = false
 property.DoTick            = true
 
+-- container properties
+property.MaxContainerSize  = 0
+
 -- weaknesses
 property.CrushWeakness     = 0
 property.SliceWeakness     = 0

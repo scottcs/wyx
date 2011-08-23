@@ -48,6 +48,12 @@ message.COMBAT_DAMAGE         = 'COMBAT_DAMAGE'
 message.ENTITY_DEATH          = 'ENTITY_DEATH'
 message.HEALTH_UPDATE         = 'HEALTH_UPDATE'
 
+-- ContainerComponent messages
+message.CONTAINER_INSERT      = 'CONTAINER_INSERT'
+message.CONTAINER_REMOVE      = 'CONTAINER_REMOVE'
+message.CONTAINER_INSERTED    = 'CONTAINER_INSERTED'
+message.CONTAINER_REMOVED     = 'CONTAINER_REMOVED'
+
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},
 	{__call = function(_, msg) return get(msg) end})
