@@ -9,6 +9,8 @@ local AttackCommand = getClass 'pud.command.AttackCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 local PickupCommand = getClass 'pud.command.PickupCommand'
 local DropCommand = getClass 'pud.command.DropCommand'
+local AttachCommand = getClass 'pud.command.AttachCommand'
+local DetachCommand = getClass 'pud.command.DetachCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
@@ -144,6 +146,54 @@ function ControllerComponent:_tryToDrop(id)
 		end
 	else
 		GameEvents:push(DisplayPopupMessageEvent('Nothing to drop!'))
+	end
+end
+
+function ControllerComponent:_tryToAttach(id)
+	local contained = self._mediator:query(property('ContainedEntities'))
+	if contained then
+		local found = false
+		local num = #contained
+
+		for i=1,num do
+			if contained[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			self:_sendCommand(AttachCommand(self._mediator, id))
+		else
+			GameEvents:push(DisplayPopupMessageEvent('You can\'t equip that!'))
+		end
+	else
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to equip!'))
+	end
+end
+
+function ControllerComponent:_tryToDetach(id)
+	local attached = self._mediator:query(property('AttachedEntities'))
+	if attached then
+		local found = false
+		local num = #attached
+
+		for i=1,num do
+			if attached[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			self:_sendCommand(DetachCommand(self._mediator, id))
+		else
+			GameEvents:push(DisplayPopupMessageEvent('You don\'t have that equipped!'))
+		end
+	else
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to unequip!'))
 	end
 end
 

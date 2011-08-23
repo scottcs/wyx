@@ -62,13 +62,31 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == 'n' or key == 'kp3' then
 			self:_attemptMove( 1,   1)
 			doTick = true
-		elseif key == ';' or key == 'kp.' then
+		elseif key == 'p' then
 			self:_tryToPickup()
 			doTick = true
 		elseif key == 'd' then
 			-- XXX
 			local contained = self._mediator:query(property('ContainedEntities'))
 			self:_tryToDrop(contained and contained[1] or 1)
+			doTick = true
+		elseif key == 'e' then
+			local contained = self._mediator:query(property('ContainedEntities'))
+			if contained then
+				local num = #contained
+				for i=1,num do
+					self:_tryToAttach(contained[1])
+				end
+			end
+			doTick = true
+		elseif key == 'r' then
+			local attached = self._mediator:query(property('AttachedEntities'))
+			if attached then
+				local num = #attached
+				for i=1,num do
+					self:_tryToDetach(attached[1])
+				end
+			end
 			doTick = true
 		elseif key == 'i' then
 			-- XXX
