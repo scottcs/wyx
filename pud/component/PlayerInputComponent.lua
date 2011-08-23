@@ -64,6 +64,26 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == ';' or key == 'kp.' then
 			self:_tryToPickup()
 			doTick = true
+		elseif key == 'd' then
+			local contained = self._mediator:query(property('ContainedEntities'))
+			if contained then
+				self:_tryToDrop(contained[1])
+				doTick = true
+			else
+				-- XXX
+				print('Nothing to drop!')
+			end
+		elseif key == 'i' then
+			print('Inventory:')
+			local contained = self._mediator:query(property('ContainedEntities'))
+			if contained then
+				for i,e in pairs(contained) do
+					local entity = EntityRegistry:get(e)
+					print('',i,entity:getName())
+				end
+			else
+				print('','Nothing.')
+			end
 		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end

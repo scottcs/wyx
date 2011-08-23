@@ -7,7 +7,7 @@ local MoveCommand = getClass 'pud.command.MoveCommand'
 local AttackCommand = getClass 'pud.command.AttackCommand'
 local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 local PickupCommand = getClass 'pud.command.PickupCommand'
---local DropCommand = getClass 'pud.command.DropCommand'
+local DropCommand = getClass 'pud.command.DropCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
@@ -103,8 +103,14 @@ function ControllerComponent:_tryToPickup()
 		local mpos = self._mediator:query(property('Position'))
 		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
 			self:_sendCommand(PickupCommand(self._mediator, self._onGround))
+			self._onGround = false
 		end
 	end
+end
+
+function ControllerComponent:_tryToDrop(id)
+	local item = EntityRegistry:get(id)
+	self:_sendCommand(DropCommand(self._mediator, id))
 end
 
 function ControllerComponent:_sendCommand(command)

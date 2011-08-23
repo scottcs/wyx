@@ -13,7 +13,7 @@ local MotionComponent = Class{name='MotionComponent',
 	function(self, properties)
 		ModelComponent._addRequiredProperties(self, {'Position', 'CanMove'})
 		ModelComponent.construct(self, properties)
-		self:_addMessages('SET_POSITION')
+		self:_addMessages('SET_POSITION', 'CONTAINER_REMOVED')
 	end
 }
 
@@ -52,6 +52,13 @@ end
 
 function MotionComponent:receive(msg, ...)
 	if     msg == message('SET_POSITION') then self:_move(...)
+	elseif msg == message('CONTAINER_REMOVED') then
+		local comp = select(1, ...)
+		local mediator = comp:getMediator()
+		local mpos = mediator:query(property('Position'))
+		local pos = self._mediator:query(property('Position'))
+		self._mediator:send(message('SET_POSITION'),
+			mpos[1], mpos[2], pos[1], pos[2])
 	end
 end
 
