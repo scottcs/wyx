@@ -55,6 +55,12 @@ message.CONTAINER_REMOVE      = 'CONTAINER_REMOVE'
 message.CONTAINER_INSERTED    = 'CONTAINER_INSERTED'
 message.CONTAINER_REMOVED     = 'CONTAINER_REMOVED'
 
+-- AttachmentComponent messages
+message.ATTACHMENT_ATTACH      = 'ATTACHMENT_ATTACH'
+message.ATTACHMENT_DETACH      = 'ATTACHMENT_DETACH'
+message.ATTACHMENT_ATTACHED    = 'ATTACHMENT_ATTACHED'
+message.ATTACHMENT_DETACHED    = 'ATTACHMENT_DETACHED'
+
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},
 	{__call = function(_, msg) return get(msg) end})

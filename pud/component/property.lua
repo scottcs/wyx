@@ -78,6 +78,9 @@ property.DoTick            = true
 property.MaxContainerSize  = 0
 property.ContainedEntities = {}
 
+-- attachment properties
+property.AttachedEntities  = {}
+
 -- weaknesses
 property.CrushWeakness     = 0
 property.SliceWeakness     = 0
