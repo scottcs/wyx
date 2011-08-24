@@ -36,14 +36,14 @@ end
 -------------------------------------------------
 
 -- combat properties
-property.Attack            = 1
-property.Defense           = 1
+property.Attack            = 0
+property.Defense           = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
 
 -- health properties
-property.Health            = 1
-property.MaxHealth         = 1
+property.Health            = 0
+property.MaxHealth         = 0
 property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
 
