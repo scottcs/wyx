@@ -1,8 +1,11 @@
 local Class = require 'lib.hump.class'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local property = require 'pud.component.property'
 
 local json = require 'lib.dkjson'
 
 local format, match, tostring = string.format, string.match, tostring
+local gsub = string.gsub
 local warning, error, pairs, verify = warning, error, pairs, verify
 local setmetatable = setmetatable
 local math_floor = math.floor
@@ -80,6 +83,8 @@ function EntityDB:load()
 		filename = match(filename, "(%w+).json") or filename
 		info.filename = filename
 		self:_processEntityInfo(info)
+		self:_evaluateEntityInfo(info)
+		self:_postProcessEntityInfo(info)
 	end
 end
 
@@ -115,6 +120,78 @@ function EntityDB:_processEntityInfo(info)
 
 	key = format("%s-%s", key, tostring(info.variation))
 	self._byFamKV[key] = info
+end
+
+local _rollDice = function(x) return Random:dice_roll(x) end
+
+local _evaluateExpression = function(expression)
+	local result = gsub(expression, "(%d+d%d+[+-]?%d*)", _rollDice)
+	return result ~= expression and tonumber(result) or nil
+end
+
+-- evaluate strings in top level fields in the info table, and turn them into
+-- valid lua functions if necessary
+function EntityDB:_evaluateEntityInfo(info)
+	if info.components then
+		for comp,props in pairs(info.components) do
+			for p,data in pairs(props) do
+				p = property(p)
+				if type(data) == 'string' then
+					-- could be an expression to evaluate
+				end
+			end
+		end
+	end
+end
+
+-- perform any data cleanup needed after processing and evaluation
+function EntityDB:_postProcessEntityInfo(info)
+	if info.components then
+		for comp,props in pairs(info.components) do
+			for p,data in pairs(props) do
+				p = property(p)
+				if self._etype == 'item' then
+					-- with item entities, for properties with *Bonus counterparts, move
+					-- the data to the Bonus property if it doesn't exist, otherwise
+					-- just remove it.
+					local bonus = p..'Bonus'
+					if property.isproperty(bonus) then
+						if props[bonus] then
+							GameEvents:push(ConsoleEvent(
+								'Item Entities only have *Bonus properties;'
+								..' %s dropped from %s.',
+								p, info.name))
+						else
+							props[bonus] = data
+						end
+						props[p] = nil
+					end
+				else
+					-- with non-item entities, for properties with *Bonus counterparts,
+					-- move the Bonus property to the non-Bonus data if it doesn't
+					-- exist, otherwise just remove it.
+					local normal = match(p, '(.*)Bonus')
+					if normal and property.isproperty(normal) then
+						if props[normal] then
+							GameEvents:push(ConsoleEvent(
+								'Non-Item Entities only have *Bonus properties;'
+								..' %s dropped from %s.',
+								p, info.name))
+						else
+							props[normal] = data
+						end
+						props[p] = nil
+					end
+				end
+			end
+		end
+
+		-- XXX
+		print('----------',info.name)
+		for comp,props in pairs(info.components) do
+			for p,data in pairs(props) do print(p,data) end
+		end
+	end
 
 	info.elevel = self:_calculateELevel(info)
 	if info.elevel then
@@ -130,6 +207,7 @@ end
 function EntityDB:_getPropertyWeights() return nil end
 
 -- calculate the elevel of this entity based on relevant properties.
+-- TODO: Entity.evaluate(expression) 100 times and take average.
 function EntityDB:_calculateELevel(info)
 	local props = self:_getPropertyWeights()
 	local found = {}
