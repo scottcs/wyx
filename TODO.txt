@@ -8,9 +8,9 @@ Items:
   d   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
   d     PickupCommand [Put in container from level]
   d     DropCommand [Put in level from container]
-  o   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
-  o     AttachCommand [Equip - from container]
-  o     DetachCommand [Unequip - to container]
+  d   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
+  d     AttachCommand [Equip - from container]
+  d     DetachCommand [Unequip - to container]
   o   UsableComponent? [this needs scripting in JSON files]
   o     UseCommand [call onUse(), potentially destroy entity]
 
