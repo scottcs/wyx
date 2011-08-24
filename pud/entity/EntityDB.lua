@@ -85,27 +85,24 @@ function EntityDB:load()
 
 		filename = match(filename, "(%w+).json") or filename
 		info.filename = filename
-		self:_processEntityInfo(info)
-		self:_evaluateEntityInfo(info)
-		self:_postProcessEntityInfo(info)
+
+		local added = false
+		if self:_processEntityInfo(info) then
+			if self:_evaluateEntityInfo(info) then
+				if self:_postProcessEntityInfo(info) then
+					self:_addToDB(info)
+					added = true
+				end
+			end
+		end
+
+		if not added then
+			warning('Entity was not loaded: %s', filename)
+		end
 	end
 end
 
--- process information read from entity file and store for easy retrieval
-function EntityDB:_processEntityInfo(info)
-	if not info.family then
-		warning('No family defined for %s', info.filename)
-		info.family = "FAMILY?"
-	end
-	if not info.kind then
-		warning('No kind defined for %s', info.filename)
-		info.kind = "KIND?"
-	end
-
-	info.variation = info.variation or 1
-	info.name = info.name or format("%s %s %d",
-		info.family, info.kind, info.variation)
-
+function EntityDB:_addToDB(info)
 	self._byFilename[info.filename] = info
 	self._byName[info.name] = info
 
@@ -125,6 +122,25 @@ function EntityDB:_processEntityInfo(info)
 	self._byFamKV[key] = info
 end
 
+-- process information read from entity file and store for easy retrieval
+function EntityDB:_processEntityInfo(info)
+	if not info.family then
+		warning('No family defined for %s', info.filename)
+		return false
+	end
+
+	if not info.kind then
+		warning('No kind defined for %s', info.filename)
+		return false
+	end
+
+	info.variation = info.variation or 1
+	info.name = info.name or format("%s %s %d",
+		info.family, info.kind, info.variation)
+
+	return true
+end
+
 local _rollDice = function(x) return Random:dice_roll(x) end
 
 local _evaluateExpression = function(expression)
@@ -139,12 +155,15 @@ function EntityDB:_evaluateEntityInfo(info)
 		for comp,props in pairs(info.components) do
 			for p,data in pairs(props) do
 				p = property(p)
+				if nil == p then return false end
 				if type(data) == 'string' then
 					-- could be an expression to evaluate
 				end
 			end
 		end
 	end
+
+	return true
 end
 
 -- perform any data cleanup needed after processing and evaluation
@@ -153,6 +172,7 @@ function EntityDB:_postProcessEntityInfo(info)
 		for comp,props in pairs(info.components) do
 			for p,data in pairs(props) do
 				p = property(p)
+				if nil == p then return false end
 				if self._etype == 'item' then
 					-- with item entities, for properties with *Bonus counterparts, move
 					-- the data to the Bonus property if it doesn't exist, otherwise
@@ -169,7 +189,7 @@ function EntityDB:_postProcessEntityInfo(info)
 							props[bonus] = data
 						end
 						props[p] = nil
-					end
+					end -- if property.isproperty...
 				else
 					-- with non-item entities, for properties with *Bonus counterparts,
 					-- move the Bonus property to the non-Bonus data if it doesn't
@@ -186,11 +206,11 @@ function EntityDB:_postProcessEntityInfo(info)
 							props[normal] = data
 						end
 						props[p] = nil
-					end
-				end
-			end
-		end
-	end
+					end -- if normal and ...
+				end -- if self._etype == 'item
+			end -- for p,data in props
+		end -- for comp,props in info.components
+	end -- if info.components
 
 	info.elevel = self:_calculateELevel(info)
 	if info.elevel then
@@ -199,6 +219,8 @@ function EntityDB:_postProcessEntityInfo(info)
 		size = #(self._byELevel[key])
 		self._byELevel[key][size+1] = info
 	end
+
+	return true
 end
 
 -- get the predefined weights for properties, to caluclate ELevel.
