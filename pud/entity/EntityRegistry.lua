@@ -55,28 +55,27 @@ function EntityRegistry:register(entity)
 end
 
 local _removeID = function(id, t)
-	local num = #t
 	local found = false
 
-	for i=1,num do
-		local num2 = #(t[i])
+	for k,v in pairs(t) do
+		local num = #v
 		local new = {}
 		local newCount = 1
 
-		for j=1,num2 do
-			if t[i][j] == id then
+		for i=1,num do
+			if v[i] == id then
 				found = true
 			else
-				new[newCount] = t[i][j]
+				new[newCount] = v[i]
 				newCount = newCount + 1
 			end
-			t[i][j] = nil
+			v[i] = nil
 		end
 
 		if #new == 0 then
-			t[i] = nil
+			t[k] = nil
 		else
-			t[i] = new
+			t[k] = new
 		end
 
 		if found then break end
