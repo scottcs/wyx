@@ -134,6 +134,13 @@ function Entity:query(prop, ...)
 	return result
 end
 
+function Entity:rawquery(prop, intermediate, ...)
+	for k in pairs(self._components) do
+		intermediate = self._components[k]:getProperty(prop, intermediate, ...)
+	end
+	return intermediate
+end
+
 
 
 -- the class

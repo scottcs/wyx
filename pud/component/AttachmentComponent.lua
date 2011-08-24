@@ -99,6 +99,11 @@ function AttachmentComponent:_detach(...)
 end
 
 function AttachmentComponent:getProperty(p, intermediate, ...)
+	for id in self._entities:iterate() do
+		local entity = EntityRegistry:get(id)
+		intermediate = entity:rawquery(p, intermediate, ...)
+	end
+
 	if p == property('AttachedEntities') then
 		if self._entities:size() == 0 then return intermediate end
 
