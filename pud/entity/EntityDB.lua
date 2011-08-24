@@ -155,12 +155,13 @@ function EntityDB:_postProcessEntityInfo(info)
 					-- just remove it.
 					local bonus = p..'Bonus'
 					if property.isproperty(bonus) then
+						warning('Item Entities only have *Bonus properties;')
 						if props[bonus] then
-							warning(
-								'Item Entities only have *Bonus properties;'
-								..' %q dropped from %s.',
-								p, info.name)
+							warning('  %q not used (%q exists) in %s.',
+								p, bonus, info.filename)
 						else
+							warning('  %q moved to %q in %s.',
+								p, bonus, info.filename)
 							props[bonus] = data
 						end
 						props[p] = nil
@@ -171,12 +172,13 @@ function EntityDB:_postProcessEntityInfo(info)
 					-- exist, otherwise just remove it.
 					local normal = match(p, '(.*)Bonus')
 					if normal and property.isproperty(normal) then
+						warning('Non-Item Entities do not have *Bonus properties;')
 						if props[normal] then
-							warning(
-								'Non-Item Entities only have *Bonus properties;'
-								..' %q dropped from %s.',
-								p, info.name)
+							warning('  %q not used (%q exists) in %s.',
+								p, normal, info.filename)
 						else
+							warning('  %q moved to %q in %s.',
+								p, normal, info.filename)
 							props[normal] = data
 						end
 						props[p] = nil
