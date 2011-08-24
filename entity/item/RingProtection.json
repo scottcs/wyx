@@ -10,7 +10,7 @@
 			},
 		},
 		"CombatComponent": {
-			"DefenseBonus": 1,
+			"Defense": 1,
 		},
 	}
 }

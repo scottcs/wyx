@@ -10,7 +10,7 @@
 			},
 		},
 		"CombatComponent": {
-			"AttackBonus": 2,
+			"Attack": 2,
 		},
 	}
 }
