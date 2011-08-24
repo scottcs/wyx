@@ -2,6 +2,9 @@
 -- common utilities used throughout the program
 require 'pud.util'
 require 'random'
+local versionFile = love.filesystem.read('VERSION')
+VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
+GAMENAME = 'Pud'
 
 
          --[[--
@@ -88,6 +91,9 @@ function love.load()
 	-- set graphics mode
 	resizeScreen(1024, 768)
 
+	-- set window title
+	love.graphics.setCaption(GAMENAME..' v'..VERSION)
+
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
 	NUM_SOUNDS = 11
@@ -129,6 +135,7 @@ function love.load()
 
 	-- create global console
 	Console = getClass('pud.debug.Console')()
+	Console:print('GREEN', '%s v%s', GAMENAME, VERSION)
 
 	-- create global entity registry
   EntityRegistry = getClass('pud.entity.EntityRegistry')()
