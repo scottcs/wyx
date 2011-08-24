@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local property = require 'pud.component.property'
 
 local json = require 'lib.dkjson'
@@ -157,10 +156,10 @@ function EntityDB:_postProcessEntityInfo(info)
 					local bonus = p..'Bonus'
 					if property.isproperty(bonus) then
 						if props[bonus] then
-							GameEvents:push(ConsoleEvent(
+							warning(
 								'Item Entities only have *Bonus properties;'
-								..' %s dropped from %s.',
-								p, info.name))
+								..' %q dropped from %s.',
+								p, info.name)
 						else
 							props[bonus] = data
 						end
@@ -173,10 +172,10 @@ function EntityDB:_postProcessEntityInfo(info)
 					local normal = match(p, '(.*)Bonus')
 					if normal and property.isproperty(normal) then
 						if props[normal] then
-							GameEvents:push(ConsoleEvent(
+							warning(
 								'Non-Item Entities only have *Bonus properties;'
-								..' %s dropped from %s.',
-								p, info.name))
+								..' %q dropped from %s.',
+								p, info.name)
 						else
 							props[normal] = data
 						end

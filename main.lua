@@ -52,14 +52,6 @@ tween = require 'lib.tween'
 
 
          --[[--
-      LOCAL CLASSES
-         --]]--
-
-local EventManager = getClass 'pud.event.EventManager'
-local EntityRegistryClass = getClass 'pud.entity.EntityRegistry'
-
-
-         --[[--
        <3 LÖVE <3
          --]]--
 
@@ -106,16 +98,40 @@ function love.load()
 	-- global random number generator instance
 	Random = random.new()
 
+	-- define game fonts
+	GameFont = {
+		small = love.graphics.newImageFont('font/lofi_small.png',
+			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		big = love.graphics.newImageFont('font/lofi_big.png',
+			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		verysmall = love.graphics.newImageFont('font/lofi_verysmall.png',
+			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		console = love.graphics.newImageFont('font/grafx2.png',
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
+	}
+
 	-- register all love events with gamestate
 	GameState.registerEvents()
 
 	-- create global event managers (event "channels")
+	local EventManager = getClass 'pud.event.EventManager'
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
 
-	-- greate global entity registry
-	EntityRegistry = EntityRegistryClass()
+	-- create global console
+	Console = getClass('pud.debug.Console')()
+
+	-- create global entity registry
+  EntityRegistry = getClass('pud.entity.EntityRegistry')()
 
 	-- make sure the save directories are created
 	_makeSaveDirectories()
@@ -195,6 +211,8 @@ end
 
 function love.quit()
 	tween.stopAll()
+
+	Console:destroy()
 
 	EntityRegistry:destroy()
 
