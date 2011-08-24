@@ -32,6 +32,7 @@ end
 
 function AttachmentComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('AttachedEntities') then

@@ -1,5 +1,7 @@
 local property = {}
 
+local warning = warning
+
 -- check if a given property is valid
 local isproperty = function(prop) return property[prop] ~= nil end
 
@@ -9,9 +11,12 @@ local get = function(prop)
 	local ret = getcache[prop]
 
 	if ret == nil then
-		assert(isproperty(prop), 'invalid component property: %s', prop)
-		ret = prop
-		getcache[prop] = ret
+		if not isproperty(prop) then
+			warning('invalid component property: %q', prop)
+		else
+			ret = prop
+			getcache[prop] = ret
+		end
 	end
 
 	return ret
@@ -23,9 +28,12 @@ local default = function(prop)
 	local ret = defaultcache[prop]
 
 	if ret == nil then
-		assert(isproperty(prop), 'invalid component property: %s', prop)
-		ret = property[prop]
-		defaultcache[prop] = ret
+		if not isproperty(prop) then
+			warning('invalid component property: %q', prop)
+		else
+			ret = property[prop]
+			defaultcache[prop] = ret
+		end
 	end
 
 	return ret

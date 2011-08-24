@@ -70,6 +70,7 @@ end
 -- get an array of all the entities, sorted by property
 function EntityArray:byProperty(prop)
 	local propStr = property(prop)
+	if nil == propStr then return end
 	local array = self:getArray(propStr)
 
 	-- comparison function for sorting by a property
