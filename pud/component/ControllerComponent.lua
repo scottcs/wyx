@@ -140,7 +140,11 @@ function ControllerComponent:_tryToDrop(id)
 
 		if found then
 			local item = EntityRegistry:get(id)
-			self:_sendCommand(DropCommand(self._mediator, id))
+			if item:query(property('IsAttached')) then
+				GameEvents:push(DisplayPopupMessageEvent('Unequip it first!'))
+			else
+				self:_sendCommand(DropCommand(self._mediator, id))
+			end
 		else
 			GameEvents:push(DisplayPopupMessageEvent('You can\'t drop that!'))
 		end
