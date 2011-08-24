@@ -98,10 +98,32 @@ function AttachmentComponent:_detach(...)
 	end
 end
 
+-- XXX I hate this.
+-- Need a better way to separate properties that should be queried on attached
+-- entities vs. properties that should not.
+local _queriable = {
+	AttackBonus = true,
+	DefenseBonus = true,
+	HealthBonus = true,
+	MaxHealthBonus = true,
+	SpeedBonus = true,
+	Visibility = true,
+	CanMove = true,
+	BlockedBy = true,
+	CanOpenDoors = true,
+	DefaultCost = true,
+	AttackCost = true,
+	MoveCost = true,
+	WaitCost = true,
+}
+
+
 function AttachmentComponent:getProperty(p, intermediate, ...)
-	for id in self._entities:iterate() do
-		local entity = EntityRegistry:get(id)
-		intermediate = entity:rawquery(p, intermediate, ...)
+	if _queriable[p] then
+		for id in self._entities:iterate() do
+			local entity = EntityRegistry:get(id)
+			intermediate = entity:rawquery(p, intermediate, ...)
+		end
 	end
 
 	if p == property('AttachedEntities') then
