@@ -91,6 +91,12 @@ function MotionComponent:getProperty(p, intermediate, ...)
 		local prop = self._properties[p]
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
+	elseif p == property('Position') then
+		local prop = self._properties[p]
+		if nil == intermediate then return prop end
+		intermediate[1] = intermediate[1] + prop[1]
+		intermediate[2] = intermediate[2] + prop[2]
+		return intermediate
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
