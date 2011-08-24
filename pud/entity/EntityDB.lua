@@ -66,8 +66,12 @@ function EntityDB:load()
 	local entityFiles = enumerate(path)
 	local numFiles = #entityFiles
 
+	if Console then Console:print('Loading %q Entities...', self._etype) end
+
 	for i=1,numFiles do
 		local filename = entityFiles[i]
+		if Console then Console:print('  %s', filename) end
+
 
 		local contents, size = read(path..'/'..filename)
 
@@ -185,12 +189,6 @@ function EntityDB:_postProcessEntityInfo(info)
 					end
 				end
 			end
-		end
-
-		-- XXX
-		print('----------',info.name)
-		for comp,props in pairs(info.components) do
-			for p,data in pairs(props) do print(p,data) end
 		end
 	end
 

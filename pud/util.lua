@@ -70,7 +70,7 @@ function warning(msg, ...)
 	msg = msg or 'unknown warning'
 	msg = 'Warning: '..msg..'\n'
 	io_stderr:write(format(msg, ...))
-	if Console then Console:print(msg, ...) end
+	if Console then Console:print('YELLOW', msg, ...) end
 end
 
 

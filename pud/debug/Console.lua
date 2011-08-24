@@ -1,7 +1,8 @@
 local Class = require 'lib.hump.class'
 local Deque = getClass 'pud.kit.Deque'
 
-local format = string.format
+local format, match = string.format, string.match
+local unpack = unpack
 local gprint = love.graphics.print
 local draw = love.graphics.draw
 local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
@@ -87,9 +88,20 @@ function Console:show() self._show = true end
 function Console:toggle() self._show = not self._show end
 function Console:isVisible() return self._show == true end
 
-function Console:print(msg, ...)
+function Console:print(color, message, ...)
+	if colors[color] then
+		color = colors[color]
+		self:_print(color, message, ...)
+	else
+		local msg = color
+		color = colors.GREY90
+		self:_print(color, msg, message, ...)
+	end
+end
+
+function Console:_print(color, msg, ...)
 	if select('#', ...) > 0 then msg = format(msg, ...) end
-	self._buffer:push_front(msg)
+	self._buffer:push_front({color, msg})
 	if self._buffer:size() > BUFFER_SIZE then self._buffer:pop_back() end
 	if self._firstLine == 0 then self:_drawFB() end
 end
@@ -105,10 +117,11 @@ function Console:_drawFB()
 	local drawX, drawY = MARGIN, START_Y
 
 	setFont(FONT)
-	setColor(colors.GREY90)
 
-	for line in self._buffer:iterate() do
+	for t in self._buffer:iterate() do
 		if skip >= self._firstLine then
+			local color, line = unpack(t)
+			setColor(color)
 			gprint(line, drawX, drawY)
 
 			drawY = drawY - FONT_H
