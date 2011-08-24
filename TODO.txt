@@ -81,26 +81,3 @@ Beyond v0.1.0:
 
 
 NOTES:
-
-Creating Property functions:
-
-  "Attack": "=2d5+32"
-    becomes
-  function(e) return Random:dice_roll("2d5+32") end
-
-  "Attack": "=19 + 2d5+32"
-    becomes
-  function(e) return 19 + Random:dice_roll("2d5+32") end
-
-  "Attack": "=Defense + 2d5+32"
-    becomes
-  function(e) return e:query(property('Defense')) + Random:dice_roll("2d5+32") end
-
-  "Attack": "=HealthMax / 10"
-    becomes
-  function(e) return (e:query(property('HealthMax')) / 10) end
-
-  "OnDeath": "=Explode(12, 20)"
-    becomes
-  function(e) return e:doExplode(12, 20) end
-
