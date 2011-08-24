@@ -83,7 +83,7 @@ function AttachmentComponent:_attach(...)
 	end
 end
 
-function AttachmentComponent:_remove(...)
+function AttachmentComponent:_detach(...)
 	local num = select('#', ...)
 	if num > 0 then
 		local msg = message('ATTACHMENT_DETACHED')
