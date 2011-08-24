@@ -46,7 +46,7 @@ function Console:destroy()
 end
 
 function Console:_setDrawColor()
-	self._drawColor = self._firstLine == 0 and colors.WHITE or colors.ORANGE
+	self._drawColor = self._firstLine == 0 and colors.WHITE or colors.LIGHTORANGE
 end
 
 function Console:clear()
