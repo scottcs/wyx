@@ -15,12 +15,15 @@ local MotionComponent = Class{name='MotionComponent',
 			'Position',
 			'CanMove',
 			'IsContained',
+			'IsAttached',
 		})
 		ModelComponent.construct(self, properties)
 		self:_addMessages(
 			'SET_POSITION',
 			'CONTAINER_INSERTED',
-			'CONTAINER_REMOVED')
+			'CONTAINER_REMOVED',
+			'ATTACHMENT_ATTACHED',
+			'ATTACHMENT_DETACHED')
 	end
 }
 
@@ -42,6 +45,7 @@ function MotionComponent:_setProperty(prop, data, ...)
 		verify('number', data[1], data[2])
 	elseif prop == property('CanMove')
 		or   prop == property('IsContained')
+		or   prop == property('IsAttached')
 	then
 		verify('boolean', data)
 	else
@@ -72,12 +76,17 @@ function MotionComponent:receive(msg, ...)
 		self:_setProperty(property('IsContained'), false)
 		self._mediator:send(message('SET_POSITION'),
 			mpos[1], mpos[2], pos[1], pos[2])
+	elseif msg == message('ATTACHMENT_ATTACHED') then
+		self:_setProperty(property('IsAttached'), true)
+	elseif msg == message('ATTACHMENT_DETACHED') then
+		self:_setProperty(property('IsAttached'), false)
 	end
 end
 
 function MotionComponent:getProperty(p, intermediate, ...)
 	if   p == property('CanMove')
 		or p == property('IsContained')
+		or p == property('IsAttached')
 	then
 		local prop = self._properties[p]
 		if nil == intermediate then return prop end

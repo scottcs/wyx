@@ -151,9 +151,11 @@ end
 
 function ControllerComponent:_tryToAttach(id)
 	local contained = self._mediator:query(property('ContainedEntities'))
+	local attached = false
+
 	if contained then
-		local found = false
 		local num = #contained
+		local found = false
 
 		for i=1,num do
 			if contained[i] == id then
@@ -164,11 +166,17 @@ function ControllerComponent:_tryToAttach(id)
 
 		if found then
 			local item = EntityRegistry:get(id)
-			self:_sendCommand(AttachCommand(self._mediator, id))
+			if not item:query(property('IsAttached')) then
+				self:_sendCommand(AttachCommand(self._mediator, id))
+				attached = true
+			end
 		else
 			GameEvents:push(DisplayPopupMessageEvent('You can\'t equip that!'))
 		end
-	else
+	end
+
+	if not attached then
+		print('not attached')
 		GameEvents:push(DisplayPopupMessageEvent('Nothing to equip!'))
 	end
 end
@@ -190,7 +198,8 @@ function ControllerComponent:_tryToDetach(id)
 			local item = EntityRegistry:get(id)
 			self:_sendCommand(DetachCommand(self._mediator, id))
 		else
-			GameEvents:push(DisplayPopupMessageEvent('You don\'t have that equipped!'))
+			GameEvents:push(
+				DisplayPopupMessageEvent('You don\'t have that equipped!'))
 		end
 	else
 		GameEvents:push(DisplayPopupMessageEvent('Nothing to unequip!'))

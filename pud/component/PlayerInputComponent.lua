@@ -72,20 +72,16 @@ function PlayerInputComponent:KeyboardEvent(e)
 			doTick = true
 		elseif key == 'e' then
 			local contained = self._mediator:query(property('ContainedEntities'))
-			if contained then
-				local num = #contained
-				for i=1,num do
-					self:_tryToAttach(contained[1])
-				end
+			local num = contained and #contained or 1
+			for i=1,num do
+				self:_tryToAttach(contained and contained[i] or 1)
 			end
 			doTick = true
 		elseif key == 'r' then
 			local attached = self._mediator:query(property('AttachedEntities'))
-			if attached then
-				local num = #attached
-				for i=1,num do
-					self:_tryToDetach(attached[1])
-				end
+			local num = attached and #attached or 1
+			for i=1,num do
+				self:_tryToDetach(attached and attached[i] or 1)
 			end
 			doTick = true
 		elseif key == 'i' then
@@ -98,17 +94,12 @@ function PlayerInputComponent:KeyboardEvent(e)
 				found = true
 				for i,e in pairs(contained) do
 					local entity = EntityRegistry:get(e)
-					GameEvents:push(ConsoleEvent('   %d - %s', i, entity:getName()))
-				end
-			end
-
-			local attached = self._mediator:query(property('AttachedEntities'))
-			if attached then
-				GameEvents:push(ConsoleEvent('Equipped:'))
-				found = true
-				for i,e in pairs(attached) do
-					local entity = EntityRegistry:get(e)
-					GameEvents:push(ConsoleEvent('   %d - %s', i, entity:getName()))
+					local equipped = ''
+					if entity:query(property('IsAttached')) then
+						equipped = ' (equipped)'
+					end
+					GameEvents:push(ConsoleEvent('   %d - %s%s',
+						i, entity:getName(), equipped))
 				end
 			end
 
