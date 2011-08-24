@@ -169,6 +169,7 @@ end
 -- perform any data cleanup needed after processing and evaluation
 function EntityDB:_postProcessEntityInfo(info)
 	if info.components then
+		local warned = {}
 		for comp,props in pairs(info.components) do
 			for p,data in pairs(props) do
 				p = property(p)
@@ -179,16 +180,22 @@ function EntityDB:_postProcessEntityInfo(info)
 					-- just remove it.
 					local bonus = p..'Bonus'
 					if property.isproperty(bonus) then
-						warning('Item Entities only have *Bonus properties;')
-						if props[bonus] then
+						if props[bonus] and not warned[bonus] then
+							warning('Please do not use *Bonus properties in entity files;')
 							warning('  %q not used (%q exists) in %s.',
 								p, bonus, info.filename)
 						else
-							warning('  %q moved to %q in %s.',
-								p, bonus, info.filename)
 							props[bonus] = data
+							warned[bonus] = true
 						end
 						props[p] = nil
+					else
+						local normal = match(p, '(.*)Bonus')
+						if normal and not warned[p] then
+							warning('Please do not use *Bonus properties in entity files.')
+							warning('  %q should be specified as %q in %s',
+								p, normal, info.filename)
+						end
 					end -- if property.isproperty...
 				else
 					-- with non-item entities, for properties with *Bonus counterparts,
@@ -196,7 +203,7 @@ function EntityDB:_postProcessEntityInfo(info)
 					-- exist, otherwise just remove it.
 					local normal = match(p, '(.*)Bonus')
 					if normal and property.isproperty(normal) then
-						warning('Non-Item Entities do not have *Bonus properties;')
+						warning('Please do not use *Bonus properties in entity files;')
 						if props[normal] then
 							warning('  %q not used (%q exists) in %s.',
 								p, normal, info.filename)
