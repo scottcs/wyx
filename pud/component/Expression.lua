@@ -1,0 +1,92 @@
+local Class = require 'lib.hump.class'
+local property = require 'pud.component.property'
+
+local sub, gsub, match = string.sub, string.gsub, string.match
+
+-- Expression
+-- class to evaluate component property expressions.
+local Expression = Class{name='Expression',
+	function(self) end
+}
+
+-- destructor
+function Expression:destroy() end
+
+-- test mediator for use in testing expression functions after they're built
+local testMediator = {
+	query = function(self, p)
+		p = property(p)
+		if nil ~= p then return 1 end
+		error('invalid property: '..p)
+	end,
+}
+
+function Expression.isExpression(expr)
+	if type(expr) ~= 'string' then return false end
+	local is = false
+
+	-- expressions must begin with '='
+	if match(expr, '^=') then
+		-- try to make a function out of the expression
+		testfunc = Expression.makeFunction(expr)
+		if type(testfunc) == 'function' then is = true end
+	end
+
+	return is
+end
+
+local _funcCache = setmetatable({}, {__mode = 'v'})
+function Expression.makeFunction(expression)
+	local func = _funcCache[expression]
+
+	if nil == func then
+		-- don't continue if there are bare words not beginning with @ or $
+		if not match(expression, '([^@$%w]+)(%a+)') then
+			-- remove the beginning '='
+			local expr = sub(expression, 2)
+
+			-- substitute $words with property queries
+			--  e.g. "$Health" becomes "e:query(property('Health'))"
+			expr = gsub(expr, '$(%u[%w_]+)', 'e:query(property(\'%1\'))')
+
+			-- substitute @words with doFunction calls
+			--  e.g. "@Explode(12)" becomes "e.doExplode and e:doExplode(12) or nil"
+			expr = gsub(expr, '@(%u[%w_]+)(%(.-%))', 'e.do%1 and e:do%1%2 or nil')
+
+			-- substitute dice designations with dice rolls
+			--  e.g. "5d10+20" becomes "Random:dice_roll('5d10+20')"
+			expr = gsub(expr, '(%d+d%d+[%+%-]?%d*)', 'Random:dice_roll(\'%1\')')
+
+			-- create the function body
+			local string = [[
+			local e,property
+			if select('#', ...) > 0 then
+				e = select(1, ...)
+				property = require 'pud.component.property'
+			end
+			return ]]..expr
+
+			-- load the string into a function
+			local ok
+			ok,func = pcall(loadstring, string)
+
+			if ok then
+				-- test that the function works
+				local res
+				ok,res = pcall(func, testMediator)
+
+				if ok then
+					_funcCache[expression] = func
+				else
+					func = nil
+				end
+			end
+		end
+	end
+
+	return func
+end
+
+
+-- the class
+return Expression
