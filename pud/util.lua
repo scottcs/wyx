@@ -23,20 +23,20 @@ do
 	end
 end
 
-local _isExpr = function(t, ttype)
-	return ttype == 'table' and (t.onCreate or t.onAccess)
-end
+local Expression = require 'pud.component.Expression'
 
 -- verify that all the given objects are of the given type
 function verify(theType, ...)
 	local isExpr
-	if type(theType) == 'expression' then isExpr = _isExpr end
+	if type(theType) == 'expression' then
+		isExpr = Expression.isCreatedExpression
+	end
 
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		local xType = type(x)
 		if isExpr then
-			assert(isExpr(x, xType), 'expression expected (was %s)', xType)
+			assert(isExpr(x), 'expression expected (was %s)', xType)
 		else
 			assert(xType == theType, '%s expected (was %s)', theType, xType)
 		end
@@ -47,15 +47,13 @@ end
 -- verify that the given object is one of any of the given types
 function verifyAny(theObject, ...)
 	local theType = type(theObject)
-	local checkedTypes
 	local is = false
 
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
-		checkedTypes = checkedTypes and format('%s, %s', checkedTypes, x) or x
 
-		if type(x) == 'expression' then
-			if _isExpr(theObject, theType) then
+		if 'expression' == x then
+			if Expression.isCreatedExpression(theObject) then
 				is = true
 				break
 			end
@@ -67,7 +65,8 @@ function verifyAny(theObject, ...)
 		end
 	end
 
-	assert(is, 'type was %s, expected any of: %s', theType, checkedTypes)
+	assert(is, 'type was %s, expected any of: %s', theType,
+		table.concat({...}, ', '))
 
 	return true
 end

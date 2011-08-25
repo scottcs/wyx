@@ -151,12 +151,9 @@ function EntityDB:_evaluateEntityInfo(info)
 				p = property(p)
 				if nil == p then return false end
 				if type(data) == 'function' then return false end
-				if type(data) == 'string' and match(data, '^=') then
-					-- check if it's an expression to evaluate
-					local expr, err
-					if Expression.isExpression(data) then
-						expr, err = Expression.makeExpression(data)
-					end
+				-- check if it's an expression to evaluate
+				if Expression.isExpression(data) then
+					local expr, err = Expression.makeExpression(data)
 
 					if nil == expr then
 						warning('Invalid expression: %s', data)
@@ -164,11 +161,11 @@ function EntityDB:_evaluateEntityInfo(info)
 						props[p] = nil
 					else
 						props[p] = expr
-					end
-				end
-			end
-		end
-	end
+					end -- if nil == expr
+				end -- if Expression
+			end -- for p,data
+		end -- for comp,props
+	end -- if info.components
 
 	return true
 end
@@ -268,10 +265,11 @@ function EntityDB:_calculateELevel(info)
 	for p,t in pairs(found) do
 		local weight, value = t.weight, t.value
 		if type(value) == 'boolean' then value = value and 1 or 0 end
-		if type(value) == 'function' then
+		if Expression.isCreatedExpression(value) then
 			if tempEntity then
+				local func = value.onCreate or value.onAccess
 				local sum = 0
-				for i=1,100 do sum = sum + value(tempEntity) end
+				for i=1,100 do sum = sum + func(tempEntity) end
 				value = sum/100
 			else
 				value = 0

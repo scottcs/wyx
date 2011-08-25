@@ -81,7 +81,7 @@ function GraphicsComponent:_setProperty(prop, data)
 	elseif prop == property('Visibility')
 		or prop == property('VisibilityBonus')
 	then
-		verifyAny(data, 'number', 'function')
+		verifyAny(data, 'number', 'expression')
 	else
 		error('GraphicsComponent does not support property: %s', tostring(prop))
 	end

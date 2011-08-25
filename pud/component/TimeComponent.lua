@@ -40,11 +40,11 @@ function TimeComponent:_setProperty(prop, data)
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
 	then
-		verifyAny(data, 'number', 'function')
+		verifyAny(data, 'number', 'expression')
 	elseif prop == property('IsExhausted')
 		or   prop == property('DoTick')
 	then
-		verifyAny(data, 'boolean', 'function')
+		verifyAny(data, 'boolean', 'expression')
 	else
 		error('TimeComponent does not support property: '..tostring(prop))
 	end
@@ -88,8 +88,7 @@ end
 
 function TimeComponent:getProperty(p, intermediate, ...)
 	if p == property('DoTick') then
-		local prop = self._properties[p]
-		if type(prop) == 'function' then prop = prop(self._mediator) end
+		local prop = self:_evaluate(p)
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
 	else

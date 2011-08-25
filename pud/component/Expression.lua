@@ -21,15 +21,24 @@ local testMediator = {
 	end,
 }
 
+function Expression.isCreatedExpression(expr)
+	if type(expr) == 'table' and (expr.onAccess or expr.onCreate) then
+		return true
+	end
+	return false
+end
+
 function Expression.isExpression(expr)
+	if Expression.isCreatedExpression(expr) then return true end
 	if type(expr) ~= 'string' then return false end
+
 	local is = false
 
 	-- expressions must begin with '='
 	if match(expr, '^[=!]') then
 		-- try to make a function out of the expression
-		testfunc = Expression.makeExpression(expr)
-		if type(testfunc) == 'function' then is = true end
+		local test = Expression.makeExpression(expr)
+		if Expression.isCreatedExpression(test) then is = true end
 	end
 
 	return is

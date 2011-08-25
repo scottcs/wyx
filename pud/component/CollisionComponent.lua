@@ -26,7 +26,7 @@ function CollisionComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('BlockedBy') then
-		verifyAny(data, 'table', 'function')
+		verifyAny(data, 'table', 'expression')
 	else
 		error('CollisionComponent does not support property: '..tostring(prop))
 	end
@@ -41,8 +41,7 @@ function CollisionComponent:getProperty(p, intermediate, ...)
 			local mapType = node:getMapType()
 			local mt = match(tostring(mapType.__class), '^(%w+)MapType')
 			local v = mapType:getVariant()
-			local prop = self._properties[p]
-			if type(prop) == 'function' then prop = prop(self._mediator) end
+			local prop = self:_evaluate(p)
 			local blocked = (prop[mt] and (v == prop[mt] or prop[mt] == 'ALL'))
 			return (blocked or intermediate)
 		else

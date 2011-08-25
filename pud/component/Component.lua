@@ -89,16 +89,28 @@ end
 -- precondition: msg is a valid component message
 function Component:receive(msg, ...) end
 
--- evaluate a string property as if it were lua code
-function Component:_evaluate(prop, ...)
-	return 1
+-- evaluate a property and return its value
+function Component:_evaluate(p)
+	local prop = self._properties[p]
+
+	if prop then
+		if type(prop) == 'table' then
+			if prop.onAccess then
+				prop = prop.onAccess(self._mediator)
+			elseif prop.onCreate then
+				self._properties[p] = prop.onCreate(self._mediator)
+				prop = self._properties[p]
+			end
+		end
+	end
+
+	return prop
 end
 
 -- return the given property if we have it, or nil if we do not
 -- precondition: p is a valid component property
 function Component:getProperty(p, intermediate, ...)
-	local prop = self._properties[p]
-	if type(prop) == 'function' then prop = prop(self._mediator) end
+	local prop = self:_evaluate(p)
 	if nil == prop then return intermediate end
 	if nil == intermediate then return prop end
 

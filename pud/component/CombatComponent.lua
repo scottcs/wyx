@@ -38,7 +38,7 @@ function CombatComponent:_setProperty(prop, data)
 		or prop == property('DefenseBonus')
 		or prop == property('DamageBonus')
 	then
-		verifyAny(data, 'number', 'function')
+		verifyAny(data, 'number', 'expression')
 	else
 		error('CombatComponent does not support property: '..tostring(prop))
 	end
@@ -54,8 +54,7 @@ function CombatComponent:getProperty(p, intermediate, ...)
 		or prop == property('DefenseBonus')
 		or prop == property('DamageBonus')
 	then
-		local prop = self._properties[p]
-		if type(prop) == 'function' then prop = prop(self._mediator) end
+		local prop = self:_evaluate(p)
 		if not intermediate then return prop end
 		return prop + intermediate
 	else

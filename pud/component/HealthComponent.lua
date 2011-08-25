@@ -37,7 +37,7 @@ function HealthComponent:_setProperty(prop, data)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		verifyAny(data, 'number', 'function')
+		verifyAny(data, 'number', 'expression')
 	else
 		error('HealthComponent does not support property: '..tostring(prop))
 	end
@@ -112,8 +112,7 @@ function HealthComponent:getProperty(p, intermediate, ...)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		local prop = self._properties[p]
-		if type(prop) == 'function' then prop = prop(self._mediator) end
+		local prop = self:_evaluate(p)
 		if not intermediate then return prop end
 		return prop + intermediate
 	else
