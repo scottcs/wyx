@@ -141,13 +141,6 @@ function EntityDB:_processEntityInfo(info)
 	return true
 end
 
-local _rollDice = function(x) return Random:dice_roll(x) end
-
-local _evaluateExpression = function(expression)
-	local result = gsub(expression, "(%d+d%d+[+-]?%d*)", _rollDice)
-	return result ~= expression and tonumber(result) or nil
-end
-
 -- evaluate strings in top level fields in the info table, and turn them into
 -- valid lua functions if necessary
 function EntityDB:_evaluateEntityInfo(info)
