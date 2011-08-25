@@ -34,10 +34,10 @@ function AttackCommand:execute(currAP)
 	damage = -damage
 	
 	if attack < oDefense then
-		damage = damage + oDefense
+		damage = damage + (oDefense - attack)
 	end
 
-	damage = damage > 0 and 0 or damage
+	damage = damage > -1 and -1 or damage
 
 	local name = self._target:getName() or tostring(self._target)
 	self._opponent:send(message('COMBAT_DAMAGE'), damage, name)
