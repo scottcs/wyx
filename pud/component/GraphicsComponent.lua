@@ -29,6 +29,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'TileSize',
 			'TileCoords',
 			'Visibility',
+			'VisibilityBonus',
 		})
 		ViewComponent.construct(self, properties)
 		self:_addMessages(
@@ -77,7 +78,9 @@ function GraphicsComponent:_setProperty(prop, data)
 		end
 	elseif prop == property('TileSize') then
 		verify('number', data)
-	elseif prop == property('Visibility') then
+	elseif prop == property('Visibility')
+		or prop == property('VisibilityBonus')
+	then
 		verifyAny(data, 'number', 'function')
 	else
 		error('GraphicsComponent does not support property: %s', tostring(prop))

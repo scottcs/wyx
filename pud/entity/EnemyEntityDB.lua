@@ -28,6 +28,7 @@ function EnemyEntityDB:_getPropertyWeights()
 		maxHealth  = {name = 'MaxHealth',      weight = 0.2},
 		maxHealthB = {name = 'MaxHealthBonus', weight = 0.2},
 		visibility = {name = 'Visibility',     weight = 1.3},
+		visibility = {name = 'VisibilityBonus',weight = 1.3},
 		defense    = {name = 'Defense',        weight = 0.6},
 		defenseB   = {name = 'DefenseBonus',   weight = 0.6},
 		attack     = {name = 'Attack',         weight = 0.6},

@@ -129,6 +129,8 @@ function PlayerInputComponent:KeyboardEvent(e)
 			maxHealth = maxHealth + maxHealthBonus
 
 			local visibility = self._mediator:query(property('Visibility'))
+			local visibilityBonus = self._mediator:query(property('VisibilityBonus'))
+			visibility = visibility + visibilityBonus
 
 			GameEvents:push(ConsoleEvent('Stats:'))
 			GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
@@ -139,7 +141,8 @@ function PlayerInputComponent:KeyboardEvent(e)
 				defense, defenseBonus))
 			GameEvents:push(ConsoleEvent('     Spd: %d (%+d)',
 				speed, speedBonus))
-			GameEvents:push(ConsoleEvent('     Vis: %d', visibility))
+			GameEvents:push(ConsoleEvent('     Vis: %d (%+d)',
+				visibility, visibilityBonus))
 		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end

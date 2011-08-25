@@ -69,6 +69,7 @@ property.TileSet           = 'dungeon'
 property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
 property.Visibility        = 0
+property.VisibilityBonus   = 0
 
 -- controller properties
 property.CanOpenDoors      = false

@@ -408,6 +408,7 @@ end
 function Level:_bakeLights(blackout)
 	local primeEntity = EntityRegistry:get(self._primeEntity)
 	local radius = primeEntity:query('Visibility')
+	radius = radius + primeEntity:query('VisibilityBonus')
 	local primePos = primeEntity:query('Position')
 
 	self:_resetLights(blackout)
