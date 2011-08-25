@@ -37,6 +37,8 @@ function AttackCommand:execute(currAP)
 		damage = damage + oDefense
 	end
 
+	damage = damage > 0 and 0 or damage
+
 	local name = self._target:getName() or tostring(self._target)
 	self._opponent:send(message('COMBAT_DAMAGE'), damage, name)
 	GameEvents:push(ConsoleEvent('Combat: %s -> %s (%.1f)',
