@@ -1,6 +1,7 @@
 local select, type, tostring = select, type, tostring
 local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
+local sqrt = math.sqrt
 
 
          --[[--
@@ -29,6 +30,26 @@ function verify(theType, ...)
 		local xType = type(x)
 		assert(xType == theType, '%s expected (was %s)', theType, xType)
 	end
+	return true
+end
+
+-- verify that the given object is one of any of the given types
+function verifyAny(theObject, ...)
+	local theType = type(theObject)
+	local checkedTypes
+	local is = false
+
+	for i=1,select('#', ...) do
+		local x = select(i, ...)
+		checkedTypes = checkedTypes and format('%s, %s', checkedTypes, x) or x
+		if theType == x then
+			is = true
+			break
+		end
+	end
+
+	assert(is, 'type was %s, expected any of: %s', theType, checkedTypes)
+
 	return true
 end
 
@@ -136,8 +157,6 @@ end
 -------------------------
 -- 2d vector functions --
 -------------------------
-local sqrt = math.sqrt
-local format = string.format
 vec2 = {}
 function vec2.len2(x, y) return x*x + y*y end
 function vec2.len(x, y) return sqrt(vec2.len2(x, y)) end
