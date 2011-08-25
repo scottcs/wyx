@@ -1,4 +1,5 @@
 local Class = require 'lib.hump.class'
+local Expression = getClass 'pud.component.Expression'
 local property = require 'pud.component.property'
 
 local json = require 'lib.dkjson'
@@ -149,8 +150,21 @@ function EntityDB:_evaluateEntityInfo(info)
 			for p,data in pairs(props) do
 				p = property(p)
 				if nil == p then return false end
-				if type(data) == 'string' then
-					-- could be an expression to evaluate
+				if type(data) == 'function' then return false end
+				if type(data) == 'string' and match(data, '^=') then
+					print(data)
+					-- check if it's an expression to evaluate
+					local func
+					if Expression.isExpression(data) then
+						func, err = Expression.makeFunction(data)
+					end
+					if nil == func then
+						warning('Invalid expression: %s', data)
+						if err then warning('  (%s)', err) end
+						props[p] = nil
+					else
+						props[p] = func
+					end
 				end
 			end
 		end
@@ -223,7 +237,7 @@ function EntityDB:_postProcessEntityInfo(info)
 	return true
 end
 
--- get the predefined weights for properties, to caluclate ELevel.
+-- get the predefined weights for properties, to calculate ELevel.
 -- this is the main reason to subclass this class.
 function EntityDB:_getPropertyWeights() return nil end
 
@@ -245,12 +259,29 @@ function EntityDB:_calculateELevel(info)
 	end
 
 	local elevel = 0.1
+	local tempEntity
+	if self._factory then
+		tempEntity = self._factory:createEntity(info)
+	end
 
 	for p,t in pairs(found) do
 		local weight, value = t.weight, t.value
+		print(type(value),tostring(value))
 		if type(value) == 'boolean' then value = value and 1 or 0 end
+		if type(value) == 'function' then
+			if tempEntity then
+				local sum = 0
+				for i=1,100 do sum = sum + value(tempEntity) end
+				value = sum/100
+			else
+				value = 0
+			end
+			print(p,value)
+		end
 		elevel = elevel + (weight * value)
 	end
+
+	tempEntity:destroy()
 
 	return _round(elevel*10)
 end

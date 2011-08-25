@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local EntityDB = getClass 'pud.entity.EntityDB'
+local EnemyEntityFactory = getClass 'pud.entity.EnemyEntityFactory'
 local property = require 'pud.component.property'
 
 local math_floor = math.floor
@@ -11,11 +12,14 @@ local EnemyEntityDB = Class{name='EnemyEntityDB',
 	inherits=EntityDB,
 	function(self)
 		EntityDB.construct(self, 'enemy')
+		self._factory = EnemyEntityFactory()
 	end
 }
 
 -- destructor
 function EnemyEntityDB:destroy()
+	self._factory:destroy()
+	self._factory = nil
 	EntityDB.destroy(self)
 end
 
