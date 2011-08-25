@@ -222,7 +222,7 @@ function Level:createEntities()
 	self._entities:add(self._primeEntity)
 
 	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,100)
+	local enemyEntities = EnemyDB:getByELevel(1,1000)
 	if enemyEntities then
 		local numEnemyEntities = #enemyEntities
 		for i=1,10 do
@@ -233,7 +233,7 @@ function Level:createEntities()
 		end
 	end
 
-	local itemEntities = ItemDB:getByELevel(1,100)
+	local itemEntities = ItemDB:getByELevel(1,1000)
 	if itemEntities then
 		local numItemEntities = #itemEntities
 		for i=1,10 do
