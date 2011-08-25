@@ -23,7 +23,7 @@ Level:
   - change Level representation of enemy to be by position in a table for faster lookup
 
 Expressions:
-  + differentiate between expressions to evaluate on load and expressions to evaluate each time they are accessed. [= vs ! maybe?]
+  d differentiate between expressions to evaluate on load and expressions to evaluate each time they are accessed. [= vs ! maybe?]
   x support lua in properties when read from file
   d   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
   d   this needs to be done in EntityDB AND in Component
