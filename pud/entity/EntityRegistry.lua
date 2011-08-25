@@ -111,56 +111,56 @@ end
 -- debug function to print all entities to console by elevel
 function EntityRegistry:dumpEntities()
 
-	local ents = setmetatable({}, {__mode='kv'})
 	local hero = self._bytype['hero']
 	local enemy = self._bytype['enemy']
 	local item = self._bytype['item']
 
 	local num, count = 0, 0
+	local heroes, enemies, items
 
-	if hero then
-		num = #hero
-		for i=1,num do
-			local id = hero[i]
-			count = count + 1
-			ents[count] = self:get(id)
-		end
-	end
+	if hero then heroes = self:_sortEntities(hero) end
+	if enemy then enemies = self:_sortEntities(enemy) end
+	if item then items = self:_sortEntities(item) end
 
-	if enemy then
-		num = #enemy
-		for i=1,num do
-			local id = enemy[i]
-			count = count + 1
-			ents[count] = self:get(id)
-		end
-	end
-
-	if item then
-		num = #item
-		for i=1,num do
-			local id = item[i]
-			count = count + 1
-			ents[count] = self:get(id)
-		end
-	end
-
-	if count > 0 then
-		table.sort(ents, _byElevel)
+	if heroes or enemies or items then
 		Console:print('Registered Entities:')
 		Console:print('  %-11s %4s  %s', 'ID', 'ELVL', 'NAME')
-		for i=1,count do
-			local e = ents[i]
-			local id = e:getID() or -1
-			local elevel = e:getELevel() or -1
-			local name = e:getName() or '?'
-			Console:print('  {%08d} %4d  %s', id, elevel, name)
-		end
+		if heroes then self:_printEntitiesToConsole(heroes, 'WHITE') end
+		if enemies then self:_printEntitiesToConsole(enemies, 'LIGHTRED') end
+		if items then self:_printEntitiesToConsole(items, 'BLUE') end
 	else
 		Console:print('RED', 'No entities to dump!')
 	end
 end
 
+function EntityRegistry:_sortEntities(ents)
+	local sorted = setmetatable({}, {__mode='kv'})
+	local count = 0
+	local num = #ents
+
+	for i=1,num do
+		local id = ents[i]
+		count = count + 1
+		sorted[count] = self:get(id)
+	end
+
+	if count > 0 then
+		table.sort(sorted, _byElevel)
+		return sorted
+	end
+end
+
+function EntityRegistry:_printEntitiesToConsole(ents, color)
+	local num = #ents
+	color = color or 'GREY50'
+	for i=1,num do
+		local e = ents[i]
+		local id = e:getID() or -1
+		local elevel = e:getELevel() or -1
+		local name = e:getName() or '?'
+		Console:print(color, '  {%08d} %4d  %s', id, elevel, name)
+	end
+end
 
 -- the class
 return EntityRegistry
