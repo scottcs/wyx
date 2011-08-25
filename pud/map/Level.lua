@@ -218,6 +218,7 @@ function Level:createEntities()
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
 	local which = HeroDB:getByFilename(heroName)
 	self._primeEntity = self._heroFactory:createEntity(which)
+	self._heroFactory:registerEntity(self._primeEntity)
 	self._entities:add(self._primeEntity)
 
 	-- TODO: get entities algorithmically
@@ -226,7 +227,9 @@ function Level:createEntities()
 		local numEnemyEntities = #enemyEntities
 		for i=1,10 do
 			local which = enemyEntities[Random(numEnemyEntities)]
-			self._entities:add(self._enemyFactory:createEntity(which))
+			local entityID = self._enemyFactory:createEntity(which)
+			self._enemyFactory:registerEntity(entityID)
+			self._entities:add(entityID)
 		end
 	end
 
@@ -235,7 +238,9 @@ function Level:createEntities()
 		local numItemEntities = #itemEntities
 		for i=1,10 do
 			local which = itemEntities[Random(numItemEntities)]
-			self._entities:add(self._itemFactory:createEntity(which))
+			local entityID = self._itemFactory:createEntity(which)
+			self._itemFactory:registerEntity(entityID)
+			self._entities:add(entityID)
 		end
 	end
 end
