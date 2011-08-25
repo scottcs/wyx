@@ -58,7 +58,11 @@ function AttachmentComponent:receive(msg, ...)
 	if continue then
 		for id in self._entities:iterate() do
 			local entity = EntityRegistry:get(id)
-			entity:send(msg, ...)
+			if entity then
+				entity:send(msg, ...)
+			else
+				warning('AttachmentComponent (recv): entity does not exist %d', id)
+			end
 		end
 	end
 end
@@ -124,7 +128,11 @@ function AttachmentComponent:getProperty(p, intermediate, ...)
 	if _queriable[p] then
 		for id in self._entities:iterate() do
 			local entity = EntityRegistry:get(id)
-			intermediate = entity:rawquery(p, intermediate, ...)
+			if entity then
+				intermediate = entity:rawquery(p, intermediate, ...)
+			else
+				warning('AttachmentComponent (getP): entity does not exist %d', id)
+			end
 		end
 	end
 

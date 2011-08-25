@@ -60,7 +60,11 @@ function ContainerComponent:receive(msg, ...)
 	if continue then
 		for id in self._entities:iterate() do
 			local entity = EntityRegistry:get(id)
-			entity:send(msg, ...)
+			if entity then
+				entity:send(msg, ...)
+			else
+				warning('ContainerComponent: entity does not exist %d', id)
+			end
 		end
 	end
 end
