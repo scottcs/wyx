@@ -188,6 +188,7 @@ function st:keypressed(key, unicode)
 			home = function() Console:top() end,
 			['end'] = function() Console:bottom() end,
 			f10 = function() Console:clear() end,
+			f11 = function() EntityRegistry:dumpEntities() end,
 		}
 	else
 		switch(key) {
@@ -240,6 +241,7 @@ function st:keypressed(key, unicode)
 				if self._debug then self._debugHUD:clearExtremes() end
 			end,
 			f9 = function() if self._debug then collectgarbage('collect') end end,
+			f11 = function() EntityRegistry:dumpEntities() end,
 			backspace = function()
 				local name = self._level:getMapName()
 				local author = self._level:getMapAuthor()
@@ -249,5 +251,6 @@ function st:keypressed(key, unicode)
 		}
 	end
 end
+
 
 return st

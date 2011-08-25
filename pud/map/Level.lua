@@ -450,5 +450,6 @@ function Level:getLightingColor(x, y)
 	return self._lightColor[color]
 end
 
+
 -- the class
 return Level
