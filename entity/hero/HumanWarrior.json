@@ -11,16 +11,14 @@
 			"Visibility": 6,
 		},
 		"TimeComponent": {
-			"AttackCost": 1.5,
-			"DefaultCost": 1,
-			"Speed": 1,
+			"Speed": 0.5,
 		},
 		"HealthComponent": {
-			"MaxHealth": 8,
+			"MaxHealth": 20,
 		},
 		"CombatComponent": {
-			"Attack": 4,
-			"Defense": 6,
+			"Attack": 8,
+			"Defense": 10,
 		},
 	}
 }

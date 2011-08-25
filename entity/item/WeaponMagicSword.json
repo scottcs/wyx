@@ -11,6 +11,7 @@
 		},
 		"CombatComponent": {
 			"Attack": 6,
+			"Damage": "=1d3+4",
 		},
 	}
 }

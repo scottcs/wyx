@@ -10,11 +10,11 @@
 			},
 		},
 		"HealthComponent": {
-			"MaxHealth": "=4d4",
+			"MaxHealth": "=2d4+20",
 		},
 		"CombatComponent": {
-			"Attack": 2,
-			"Defense": 3,
+			"Attack": "=1d3+5",
+			"Defense": "=1d3+5",
 		},
 	}
 }
