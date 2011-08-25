@@ -152,7 +152,6 @@ function EntityDB:_evaluateEntityInfo(info)
 				if nil == p then return false end
 				if type(data) == 'function' then return false end
 				if type(data) == 'string' and match(data, '^=') then
-					print(data)
 					-- check if it's an expression to evaluate
 					local func
 					if Expression.isExpression(data) then
@@ -261,12 +260,12 @@ function EntityDB:_calculateELevel(info)
 	local elevel = 0.1
 	local tempEntity
 	if self._factory then
-		tempEntity = self._factory:createEntity(info)
+		local id = self._factory:createEntity(info)
+		tempEntity = EntityRegistry:get(id)
 	end
 
 	for p,t in pairs(found) do
 		local weight, value = t.weight, t.value
-		print(type(value),tostring(value))
 		if type(value) == 'boolean' then value = value and 1 or 0 end
 		if type(value) == 'function' then
 			if tempEntity then
@@ -276,11 +275,11 @@ function EntityDB:_calculateELevel(info)
 			else
 				value = 0
 			end
-			print(p,value)
 		end
 		elevel = elevel + (weight * value)
 	end
 
+	EntityRegistry:unregister(tempEntity:getID())
 	tempEntity:destroy()
 
 	return _round(elevel*10)
