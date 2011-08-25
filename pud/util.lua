@@ -23,12 +23,23 @@ do
 	end
 end
 
+local _isExpr = function(t, ttype)
+	return ttype == 'table' and (t.onCreate or t.onAccess)
+end
+
 -- verify that all the given objects are of the given type
 function verify(theType, ...)
+	local isExpr
+	if type(theType) == 'expression' then isExpr = _isExpr end
+
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		local xType = type(x)
-		assert(xType == theType, '%s expected (was %s)', theType, xType)
+		if isExpr then
+			assert(isExpr(x, xType), 'expression expected (was %s)', xType)
+		else
+			assert(xType == theType, '%s expected (was %s)', theType, xType)
+		end
 	end
 	return true
 end
@@ -42,6 +53,14 @@ function verifyAny(theObject, ...)
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		checkedTypes = checkedTypes and format('%s, %s', checkedTypes, x) or x
+
+		if type(x) == 'expression' then
+			if _isExpr(theObject, theType) then
+				is = true
+				break
+			end
+		end
+
 		if theType == x then
 			is = true
 			break
