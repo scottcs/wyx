@@ -38,6 +38,7 @@ end
 local _funcCache = setmetatable({}, {__mode = 'v'})
 function Expression.makeFunction(expression)
 	local func = _funcCache[expression]
+	local ok, err
 
 	if nil == func then
 		-- don't continue if there are bare words not beginning with @ or $
@@ -67,13 +68,12 @@ function Expression.makeFunction(expression)
 			return ]]..expr
 
 			-- load the string into a function
-			local ok
-			ok,func = pcall(loadstring, string)
+			ok, err = pcall(loadstring, string)
 
 			if ok then
 				-- test that the function works
-				local res
-				ok,res = pcall(func, testMediator)
+				func = err
+				ok,err = pcall(func, testMediator)
 
 				if ok then
 					_funcCache[expression] = func
@@ -84,7 +84,7 @@ function Expression.makeFunction(expression)
 		end
 	end
 
-	return func
+	return func, err
 end
 
 
