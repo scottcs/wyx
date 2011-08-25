@@ -88,6 +88,8 @@ Component Properties
     Tile).
 
     "TileSet": "dungeon"
+        (Expressions not allowed.)
+
         This property provides a string that describes a png filename in the
         image/ directory. The default, "dungeon" is actually
         "image/dungeon.png". You can provide your own png file, if you like
@@ -99,9 +101,13 @@ Component Properties
         can specify it here with "TileSet": "killerfish".
 
     "TileSize": 32
+        (Expressions not allowed.)
+
         The size of tiles within the TileSet. All tiles are square.
 
     "TileCoords": {"front": {1, 1}}
+        (Expressions not allowed.)
+
         This property provides a list of frames for the entity, and
         coordinates for each frame within the TileSet. Note that coordinates
         start at 1, and are multiples of TileSize (in other words, the
