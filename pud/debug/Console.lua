@@ -89,8 +89,10 @@ function Console:toggle() self._show = not self._show end
 function Console:isVisible() return self._show == true end
 
 function Console:print(color, message, ...)
-	if colors[color] then
+	if type(color) == 'string' and colors[color] then
 		color = colors[color]
+		self:_print(color, message, ...)
+	elseif type(color) == 'table' then
 		self:_print(color, message, ...)
 	else
 		local msg = color

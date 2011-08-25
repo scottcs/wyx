@@ -135,7 +135,7 @@ function love.load()
 
 	-- create global console
 	Console = getClass('pud.debug.Console')()
-	Console:print('GREEN', '%s v%s', GAMENAME, VERSION)
+	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
 	-- create global entity registry
   EntityRegistry = getClass('pud.entity.EntityRegistry')()
