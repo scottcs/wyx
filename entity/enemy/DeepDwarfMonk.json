@@ -10,8 +10,8 @@
 			},
 		},
 		"HealthComponent": {
-			"Health": 24,
-			"MaxHealth": 24,
+			"Health": "=$MaxHealth",
+			"MaxHealth": "=4d4",
 		},
 		"CombatComponent": {
 			"Attack": 2,
