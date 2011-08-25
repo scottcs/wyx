@@ -28,6 +28,12 @@ function ComponentMediator:send(msg, ...)
 			comp:receive(msg, ...)
 		end
 	end
+	if self._listeners.ALL then
+		for comp in self._listeners.ALL:listeners() do
+			--if debug then print(comp,msg) end
+			comp:receive(msg, ...)
+		end
+	end
 end
 
 -- attach a component to the given message

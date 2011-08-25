@@ -12,8 +12,10 @@ local CombatComponent = Class{name='CombatComponent',
 		ModelComponent._addRequiredProperties(self, {
 			'Attack',
 			'Defense',
+			'Damage',
 			'AttackBonus',
 			'DefenseBonus',
+			'DamageBonus',
 		})
 		ModelComponent.construct(self, properties)
 	end
@@ -26,18 +28,17 @@ end
 
 function CombatComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if   prop == property('Attack')
 		or prop == property('Defense')
+		or prop == property('Damage')
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
+		or prop == property('DamageBonus')
 	then
-		if type(data) == 'string' then
-			verify('number', self:_evaluate(data))
-		else
-			verify('number', data)
-		end
+		verifyAny(data, 'number', 'expression')
 	else
 		error('CombatComponent does not support property: '..tostring(prop))
 	end
@@ -48,14 +49,12 @@ end
 function CombatComponent:getProperty(p, intermediate, ...)
 	if   prop == property('Attack')
 		or prop == property('Defense')
+		or prop == property('Damage')
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
+		or prop == property('DamageBonus')
 	then
-		local prop = self._properties[p]
-		local doEval = type(prop) == 'string'
-
-		if doEval then prop = self:_evaluate(prop) end
-
+		local prop = self:_evaluate(p)
 		if not intermediate then return prop end
 		return prop + intermediate
 	else

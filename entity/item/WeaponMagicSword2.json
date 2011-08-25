@@ -1,0 +1,17 @@
+{
+	"family": "Weapon",
+	"kind": "Magic Sword",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {5, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+5",
+			"Damage": "!1d3+4",
+		},
+	}
+}

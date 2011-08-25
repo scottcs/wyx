@@ -6,11 +6,11 @@ Items:
   d   Uses IDs.
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   d   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
-  o     PickupCommand [Put in container from level]
-  o     DropCommand [Put in level from container]
-  o   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
-  o     AttachCommand [Equip - from container]
-  o     DetachCommand [Unequip - to container]
+  d     PickupCommand [Put in container from level]
+  d     DropCommand [Put in level from container]
+  d   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
+  d     AttachCommand [Equip - from container]
+  d     DetachCommand [Unequip - to container]
   o   UsableComponent? [this needs scripting in JSON files]
   o     UseCommand [call onUse(), potentially destroy entity]
 
@@ -21,15 +21,36 @@ Console:
 
 Level:
   - change Level representation of enemy to be by position in a table for faster lookup
-  o support lua in properties when read from file
-  o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
-  +   this needs to be done in EntityDB, not in Component
+
+Expressions:
+  d differentiate between expressions to evaluate on load and expressions to evaluate each time they are accessed. [= vs ! maybe?]
+  x support lua in properties when read from file
+  d   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+  d   this needs to be done in EntityDB AND in Component
+  d     evaluate correct syntax in EntityDB on load
+          if Expression.isExpression(data) then
+            data = Expression.makeFunction(data) [check for loops... build a graph?]
+          end
+  d     calculate average value when determining ELevel [how to do this before entity created?]
+          if type(data) == 'function' then
+            local sum = 0
+            for i=1,100 do sum = sum + data() end
+            return _round(sum/100)
+          end
+  d     evaluate actual value on getProperty
+          if type(data) == 'function' then
+            result = data(self._mediator)
+          end
 
 Components:
-  o InfoPanelComponent - just a guess here... mouseover info panel thingy
+  o TooltipComponent... mouseover info panel thingy
+  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
   o   And a Portrait field.
   - UISystem - handles User Interface
+
+Interface:
+  o Need another draw routine in RenderSystem for drawing outside of camera translation.
 
 Other:
   - fix tests
@@ -60,3 +81,6 @@ Beyond v0.1.0:
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
   o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
   x don't animate or update dim tiles
+
+
+NOTES:

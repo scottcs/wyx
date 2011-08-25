@@ -1,0 +1,16 @@
+{
+	"family": "Armor",
+	"kind": "Leather",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {1, 2},
+			},
+		},
+		"CombatComponent": {
+			"Defense": 2,
+		},
+	}
+}

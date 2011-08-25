@@ -19,25 +19,6 @@ local _loading = 'Loading...'
 local _x, _y
 
 function st:init()
-	-- load game fonts
-	GameFont = {
-		small = love.graphics.newImageFont('font/lofi_small.png',
-			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		big = love.graphics.newImageFont('font/lofi_big.png',
-			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		verysmall = love.graphics.newImageFont('font/lofi_verysmall.png',
-			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-		console = love.graphics.newImageFont('font/grafx2.png',
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
-	}
 end
 
 function st:enter()

@@ -1,5 +1,7 @@
 local property = {}
 
+local warning = warning
+
 -- check if a given property is valid
 local isproperty = function(prop) return property[prop] ~= nil end
 
@@ -9,9 +11,12 @@ local get = function(prop)
 	local ret = getcache[prop]
 
 	if ret == nil then
-		assert(isproperty(prop), 'invalid component property: %s', prop)
-		ret = prop
-		getcache[prop] = ret
+		if not isproperty(prop) then
+			warning('invalid component property: %q', prop)
+		else
+			ret = prop
+			getcache[prop] = ret
+		end
 	end
 
 	return ret
@@ -23,9 +28,18 @@ local default = function(prop)
 	local ret = defaultcache[prop]
 
 	if ret == nil then
-		assert(isproperty(prop), 'invalid component property: %s', prop)
-		ret = property[prop]
-		defaultcache[prop] = ret
+		if not isproperty(prop) then
+			warning('invalid component property: %q', prop)
+		else
+			local Expression = getClass 'pud.component.Expression'
+
+			ret = property[prop]
+			if Expression.isExpression(ret) then
+				ret = Expression.makeExpression(ret)
+			end
+
+			defaultcache[prop] = ret
+		end
 	end
 
 	return ret
@@ -36,20 +50,24 @@ end
 -------------------------------------------------
 
 -- combat properties
-property.Attack            = 1
-property.Defense           = 1
+property.Attack            = 0
+property.Defense           = 0
+property.Damage            = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
+property.DamageBonus       = 0
 
 -- health properties
-property.Health            = 1
-property.MaxHealth         = 1
+property.Health            = '=$MaxHealth'
+property.MaxHealth         = 0
 property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
 
 -- motion properties
 property.Position          = {1, 1}
 property.CanMove           = true
+property.IsContained       = false
+property.IsAttached        = false
 
 -- collision properties
 property.BlockedBy         = {Wall='ALL', Door='shut'}
@@ -58,13 +76,14 @@ property.BlockedBy         = {Wall='ALL', Door='shut'}
 property.TileSet           = 'dungeon'
 property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
-property.Visibility        = 6
+property.Visibility        = 0
+property.VisibilityBonus   = 0
 
 -- controller properties
 property.CanOpenDoors      = false
 
 -- time properties
-property.DefaultCost       = 1
+property.DefaultCost       = 0
 property.AttackCost        = 1
 property.MoveCost          = 1
 property.WaitCost          = 1
@@ -72,6 +91,13 @@ property.Speed             = 1
 property.SpeedBonus        = 0
 property.IsExhausted       = false
 property.DoTick            = true
+
+-- container properties
+property.MaxContainerSize  = 0
+property.ContainedEntities = {}
+
+-- attachment properties
+property.AttachedEntities  = {}
 
 -- weaknesses
 property.CrushWeakness     = 0

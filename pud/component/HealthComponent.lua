@@ -29,6 +29,7 @@ end
 
 function HealthComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if   prop == property('Health')
@@ -36,11 +37,7 @@ function HealthComponent:_setProperty(prop, data)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		if type(data) == 'string' then
-			verify('number', self:_evaluate(data))
-		else
-			verify('number', data)
-		end
+		verifyAny(data, 'number', 'expression')
 	else
 		error('HealthComponent does not support property: '..tostring(prop))
 	end
@@ -115,11 +112,7 @@ function HealthComponent:getProperty(p, intermediate, ...)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		local prop = self._properties[p]
-		local doEval = type(prop) == 'string'
-
-		if doEval then prop = self:_evaluate(prop) end
-
+		local prop = self:_evaluate(p)
 		if not intermediate then return prop end
 		return prop + intermediate
 	else

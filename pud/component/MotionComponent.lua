@@ -11,9 +11,19 @@ local GameEvents = GameEvents
 local MotionComponent = Class{name='MotionComponent',
 	inherits=ModelComponent,
 	function(self, properties)
-		ModelComponent._addRequiredProperties(self, {'Position', 'CanMove'})
+		ModelComponent._addRequiredProperties(self, {
+			'Position',
+			'CanMove',
+			'IsContained',
+			'IsAttached',
+		})
 		ModelComponent.construct(self, properties)
-		self:_addMessages('SET_POSITION')
+		self:_addMessages(
+			'SET_POSITION',
+			'CONTAINER_INSERTED',
+			'CONTAINER_REMOVED',
+			'ATTACHMENT_ATTACHED',
+			'ATTACHMENT_DETACHED')
 	end
 }
 
@@ -24,6 +34,7 @@ end
 
 function MotionComponent:_setProperty(prop, data, ...)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('Position') then
@@ -31,10 +42,18 @@ function MotionComponent:_setProperty(prop, data, ...)
 			local x, y = data, select(1,...)
 			data = {x, y}
 		end
-		assert(#data == 2, 'Invalid Position: %s', tostring(data))
-		verify('number', data[1], data[2])
-	elseif prop == property('CanMove') then
-		verify('boolean', data)
+
+		verifyAny(data, 'expression', 'table')
+
+		if type(data) == 'table' then
+			assert(#data == 2, 'Invalid Position: %s', tostring(data))
+			verify('number', data[1], data[2])
+		end
+	elseif prop == property('CanMove')
+		or   prop == property('IsContained')
+		or   prop == property('IsAttached')
+	then
+		verifyAny(data, 'boolean', 'expression')
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end
@@ -52,14 +71,38 @@ end
 
 function MotionComponent:receive(msg, ...)
 	if     msg == message('SET_POSITION') then self:_move(...)
+	elseif msg == message('CONTAINER_INSERTED') then
+		self:_setProperty(property('IsContained'), true)
+	elseif msg == message('CONTAINER_REMOVED') then
+		local comp = select(1, ...)
+		local mediator = comp:getMediator()
+		local mpos = mediator:query(property('Position'))
+		local pos = self._mediator:query(property('Position'))
+
+		self:_setProperty(property('IsContained'), false)
+		self._mediator:send(message('SET_POSITION'),
+			mpos[1], mpos[2], pos[1], pos[2])
+	elseif msg == message('ATTACHMENT_ATTACHED') then
+		self:_setProperty(property('IsAttached'), true)
+	elseif msg == message('ATTACHMENT_DETACHED') then
+		self:_setProperty(property('IsAttached'), false)
 	end
 end
 
 function MotionComponent:getProperty(p, intermediate, ...)
-	if p == property('CanMove') then
-		local prop = self._properties[p]
+	if   p == property('CanMove')
+		or p == property('IsContained')
+		or p == property('IsAttached')
+	then
+		local prop = self:_evaluate(p)
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
+	elseif p == property('Position') then
+		local prop = self:_evaluate(p)
+		if nil == intermediate then return prop end
+		intermediate[1] = intermediate[1] + prop[1]
+		intermediate[2] = intermediate[2] + prop[2]
+		return intermediate
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end

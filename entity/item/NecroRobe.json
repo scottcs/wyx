@@ -1,0 +1,20 @@
+{
+	"name": "Necromancer's Robe",
+	"family": "Armor",
+	"kind": "Robe",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {8, 2},
+			},
+		},
+		"CombatComponent": {
+			"Defense": 1,
+		},
+		"TimeComponent": {
+			"MoveCost": -0.5,
+		}
+	}
+}

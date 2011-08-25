@@ -1,6 +1,7 @@
 local select, type, tostring = select, type, tostring
 local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
+local sqrt = math.sqrt
 
 
          --[[--
@@ -22,13 +23,51 @@ do
 	end
 end
 
+local Expression = require 'pud.component.Expression'
+
 -- verify that all the given objects are of the given type
 function verify(theType, ...)
+	local isExpr
+	if type(theType) == 'expression' then
+		isExpr = Expression.isCreatedExpression
+	end
+
 	for i=1,select('#', ...) do
 		local x = select(i, ...)
 		local xType = type(x)
-		assert(xType == theType, '%s expected (was %s)', theType, xType)
+		if isExpr then
+			assert(isExpr(x), 'expression expected (was %s)', xType)
+		else
+			assert(xType == theType, '%s expected (was %s)', theType, xType)
+		end
 	end
+	return true
+end
+
+-- verify that the given object is one of any of the given types
+function verifyAny(theObject, ...)
+	local theType = type(theObject)
+	local is = false
+
+	for i=1,select('#', ...) do
+		local x = select(i, ...)
+
+		if 'expression' == x then
+			if Expression.isCreatedExpression(theObject) then
+				is = true
+				break
+			end
+		end
+
+		if theType == x then
+			is = true
+			break
+		end
+	end
+
+	assert(is, 'type was %s, expected any of: %s', theType,
+		table.concat({...}, ', '))
+
 	return true
 end
 
@@ -63,6 +102,40 @@ function nearestPO2(x)
 end
 
 
+-------------------
+-- common colors --
+-------------------
+colors = {}
+local p100 = 255
+local p50 = p100*0.5
+local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
+local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
+
+colors.WHITE = {p100, p100, p100, p100}
+colors.WHITE_A00 = {p100, p100, p100, 0}
+colors.BLACK = {0, 0, 0, p100}
+colors.BLACK_A70 = {0, 0, 0, p70}
+colors.BLACK_A00 = {0, 0, 0, 0}
+colors.YELLOW = {p100, p90, 0, p100}
+colors.RED = {p100, 0, 0, p100}
+colors.LIGHTRED = {p100, p60, p60, p100}
+colors.GREEN = {0, p100, 0, p100}
+colors.ORANGE = {p100, p100*0.75, p30, p100}
+colors.LIGHTORANGE = {p100, p100*0.88, p70, p100}
+colors.BROWN = {p50, p40, p20, p100}
+colors.BLUE = {p40, p40, p100, p100}
+colors.GREY90 = {p90, p90, p90, p100}
+colors.GREY80 = {p80, p80, p80, p100}
+colors.GREY70 = {p70, p70, p70, p100}
+colors.GREY60 = {p60, p60, p60, p100}
+colors.GREY50 = {p50, p50, p50, p100}
+colors.GREY40 = {p40, p40, p40, p100}
+colors.GREY30 = {p30, p30, p30, p100}
+colors.GREY20 = {p20, p20, p20, p100}
+colors.GREY10 = {p10, p10, p10, p100}
+function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
+
+
 -------------
 -- warning --
 -------------
@@ -70,6 +143,7 @@ function warning(msg, ...)
 	msg = msg or 'unknown warning'
 	msg = 'Warning: '..msg..'\n'
 	io_stderr:write(format(msg, ...))
+	if Console then Console:print(colors.YELLOW, msg, ...) end
 end
 
 
@@ -135,8 +209,6 @@ end
 -------------------------
 -- 2d vector functions --
 -------------------------
-local sqrt = math.sqrt
-local format = string.format
 vec2 = {}
 function vec2.len2(x, y) return x*x + y*y end
 function vec2.len(x, y) return sqrt(vec2.len2(x, y)) end
@@ -177,36 +249,6 @@ Sound = Proxy(function(k)
 		'static')
 end)
 
-
--------------------
--- common colors --
--------------------
-colors = {}
-local p100 = 255
-local p50 = p100*0.5
-local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
-local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
-
-colors.WHITE = {p100, p100, p100, p100}
-colors.WHITE_A00 = {p100, p100, p100, 0}
-colors.BLACK = {0, 0, 0, p100}
-colors.BLACK_A70 = {0, 0, 0, p70}
-colors.BLACK_A00 = {0, 0, 0, 0}
-colors.YELLOW = {p100, p90, 0, p100}
-colors.RED = {p100, 0, 0, p100}
-colors.GREEN = {0, p100, 0, p100}
-colors.ORANGE = {p100, p100*0.75, p30, p100}
-colors.BROWN = {p50, p40, p20, p100}
-colors.GREY90 = {p90, p90, p90, p100}
-colors.GREY80 = {p80, p80, p80, p100}
-colors.GREY70 = {p70, p70, p70, p100}
-colors.GREY60 = {p60, p60, p60, p100}
-colors.GREY50 = {p50, p50, p50, p100}
-colors.GREY40 = {p40, p40, p40, p100}
-colors.GREY30 = {p30, p30, p30, p100}
-colors.GREY20 = {p20, p20, p20, p100}
-colors.GREY10 = {p10, p10, p10, p100}
-function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
 
 -------------------
 -- resize screen --

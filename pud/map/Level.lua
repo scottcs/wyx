@@ -19,11 +19,13 @@ local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
+local LightingUpdateRequest = getClass 'pud.event.LightingUpdateRequest'
 
 -- entities
 local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
 local EnemyEntityFactory = getClass 'pud.entity.EnemyEntityFactory'
 local ItemEntityFactory = getClass 'pud.entity.ItemEntityFactory'
+local EntityArray = getClass 'pud.entity.EntityArray'
 local message = getClass 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -48,13 +50,14 @@ local Level = Class{name='Level',
 			lit = colors.WHITE,
 		}
 		self._lightmap = {}
-		self._entities = {}
+		self._entities = EntityArray()
 		self._turns = 1
 
 		GameEvents:register(self, {
 			EntityPositionEvent,
 			EntityDeathEvent,
 			LightingStatusRequest,
+			LightingUpdateRequest,
 			MapNodeUpdateEvent,
 			TimeSystemCycleEvent,
 		})
@@ -74,7 +77,7 @@ function Level:destroy()
 	self._itemFactory:destroy()
 	self._itemFactory = nil
 
-	for k in pairs(self._entities) do self._entities[k] = nil end
+	self._entities:destroy()
 	self._entities = nil
 	self._primeEntity = nil
 
@@ -136,10 +139,7 @@ function Level:_generateMap(builder)
 	local setPosition = message('SET_POSITION')
 	local remove = {}
 
-	local numEntities = #self._entities
-	for i=1,numEntities do
-		local entityID = self._entities[i]
-
+	for entityID in self._entities:iterate() do
 		if entityID == self._primeEntity then
 			local ups = {}
 			for _,name in ipairs(self._map:getPortalNames()) do
@@ -200,11 +200,9 @@ function Level:isPointInMap(...) return self._map:containsPoint(...) end
 function Level:getEntitiesAtLocation(x, y)
 	local ents = {}
 	local positionProp = property('Position')
-	local numEntities = #self._entities
 	local entCount = 0
 
-	for i=1,numEntities do
-		local entityID = self._entities[i]
+	for entityID in self._entities:iterate() do
 		local entity = EntityRegistry:get(entityID)
 		local ePos = entity:query(positionProp)
 		if ePos[1] == x and ePos[2] == y then
@@ -222,42 +220,51 @@ function Level:createEntities()
 	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
 	local which = HeroDB:getByFilename(heroName)
 	self._primeEntity = self._heroFactory:createEntity(which)
-	self._entities[#self._entities+1] = self._primeEntity
-	local primeEntity = EntityRegistry:get(self._primeEntity)
+	self._heroFactory:registerEntity(self._primeEntity)
+	self._entities:add(self._primeEntity)
 
 	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,30)
-	local numEnemyEntities = #enemyEntities
-	for i=2,11 do
-		local which = enemyEntities[Random(numEnemyEntities)]
-		self._entities[i] = self._enemyFactory:createEntity(which)
+	local enemyEntities = EnemyDB:getByELevel(1,1000)
+	if enemyEntities then
+		local numEnemyEntities = #enemyEntities
+		for i=1,10 do
+			local which = enemyEntities[Random(numEnemyEntities)]
+			local entityID = self._enemyFactory:createEntity(which)
+			self._enemyFactory:registerEntity(entityID)
+			self._entities:add(entityID)
+		end
+	end
+
+	local itemEntities = ItemDB:getByELevel(1,1000)
+	if itemEntities then
+		local numItemEntities = #itemEntities
+		for i=1,10 do
+			local which = itemEntities[Random(numItemEntities)]
+			local entityID = self._itemFactory:createEntity(which)
+			self._itemFactory:registerEntity(entityID)
+			self._entities:add(entityID)
+		end
 	end
 end
 
 function Level:removeAllEntities()
-	local num = #self._entities
-	for i=1,num do
-		local entity = EntityRegistry:unregister(self._entities[i])
-		entity:destroy()
-		self._entities[i] = nil
+	if self._entities:size() > 0 then
+		local entities = self._entities:getArray()
+		self._entities:clear()
+		local num = #entities
+
+		for i=1,num do
+			local entity = EntityRegistry:unregister(entities[i])
+			entity:destroy()
+		end
 	end
 end
 
 function Level:removeEntity(entityID)
-	local num = #self._entities
-	local newEntities = {}
-	local count = 1
-	for i=1,num do
-		local e = self._entities[i]
-		if entityID == e then
-			local entity = EntityRegistry:unregister(entityID)
-			entity:destroy()
-		else
-			newEntities[count] = e
-			count = count + 1
-		end
+	if self._entities:remove(entityID) then
+		local entity = EntityRegistry:unregister(entityID)
+		entity:destroy()
 	end
-	self._entities = newEntities
 end
 
 function Level:setPlayerControlled()
@@ -268,6 +275,8 @@ function Level:setPlayerControlled()
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 	self._heroFactory:setTimeComponent(self._primeEntity, time)
 	TimeSystem:setFirst(time)
+	local entity = EntityRegistry:get(self._primeEntity)
+	entity:send(message('CONTAINER_RESIZE'), 10)
 end
 
 function Level:EntityPositionEvent(e)
@@ -311,10 +320,12 @@ function Level:TimeSystemCycleEvent(e)
 	self._turns = self._turns + 1
 end
 
-function Level:MapNodeUpdateEvent(e)
+function Level:_updateLighting()
 	self:_bakeLights()
 	self._needViewUpdate = true
 end
+Level.MapNodeUpdateEvent = Level._updateLighting
+Level.LightingUpdateRequest = Level._updateLighting
 
 function Level:getPrimeEntity() return self._primeEntity end
 function Level:getTurns() return self._turns end
@@ -401,6 +412,7 @@ end
 function Level:_bakeLights(blackout)
 	local primeEntity = EntityRegistry:get(self._primeEntity)
 	local radius = primeEntity:query('Visibility')
+	radius = radius + primeEntity:query('VisibilityBonus')
 	local primePos = primeEntity:query('Position')
 
 	self:_resetLights(blackout)
@@ -415,9 +427,7 @@ function Level:_bakeLights(blackout)
 	self._lightmap[primePos[1]][primePos[2]] = 'lit'
 
 	-- tell entities what their lights are
-	local numEntities = #self._entities
-
-	for i=1,numEntities do self:_notifyScreenStatus(self._entities[i]) end
+	for id in self._entities:iterate() do self:_notifyScreenStatus(id) end
 end
 
 local positionProp = property('Position')
@@ -444,6 +454,7 @@ function Level:getLightingColor(x, y)
 	local color = self._lightmap[x] and self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
+
 
 -- the class
 return Level

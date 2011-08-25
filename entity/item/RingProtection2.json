@@ -1,0 +1,16 @@
+{
+	"family": "Ring",
+	"kind": "of Protection",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {2, 3},
+			},
+		},
+		"CombatComponent": {
+			"Defense": 2,
+		},
+	}
+}

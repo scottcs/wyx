@@ -1,15 +1,27 @@
 local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
-local CommandEvent = getClass 'pud.event.CommandEvent'
-local WaitCommand = getClass 'pud.command.WaitCommand'
-local MoveCommand = getClass 'pud.command.MoveCommand'
-local AttackCommand = getClass 'pud.command.AttackCommand'
-local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
 local DoorMapType = getClass 'pud.map.DoorMapType'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
+-- events
+local CommandEvent = getClass 'pud.event.CommandEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
+local LightingUpdateRequest = getClass 'pud.event.LightingUpdateRequest'
+
+-- commands
+local WaitCommand = getClass 'pud.command.WaitCommand'
+local MoveCommand = getClass 'pud.command.MoveCommand'
+local AttackCommand = getClass 'pud.command.AttackCommand'
+local OpenDoorCommand = getClass 'pud.command.OpenDoorCommand'
+local PickupCommand = getClass 'pud.command.PickupCommand'
+local DropCommand = getClass 'pud.command.DropCommand'
+local AttachCommand = getClass 'pud.command.AttachCommand'
+local DetachCommand = getClass 'pud.command.DetachCommand'
+
 local CommandEvents = CommandEvents
+local vec2_equal = vec2.equal
 
 -- ControllerComponent
 --
@@ -21,6 +33,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 		self:_addMessages(
 			'COLLIDE_NONE',
 			'COLLIDE_BLOCKED',
+			'COLLIDE_ITEM',
 			'COLLIDE_ENEMY',
 			'COLLIDE_HERO')
 	end
@@ -33,10 +46,11 @@ end
 
 function ControllerComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('CanOpenDoors') then
-		verify('boolean', data)
+		verifyAny(data, 'boolean', 'expression')
 	end
 
 	Component._setProperty(self, prop, data)
@@ -64,29 +78,144 @@ function ControllerComponent:_move(x, y)
 end
 
 function ControllerComponent:_tryToManipulateMap(node)
+	local wait = true
+
 	if node then
 		local mapType = node:getMapType()
 
 		if mapType:isType(DoorMapType('shut')) then
 			if self._mediator:query(property('CanOpenDoors')) then
 				self:_sendCommand(OpenDoorCommand(self._mediator, node))
+				wait = false
 			end
-		else
-			self:_wait()
 		end
-	else
-		self:_wait()
 	end
+
+	if wait then self:_wait() end
 end
 
 function ControllerComponent:_attack(isHero, target)
 	local etype = self._mediator:getEntityType()
 	if isHero or 'hero' == etype then
 		self:_sendCommand(
-			AttackCommand(self._mediator, EntityRegistry:get(target))
-		)
+			AttackCommand(self._mediator, EntityRegistry:get(target)))
 	else
 		self:_wait()
+	end
+end
+
+function ControllerComponent:_tryToPickup()
+	local items = EntityRegistry:getIDsByType('item')
+	local count = 0
+	local pIsContained = property('IsContained')
+	local pPosition = property('Position')
+
+	if items then
+		local num = #items
+		for i=1,num do
+			local id = items[i]
+			local item = EntityRegistry:get(id)
+			if not item:query(pIsContained) then
+				local ipos = item:query(pPosition)
+				local mpos = self._mediator:query(pPosition)
+				if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
+					self:_sendCommand(PickupCommand(self._mediator, id))
+					count = count + 1
+				end
+			end
+		end
+	end
+
+	if count == 0 then
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to pick up!'))
+	end
+end
+
+function ControllerComponent:_tryToDrop(id)
+	local contained = self._mediator:query(property('ContainedEntities'))
+	if contained then
+		local found = false
+		local num = #contained
+
+		for i=1,num do
+			if contained[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			if item:query(property('IsAttached')) then
+				GameEvents:push(DisplayPopupMessageEvent('Remove it first!'))
+			else
+				self:_sendCommand(DropCommand(self._mediator, id))
+			end
+		else
+			GameEvents:push(DisplayPopupMessageEvent('You can\'t drop that!'))
+		end
+	else
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to drop!'))
+	end
+end
+
+function ControllerComponent:_tryToAttach(id)
+	local contained = self._mediator:query(property('ContainedEntities'))
+	local found = false
+
+	if contained then
+		local num = #contained
+
+		for i=1,num do
+			if contained[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			if not item:query(property('IsAttached')) then
+				self:_sendCommand(AttachCommand(self._mediator, id))
+
+				-- might need to update the map
+				GameEvents:push(LightingUpdateRequest())
+			end
+		else
+			GameEvents:push(DisplayPopupMessageEvent('You can\'t equip that!'))
+		end
+	end
+
+	if not found then
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to equip!'))
+	end
+end
+
+function ControllerComponent:_tryToDetach(id)
+	local attached = self._mediator:query(property('AttachedEntities'))
+	if attached then
+		local found = false
+		local num = #attached
+
+		for i=1,num do
+			if attached[i] == id then
+				found = true
+				break
+			end
+		end
+
+		if found then
+			local item = EntityRegistry:get(id)
+			self:_sendCommand(DetachCommand(self._mediator, id))
+
+			-- might need to update the map
+			GameEvents:push(LightingUpdateRequest())
+		else
+			GameEvents:push(
+				DisplayPopupMessageEvent('You don\'t have that equipped!'))
+		end
+	else
+		GameEvents:push(DisplayPopupMessageEvent('Nothing to unequip!'))
 	end
 end
 
@@ -103,6 +232,16 @@ function ControllerComponent:receive(msg, ...)
 		self:_attack(false, ...)
 	elseif msg == message('COLLIDE_HERO') then
 		self:_attack(true, ...)
+	elseif msg == message('COLLIDE_ITEM') then
+		if self._mediator:getEntityType() == 'hero' then
+			local id = select(1, ...)
+			if id then
+				local item = EntityRegistry:get(id)
+				local name = item:getName()
+				local elevel = item:getELevel()
+				GameEvents:push(ConsoleEvent('Item found: %s (%d)', name, elevel))
+			end
+		end
 	else
 		Component.receive(self, msg, ...)
 	end
