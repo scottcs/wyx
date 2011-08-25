@@ -31,7 +31,13 @@ local default = function(prop)
 		if not isproperty(prop) then
 			warning('invalid component property: %q', prop)
 		else
+			local Expression = getClass 'pud.component.Expression'
+
 			ret = property[prop]
+			if Expression.isExpression(ret) then
+				ret,err = Expression.makeFunction(ret)
+			end
+
 			defaultcache[prop] = ret
 		end
 	end
@@ -50,7 +56,7 @@ property.AttackBonus       = 0
 property.DefenseBonus      = 0
 
 -- health properties
-property.Health            = 0
+property.Health            = '=$MaxHealth'
 property.MaxHealth         = 0
 property.HealthBonus       = 0
 property.MaxHealthBonus    = 0
