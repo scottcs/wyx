@@ -26,9 +26,9 @@ function Expression.isExpression(expr)
 	local is = false
 
 	-- expressions must begin with '='
-	if match(expr, '^=') then
+	if match(expr, '^[=!]') then
 		-- try to make a function out of the expression
-		testfunc = Expression.makeFunction(expr)
+		testfunc = Expression.makeExpression(expr)
 		if type(testfunc) == 'function' then is = true end
 	end
 
@@ -36,14 +36,15 @@ function Expression.isExpression(expr)
 end
 
 local _funcCache = setmetatable({}, {__mode = 'v'})
-function Expression.makeFunction(expression)
-	local func = _funcCache[expression]
+function Expression.makeExpression(expression)
+	local result = _funcCache[expression]
 	local ok, err
 
-	if nil == func then
+	if nil == result then
 		-- don't continue if there are bare words not beginning with @ or $
 		if not match(expression, '([^@$%w]+)(%a+)') then
-			-- remove the beginning '='
+			-- remove the beginning '=' or '!'
+			local when = sub(expression, 1, 1) == '=' and 'onCreate' or 'onAccess'
 			local expr = sub(expression, 2)
 
 			-- substitute $words with property queries
@@ -72,19 +73,20 @@ function Expression.makeFunction(expression)
 
 			if ok then
 				-- test that the function works
-				func = err
+				local func = err
 				ok,err = pcall(func, testMediator)
 
 				if ok then
-					_funcCache[expression] = func
+					result = {[when] = func}
+					_funcCache[expression] = result
 				else
-					func = nil
+					result = nil
 				end
 			end
 		end
 	end
 
-	return func, err
+	return result, err
 end
 
 

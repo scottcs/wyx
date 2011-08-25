@@ -35,7 +35,7 @@ local default = function(prop)
 
 			ret = property[prop]
 			if Expression.isExpression(ret) then
-				ret,err = Expression.makeFunction(ret)
+				ret = Expression.makeExpression(ret)
 			end
 
 			defaultcache[prop] = ret

@@ -153,16 +153,17 @@ function EntityDB:_evaluateEntityInfo(info)
 				if type(data) == 'function' then return false end
 				if type(data) == 'string' and match(data, '^=') then
 					-- check if it's an expression to evaluate
-					local func
+					local expr, err
 					if Expression.isExpression(data) then
-						func, err = Expression.makeFunction(data)
+						expr, err = Expression.makeExpression(data)
 					end
-					if nil == func then
+
+					if nil == expr then
 						warning('Invalid expression: %s', data)
 						if err then warning('  (%s)', err) end
 						props[p] = nil
 					else
-						props[p] = func
+						props[p] = expr
 					end
 				end
 			end
