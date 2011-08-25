@@ -96,7 +96,7 @@ function Console:print(color, message, ...)
 		self:_print(color, message, ...)
 	else
 		local msg = color
-		color = colors.GREY90
+		color = colors.GREY80
 		self:_print(color, msg, message, ...)
 	end
 end
