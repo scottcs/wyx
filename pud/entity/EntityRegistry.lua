@@ -118,25 +118,31 @@ function EntityRegistry:dumpEntities()
 
 	local num, count = 0, 0
 
-	num = #hero
-	for i=1,num do
-		local id = hero[i]
-		count = count + 1
-		ents[count] = self:get(id)
+	if hero then
+		num = #hero
+		for i=1,num do
+			local id = hero[i]
+			count = count + 1
+			ents[count] = self:get(id)
+		end
 	end
 
-	num = #enemy
-	for i=1,num do
-		local id = enemy[i]
-		count = count + 1
-		ents[count] = self:get(id)
+	if enemy then
+		num = #enemy
+		for i=1,num do
+			local id = enemy[i]
+			count = count + 1
+			ents[count] = self:get(id)
+		end
 	end
 
-	num = #item
-	for i=1,num do
-		local id = item[i]
-		count = count + 1
-		ents[count] = self:get(id)
+	if item then
+		num = #item
+		for i=1,num do
+			local id = item[i]
+			count = count + 1
+			ents[count] = self:get(id)
+		end
 	end
 
 	if count > 0 then
