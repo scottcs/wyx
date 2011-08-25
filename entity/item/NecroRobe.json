@@ -14,7 +14,7 @@
 			"Defense": 1,
 		},
 		"TimeComponent": {
-			"Speed": 1,
+			"MoveCost": -0.5,
 		}
 	}
 }

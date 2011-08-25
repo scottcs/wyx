@@ -10,8 +10,8 @@
 			},
 		},
 		"CombatComponent": {
-			"Attack": 7,
-			"Damage": "=1d3+6",
+			"Attack": "=1d3+6",
+			"Damage": "!1d3+6",
 		},
 	}
 }

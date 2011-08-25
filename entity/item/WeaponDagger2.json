@@ -9,9 +9,12 @@
 				"item": {2, 1},
 			},
 		},
+		"TimeComponent": {
+			"AttackCost": -0.5,
+		},
 		"CombatComponent": {
-			"Attack": 2,
-			"Damage": "=1d3",
+			"Attack": "=1d2",
+			"Damage": "!2d2",
 		},
 	}
 }

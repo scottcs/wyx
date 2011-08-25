@@ -16,6 +16,7 @@
 		"CombatComponent": {
 			"Attack": "=1d3+6",
 			"Defense": "=1d3+6",
+			"Damage": "!2d8",
 		},
 		"TimeComponent": {
 			"MoveCost": 0.5,

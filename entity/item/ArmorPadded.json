@@ -12,5 +12,8 @@
 		"CombatComponent": {
 			"Defense": 1,
 		},
+		"HealthComponent": {
+			"MaxHealth": 2,
+		},
 	}
 }

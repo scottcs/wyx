@@ -15,7 +15,7 @@
 		"CombatComponent": {
 			"Attack": "=2d3",
 			"Defense": "=2d3",
-			
+			"Damage": "!2d3",
 		},
 	}
 }
