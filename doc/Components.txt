@@ -134,7 +134,7 @@ Component Properties
 * HealthComponent
     This component defines health properties for the entity.
 
-    "Health": 0
+    "Health": "=$MaxHealth"
         The current health value of the entity. On item entities, this will be
         added to the hero/enemy entity's value when equipped.
 

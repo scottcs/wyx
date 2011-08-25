@@ -16,7 +16,6 @@
 			"Speed": 1,
 		},
 		"HealthComponent": {
-			"Health": 8,
 			"MaxHealth": 8,
 		},
 		"CombatComponent": {
