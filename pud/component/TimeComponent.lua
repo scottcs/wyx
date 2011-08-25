@@ -89,6 +89,7 @@ end
 function TimeComponent:getProperty(p, intermediate, ...)
 	if p == property('DoTick') then
 		local prop = self._properties[p]
+		if type(prop) == 'function' then prop = prop(self._mediator) end
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
 	else

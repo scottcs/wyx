@@ -98,6 +98,7 @@ end
 -- precondition: p is a valid component property
 function Component:getProperty(p, intermediate, ...)
 	local prop = self._properties[p]
+	if type(prop) == 'function' then prop = prop(self._mediator) end
 	if nil == prop then return intermediate end
 	if nil == intermediate then return prop end
 

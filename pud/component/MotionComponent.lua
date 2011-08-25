@@ -42,8 +42,13 @@ function MotionComponent:_setProperty(prop, data, ...)
 			local x, y = data, select(1,...)
 			data = {x, y}
 		end
-		assert(#data == 2, 'Invalid Position: %s', tostring(data))
-		verify('number', data[1], data[2])
+
+		verifyAny(data, 'table', 'function')
+
+		if type(data) == 'table' then
+			assert(#data == 2, 'Invalid Position: %s', tostring(data))
+			verify('number', data[1], data[2])
+		end
 	elseif prop == property('CanMove')
 		or   prop == property('IsContained')
 		or   prop == property('IsAttached')
@@ -90,10 +95,12 @@ function MotionComponent:getProperty(p, intermediate, ...)
 		or p == property('IsAttached')
 	then
 		local prop = self._properties[p]
+		if type(prop) == 'function' then prop = prop(self._mediator) end
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
 	elseif p == property('Position') then
 		local prop = self._properties[p]
+		if type(prop) == 'function' then prop = prop(self._mediator) end
 		if nil == intermediate then return prop end
 		intermediate[1] = intermediate[1] + prop[1]
 		intermediate[2] = intermediate[2] + prop[2]

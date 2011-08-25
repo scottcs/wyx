@@ -42,6 +42,7 @@ function CollisionComponent:getProperty(p, intermediate, ...)
 			local mt = match(tostring(mapType.__class), '^(%w+)MapType')
 			local v = mapType:getVariant()
 			local prop = self._properties[p]
+			if type(prop) == 'function' then prop = prop(self._mediator) end
 			local blocked = (prop[mt] and (v == prop[mt] or prop[mt] == 'ALL'))
 			return (blocked or intermediate)
 		else

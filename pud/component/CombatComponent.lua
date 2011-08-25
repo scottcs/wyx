@@ -49,10 +49,7 @@ function CombatComponent:getProperty(p, intermediate, ...)
 		or prop == property('DefenseBonus')
 	then
 		local prop = self._properties[p]
-		local doEval = type(prop) == 'string'
-
-		if doEval then prop = self:_evaluate(prop) end
-
+		if type(prop) == 'function' then prop = prop(self._mediator) end
 		if not intermediate then return prop end
 		return prop + intermediate
 	else
