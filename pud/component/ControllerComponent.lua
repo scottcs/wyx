@@ -1,8 +1,16 @@
 local Class = require 'lib.hump.class'
 local Component = getClass 'pud.component.Component'
+local DoorMapType = getClass 'pud.map.DoorMapType'
+local message = require 'pud.component.message'
+local property = require 'pud.component.property'
+
+-- events
 local CommandEvent = getClass 'pud.event.CommandEvent'
 local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
+local LightingUpdateRequest = getClass 'pud.event.LightingUpdateRequest'
+
+-- commands
 local WaitCommand = getClass 'pud.command.WaitCommand'
 local MoveCommand = getClass 'pud.command.MoveCommand'
 local AttackCommand = getClass 'pud.command.AttackCommand'
@@ -11,9 +19,6 @@ local PickupCommand = getClass 'pud.command.PickupCommand'
 local DropCommand = getClass 'pud.command.DropCommand'
 local AttachCommand = getClass 'pud.command.AttachCommand'
 local DetachCommand = getClass 'pud.command.DetachCommand'
-local DoorMapType = getClass 'pud.map.DoorMapType'
-local message = require 'pud.component.message'
-local property = require 'pud.component.property'
 
 local CommandEvents = CommandEvents
 local vec2_equal = vec2.equal
@@ -142,7 +147,7 @@ function ControllerComponent:_tryToDrop(id)
 		if found then
 			local item = EntityRegistry:get(id)
 			if item:query(property('IsAttached')) then
-				GameEvents:push(DisplayPopupMessageEvent('Unequip it first!'))
+				GameEvents:push(DisplayPopupMessageEvent('Remove it first!'))
 			else
 				self:_sendCommand(DropCommand(self._mediator, id))
 			end
@@ -172,6 +177,9 @@ function ControllerComponent:_tryToAttach(id)
 			local item = EntityRegistry:get(id)
 			if not item:query(property('IsAttached')) then
 				self:_sendCommand(AttachCommand(self._mediator, id))
+
+				-- might need to update the map
+				GameEvents:push(LightingUpdateRequest())
 			end
 		else
 			GameEvents:push(DisplayPopupMessageEvent('You can\'t equip that!'))
@@ -199,6 +207,9 @@ function ControllerComponent:_tryToDetach(id)
 		if found then
 			local item = EntityRegistry:get(id)
 			self:_sendCommand(DetachCommand(self._mediator, id))
+
+			-- might need to update the map
+			GameEvents:push(LightingUpdateRequest())
 		else
 			GameEvents:push(
 				DisplayPopupMessageEvent('You don\'t have that equipped!'))

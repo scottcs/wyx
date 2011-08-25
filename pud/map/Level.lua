@@ -19,6 +19,7 @@ local TimeSystemCycleEvent = getClass 'pud.event.TimeSystemCycleEvent'
 local EntityPositionEvent = getClass 'pud.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'pud.event.EntityDeathEvent'
 local LightingStatusRequest = getClass 'pud.event.LightingStatusRequest'
+local LightingUpdateRequest = getClass 'pud.event.LightingUpdateRequest'
 
 -- entities
 local HeroEntityFactory = getClass 'pud.entity.HeroEntityFactory'
@@ -56,6 +57,7 @@ local Level = Class{name='Level',
 			EntityPositionEvent,
 			EntityDeathEvent,
 			LightingStatusRequest,
+			LightingUpdateRequest,
 			MapNodeUpdateEvent,
 			TimeSystemCycleEvent,
 		})
@@ -318,10 +320,12 @@ function Level:TimeSystemCycleEvent(e)
 	self._turns = self._turns + 1
 end
 
-function Level:MapNodeUpdateEvent(e)
+function Level:_updateLighting()
 	self:_bakeLights()
 	self._needViewUpdate = true
 end
+Level.MapNodeUpdateEvent = Level._updateLighting
+Level.LightingUpdateRequest = Level._updateLighting
 
 function Level:getPrimeEntity() return self._primeEntity end
 function Level:getTurns() return self._turns end
