@@ -40,11 +40,11 @@ function TimeComponent:_setProperty(prop, data)
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
 	then
-		verify('number', data)
+		verifyAny(data, 'number', 'function')
 	elseif prop == property('IsExhausted')
 		or   prop == property('DoTick')
 	then
-		verify('boolean', data)
+		verifyAny(data, 'boolean', 'function')
 	else
 		error('TimeComponent does not support property: '..tostring(prop))
 	end

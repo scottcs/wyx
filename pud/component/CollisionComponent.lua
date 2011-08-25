@@ -26,7 +26,7 @@ function CollisionComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('BlockedBy') then
-		verify('table', data)
+		verifyAny(data, 'table', 'function')
 	else
 		error('CollisionComponent does not support property: '..tostring(prop))
 	end

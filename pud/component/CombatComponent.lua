@@ -34,11 +34,7 @@ function CombatComponent:_setProperty(prop, data)
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
 	then
-		if type(data) == 'string' then
-			verify('number', self:_evaluate(data))
-		else
-			verify('number', data)
-		end
+		verifyAny(data, 'number', 'function')
 	else
 		error('CombatComponent does not support property: '..tostring(prop))
 	end

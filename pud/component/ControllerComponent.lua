@@ -45,7 +45,7 @@ function ControllerComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('CanOpenDoors') then
-		verify('boolean', data)
+		verifyAny(data, 'boolean', 'function')
 	end
 
 	Component._setProperty(self, prop, data)

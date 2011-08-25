@@ -37,11 +37,7 @@ function HealthComponent:_setProperty(prop, data)
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
 	then
-		if type(data) == 'string' then
-			verify('number', self:_evaluate(data))
-		else
-			verify('number', data)
-		end
+		verifyAny(data, 'number', 'function')
 	else
 		error('HealthComponent does not support property: '..tostring(prop))
 	end

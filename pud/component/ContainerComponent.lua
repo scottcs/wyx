@@ -33,7 +33,7 @@ function ContainerComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('MaxContainerSize') then
-		verify('number', data)
+		verifyAny(data, 'number', 'function')
 	elseif prop == property('ContainedEntities') then
 		verify('table', data)
 	else

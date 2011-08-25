@@ -48,7 +48,7 @@ function MotionComponent:_setProperty(prop, data, ...)
 		or   prop == property('IsContained')
 		or   prop == property('IsAttached')
 	then
-		verify('boolean', data)
+		verifyAny(data, 'boolean', 'function')
 	else
 		error('MotionComponent does not support property: %s', tostring(prop))
 	end

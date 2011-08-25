@@ -65,7 +65,7 @@ function GraphicsComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('TileSet') then
-		verify('string', data)
+		verifyAny('string', data)
 		self._tileset = Image[data]
 		assert(self._tileset ~= nil, 'Invalid TileSet: %s', tostring(data))
 	elseif prop == property('TileCoords') then
@@ -78,7 +78,7 @@ function GraphicsComponent:_setProperty(prop, data)
 	elseif prop == property('TileSize') then
 		verify('number', data)
 	elseif prop == property('Visibility') then
-		verify('number', data)
+		verifyAny(data, 'number', 'function')
 	else
 		error('GraphicsComponent does not support property: %s', tostring(prop))
 	end
