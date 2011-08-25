@@ -21,20 +21,20 @@ Console:
 
 Level:
   - change Level representation of enemy to be by position in a table for faster lookup
-  o support lua in properties when read from file
-  o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
-  +   this needs to be done in EntityDB AND in Component
-  +     evaluate correct syntax in EntityDB on load
+  x support lua in properties when read from file
+  d   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+  d   this needs to be done in EntityDB AND in Component
+  d     evaluate correct syntax in EntityDB on load
           if Expression.isExpression(data) then
             data = Expression.makeFunction(data) [check for loops... build a graph?]
           end
-  +     calculate average value when determining ELevel [how to do this before entity created?]
+  d     calculate average value when determining ELevel [how to do this before entity created?]
           if type(data) == 'function' then
             local sum = 0
             for i=1,100 do sum = sum + data() end
             return _round(sum/100)
           end
-  +     evaluate actual value on getProperty
+  d     evaluate actual value on getProperty
           if type(data) == 'function' then
             result = data(self._mediator)
           end
