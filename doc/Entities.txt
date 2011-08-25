@@ -7,7 +7,7 @@ Components and their properties.
 
 To make a new entity, just create a new file in the appropriate directory, and
 the game will see it. The format for entity files is fairly straightforward;
-it's just the name of the entity and a list of the Components and properties
+it's just some descriptive lines and a list of the Components and properties
 that you wish to override (that is, if you do not provide a Component or
 property that the entity requires, a default will be supplied by Pud).
 
@@ -23,53 +23,54 @@ Likewise, you do not have to specify all components. Any required components
 will be created with default values by Pud (see "Default Components" in
 Components.txt for a list).
 
-Here is an example of a very simple Enemy entity file,
-"pud/entity/enemy/goblin.json":
-
+FORMAT
+------
+An entity file has the following fields:
 {
-	"name": "Goblin",
-	"components": {
-		"GraphicsComponent": {
-			"TileSet": "char",
-			"TileCoords": {
-				"right": {1, 6},
-				"front": {2, 6},
-			}
-		},
-		"CombatComponent": {
-			"Attack": 12,
-			"Defense": 14,
-		},
-		"AITimeComponent": {
-			"AttackCost": 1.5,
-			"Speed": 0.5,
-		},
-		"CollisionComponent": {
-			"BlockedBy": {
-				"Wall": "ALL",
-				"Door": "shut",
-				"Stair": "ALL",
-				"Trap": "ALL",
-			},
-		},
-	}
+    "name": "Big Bad Something (THIS FIELD IS OPTIONAL)",
+    "family": "Some Family",
+    "kind": "Kind within the Family",
+    "variation": 1,
+    "components": {
+         ...
+    }
 }
 
+The name field is optional, but the rest are required. If the name is not
+supplied, then the entity is given a name composed of its family, kind, and
+variation values.
 
-Here is an example of a very simple Item entity file,
-"pud/entity/item/broadsword.json":
 
-{
-	"name": "Broadsword",
-	"components": {
-		"GraphicsComponent": {
-			"TileSet": "item",
-			"TileCoords": {
-				"normal": {3, 1},
-			}
-		},
-		"CombatComponent": {
-			"AttackBonus": 4,
-		},
-	}
-}
+NAME:
+This can be anything you want. For generic entities, it's probably better not
+to provide a name. For special entities (powerful enemies or hand-crafted
+items), it would be more appropriate to provide a name. Also, players will
+provide their own names in the game, so there's not much reason to give names
+to hero entities.
+
+FAMILY:
+This is the family that the entity belongs to. For heroes and enemies, it's
+likely their race (such as "Human" or "Deep Dwarf"). For items, it's likely
+the slot the item will fit into in the inventory (such as "Weapon" or "Ring").
+
+KIND:
+This is more specific than family. For enemies and heroes, it might be their
+class (such as "Archer" or "Grunt"). For items, it might be the type of item
+(such as "Sword" for weapons, or "Ruby" for rings).
+
+VARIATION:
+This must be a number, and is simply a way to further differentiate entities
+from one another. For instance, a normal Zombie might be variation 1, but a
+slightly faster Zombie could use mostly the same properties as the first
+Zombie, and just modify the Speed property, and change the variation to 2. Now
+there are two Zombies, mostly identical but one is faster than the other.
+
+COMPONENTS:
+See Components.txt.
+
+
+EXAMPLES
+--------
+See the examples in the "entity" directory.
+
+

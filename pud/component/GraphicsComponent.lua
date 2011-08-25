@@ -29,16 +29,20 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'TileSize',
 			'TileCoords',
 			'Visibility',
+			'VisibilityBonus',
 		})
 		ViewComponent.construct(self, properties)
 		self:_addMessages(
 			'ENTITY_CREATED',
 			'HAS_MOVED',
 			'SCREEN_STATUS',
+			'CONTAINER_INSERTED',
+			'CONTAINER_REMOVED',
 			'TIME_POSTTICK')
 		self._frames = {}
 		self._curFrame = 'right'
 		self._lit = 'black'
+		self._doDraw = true
 		self._color = COLOR_NORMAL
 	end
 }
@@ -58,6 +62,7 @@ end
 
 function GraphicsComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if prop == property('TileSet') then
@@ -73,8 +78,10 @@ function GraphicsComponent:_setProperty(prop, data)
 		end
 	elseif prop == property('TileSize') then
 		verify('number', data)
-	elseif prop == property('Visibility') then
-		verify('number', data)
+	elseif prop == property('Visibility')
+		or prop == property('VisibilityBonus')
+	then
+		verifyAny(data, 'number', 'expression')
 	else
 		error('GraphicsComponent does not support property: %s', tostring(prop))
 	end
@@ -96,6 +103,8 @@ function GraphicsComponent:receive(msg, ...)
 	if     msg == message('ENTITY_CREATED') then self:_makeQuads(...)
 	elseif msg == message('SCREEN_STATUS') then self:_setScreenStatus(...)
 	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
+	elseif msg == message('CONTAINER_INSERTED') then self._doDraw = false
+	elseif msg == message('CONTAINER_REMOVED') then self._doDraw = true
 	end
 end
 
@@ -203,7 +212,7 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 end
 
 function GraphicsComponent:draw()
-	if self._lit == 'lit' and self._ffb then
+	if self._lit == 'lit' and self._ffb and self._doDraw then
 		setColor(self._color)
 		draw(self._ffb, self._drawX, self._drawY)
 	end

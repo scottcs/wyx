@@ -38,8 +38,9 @@ function CollisionSystem:check(obj, x, y)
 	local collision = false
 	local oldpos = obj:query(property('Position'))
 	local entities = self._level:getEntitiesAtLocation(x, y)
-	local collideEnemy = message('COLLIDE_ENEMY')
 	local collideHero = message('COLLIDE_HERO')
+	local collideEnemy = message('COLLIDE_ENEMY')
+	local collideItem = message('COLLIDE_ITEM')
 
 
 	if entities then
@@ -49,12 +50,14 @@ function CollisionSystem:check(obj, x, y)
 			local otherEntity = EntityRegistry:get(otherEntityID)
 			if otherEntity ~= obj and self._registered:exists(otherEntity) then
 				local otherEntityType = otherEntity:getEntityType()
-				if otherEntityType == 'enemy' then
-					obj:send(collideEnemy, otherEntityID)
-					collision = true
-				elseif otherEntityType == 'hero' then
+				if otherEntityType == 'hero' then
 					obj:send(collideHero, otherEntityID)
 					collision = true
+				elseif otherEntityType == 'enemy' then
+					obj:send(collideEnemy, otherEntityID)
+					collision = true
+				elseif otherEntityType == 'item' then
+					obj:send(collideItem, otherEntityID)
 				end
 			end
 		end

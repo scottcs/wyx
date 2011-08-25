@@ -1,0 +1,17 @@
+{
+	"family": "Weapon",
+	"kind": "Katana",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {8, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+7",
+			"Damage": "!1d3+7",
+		},
+	}
+}

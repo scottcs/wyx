@@ -18,6 +18,7 @@ local get = function(msg)
 end
 
 -- Component messages
+message.ALL                   = 'ALL'
 message.ENTITY_CREATED        = 'ENTITY_CREATED'
 
 -- MotionComponent messages
@@ -28,6 +29,7 @@ message.SET_POSITION          = 'SET_POSITION'
 message.COLLIDE_NONE          = 'COLLIDE_NONE'
 message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
+message.COLLIDE_ITEM          = 'COLLIDE_ITEM'
 message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 
 -- GraphicsComponent messages
@@ -45,6 +47,19 @@ message.COMBAT_DAMAGE         = 'COMBAT_DAMAGE'
 -- HealthComponent messages
 message.ENTITY_DEATH          = 'ENTITY_DEATH'
 message.HEALTH_UPDATE         = 'HEALTH_UPDATE'
+
+-- ContainerComponent messages
+message.CONTAINER_RESIZE      = 'CONTAINER_RESIZE'
+message.CONTAINER_INSERT      = 'CONTAINER_INSERT'
+message.CONTAINER_REMOVE      = 'CONTAINER_REMOVE'
+message.CONTAINER_INSERTED    = 'CONTAINER_INSERTED'
+message.CONTAINER_REMOVED     = 'CONTAINER_REMOVED'
+
+-- AttachmentComponent messages
+message.ATTACHMENT_ATTACH      = 'ATTACHMENT_ATTACH'
+message.ATTACHMENT_DETACH      = 'ATTACHMENT_DETACH'
+message.ATTACHMENT_ATTACHED    = 'ATTACHMENT_ATTACHED'
+message.ATTACHMENT_DETACHED    = 'ATTACHMENT_DETACHED'
 
 -- the structure of valid message
 return setmetatable({ismessage = ismessage},

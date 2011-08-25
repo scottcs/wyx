@@ -8,7 +8,6 @@
 local st = GameState.new()
 
 local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
-local Console = getClass 'pud.debug.Console'
 local MessageHUD = getClass 'pud.view.MessageHUD'
 
 local math_floor, math_max, math_min = math.floor, math.max, math.min
@@ -49,7 +48,6 @@ function st:enter()
 	self._level:setPlayerControlled()
 	self:_createMapView()
 	self:_createCamera()
-	self._console = Console()
 	if debug then
 		self:_createDebugHUD()
 		self._debug = true
@@ -81,7 +79,7 @@ function st:ConsoleEvent(e)
 		if turns then
 			message = '<%07d> '..message
 		end
-		self._console:print(message, turns)
+		Console:print(message, turns)
 	end
 end
 
@@ -152,7 +150,7 @@ function st:draw()
 	self._cam:postdraw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
-	if self._console then self._console:draw() end
+	if Console then Console:draw() end
 end
 
 function st:leave()
@@ -181,15 +179,16 @@ function st:keypressed(key, unicode)
 	local tileW, tileH = self._view:getTileSize()
 	local _,zoomAmt = self._cam:getZoom()
 
-	if self._console:isVisible() then
+	if Console:isVisible() then
 		switch(key) {
-			['`'] = function() self._console:toggle() end,
-			escape = function() self._console:hide() end,
-			pageup = function() self._console:pageup() end,
-			pagedown = function() self._console:pagedown() end,
-			home = function() self._console:top() end,
-			['end'] = function() self._console:bottom() end,
-			f10 = function() self._console:clear() end,
+			['`'] = function() Console:toggle() end,
+			escape = function() Console:hide() end,
+			pageup = function() Console:pageup() end,
+			pagedown = function() Console:pagedown() end,
+			home = function() Console:top() end,
+			['end'] = function() Console:bottom() end,
+			f10 = function() Console:clear() end,
+			f11 = function() EntityRegistry:dumpEntities() end,
 		}
 	else
 		switch(key) {
@@ -242,14 +241,16 @@ function st:keypressed(key, unicode)
 				if self._debug then self._debugHUD:clearExtremes() end
 			end,
 			f9 = function() if self._debug then collectgarbage('collect') end end,
+			f11 = function() EntityRegistry:dumpEntities() end,
 			backspace = function()
 				local name = self._level:getMapName()
 				local author = self._level:getMapAuthor()
 				self:_displayMessage('Map: "'..name..'" by '..author)
 			end,
-			['`'] = function() self._console:show() end,
+			['`'] = function() Console:show() end,
 		}
 	end
 end
+
 
 return st

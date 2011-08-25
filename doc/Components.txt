@@ -8,8 +8,8 @@ Component Hierarchy
   |- HealthComponent
   |- MotionComponent
   |- TimeComponent
-   `|- PlayerTimeComponent
-    |- AITimeComponent
+  |- ContainerComponent
+  |- *AttachmentComponent
 |- ViewComponent
  `|- GraphicsComponent
 |- ControllerComponent
@@ -68,31 +68,28 @@ Component Properties
                 ALL         - all traps
                 normal      - normal traps
 
-    "CanMove": true
-        If true, the entity is allowed to move. If false, it is not.
-
 * CombatComponent
     This component determines the outcome of combat between entities.
 
-    "Attack": 1
-        The base attack value of the entity.
+    "Attack": 0
+        The attack value of the entity. On item entities, this will be added
+        to the hero/enemy entity's value when equipped.
 
-    "Defense": 1
-        The base defense value of the entity.
+    "Defense": 0
+        The defense value of the entity. On item entities, this will be added
+        to the hero/enemy entity's value when equipped.
 
-    "AttackBonus": 0
-        Bonus Attack value for the entity (will be added in most
-        calculations). This is generally not supplied on heros or enemies, but
-        might be found on items.
-
-    "DefenseBonus": 0
-        Bonus Defense value for the entity (see AttackBonus for notes).
+    "Damage": 0
+        The amount of damage the entity does in combat. On item entities, this
+        will be added to the hero/enemy entity's value when equipped.
 
 * GraphicsComponent
     This component defines the visual representation of the entity (i.e. its
     Tile).
 
     "TileSet": "dungeon"
+        (Expressions not allowed.)
+
         This property provides a string that describes a png filename in the
         image/ directory. The default, "dungeon" is actually
         "image/dungeon.png". You can provide your own png file, if you like
@@ -104,9 +101,13 @@ Component Properties
         can specify it here with "TileSet": "killerfish".
 
     "TileSize": 32
+        (Expressions not allowed.)
+
         The size of tiles within the TileSet. All tiles are square.
 
     "TileCoords": {"front": {1, 1}}
+        (Expressions not allowed.)
+
         This property provides a list of frames for the entity, and
         coordinates for each frame within the TileSet. Note that coordinates
         start at 1, and are multiples of TileSize (in other words, the
@@ -135,24 +136,21 @@ Component Properties
                 "front": {4, 5},
             }
 
-    "Visibility": 6
+    "Visibility": 0
         This is the radius of visibility for the entity (i.e. how many tiles
-        away from its position can it see).
+        away from its position can it see). On item entities, this will be
+        added to the hero/enemy entity's value when equipped.
 
 * HealthComponent
     This component defines health properties for the entity.
 
-    "Health": 1
-        The base current health value.
+    "Health": "=$MaxHealth"
+        The current health value of the entity. On item entities, this will be
+        added to the hero/enemy entity's value when equipped.
 
-    "MaxHealth": 1
-        The base maximum health value.
-
-    "HealthBonus": 0
-        Bonus Health value for the entity (see AttackBonus for notes).
-
-    "MaxHealthBonus": 0
-        Bonus Maximum Health value for the entity (see AttackBonus for notes).
+    "MaxHealth": 0
+        The maximum health value of the entity. On item entities, this will be
+        added to the hero/enemy entity's value when equipped.
 
 * InputComponent
     This component handles input given to the entity. It is usually not
@@ -181,10 +179,13 @@ Component Properties
         The map coordinates of the entity. Usually not provided in the entity
         file, but rather determined by the game after map creation.
 
+    "CanMove": true
+        If true, the entity is allowed to move. If false, it is not.
+
 * TimeComponent
     This component determines how long each action taken by the entity takes.
 
-    "DefaultCost": 1
+    "DefaultCost": 0
         This is the default cost (in Action Points) of an action, which is
         used if a more specific cost cannot be found.
 
@@ -194,14 +195,15 @@ Component Properties
     "MoveCost": 1
         How many Action Points it costs for this entity to move.
 
+    "WaitCost": 1
+        How many Action Points it costs for this entity to skip a turn.
+
     "Speed": 1
         This is the number of Action Points the entity earns each turn.
         Higher numbers mean the entity will have more Action Points to spend
         on every turn, therefore making the entity accomplish more and appear
-        to be faster.
-
-    "SpeedBonus": 0
-        Bonus value for Speed (see AttackBonus for notes).
+        to be faster. On item entities, this will be added to the hero/enemy
+        entity's value when equipped.
 
     "IsExhausted": false
         If true, the entity has become exhausted and will be removed from the
@@ -214,16 +216,23 @@ Component Properties
         true. This is mostly used to wait for human input, and is generally
         not specified in the entity file.
 
-* PlayerTimeComponent
-    This component is a human player specific version of the TimeComponent. It
-    is usually not specified in the entity file, as the game determines
-    whether to use Player components at runtime. It accepts the same
-    properties as its parents (namely, TimeComponent).
+* ContainerComponent
+    This component allows the entity to contain other entities. This might be
+    an inventory on a hero or enemy, and might turn an item into a bag.
 
-* AITimeComponent
-    This component is an Artificial Intelligence specific version of the
-    TimeComponent. It accepts the same properties as its parents (namely,
-    TimeComponent).
+    "MaxContainerSize": 0
+        This is the maximum number of entities that this component can
+        contain.
+
+* *AttachmentComponent
+    These components allow certain families of entities to be attached to the
+    entity that has these components. Entities that are attached will add
+    their properties to the host entity.
+
+    For example, a hero might have a WeaponAttachmentComponent, which allows
+    him to equip a weapon. Or, an item entity (say, a sword) might have a
+    JewelAttachmentComponent which allows it to slot a jewel into the sword to
+    provide some extra benefit.
 
 
 Default Components
@@ -241,6 +250,10 @@ Hero:
     MotionComponent
     TimeComponent
     InputComponent
+    ContainerComponent
+    WeaponAttachmentComponent
+    ArmorAttachmentComponent
+    RingAttachmentComponent
 
 Enemy:
     GraphicsComponent
@@ -248,11 +261,12 @@ Enemy:
     CombatComponent
     CollisionComponent
     MotionComponent
-    AITimeComponent
+    TimeComponent
     AIInputComponent
 
 Item:
     MotionComponent
+    CollisionComponent
     GraphicsComponent
 
 

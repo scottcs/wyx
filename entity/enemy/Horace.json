@@ -11,15 +11,16 @@
 			},
 		},
 		"HealthComponent": {
-			"Health": 34,
-			"MaxHealth": 34,
+			"MaxHealth": "=2d4+30",
 		},
 		"CombatComponent": {
-			"Attack": 2,
-			"Defense": 3,
+			"Attack": "=1d3+6",
+			"Defense": "=1d3+6",
+			"Damage": "!2d8",
 		},
 		"TimeComponent": {
 			"MoveCost": 0.5,
+			"AttackCost": "=$MoveCost",
 		},
 	}
 }

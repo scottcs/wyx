@@ -18,6 +18,10 @@ local HeroEntityFactory = Class{name='HeroEntityFactory',
 			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.MotionComponent',
 			getClass 'pud.component.InputComponent',
+			getClass 'pud.component.ContainerComponent',
+			getClass 'pud.component.WeaponAttachmentComponent',
+			getClass 'pud.component.ArmorAttachmentComponent',
+			getClass 'pud.component.RingAttachmentComponent',
 		}
 	end
 }

@@ -12,11 +12,8 @@
 		},
 		"TimeComponent": {
 			"AttackCost": 1.5,
-			"DefaultCost": 1,
-			"Speed": 1,
 		},
 		"HealthComponent": {
-			"Health": 8,
 			"MaxHealth": 8,
 		},
 		"CombatComponent": {

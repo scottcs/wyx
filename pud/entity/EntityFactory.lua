@@ -109,12 +109,14 @@ function EntityFactory:createEntity(info)
 	EntityRegistry:register(entity)
 	self:_addMissingRequiredComponents(entity)
 	entity:send(message('ENTITY_CREATED'))
+	return entity:getID()
+end
 
+function EntityFactory:registerEntity(id)
+	local entity = EntityRegistry:get(id)
 	self:_registerWithRenderSystem(entity)
 	self:_registerWithCollisionSystem(entity)
 	self:_registerWithTimeSystem(entity)
-
-	return entity:getID()
 end
 
 -- the class

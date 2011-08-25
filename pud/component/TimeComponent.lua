@@ -30,6 +30,7 @@ end
 
 function TimeComponent:_setProperty(prop, data)
 	prop = property(prop)
+	if nil == prop then return end
 	if nil == data then data = property.default(prop) end
 
 	if   prop == property('AttackCost')
@@ -39,11 +40,11 @@ function TimeComponent:_setProperty(prop, data)
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
 	then
-		verify('number', data)
+		verifyAny(data, 'number', 'expression')
 	elseif prop == property('IsExhausted')
 		or   prop == property('DoTick')
 	then
-		verify('boolean', data)
+		verifyAny(data, 'boolean', 'expression')
 	else
 		error('TimeComponent does not support property: '..tostring(prop))
 	end
@@ -87,7 +88,7 @@ end
 
 function TimeComponent:getProperty(p, intermediate, ...)
 	if p == property('DoTick') then
-		local prop = self._properties[p]
+		local prop = self:_evaluate(p)
 		if nil == intermediate then return prop end
 		return (prop or intermediate)
 	else

@@ -1,0 +1,120 @@
+
+Expressions in Entity Files
+---------------------------
+
+When defining properties in entity files, you can use a simple expression
+language. Most properties support these expressions, although there are a few
+exceptions (mostly in GraphicsComponent), which are noted in the
+Components.txt file with "(Expressions not allowed)".
+
+
+Syntax
+------
+
+All expressions are strings, and therefore must be enclosed in double quotes
+in the entity JSON files.
+
+All expression begin with either an equal sign (=) or an exclamation point
+(!). If an expression begins with = then it will be evaluated when the entity
+is created and will not change after that point. If the expression begins with
+! then it will be evaluated every time the property is accessed throughout the
+game.
+
+The rest of the expression is made up of numbers, mathematical operators, dice
+rolls, property references, or function references. Below is a description of
+each.
+
+NUMBERS
+Just as it sounds, any number (including floating point).
+
+MATHEMATICAL OPERATORS
+Any of: +, -, *, /, or %
+
+DICE ROLLS
+These are words in the format of "(amount)d(sides)(constant)", where amount is
+a positive integer specifying the amount of die to roll, sides is a positive
+integer specifying how many sides or faces each die has, and constant is an
+optional positive or negative integer that will be added to the result. When
+evaluated, this will result in a number that simulates rolling the specified
+dice and adding the specified constant (if it exists).
+
+For example, "2d6", "1d10", "2d9+12", "1d1-1", and "200d200+200" are all valid
+dice rolls.
+
+PROPERTY REFERENCES
+These are names of properties prefaced with a dollar sign ($). When the
+expression is evaluated, the property will be looked up on the entity and the
+value of the property will replace the property reference in the expression
+result. The property referenced must be a valid property (see Components.txt
+for valid properties).
+
+For example, "$Health", "$Attack", and "$MaxContainerSize" are all valid
+property references.
+
+FUNCTION REFERENCES
+These are names of functions prefaced with an atmark (@) that will be called
+with the given values when the expression is evaluated. Any result of the
+function will replace the function call in the expression's result. A function
+reference must include parentheses after its name, whether any arguments are
+passed or not.
+
+Also, the function must exist on at least one of the entity's components. If
+it does not exist, then the expression will not be evaluated.
+
+PLEASE NOTE: This aspect of expressions is not very well developed yet.
+Currently, there are no functions available, but the following Examples show
+what is possible. Feel free to request any functions that you might want.
+
+Examples:
+  "@Explode(20)" would call a function named doExplode with an argument of 20
+  (probably the size of the explosion).
+
+  "@Poison(5)" would call a doPoison function with a value of 5.
+
+
+Example Expressions
+-------------------
+
+Here are some example expressions. You can also browse the entity JSON files
+to see more examples.
+
+"Health": "=$MaxHealth"
+   Set the Health property to be whatever the MaxHealth property is when the
+   entity is created.
+
+"Attack": "=2d4"
+   Set the Attack property to a number between 2 and 8 when the entity is
+   created. This will always be the Attack value for this entity throughout
+   the game. Note that this does not mean that all entities of this type will
+   have the same Attack value.
+
+   For instance, if this is specified on a GoblinGrunt, then each GoblinGrunt
+   will roll the dice for its Attack value when it is created by the game.
+   Each GoblinGrunt has its own Attack value between 2 and 8 which will stay
+   constant for each GoblinGrunt until it is destroyed.
+
+"Damage": "!2d4"
+   Set the Damage property to a number between 2 and 8 whenever the Damage
+   property is accessed throughout the game. This will change (the dice will
+   be rolled) every time the Damage property is looked up for this entity.
+
+   For instance, if this is specified on a GoblinGrunt, then each GoblinGrunt
+   will roll the dice for its Damage value whenever the game requests its
+   Damage value (e.g. whenever the GoblinGrunt attacks).
+
+"Damage": "!2d4 / ($Attack + $Defense)"
+   Set the Damage property to a number between 2 and 8, divided by the
+   entity's Attack and Defense properties summed. Evaluate this expression
+   each time the entity looks up its Damage property.
+
+"Damage": "!@Poison($Attack)"
+   Set the Damage property to call a function "doPoison" with the entity's
+   attack value as the argument. Evaluate this expression each time the entity
+   looks up its Damage property. (Note that doPoison does not yet exist).
+
+
+[Eventually, I'd like to be able to do something like this:]
+
+"OnDeath": "!@Explode($Health)"
+   When the entity dies, explode based on the entity's remaining health.
+

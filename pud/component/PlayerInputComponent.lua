@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local InputComponent = getClass 'pud.component.InputComponent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local message = require 'pud.component.message'
 local property = require 'pud.component.property'
 
@@ -61,6 +62,87 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == 'n' or key == 'kp3' then
 			self:_attemptMove( 1,   1)
 			doTick = true
+		elseif key == 'p' then
+			self:_tryToPickup()
+			doTick = true
+		elseif key == 'd' then
+			-- XXX
+			local contained = self._mediator:query(property('ContainedEntities'))
+			self:_tryToDrop(contained and contained[1] or 1)
+			doTick = true
+		elseif key == 'e' then
+			local contained = self._mediator:query(property('ContainedEntities'))
+			local num = contained and #contained or 1
+			for i=1,num do
+				self:_tryToAttach(contained and contained[i] or 1)
+			end
+			doTick = true
+		elseif key == 'r' then
+			local attached = self._mediator:query(property('AttachedEntities'))
+			local num = attached and #attached or 1
+			for i=1,num do
+				self:_tryToDetach(attached and attached[i] or 1)
+			end
+			doTick = true
+		elseif key == 'i' then
+			-- XXX
+			local found = false
+
+			local contained = self._mediator:query(property('ContainedEntities'))
+			if contained then
+				GameEvents:push(ConsoleEvent('Inventory:'))
+				found = true
+				for i,e in pairs(contained) do
+					local entity = EntityRegistry:get(e)
+					local equipped = ''
+					if entity:query(property('IsAttached')) then
+						equipped = ' (equipped)'
+					end
+					GameEvents:push(ConsoleEvent('   %d - %s%s',
+						i, entity:getName(), equipped))
+				end
+			end
+
+			if not found then
+				GameEvents:push(ConsoleEvent('You have nothing.'))
+			end
+		elseif key == 's' then
+			-- XXX
+			local attack = self._mediator:query(property('Attack'))
+			local attackBonus = self._mediator:query(property('AttackBonus'))
+			attack = attack + attackBonus
+
+			local defense = self._mediator:query(property('Defense'))
+			local defenseBonus = self._mediator:query(property('DefenseBonus'))
+			defense = defense + defenseBonus
+
+			local speed = self._mediator:query(property('Speed'))
+			local speedBonus = self._mediator:query(property('SpeedBonus'))
+			speed = speed + speedBonus
+
+			local health = self._mediator:query(property('Health'))
+			local healthBonus = self._mediator:query(property('HealthBonus'))
+			health = health + healthBonus
+
+			local maxHealth = self._mediator:query(property('MaxHealth'))
+			local maxHealthBonus = self._mediator:query(property('MaxHealthBonus'))
+			maxHealth = maxHealth + maxHealthBonus
+
+			local visibility = self._mediator:query(property('Visibility'))
+			local visibilityBonus = self._mediator:query(property('VisibilityBonus'))
+			visibility = visibility + visibilityBonus
+
+			GameEvents:push(ConsoleEvent('Stats:'))
+			GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
+				health, healthBonus, maxHealth, maxHealthBonus))
+			GameEvents:push(ConsoleEvent('     Att: %d (%+d)',
+				attack, attackBonus))
+			GameEvents:push(ConsoleEvent('     Def: %d (%+d)',
+				defense, defenseBonus))
+			GameEvents:push(ConsoleEvent('     Spd: %d (%+d)',
+				speed, speedBonus))
+			GameEvents:push(ConsoleEvent('     Vis: %d (%+d)',
+				visibility, visibilityBonus))
 		end
 
 		if doTick then self:_setProperty(property('DoTick'), true) end

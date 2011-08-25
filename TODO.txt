@@ -1,41 +1,62 @@
+Items:
+  d make some test item files
+  d randomly place items in the level
+  d Entity container class.
+  d   Sortable by property.
+  d   Uses IDs.
+  o Entity Inventory [this could also be used for bags? Item with an inventory?]
+  d   InventoryComponent? ContainerComponent? [these need to be sent messages, but not queried]
+  d     PickupCommand [Put in container from level]
+  d     DropCommand [Put in level from container]
+  d   EquipmentComponent? AttachedEntityComponent?  [could be used to attach enemies to enemies? like parasites? or like voltron? - these entities are queried when parent entity is queried, and are sent messages]
+  d     AttachCommand [Equip - from container]
+  d     DetachCommand [Unequip - to container]
+  o   UsableComponent? [this needs scripting in JSON files]
+  o     UseCommand [call onUse(), potentially destroy entity]
+
 Console:
-	d console for info/debugging
-	o   log console to file (with an option)
-	o   maybe different levels of messages [only log certain lines?]
-	o   allow input and create some awesome commands
+  - log console to file (with an option)
+  - maybe different levels of messages [only log certain lines?]
+  - allow input and create some awesome commands
 
 Level:
-	d add registry for entities
-  d need a way to preload enemies and get by property (like "get random enemy with between 10 and 20 MaxHealth") [sort of did this... calculate elevel instead]
-	o change Level representation of enemy to be by position in a table for faster lookup
-  o support lua in properties when read from file
-	o   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+  - change Level representation of enemy to be by position in a table for faster lookup
+
+Expressions:
+  d differentiate between expressions to evaluate on load and expressions to evaluate each time they are accessed. [= vs ! maybe?]
+  x support lua in properties when read from file
+  d   or at least formulas... like 1d20 or whatever [would still need access to properties, too, like 2d10 * Level... something]
+  d   this needs to be done in EntityDB AND in Component
+  d     evaluate correct syntax in EntityDB on load
+          if Expression.isExpression(data) then
+            data = Expression.makeFunction(data) [check for loops... build a graph?]
+          end
+  d     calculate average value when determining ELevel [how to do this before entity created?]
+          if type(data) == 'function' then
+            local sum = 0
+            for i=1,100 do sum = sum + data() end
+            return _round(sum/100)
+          end
+  d     evaluate actual value on getProperty
+          if type(data) == 'function' then
+            result = data(self._mediator)
+          end
 
 Components:
-  -   InfoPanelComponent - just a guess here... mouseover info panel thingy
-  d     AIInputComponent - AI routines, sends same messages as input component
-	d       Simple random AI for testing
-	d fix enemy drawing
-	x    flickering
-	d    lighting not updated until next frame
-	d    if out of player sight, don't draw
-	d AttackCommand
-	d WaitCommand
-	d make time cycle always start with player
-	d    keep track of "turns"
-  x InputSystem - ticks InputComponents
-  x   - must also allow components to steal input [example: interface steals mouse click so that any components underneath do nothing] [I THINK]
-  x AISystem - ticks AIComponents
+  o TooltipComponent... mouseover info panel thingy
+  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
+  o   Add a description field to JSON files.
+  o   And a Portrait field.
   - UISystem - handles User Interface
-  x CombatSystem - determines outcome of combat using CombatComponents
+
+Interface:
+  o Need another draw routine in RenderSystem for drawing outside of camera translation.
 
 Other:
   - fix tests
-	o fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
+  - fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
 
 For v0.1.0:
-  d monsters
-  d combat
   o items
   o save/load
   o interface
@@ -46,20 +67,20 @@ Beyond v0.1.0:
   - wizard mode
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
   x support sprite batches if framebuffers are unsupported
-	o Level templates
-	o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
+  o Level templates
+  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
 
-	Map:
+  Map:
   - map as quad-tree [or something?]
   ? maptypes as composites?
   - poisson disk sampling for decoration/item/monster placement [map gen too?]
-	o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
-	o   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
-	? How to handle map deformation? Would like ability to mine/dig/etc.
-	o Create another View that can show simple representation of map nodes for Minimap.
-	o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
-	o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
+  o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
+  o   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
+  ? How to handle map deformation? Would like ability to mine/dig/etc.
+  o Create another View that can show simple representation of map nodes for Minimap.
+  o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
+  o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
   x don't animate or update dim tiles
 
-NOTES:
 
+NOTES:
