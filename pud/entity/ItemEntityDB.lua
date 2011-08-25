@@ -27,6 +27,8 @@ function ItemEntityDB:_getPropertyWeights()
 		maxHealthB = {name = 'MaxHealthBonus', weight = 1.2},
 		visibility = {name = 'Visibility',     weight = 1.3},
 		visibility = {name = 'VisibilityBonus',weight = 1.3},
+		damage     = {name = 'Damage',         weight = 0.9},
+		damageB    = {name = 'DamageBonus',    weight = 0.9},
 		defense    = {name = 'Defense',        weight = 0.9},
 		defenseB   = {name = 'DefenseBonus',   weight = 0.9},
 		attack     = {name = 'Attack',         weight = 0.9},

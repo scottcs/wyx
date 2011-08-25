@@ -79,6 +79,10 @@ Component Properties
         The defense value of the entity. On item entities, this will be added
         to the hero/enemy entity's value when equipped.
 
+    "Damage": 0
+        The amount of damage the entity does in combat. On item entities, this
+        will be added to the hero/enemy entity's value when equipped.
+
 * GraphicsComponent
     This component defines the visual representation of the entity (i.e. its
     Tile).

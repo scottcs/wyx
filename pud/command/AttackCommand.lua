@@ -29,9 +29,10 @@ function AttackCommand:execute(currAP)
 	oDefense = oDefense + self._opponent:query(property('DefenseBonus'))
 	local attack = self._target:query(property('Attack'))
 	attack = attack + self._target:query(property('AttackBonus'))
+	local damage = self._target:query(property('Damage'))
+	damage = damage + self._target:query(property('DamageBonus'))
+	damage = -damage
 	
-	-- TODO: damage properties
-	local damage = -10
 	if attack < oDefense then
 		damage = damage + oDefense
 	end

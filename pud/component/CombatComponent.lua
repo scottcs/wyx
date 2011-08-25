@@ -12,8 +12,10 @@ local CombatComponent = Class{name='CombatComponent',
 		ModelComponent._addRequiredProperties(self, {
 			'Attack',
 			'Defense',
+			'Damage',
 			'AttackBonus',
 			'DefenseBonus',
+			'DamageBonus',
 		})
 		ModelComponent.construct(self, properties)
 	end
@@ -31,8 +33,10 @@ function CombatComponent:_setProperty(prop, data)
 
 	if   prop == property('Attack')
 		or prop == property('Defense')
+		or prop == property('Damage')
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
+		or prop == property('DamageBonus')
 	then
 		verifyAny(data, 'number', 'function')
 	else
@@ -45,8 +49,10 @@ end
 function CombatComponent:getProperty(p, intermediate, ...)
 	if   prop == property('Attack')
 		or prop == property('Defense')
+		or prop == property('Damage')
 		or prop == property('AttackBonus')
 		or prop == property('DefenseBonus')
+		or prop == property('DamageBonus')
 	then
 		local prop = self._properties[p]
 		if type(prop) == 'function' then prop = prop(self._mediator) end

@@ -105,6 +105,7 @@ end
 local _queriable = {
 	AttackBonus = true,
 	DefenseBonus = true,
+	DamageBonus = true,
 	HealthBonus = true,
 	MaxHealthBonus = true,
 	SpeedBonus = true,

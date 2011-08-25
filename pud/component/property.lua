@@ -52,8 +52,10 @@ end
 -- combat properties
 property.Attack            = 0
 property.Defense           = 0
+property.Damage            = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
+property.DamageBonus       = 0
 
 -- health properties
 property.Health            = '=$MaxHealth'
