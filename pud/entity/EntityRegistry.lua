@@ -142,13 +142,13 @@ function EntityRegistry:dumpEntities()
 	if count > 0 then
 		table.sort(ents, _byElevel)
 		Console:print('Registered Entities:')
-		Console:print('  ID     ELVL  NAME')
+		Console:print('  %-11s %4s  %s', 'ID', 'ELVL', 'NAME')
 		for i=1,count do
 			local e = ents[i]
 			local id = e:getID() or -1
 			local elevel = e:getELevel() or -1
 			local name = e:getName() or '?'
-			Console:print('  {%04d} %4d  %s', id, elevel, name)
+			Console:print('  {%08d} %4d  %s', id, elevel, name)
 		end
 	else
 		Console:print('RED', 'No entities to dump!')
