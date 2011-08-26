@@ -11,7 +11,7 @@
 			"Visibility": 10,
 		},
 		"TimeComponent": {
-			"Speed": 1.5,
+			"Speed": 120,
 		},
 		"HealthComponent": {
 			"MaxHealth": 12,

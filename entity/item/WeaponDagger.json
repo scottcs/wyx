@@ -10,7 +10,7 @@
 			},
 		},
 		"TimeComponent": {
-			"AttackCost": -0.5,
+			"AttackCost": "!-($Speed * 0.2)",
 		},
 		"CombatComponent": {
 			"Attack": "=1d2",
