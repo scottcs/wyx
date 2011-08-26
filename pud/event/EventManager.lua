@@ -111,6 +111,9 @@ function EventManager:notify(event)
 			if type(obj) == 'function' then                     -- function()
 				obj(event)
 			else
+				if debugEvents then
+					print(event:getName(), tostring(obj))
+				end
 				local keyStr = tostring(event:getEventKey())
 				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
 				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()

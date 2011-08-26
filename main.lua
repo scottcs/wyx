@@ -12,6 +12,7 @@ GAMENAME = 'Pud'
          --]]--
 
 --debug = nil
+debugEvents = false
 doProfile = false
 local doGlobalProfile = doProfile and false
 
