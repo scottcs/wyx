@@ -99,12 +99,25 @@ function GraphicsComponent:_setScreenStatus(status)
 	self:_updateFB()
 end
 
-function GraphicsComponent:receive(msg, ...)
-	if     msg == message('ENTITY_CREATED') then self:_makeQuads(...)
-	elseif msg == message('SCREEN_STATUS') then self:_setScreenStatus(...)
-	elseif msg == message('HAS_MOVED') then self:_updateFB(...)
-	elseif msg == message('CONTAINER_INSERTED') then self._doDraw = false
-	elseif msg == message('CONTAINER_REMOVED') then self._doDraw = true
+function GraphicsComponent:receive(sender, msg, ...)
+	if     msg == message('ENTITY_CREATED')
+		and sender == self._mediator
+	then self:_makeQuads(...)
+
+	elseif msg == message('SCREEN_STATUS')
+		and sender == self._mediator
+	then self:_setScreenStatus(...)
+
+	elseif msg == message('HAS_MOVED') then
+		self:_updateFB(...)
+
+	elseif msg == message('CONTAINER_INSERTED')
+		and sender == self._mediator
+	then self._doDraw = false
+
+	elseif msg == message('CONTAINER_REMOVED')
+		and sender == self._mediator
+	then self._doDraw = true
 	end
 end
 

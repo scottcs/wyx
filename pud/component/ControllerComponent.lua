@@ -223,7 +223,7 @@ function ControllerComponent:_sendCommand(command)
 	CommandEvents:notify(CommandEvent(command))
 end
 
-function ControllerComponent:receive(msg, ...)
+function ControllerComponent:receive(sender, msg, ...)
 	if     msg == message('COLLIDE_NONE') then
 		self:_move(...)
 	elseif msg == message('COLLIDE_BLOCKED') then
@@ -242,7 +242,7 @@ function ControllerComponent:receive(msg, ...)
 			end
 		end
 	else
-		Component.receive(self, msg, ...)
+		Component.receive(self, sender, msg, ...)
 	end
 end
 

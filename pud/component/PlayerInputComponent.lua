@@ -149,11 +149,11 @@ function PlayerInputComponent:KeyboardEvent(e)
 	end
 end
 
-function PlayerInputComponent:receive(msg, ...)
-	if msg == message('TIME_PRETICK') then
+function PlayerInputComponent:receive(sender, msg, ...)
+	if msg == message('TIME_PRETICK') and sender == self._mediator then
 		self:_setProperty(property('DoTick'), false)
 	else
-		InputComponent.receive(self, msg, ...)
+		InputComponent.receive(self, sender, msg, ...)
 	end
 end
 

@@ -98,10 +98,10 @@ function HealthComponent:_checkHealth(...)
 	if totalHealth <= 0 then self:_sendDeathMessage(...) end
 end
 
-function HealthComponent:receive(msg, ...)
-	if     msg == message('COMBAT_DAMAGE') then
+function HealthComponent:receive(sender, msg, ...)
+	if     msg == message('COMBAT_DAMAGE') and sender == self._mediator then
 		if select('#', ...) > 0 then self:_modifyHealth(...) end
-	elseif msg == message('ENTITY_DEATH') then
+	elseif msg == message('ENTITY_DEATH') and sender == self._mediator then
 		GameEvents:push(EntityDeathEvent(self._mediator, ...))
 	end
 end

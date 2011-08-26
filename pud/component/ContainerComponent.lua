@@ -43,7 +43,7 @@ function ContainerComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
-function ContainerComponent:receive(msg, ...)
+function ContainerComponent:receive(sender, msg, ...)
 	local continue = true
 
 	if     msg == message('CONTAINER_INSERT') then
@@ -61,7 +61,7 @@ function ContainerComponent:receive(msg, ...)
 		for id in self._entities:iterate() do
 			local entity = EntityRegistry:get(id)
 			if entity then
-				entity:send(msg, ...)
+				entity:rawsend(sender, msg, ...)
 			else
 				warning('ContainerComponent: entity does not exist %d', id)
 			end
