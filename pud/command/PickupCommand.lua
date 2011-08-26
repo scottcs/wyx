@@ -26,8 +26,9 @@ end
 function PickupCommand:execute()
 	self._target:send(message('CONTAINER_INSERT'), self._itemID)
 	local item = EntityRegistry:get(self._itemID)
-	GameEvents:push(ConsoleEvent('Pickup: %s -> %s',
-		self._target:getName(), item:getName()))
+	GameEvents:push(ConsoleEvent('Pickup: %s {%08d} -> %s {%08d}',
+		self._target:getName(), self._target:getID(),
+		item:getName(), self._itemID))
 	return Command.execute(self)
 end
 

@@ -26,8 +26,9 @@ end
 function DetachCommand:execute()
 	self._target:send(message('ATTACHMENT_DETACH'), self._itemID)
 	local item = EntityRegistry:get(self._itemID)
-	GameEvents:push(ConsoleEvent('Detach: %s -> %s',
-		self._target:getName(), item:getName()))
+	GameEvents:push(ConsoleEvent('Detach: %s {%08d} -> %s {%08d}',
+		self._target:getName(), self._target:getID(),
+		item:getName(), self._itemID))
 	return Command.execute(self)
 end
 

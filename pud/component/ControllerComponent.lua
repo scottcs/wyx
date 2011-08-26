@@ -238,8 +238,7 @@ function ControllerComponent:receive(msg, ...)
 			if id then
 				local item = EntityRegistry:get(id)
 				local name = item:getName()
-				local elevel = item:getELevel()
-				GameEvents:push(ConsoleEvent('Item found: %s (%d)', name, elevel))
+				GameEvents:push(ConsoleEvent('Item found: %s {%08d}', name, id))
 			end
 		end
 	else
