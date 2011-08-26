@@ -31,6 +31,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 		Component._addRequiredProperties(self, {'CanOpenDoors'})
 		Component.construct(self, newProperties)
 		self:_addMessages(
+			'TIME_PRETICK',
 			'COLLIDE_NONE',
 			'COLLIDE_BLOCKED',
 			'COLLIDE_ITEM',
@@ -241,6 +242,10 @@ function ControllerComponent:receive(sender, msg, ...)
 				GameEvents:push(ConsoleEvent('Item found: %s {%08d}', name, id))
 			end
 		end
+
+	elseif msg == message('TIME_PRETICK') then
+		if sender == self._mediator then self:_wait() end
+
 	else
 		Component.receive(self, sender, msg, ...)
 	end
