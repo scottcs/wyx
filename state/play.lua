@@ -61,9 +61,10 @@ end
 
 function st:ZoneTriggerEvent(e)
 	if self._level:getPrimeEntity() == e:getEntity() then
-		local message = e:isLeaving() and 'Zone -:' or 'Zone +:'
-		message = message..tostring(e:getZone())
-		GameEvents:push(ConsoleEvent(message))
+		local which = e:isLeaving() and '-' or '+'
+		local zone = e:getZone()
+		zone = zone and tostring(zone) or 'unknown zone'
+		GameEvents:push(ConsoleEvent('Zone %s: %s', which, zone))
 	end
 end
 
