@@ -12,6 +12,7 @@ local ItemEntityFactory = Class{name='ItemEntityFactory',
 			getClass 'pud.component.MotionComponent',
 			getClass 'pud.component.CollisionComponent',
 			getClass 'pud.component.GraphicsComponent',
+			getClass 'pud.component.ControllerComponent',
 			--getClass 'pud.component.InfoPanelComponent',
 		}
 	end

@@ -132,6 +132,14 @@ function PlayerInputComponent:KeyboardEvent(e)
 			local visibilityBonus = self._mediator:query(property('VisibilityBonus'))
 			visibility = visibility + visibilityBonus
 
+			local attackCost = self._mediator:query(property('AttackCost'))
+			local attackCostBonus = self._mediator:query(property('AttackCostBonus'))
+			attackCost = attackCost + attackCostBonus
+
+			local moveCost = self._mediator:query(property('MoveCost'))
+			local moveCostBonus = self._mediator:query(property('MoveCostBonus'))
+			moveCost = moveCost + moveCostBonus
+
 			GameEvents:push(ConsoleEvent('Stats:'))
 			GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
 				health, healthBonus, maxHealth, maxHealthBonus))
@@ -139,8 +147,11 @@ function PlayerInputComponent:KeyboardEvent(e)
 				attack, attackBonus))
 			GameEvents:push(ConsoleEvent('     Def: %d (%+d)',
 				defense, defenseBonus))
-			GameEvents:push(ConsoleEvent('     Spd: %d (%+d)',
-				speed, speedBonus))
+			GameEvents:push(ConsoleEvent(
+				'     Spd: %d (%+d)  AttCost: %d (%+d)  MovCost: %d (%+d)',
+				speed, speedBonus,
+				attackCost, attackCostBonus,
+				moveCost, moveCostBonus))
 			GameEvents:push(ConsoleEvent('     Vis: %d (%+d)',
 				visibility, visibilityBonus))
 		end

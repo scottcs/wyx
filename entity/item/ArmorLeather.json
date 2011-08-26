@@ -9,8 +9,11 @@
 				"item": {1, 2},
 			},
 		},
+		"TimeComponent": {
+			"MoveCost": 30,
+		},
 		"CombatComponent": {
-			"Defense": 2,
+			"Defense": 3,
 		},
 	}
 }

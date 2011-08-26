@@ -31,6 +31,7 @@ local ControllerComponent = Class{name='ControllerComponent',
 		Component._addRequiredProperties(self, {'CanOpenDoors'})
 		Component.construct(self, newProperties)
 		self:_addMessages(
+			'TIME_PRETICK',
 			'COLLIDE_NONE',
 			'COLLIDE_BLOCKED',
 			'COLLIDE_ITEM',
@@ -223,15 +224,29 @@ function ControllerComponent:_sendCommand(command)
 	CommandEvents:notify(CommandEvent(command))
 end
 
+function ControllerComponent:getProperty(p, intermediate, ...)
+	if p == property('CanOpenDoors') then
+		local prop = self:_evaluate(p)
+		if nil == intermediate then return prop end
+		return (prop or intermediate)
+	else
+		return Component.getProperty(self, p, intermediate, ...)
+	end
+end
+
 function ControllerComponent:receive(sender, msg, ...)
 	if     msg == message('COLLIDE_NONE') then
 		self:_move(...)
+
 	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_tryToManipulateMap(...)
+
 	elseif msg == message('COLLIDE_ENEMY') then
 		self:_attack(false, ...)
+
 	elseif msg == message('COLLIDE_HERO') then
 		self:_attack(true, ...)
+
 	elseif msg == message('COLLIDE_ITEM') then
 		if self._mediator:getEntityType() == 'hero' then
 			local id = select(1, ...)
@@ -241,6 +256,10 @@ function ControllerComponent:receive(sender, msg, ...)
 				GameEvents:push(ConsoleEvent('Item found: %s {%08d}', name, id))
 			end
 		end
+
+	elseif msg == message('TIME_PRETICK') then
+		if sender == self._mediator then self:_wait() end
+
 	else
 		Component.receive(self, sender, msg, ...)
 	end

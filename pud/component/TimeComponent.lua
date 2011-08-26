@@ -11,8 +11,11 @@ local TimeComponent = Class{name='TimeComponent',
 	function(self, properties)
 		ModelComponent._addRequiredProperties(self, {
 			'AttackCost',
+			'AttackCostBonus',
 			'MoveCost',
+			'MoveCostBonus',
 			'WaitCost',
+			'WaitCostBonus',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
@@ -20,6 +23,7 @@ local TimeComponent = Class{name='TimeComponent',
 			'DoTick',
 		})
 		ModelComponent.construct(self, properties)
+		self:_addMessages('TIME_AUTO')
 	end
 }
 
@@ -34,8 +38,11 @@ function TimeComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if   prop == property('AttackCost')
+		or prop == property('AttackCostBonus')
 		or prop == property('MoveCost')
+		or prop == property('MoveCostBonus')
 		or prop == property('WaitCost')
+		or prop == property('WaitCostBonus')
 		or prop == property('DefaultCost')
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')
@@ -93,6 +100,12 @@ function TimeComponent:getProperty(p, intermediate, ...)
 		return (prop or intermediate)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
+end
+
+function TimeComponent:receive(sender, msg, ...)
+	if msg == message('TIME_AUTO') and sender == self._mediator then
+		self:_setProperty(property('DoTick'), select(1, ...))
 	end
 end
 
