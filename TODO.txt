@@ -44,9 +44,9 @@ Expressions:
           end
 
 Components:
-  + separate properties from components. [e.g. an Item should be able to have a Health property without having a HealthComponent]
-	+   In JSON files, properties can be specified within the component [as now] as well as in a separate "properties" section.
-	+   There must be some way to query these properties [add a GenericPropertyComponent?]
+  x separate properties from components. [e.g. an Item should be able to have a Health property without having a HealthComponent]
+	x   In JSON files, properties can be specified within the component [as now] as well as in a separate "properties" section.
+	x   There must be some way to query these properties [add a GenericPropertyComponent?]
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
