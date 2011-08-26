@@ -89,17 +89,26 @@ function AIInputComponent:_allowAllDirections()
 end
 
 function AIInputComponent:receive(sender, msg, ...)
+	local continue = true
+
 	if msg == message('TIME_PRETICK')
 		or msg == message('TIME_POSTEXECUTE')
 	then
-		if sender == self._mediator then self:_determineNextAction(...) end
+		if sender == self._mediator then
+			self:_determineNextAction(...)
+			continue = false
+		end
+
 	elseif msg == message('COLLIDE_BLOCKED') then
 		self:_denyDirection(...)
+
 	elseif msg == message('COLLIDE_NONE') then
 		self:_allowAllDirections(...)
 	end
 
-	InputComponent.receive(self, sender, msg, ...)
+	if continue then
+		InputComponent.receive(self, sender, msg, ...)
+	end
 end
 
 
