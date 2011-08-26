@@ -127,11 +127,7 @@ end
 -- query all components for a property, passing the intermediate result each
 -- time, to allow the component to modify the result as it sees fit.
 function Entity:query(prop, ...)
-	local result
-	for k in pairs(self._components) do
-		result = self._components[k]:getProperty(prop, result, ...)
-	end
-	return result
+	return self:rawquery(prop, nil, ...)
 end
 
 function Entity:rawquery(prop, intermediate, ...)
