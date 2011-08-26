@@ -14,6 +14,8 @@ local table_sort = table.sort
 local TimeSystem = Class{name='TimeSystem',
 	function(self)
 		self._timeTravelers = Deque()
+		self._cycle = false
+		self._rotate = true
 		self._actionPoints = {}
 		self._commandQueues = {}
 		CommandEvents:register(self, CommandEvent)
@@ -29,6 +31,8 @@ function TimeSystem:destroy()
 		self._commandQueues[k]:destroy()
 		self._commandQueues[k] = nil
 	end
+	self._cycle = nil
+	self._rotate = nil
 	self._firstTraveler = nil
 	self._timeTravelers = nil
 	self._actionPoints = nil
@@ -94,37 +98,45 @@ function TimeSystem:tick()
 		and self._timeTravelers:size() > 0
 		and comp:shouldTick()
 	then
-		-- rotate the deque
-		self._timeTravelers:rotate_forward()
-
 		-- increase action points by the componet's speed
 		local ap = self._actionPoints
 		local speed = comp:getTotalSpeed()
 
-		ap[comp] = ap[comp] + speed
+		if self._rotate then
+			ap[comp] = ap[comp] + speed
+			self._rotate = false
+		end
+
 		comp:onPreTick(ap[comp])
 
 		-- spend all action points
 		if self._commandQueues[comp] then
 			repeat
 				local nextCommand = self._commandQueues[comp]:front()
-				if nextCommand and nextCommand:cost() <= ap[comp] then
+				if nextCommand then
 					self._commandQueues[comp]:pop_front()
 					comp:onPreExecute(ap[comp])
 					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
 					comp:onPostExecute(ap[comp])
-				else
-					nextCommand = nil
 				end
 			until nil == nextCommand or ap[comp] <= 0
 		end
 
-		if ap[comp] <= 0 then self._commandQueues[comp]:clear() end
+		if ap[comp] <= 0 then
+			self._commandQueues[comp]:clear()
+
+			-- rotate the deque so the next traveler gets a turn
+			self._timeTravelers:rotate_forward()
+
+			self._rotate = true
+			self._cycle = true
+		end
 
 		comp:onPostTick(ap[comp])
 
-		if self._timeTravelers:front() == self._firstTraveler then
+		if self._cycle and self._timeTravelers:front() == self._firstTraveler then
 			GameEvents:notify(TimeSystemCycleEvent())
+			self._cycle = false
 		end
 	end
 end

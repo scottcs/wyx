@@ -189,16 +189,13 @@ Component Properties
         This is the default cost (in Action Points) of an action, which is
         used if a more specific cost cannot be found.
 
-    "AttackCost": 1
+    "AttackCost": 100
         How many Action Points it costs for this entity to make an attack.
 
-    "MoveCost": 1
+    "MoveCost": 100
         How many Action Points it costs for this entity to move.
 
-    "WaitCost": 1
-        How many Action Points it costs for this entity to skip a turn.
-
-    "Speed": 1
+    "Speed": 100
         This is the number of Action Points the entity earns each turn.
         Higher numbers mean the entity will have more Action Points to spend
         on every turn, therefore making the entity accomplish more and appear
