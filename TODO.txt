@@ -1,3 +1,25 @@
+
+Save/Load:
+  ? format... JSON?
+  o save IDs and a table that maps IDs to entities
+  o read above table on load before loading entities
+
+Interface:
+  o Need another draw routine in RenderSystem for drawing outside of camera translation.
+  o TooltipComponent... mouseover info panel thingy
+  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
+  o   Add a description field to JSON files.
+  o   And a Portrait field.
+  x UISystem - handles User Interface
+
+For v0.1.0:
+  o save/load
+  o interface
+
+
+
+BEYOND v0.1.0:
+
 Items:
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   o   UsableComponent? [this needs scripting in JSON files]
@@ -7,54 +29,34 @@ Console/Debug:
   - log console to file (with an option)
   - maybe different levels of messages [only log certain lines?]
   - allow input and create some awesome commands
-	o every event and command needs a tostring method that is called when debugEvents is on.
+  o every event and command needs a tostring method that is called when debugEvents is on.
+  - wizard mode
 
 Level:
   - change Level representation of enemy to be by position in a table for faster lookup
+  o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
+  o Level templates
+  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
+  o make stairs work [generate new map]
 
 Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
-	  "+USE_ENTITY": "@Owner:send(HEALTH_MODIFY, 12) @Destroy()",
-		"+COMBAT_HIT": "@Target:send(KNOCK_BACK, 2)",
-		"+TIME_TICK": "@OnChance(1, 10, @RandomChoice(%SayMessage))",
-		"%SayMessage": {
-			"Hey! Watup?",
-			"Let me at em! Let me at em!",
-			"Honk if you're horny!",
-		},
-
-Components:
-  x separate properties from components. [e.g. an Item should be able to have a Health property without having a HealthComponent]
-	x   In JSON files, properties can be specified within the component [as now] as well as in a separate "properties" section.
-	x   There must be some way to query these properties [add a GenericPropertyComponent?]
-  o TooltipComponent... mouseover info panel thingy
-  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
-  o   Add a description field to JSON files.
-  o   And a Portrait field.
-  - UISystem - handles User Interface
-
-Interface:
-  o Need another draw routine in RenderSystem for drawing outside of camera translation.
+    "+USE_ENTITY": "@Owner:send(HEALTH_MODIFY, 12) @Destroy()",
+    "+COMBAT_HIT": "@Target:send(KNOCK_BACK, 2)",
+    "+TIME_TICK": "@OnChance(1, 10, @RandomChoice(%SayMessage))",
+    "%SayMessage": {
+      "Hey! Watup?",
+      "Let me at em! Let me at em!",
+      "Honk if you're horny!",
+    },
 
 Other:
   - fix tests
   - fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
-
-For v0.1.0:
-  o items
-  o save/load
-  o interface
-
-Beyond v0.1.0:
-  o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen.
-  o make stairs work [generate new map]
-  - wizard mode
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
-  x support sprite batches if framebuffers are unsupported
-  o Level templates
-  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
+  - support sprite batches if framebuffers are unsupported
 
-  Map:
+Map:
   - map as quad-tree [or something?]
   ? maptypes as composites?
   - poisson disk sampling for decoration/item/monster placement [map gen too?]
@@ -64,7 +66,3 @@ Beyond v0.1.0:
   o Create another View that can show simple representation of map nodes for Minimap.
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
   o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
-  x don't animate or update dim tiles
-
-
-NOTES:
