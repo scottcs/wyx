@@ -44,7 +44,7 @@ function AttachmentComponent:_setProperty(prop, data)
 	ModelComponent._setProperty(self, prop, data)
 end
 
-function AttachmentComponent:receive(msg, ...)
+function AttachmentComponent:receive(sender, msg, ...)
 	local continue = false
 
 	if     msg == message('ATTACHMENT_ATTACH') then
@@ -59,7 +59,7 @@ function AttachmentComponent:receive(msg, ...)
 		for id in self._entities:iterate() do
 			local entity = EntityRegistry:get(id)
 			if entity then
-				entity:send(msg, ...)
+				entity:rawsend(sender, msg, ...)
 			else
 				warning('AttachmentComponent (recv): entity does not exist %d', id)
 			end

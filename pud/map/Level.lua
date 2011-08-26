@@ -305,8 +305,8 @@ function Level:EntityDeathEvent(e)
 
 	local entity = EntityRegistry:get(entityID)
 	local name = entity and entity:getName() or "unknown entity"
-	local msg = 'Death: '..name..' ['..reason..']'
-	GameEvents:push(ConsoleEvent(msg))
+	GameEvents:push(ConsoleEvent('Death: {%08d} %s [%s]',
+		entityID, name, reason))
 
 	if entityID == self._primeEntity then
 		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))

@@ -98,8 +98,8 @@ function PlayerInputComponent:KeyboardEvent(e)
 					if entity:query(property('IsAttached')) then
 						equipped = ' (equipped)'
 					end
-					GameEvents:push(ConsoleEvent('   %d - %s%s',
-						i, entity:getName(), equipped))
+					GameEvents:push(ConsoleEvent('   %d - {%08d} %s%s',
+						i, e, entity:getName(), equipped))
 				end
 			end
 
@@ -149,11 +149,11 @@ function PlayerInputComponent:KeyboardEvent(e)
 	end
 end
 
-function PlayerInputComponent:receive(msg, ...)
-	if msg == message('TIME_PRETICK') then
+function PlayerInputComponent:receive(sender, msg, ...)
+	if msg == message('TIME_PRETICK') and sender == self._mediator then
 		self:_setProperty(property('DoTick'), false)
 	else
-		InputComponent.receive(self, msg, ...)
+		InputComponent.receive(self, sender, msg, ...)
 	end
 end
 

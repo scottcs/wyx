@@ -21,20 +21,25 @@ end
 
 -- send a message to all attached components
 function ComponentMediator:send(msg, ...)
+	self:rawsend(self, msg, ...)
+end
+
+function ComponentMediator:rawsend(sender, msg, ...)
 	msg = message(msg)
 	if self._listeners[msg] then
 		for comp in self._listeners[msg]:listeners() do
 			--if debug then print(comp,msg) end
-			comp:receive(msg, ...)
+			comp:receive(sender, msg, ...)
 		end
 	end
 	if self._listeners.ALL then
 		for comp in self._listeners.ALL:listeners() do
 			--if debug then print(comp,msg) end
-			comp:receive(msg, ...)
+			comp:receive(sender, msg, ...)
 		end
 	end
 end
+
 
 -- attach a component to the given message
 -- (component will receive this message)

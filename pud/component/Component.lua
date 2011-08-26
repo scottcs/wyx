@@ -87,7 +87,7 @@ end
 
 -- receive a message
 -- precondition: msg is a valid component message
-function Component:receive(msg, ...) end
+function Component:receive(sender, msg, ...) end
 
 -- evaluate a property and return its value
 function Component:_evaluate(p)
