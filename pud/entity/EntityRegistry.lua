@@ -45,6 +45,10 @@ function EntityRegistry:register(entity)
 
 	self._registry[id] = entity
 
+	if debug then
+		Console:print('Registered Entity: {%08d} %s [%s]', id, name, etype)
+	end
+
 	self._byname[name] = self._byname[name] or {}
 	local num = #(self._byname[name])
 	self._byname[name][num+1] = id
@@ -85,6 +89,11 @@ end
 function EntityRegistry:unregister(id)
 	local entity = self._registry[id]
 	assert(entity, 'No such entity to unregister: %d', id)
+
+	if debug then
+		Console:print('Unregistered Entity: {%08d} %s [%s]',
+			id, entity:getName(), entity:getEntityType())
+	end
 
 	self._registry[id] = nil
 	_removeID(id, self._byname)
