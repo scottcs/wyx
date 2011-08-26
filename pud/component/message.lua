@@ -36,6 +36,7 @@ message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 message.SCREEN_STATUS         = 'SCREEN_STATUS'
 
 -- TimeComponent messages
+message.TIME_AUTO             = 'TIME_AUTO'
 message.TIME_PRETICK          = 'TIME_PRETICK'
 message.TIME_POSTTICK         = 'TIME_POSTTICK'
 message.TIME_PREEXECUTE       = 'TIME_PREEXECUTE'

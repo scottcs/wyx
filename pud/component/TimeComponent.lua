@@ -20,6 +20,7 @@ local TimeComponent = Class{name='TimeComponent',
 			'DoTick',
 		})
 		ModelComponent.construct(self, properties)
+		self:_addMessages('TIME_AUTO')
 	end
 }
 
@@ -93,6 +94,12 @@ function TimeComponent:getProperty(p, intermediate, ...)
 		return (prop or intermediate)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
+	end
+end
+
+function TimeComponent:receive(sender, msg, ...)
+	if msg == message('TIME_AUTO') and sender == self._mediator then
+		self:_setProperty(property('DoTick'), select(1, ...))
 	end
 end
 

@@ -269,13 +269,18 @@ end
 
 function Level:setPlayerControlled()
 	local PIC = getClass 'pud.component.PlayerInputComponent'
-	local PTC = getClass 'pud.component.PlayerTimeComponent'
 	local input = PIC()
-	local time = PTC()
 	self._heroFactory:setInputComponent(self._primeEntity, input)
-	self._heroFactory:setTimeComponent(self._primeEntity, time)
-	TimeSystem:setFirst(time)
+
 	local entity = EntityRegistry:get(self._primeEntity)
+
+	local TimeComponent = getClass 'pud.component.TimeComponent'
+	local timeComps = entity:getComponentsByClass(TimeComponent)
+	if timeComps and #timeComps > 0 then
+		TimeSystem:setFirst(timeComps[1])
+		entity:send(message('TIME_AUTO'), false)
+	end
+
 	entity:send(message('CONTAINER_RESIZE'), 10)
 end
 
