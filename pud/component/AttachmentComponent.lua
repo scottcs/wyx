@@ -117,10 +117,9 @@ local _queriable = {
 	CanMove = true,
 	BlockedBy = true,
 	CanOpenDoors = true,
-	DefaultCost = true,
-	AttackCost = true,
-	MoveCost = true,
-	WaitCost = true,
+	DefaultCostBonus = true,
+	AttackCostBonus = true,
+	MoveCostBonus = true,
 }
 
 

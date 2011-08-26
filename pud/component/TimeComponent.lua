@@ -11,8 +11,11 @@ local TimeComponent = Class{name='TimeComponent',
 	function(self, properties)
 		ModelComponent._addRequiredProperties(self, {
 			'AttackCost',
+			'AttackCostBonus',
 			'MoveCost',
+			'MoveCostBonus',
 			'WaitCost',
+			'WaitCostBonus',
 			'DefaultCost',
 			'Speed',
 			'SpeedBonus',
@@ -35,8 +38,11 @@ function TimeComponent:_setProperty(prop, data)
 	if nil == data then data = property.default(prop) end
 
 	if   prop == property('AttackCost')
+		or prop == property('AttackCostBonus')
 		or prop == property('MoveCost')
+		or prop == property('MoveCostBonus')
 		or prop == property('WaitCost')
+		or prop == property('WaitCostBonus')
 		or prop == property('DefaultCost')
 		or prop == property('Speed')
 		or prop == property('SpeedBonus')

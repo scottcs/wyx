@@ -84,10 +84,13 @@ property.CanOpenDoors      = false
 
 -- time properties
 property.DefaultCost       = 0
-property.AttackCost        = 1
-property.MoveCost          = 1
-property.WaitCost          = 1
-property.Speed             = 1
+property.AttackCost        = 100
+property.AttackCostBonus   = 0
+property.MoveCost          = 100
+property.MoveCostBonus     = 0
+property.WaitCost          = '!$Speed'
+property.WaitCostBonus     = 0
+property.Speed             = 100
 property.SpeedBonus        = 0
 property.IsExhausted       = false
 property.DoTick            = true

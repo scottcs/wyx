@@ -3,7 +3,7 @@ local property = require 'pud.component.property'
 
 -- default action point cost for executing a command
 -- (used by the TimeSystem for entity commands)
-DEFAULT_COST = 1
+DEFAULT_COST = 0
 
 -- Command class
 local Command = Class{name='Command',
@@ -50,6 +50,11 @@ function Command:cost()
 	if self._target and self._target.query then
 		local prop = self._costProp or property('DefaultCost')
 		cost = self._target:query(prop)
+
+		local propBonus = prop .. 'Bonus'
+		if property.isproperty(propBonus) then
+			cost = cost + self._target:query(propBonus)
+		end
 	end
 	return cost
 end
