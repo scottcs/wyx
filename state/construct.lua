@@ -1,13 +1,18 @@
 
          --[[--
-     ASSEMBLE STATE
+     CONSTRUCT STATE
           ----
-Put game resources together.
+ Create the game resources.
          --]]--
 
 local st = GameState.new()
 
--- global entity databases
+-- systems
+local RenderSystemClass = getClass 'pud.system.RenderSystem'
+local TimeSystemClass = getClass 'pud.system.TimeSystem'
+local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
+
+-- entity databases
 local HeroEntityDB = getClass 'pud.entity.HeroEntityDB'
 local EnemyEntityDB = getClass 'pud.entity.EnemyEntityDB'
 local ItemEntityDB = getClass 'pud.entity.ItemEntityDB'
@@ -19,6 +24,10 @@ local _loading = 'Loading...'
 local _x, _y
 
 function st:init()
+	-- create systems
+	RenderSystem = RenderSystemClass()
+	TimeSystem = TimeSystemClass()
+	CollisionSystem = CollisionSystemClass(self._level)
 end
 
 function st:enter()

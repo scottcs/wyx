@@ -12,7 +12,7 @@ function st:init()
 end
 
 function st:enter(prev)
-	GameState.switch(State.assemble)
+	GameState.switch(State.newgame)
 end
 
 function st:update(dt)
