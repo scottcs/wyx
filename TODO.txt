@@ -5,18 +5,18 @@ Save/Load:
     JSON format
 
   Save:
-  + first, need state flow to work: MAIN -> NewGame -> Assemble -> Play -> Shutdown
+  + first, need state flow to work: MAIN -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Shutdown
   o save Random Seed
   o save version with each section
   o save IDs and a table that maps IDs to entities
-  o get state flow to work: MAIN -> NewGame -> Assemble -> Play -> Save -> Shutdown
-  o get state flow to work: MAIN -> LoadGame -> Assemble -> Play -> Save -> Shutdown
+  o get state flow to work: MAIN -> NewGame -> Construct -> Play -> Save -> Destroy -> Shutdown
+  o get state flow to work: MAIN -> LoadGame -> Construct -> Play -> Save -> Destroy -> Shutdown
 
   Load:
   o read ID table on load before loading entities
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens.
-  o get state flow to work: MAIN -> LoadGame -> Assemble -> Play -> Shutdown
+  o get state flow to work: MAIN -> LoadGame -> Construct -> Play -> Destroy -> Shutdown
 
 Interface:
 
@@ -28,31 +28,36 @@ Interface:
       Menu -> Options
       Menu -> Help
       Menu -> Shutdown
-        LoadGame -> Assemble
-        NewGame -> Assemble
+        LoadGame -> Construct
+        NewGame -> Construct
         Options -> Menu
         Help -> Menu
-          Assemble -> Play
+          Construct -> Play
+            Play -> Construct
             Play -> Options
             Play -> Help
             Play -> Save (and quit)
-            Play -> Menu (quit without saving)
+            Play -> Destroy (quit without saving)
               Options -> Play
               Help -> Play
-              Save -> Menu
+              Save -> Destroy
+              Destroy -> Menu
+                Destroy -> Menu
 
-    Individual States:
-      MAIN
-      Intro
-      Menu
-      LoadGame
-      NewGame
-      Options
-      Help
-      Assemble
-      Play
-      Save
-      Shutdown
+    Individual States and their potential links:
+      State:        From:                           To:
+      MAIN          --                              Intro
+      Intro         MAIN                            Menu
+      Menu          Intro, Options, Help, Destroy   LoadGame, NewGame, Options, Help, Shutdown
+      LoadGame      Menu                            Construct
+      NewGame       Menu                            Construct
+      Options       Menu, Play                      Menu, Play
+      Help          Menu, Play                      Menu, Play
+      Construct     LoadGame, NewGame, Play         Play
+      Play          Construct, Options, Help        Construct, Options, Help, Save, Destroy
+      Save          Play                            Destroy
+      Destroy       Play, Save                      Menu
+      Shutdown      Menu                            --
 
   + fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
