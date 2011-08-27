@@ -54,7 +54,7 @@ Other:
   - fix tests
   - fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
-  - support sprite batches if framebuffers are unsupported
+  o support sprite batches if framebuffers are unsupported
 
 Map:
   - map as quad-tree [or something?]
