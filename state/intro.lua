@@ -12,7 +12,7 @@ function st:init()
 end
 
 function st:enter(prev)
-	GameState.switch(State.load)
+	GameState.switch(State.assemble)
 end
 
 function st:update(dt)

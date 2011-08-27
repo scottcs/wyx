@@ -1,8 +1,8 @@
 
          --[[--
-       LOAD STATE
+     ASSEMBLE STATE
           ----
-   Load game resources.
+Put game resources together.
          --]]--
 
 local st = GameState.new()
