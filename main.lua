@@ -230,7 +230,7 @@ function love.quit()
 end
 
 local collectgarbage = collectgarbage
-local getTime = love.timer.getTime
+local getMicroTime = love.timer.getMicroTime
 local getDelta = love.timer.getDelta
 local sleep = love.timer.sleep
 local step = love.timer.step
@@ -242,61 +242,30 @@ local handlers = love.handlers
 local clear = love.graphics.clear
 local present = love.graphics.present
 
--- determine how much time it takes to clean up garbage in a single frame
-local function getGarbageTime(timePerFrame)
-	collectgarbage('stop')
-	local preCount = collectgarbage('count')
-	local dummy
-	local time = timePerFrame
-
-	-- spend an entire frame creating tables
-	while time > 0 do
-		local start = getTime()
-		dummy = {Random:number()}
-		time = time - (getTime() - start)
-	end
-
-	time = 0
-	-- test the length of time it takes to clear the garbage
-	while time < timePerFrame and collectgarbage('count') > preCount do
-		local start = getTime()
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-		time = time + (getTime() - start)
-	end
-
-	time = time * (timePerFrame/500) -- spread collection out over 500 frames
-
-	collectgarbage('restart')
-
-	return time
-end
-
-local function idle(maxTime)
-	local start = getTime()
+local function rungb(maxTime)
+	local start = getMicroTime()
 	local time = 0
 	while time < maxTime do
 		collectgarbage('step', 0)
 		collectgarbage('stop')
-		time = getTime() - start
+		time = getMicroTime() - start
 	end
 end
 
 function love.run()
 	if love.load then love.load(arg) end
 
-	local dtTarget = 1/60  -- 60 Hz
-	local dt = 0
-	local time
-	local idletime = getGarbageTime(dtTarget)
+	local Hz60 = 1/60
+	local dt = 0.01
+	local currentTime = getMicroTime()
+	local accumulator = 0.0
+	local gbcount = 0
 
 	-- disable automatic garbage collector
 	collectgarbage('stop')
 
 	-- Main loop time.
 	while true do
-		local time = getTime()
-
 		-- Process events.
 		if event then
 			for e,a,b,c in poll() do
@@ -314,23 +283,31 @@ function love.run()
 			end
 		end
 
-		step()
-		dt = getDelta()
+		local newTime = getMicroTime()
+		local frameTime = newTime - currentTime
+		frameTime = frameTime > 0.25 and 0.25 or frameTime
+		currentTime = newTime
 
-		if love.update then love.update(dt) end
+		gbcount = gbcount + 1
+		accumulator = accumulator + frameTime
+
+		if frameTime < Hz60 then
+			local idletime = Hz60 - frameTime
+			if gbcount > 10 then
+				rungb(idletime)
+				gbcount = 0
+			else
+				sleep(idletime*1000)
+			end
+		end
+
+		while accumulator >= dt do
+			if love.update then love.update(dt) end
+			accumulator = accumulator - dt
+		end
 
 		clear()
 		if love.draw then love.draw() end
 		present()
-
-		-- collect a little garbage manually
-		idle(idletime)
-
-		local timeWorked = getTime() - time
-		if timeWorked < dtTarget then
-			local sleepTime = (dtTarget-timeWorked) * 1000
-			sleepTime = sleepTime > 1 and 1 or sleepTime
-			if sleepTime > 0 then sleep(sleepTime) end
-		end
 	end
 end
