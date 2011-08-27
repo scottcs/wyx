@@ -288,11 +288,13 @@ function love.run()
 		frameTime = frameTime > 0.25 and 0.25 or frameTime
 		currentTime = newTime
 
-		gbcount = gbcount + 1
 		accumulator = accumulator + frameTime
 
 		if frameTime < Hz60 then
-			local idletime = Hz60 - frameTime
+			gbcount = gbcount + 1
+			local idletime = (Hz60 - frameTime) * 0.99
+
+			-- every once in a while, collect some garbage instead of sleeping
 			if gbcount > 10 then
 				rungb(idletime)
 				gbcount = 0
