@@ -1,9 +1,8 @@
 
          --[[--
-       INTRO STATE
+     MAIN MENU STATE
           ----
-   Display the splash
-   screens with fading.
+  Display the main menu.
          --]]--
 
 local st = GameState.new()
@@ -12,7 +11,11 @@ function st:init()
 end
 
 function st:enter(prev)
-	GameState.switch(State.menu)
+	if prev == State.intro then
+		GameState.switch(State.initialize)
+	else
+		GameState.switch(State.shutdown)
+	end
 end
 
 function st:update(dt)
