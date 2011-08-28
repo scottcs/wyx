@@ -5,8 +5,9 @@ Save/Load:
     JSON format
 
   Save:
-  + first, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  o save Random Seed
+  + first, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  + then, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  o save Random Seed [for the whole game, not just the level]
   o save version with each section
   o save IDs and a table that maps IDs to entities
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
