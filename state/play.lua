@@ -42,7 +42,6 @@ function st:leave()
 end
 
 function st:destroy()
-	print('play destroy')
 	self:_killMessageHUD()
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil

@@ -17,20 +17,18 @@ end
 
 function st:enter(prevState, nextState)
 	print('initialize')
-	if Console then Console:show() print('show') end
-
-	-- load entities
-	HeroDB:load()
-	EnemyDB:load()
-	ItemDB:load()
-
-	GameState.switch(nextState)
+	if Console then Console:show() end
+	self._nextState = nextState
+	self._loadStep = 0
+	self._doLoadStep = true
 end
 
-function st:leave() end
+function st:leave()
+	self._doLoadStep = nil
+	self._loadStep = nil
+end
 
 function st:destroy()
-	print('initialize destroy')
 	-- destroy entity databases
 	HeroDB:destroy()
 	EnemyDB:destroy()
@@ -40,11 +38,32 @@ function st:destroy()
 	ItemDB = nil
 end
 
-function st:update(dt) end
+function st:_nextLoadStep()
+	if nil ~= self._doLoadStep then self._doLoadStep = true end
+	if nil ~= self._loadStep then self._loadStep = self._loadStep + 1 end
+end
+
+function st:_load()
+	self._doLoadStep = false
+
+	-- load entities
+	switch(self._loadStep) {
+		[1] = function() HeroDB:load() end,
+		[2] = function() EnemyDB:load() end,
+		[3] = function() ItemDB:load() end,
+		[4] = function() GameState.switch(self._nextState) end,
+		default = function() end,
+	}
+
+	cron.after(.1, self._nextLoadStep, self)
+end
+
+function st:update(dt)
+	if self._doLoadStep then self:_load() end
+end
 
 function st:draw()
 	if Console then Console:draw() end
-	print('draw init')
 end
 
 function st:keypressed(key, unicode) end

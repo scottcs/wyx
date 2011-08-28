@@ -25,30 +25,18 @@ end
 function st:enter(prevState, level)
 	print('construct')
 	if Console then Console:show() end
-
-	-- create level if needed
-	if not level then
-		level = Level()
-		level:generateSimpleGridMap()
-	end
-
 	self._level = level
-	CollisionSystem:setLevel(self._level)
-
-	level:setPlayerControlled()
-
-	self:_createMapView()
-	self:_createCamera()
-
-	GameState.switch(State.play, self._level, self._view, self._cam)
+	self._loadStep = 0
+	self._doLoadStep = true
 end
 
 function st:leave()
+	self._doLoadStep = nil
+	self._loadStep = nil
 	if Console then Console:hide() end
 end
 
 function st:destroy()
-	print('construct destroy')
 	self._level:destroy()
 	self._level = nil
 	self._view:destroy()
@@ -92,7 +80,39 @@ function st:_createCamera()
 	self._view:setViewport(self._cam:getViewport())
 end
 
-function st:update(dt) end
+function st:_nextLoadStep()
+	if nil ~= self._doLoadStep then self._doLoadStep = true end
+	if nil ~= self._loadStep then self._loadStep = self._loadStep + 1 end
+end
+
+function st:_load()
+	self._doLoadStep = false
+
+	-- load entities
+	switch(self._loadStep) {
+		[1] = function()
+			-- create level if needed
+			if not self._level then
+				self._level = Level()
+				self._level:generateSimpleGridMap()
+			end
+		end,
+		[2] = function() CollisionSystem:setLevel(self._level) end,
+		[3] = function() self._level:setPlayerControlled() end,
+		[4] = function() self:_createMapView() end,
+		[5] = function() self:_createCamera() end,
+		[6] = function()
+			GameState.switch(State.play, self._level, self._view, self._cam)
+		end,
+		default = function() end,
+	}
+
+	cron.after(.1, self._nextLoadStep, self)
+end
+
+function st:update(dt)
+	if self._doLoadStep then self:_load() end
+end
 
 function st:draw()
 	if Console then Console:draw() end

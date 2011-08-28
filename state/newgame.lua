@@ -14,15 +14,37 @@ function st:init() end
 function st:enter(prevState)
 	print('newgame')
 
-	-- switch to construct state
-	GameState.switch(State.construct, level)
+	self._loadStep = 0
+	self._doLoadStep = true
 end
 
-function st:leave() end
+function st:leave()
+	self._loadStep = nil
+	self._doLoadStep = nil
+end
 
 function st:destroy() end
 
-function st:update(dt) end
+function st:_nextLoadStep()
+	if nil ~= self._doLoadStep then self._doLoadStep = true end
+	if nil ~= self._loadStep then self._loadStep = self._loadStep + 1 end
+end
+
+function st:_load()
+	self._doLoadStep = false
+
+	-- load entities
+	switch(self._loadStep) {
+		[1] = function() GameState.switch(State.construct) end,
+		default = function() end,
+	}
+
+	cron.after(.1, self._nextLoadStep, self)
+end
+
+function st:update(dt)
+	if self._doLoadStep then self:_load() end
+end
 
 function st:draw()
 	if Console then Console:draw() end
