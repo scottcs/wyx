@@ -83,6 +83,10 @@ BEYOND v0.1.0:
   o   UsableComponent? [this needs scripting in JSON files]
   o     UseCommand [call onUse(), potentially destroy entity]
 
+  Input/Events/Config:
+  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
+  o read keybindings from a config file. [make a default config in the Pud dir]
+
   Console/Debug:
   - log console to file (with an option)
   - maybe different levels of messages [only log certain lines?]
@@ -110,8 +114,7 @@ BEYOND v0.1.0:
       "Honk if you're horny!",
     },
 
-  Other:
-  - fix tests
+  Graphics:
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
   o support sprite batches if framebuffers are unsupported
 
@@ -125,5 +128,8 @@ BEYOND v0.1.0:
   o Create another View that can show simple representation of map nodes for Minimap.
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
   o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
+
+  Other:
+  - fix tests
 
 NOTES & IDEAS:
