@@ -146,13 +146,15 @@ function st:keypressed(key, unicode)
 			escape = function() GameState.switch(State.destroy) end,
 			['1'] = function()
 				self._view:setAnimate(false)
-				self._level:generateSimpleGridMap()
-				GameState.switch(State.construct, self._level)
+				GameState.switch(State.construct,
+					self._level,
+					self._level.generateSimpleGridMap)
 			end,
 			['2'] = function()
 				self._view:setAnimate(false)
-				self._level:generateFileMap()
-				GameState.switch(State.construct, self._level)
+				GameState.switch(State.construct,
+					self._level,
+					self._level.generateFileMap)
 			end,
 
 			-- camera

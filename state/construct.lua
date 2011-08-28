@@ -22,10 +22,11 @@ function st:init()
 	CollisionSystem = getClass('pud.system.CollisionSystem')()
 end
 
-function st:enter(prevState, level)
+function st:enter(prevState, level, generateFunc)
 	print('construct')
 	if Console then Console:show() end
 	self._level = level
+	self._generateFunc = generateFunc
 	self._loadStep = 0
 	self._doLoadStep = true
 end
@@ -90,18 +91,19 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function()
-			-- create level if needed
-			if not self._level then
-				self._level = Level()
+		[1] = function() if not self._level then self._level = Level() end end,
+		[2] = function()
+			if self._generateFunc then
+				self._generateFunc(self._level)
+			else
 				self._level:generateSimpleGridMap()
 			end
 		end,
-		[2] = function() CollisionSystem:setLevel(self._level) end,
-		[3] = function() self._level:setPlayerControlled() end,
-		[4] = function() self:_createMapView() end,
-		[5] = function() self:_createCamera() end,
-		[6] = function()
+		[3] = function() CollisionSystem:setLevel(self._level) end,
+		[4] = function() self._level:setPlayerControlled() end,
+		[5] = function() self:_createMapView() end,
+		[6] = function() self:_createCamera() end,
+		[7] = function()
 			GameState.switch(State.play, self._level, self._view, self._cam)
 		end,
 		default = function() end,
