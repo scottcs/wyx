@@ -2,114 +2,100 @@
          --[[--
      CONSTRUCT STATE
           ----
- Create the game resources.
+   Create resources for
+     the play state.
          --]]--
 
 local st = GameState.new()
 
--- systems
-local RenderSystemClass = getClass 'pud.system.RenderSystem'
-local TimeSystemClass = getClass 'pud.system.TimeSystem'
-local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
+local Level = getClass 'pud.map.Level'
+local GameCam = getClass 'pud.view.GameCam'
+local TileMapView = getClass 'pud.view.TileMapView'
 
--- entity databases
-local HeroEntityDB = getClass 'pud.entity.HeroEntityDB'
-local EnemyEntityDB = getClass 'pud.entity.EnemyEntityDB'
-local ItemEntityDB = getClass 'pud.entity.ItemEntityDB'
+local math_floor = math.floor
 
-local math_max = math.max
-local colors = colors
-
-local _loading = 'Loading...'
-local _x, _y
 
 function st:init()
 	-- create systems
-	RenderSystem = RenderSystemClass()
-	TimeSystem = TimeSystemClass()
-	CollisionSystem = CollisionSystemClass(self._level)
+	RenderSystem = getClass('pud.system.RenderSystem')()
+	TimeSystem = getClass('pud.system.TimeSystem')()
+	CollisionSystem = getClass('pud.system.CollisionSystem')()
 end
 
-function st:enter()
-	self.fadeColor = colors.clone(colors.BLACK)
-	self.nextState = State.play
-	self.lines = self.lines or {
-		{
-			text = "Loading...",
-			font = GameFont.big,
-			color = colors.RED,
-			x = WIDTH/2,
-			y = HEIGHT/2,
-		},
-	}
+function st:enter(prevState, level)
+	print('construct')
+	if Console then Console:show() end
 
-	local numLines = #self.lines
-	for i=1,numLines do
-		local l = self.lines[i]
-		l.drawX = l.x - l.font:getWidth(l.text)/2
-		l.drawY = l.y - l.font:getHeight()
+	-- create level if needed
+	if not level then
+		level = Level()
+		level:generateSimpleGridMap()
 	end
 
-	self._fadeIn = 0
+	self._level = level
+	CollisionSystem:setLevel(self._level)
+
+	level:setPlayerControlled()
+
+	self:_createMapView()
+	self:_createCamera()
+
+	GameState.switch(State.play, self._level, self._view, self._cam)
 end
 
-function st:load()
-	local start = love.timer.getTime()
-
-	-- load normal fonts
-	for _,size in ipairs{14, 15, 16, 18, 20, 24} do
-		local f = Font[size]
-	end
-
-	-- load entities
-	HeroDB = HeroEntityDB()
-	EnemyDB = EnemyEntityDB()
-	ItemDB = ItemEntityDB()
-
-	HeroDB:load()
-	EnemyDB:load()
-	ItemDB:load()
-
-	local loadTime = love.timer.getTime() - start
-	self._fadeOut = loadTime
+function st:leave()
+	if Console then Console:hide() end
 end
 
-function st:update(dt)
-	if self._fadeIn then
-		self._fadeIn = self._fadeIn + dt
-		if self._fadeIn > 0.3 then
-			self._fadeIn = nil
-			tween(0.3, self.fadeColor, colors.BLACK_A00, 'inSine',
-				self.load, self)
-		end
+function st:destroy()
+	print('construct destroy')
+	self._level:destroy()
+	self._level = nil
+	self._view:destroy()
+	self._view = nil
+	self._cam:destroy()
+	self._cam = nil
+
+	-- destroy systems
+	RenderSystem:destroy()
+	TimeSystem:destroy()
+	CollisionSystem:destroy()
+	RenderSystem = nil
+	TimeSystem = nil
+	CollisionSystem = nil
+end
+
+function st:_createMapView()
+	if self._view then self._view:destroy() end
+	self._view = TileMapView(self._level)
+	self._view:registerEvents()
+end
+
+function st:_createCamera()
+	local mapW, mapH = self._level:getMapSize()
+	local tileW, tileH = self._view:getTileSize()
+	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
+	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
+	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
+
+	if not self._cam then
+		self._cam = GameCam(startX, startY, zoom)
+	else
+		self._cam:setHome(startX, startY)
 	end
 
-	if self._fadeOut then
-		self._fadeOut = self._fadeOut + dt
-		if self._fadeOut > 1 then
-			self._fadeOut = nil
-			tween(0.3, self.fadeColor, colors.BLACK, 'outQuint',
-				GameState.switch, self.nextState)
-		end
-	end
+	local minX, minY = math_floor(tileW/2), math_floor(tileH/2)
+	local maxX, maxY = mapTileW - minX, mapTileH - minY
+	self._cam:setLimits(minX, minY, maxX, maxY)
+	self._cam:home()
+	self._cam:followTarget(self._level:getPrimeEntity())
+	self._view:setViewport(self._cam:getViewport())
 end
+
+function st:update(dt) end
 
 function st:draw()
-	local numLines = #self.lines
-	for i=1,numLines do
-		local l = self.lines[i]
-		love.graphics.setFont(l.font)
-		love.graphics.setColor(l.color)
-		love.graphics.print(l.text, l.drawX, l.drawY)
-	end
-
-	-- fader
-	if self.fadeColor[4] ~= 0 then
-		local r,g,b,a = love.graphics.getColor()
-		love.graphics.setColor(self.fadeColor)
-		love.graphics.rectangle('fill', 0, 0, WIDTH, HEIGHT)
-		love.graphics.setColor(r,g,b,a)
-	end
+	if Console then Console:draw() end
 end
 
 

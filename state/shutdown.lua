@@ -2,19 +2,15 @@
          --[[--
      SHUTDOWN STATE
           ----
-Shutdown the game and exit.
+ Destroy everything that
+ was created in the Menu
+ State, Shutdown and exit.
          --]]--
 
 local st = GameState.new()
 
-function st:init()
-end
-
-function st:enter(prev)
-	HeroDB:destroy()
-	EnemyDB:destroy()
-	ItemDB:destroy()
-
+function st:enter(prevState)
+	print('shutdown')
 	love.event.push('q')
 end
 

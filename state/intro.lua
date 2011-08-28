@@ -11,8 +11,12 @@ local st = GameState.new()
 function st:init()
 end
 
-function st:enter(prev)
+function st:enter(prevState)
+	print('intro')
 	GameState.switch(State.menu)
+end
+
+function st:leave()
 end
 
 function st:update(dt)
