@@ -268,7 +268,7 @@ function love.run()
 	if love.load then love.load(arg) end
 
 	local Hz60 = 1/60
-	local dt = 0.01
+	local dt = Hz60/4
 	local currentTime = getMicroTime()
 	local accumulator = 0.0
 	local gbcount = 0
