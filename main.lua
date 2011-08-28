@@ -234,9 +234,7 @@ end
 
 local collectgarbage = collectgarbage
 local getMicroTime = love.timer.getMicroTime
-local getDelta = love.timer.getDelta
 local sleep = love.timer.sleep
-local step = love.timer.step
 local event = love.event
 local poll = love.event.poll
 local audio = love.audio
