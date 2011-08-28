@@ -1,6 +1,7 @@
 local select, type, tostring = select, type, tostring
 local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
+local string_len, string_byte = string.len, string.byte
 local sqrt = math.sqrt
 
 
@@ -216,6 +217,23 @@ function vec2.equal(x1, y1, x2, y2) return x1 == x2 and y1 == y2 end
 function vec2.tostring(x, y) return format("(%d,%d)", x,y) end
 function vec2.tostringf(x, y) return format("(%.2f,%.2f)", x,y) end
 
+
+-----------------------------------
+-- string hash (thanks, WoWWiki) --
+-----------------------------------
+function string.hash(s)
+	local len = string_len(s)
+	local counter = 1
+
+	for i=1,len,3 do
+		counter = (counter*8161 % 4294967279) +
+		(string_byte(s,i)*16776193) +
+		((string_byte(s,i+1) or (len-i+256))*8372226) +
+		((string_byte(s,i+2) or (len-i+256))*3932164)
+	end
+
+	return (counter % 4294967291)
+end
 
          --[[--
       LÖVE UTILITIES
