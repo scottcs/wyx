@@ -82,6 +82,7 @@ BEYOND v0.1.0:
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   o   UsableComponent? [this needs scripting in JSON files]
   o     UseCommand [call onUse(), potentially destroy entity]
+  o id as hex value
 
   Input/Events/Config:
   o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
