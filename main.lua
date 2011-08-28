@@ -105,8 +105,19 @@ function love.load()
 	-- global tile width and height
 	TILEW, TILEH = 32, 32
 
-	-- global random number generator instance
-	Random = random.new()
+	-- make a ridiculous seed for the PRNG
+	local time = os.time()
+	local ltime = math.floor(love.timer.getTime() * 10000000)
+	local mtime = math.floor(love.timer.getMicroTime() * 1000)
+	local mx = love.mouse.getX()
+	local my = love.mouse.getY()
+	GAMESEED = (time - ltime) + mtime + mx + my
+	math.randomseed(GAMESEED) math.random() math.random() math.random()
+	local rand = math.floor(math.random() * 10000000)
+	GAMESEED = GAMESEED + rand
+
+	-- create the real global PRNG instance with this ridiculous seed
+	Random = random.new(GAMESEED)
 
 	-- define game fonts
 	GameFont = {
