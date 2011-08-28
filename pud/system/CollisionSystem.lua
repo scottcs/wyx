@@ -9,7 +9,9 @@ local match = string.match
 local CollisionSystem = Class{name='CollisionSystem',
 	function(self, level)
 		self._registered = ListenerBag()
-		self._level = level
+		if level then
+			self:setLevel(level)
+		end
 	end
 }
 
@@ -18,6 +20,12 @@ function CollisionSystem:destroy()
 	self._registered:destroy()
 	self._registered = nil
 	self._level = nil
+end
+
+-- set the level that will be checked for collisions
+function CollisionSystem:setLevel(level)
+	verifyClass('pud.map.Level', level)
+	self._level = level
 end
 
 -- register an object
