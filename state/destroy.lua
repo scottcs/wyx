@@ -14,10 +14,8 @@ local st = GameState.new()
 function st:enter(prevState)
 	print('destroy')
 	-- reset all game states
-	--[[
 	if State.save.destroy then State.save:destroy() end
 	State.save = nil
-	]]--
 
 	if State.play.destroy then State.play:destroy() end
 	State.play = nil
