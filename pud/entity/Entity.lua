@@ -4,6 +4,7 @@ local property = require 'pud.component.property'
 
 local verify, verifyClass, isClass = verify, verifyClass, isClass
 local type, pairs, tostring = type, pairs, tostring
+local match = string.match
 
 -- Entity
 --
@@ -135,6 +136,33 @@ function Entity:rawquery(prop, intermediate, ...)
 		intermediate = self._components[k]:getProperty(prop, intermediate, ...)
 	end
 	return intermediate
+end
+
+-- functions to save and restore state
+-- getState returns a table with key/value pairs representing state data
+function Entity:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	state.name = self._name
+	state.etype = self._etype
+	state.family = self._family
+	state.kind = self._kind
+	state.variation = self._variation
+	state.components = setmetatable({}, mt)
+
+	if self._components then
+		for name,comp in pairs(self._components) do
+			state.components[name] = comp:getState()
+		end
+	end
+
+	return state
+end
+
+-- setState accepts a table with key/value pairs representing state data
+function Entity:setState(state)
+	verify('table', state)
 end
 
 

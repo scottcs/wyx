@@ -7,7 +7,6 @@
 
 local st = GameState.new()
 
-local json = require 'lib.dkjson'
 require 'lib.serialize'
 local warning, tostring = warning, tostring
 
@@ -30,7 +29,7 @@ end
 function st:destroy() end
 
 function st:_chooseFile()
-	self._filename = 'save/save1.json'
+	self._filename = 'save/testy.sav'
 end
 
 function st:_removeFile()
@@ -49,12 +48,23 @@ function st:_saveGame()
 		ok = false
 	end
 
-	local opts = {indent = true}
+	local opts = {indent = true, level = 0}
+	local mt = {__mode = 'kv'}
 
-	for entity in EntityRegistry:iterateEntities() do
-		ok = ok and self:_write(json.encode(entity, opts))
-		--ok = ok and self:_write(serialize(entity))
+	local state = setmetatable({}, mt)
+	state.seed = RANDOMSEED
+	state.entities = setmetatable({}, mt)
+
+	for id, entity in EntityRegistry:iterate() do
+		state.entities[id] = entity:getState()
 	end
+
+	--[[
+	local inspect = require 'lib.inspect'
+	print(inspect(state))
+	]]--
+
+	ok = ok and self:_write(serialize(state))
 
 	if not self._file:close() then
 		warning('Could not close file %q after writing.',

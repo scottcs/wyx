@@ -123,6 +123,22 @@ function Component:getProperty(p, intermediate, ...)
 	end
 end
 
+-- get the current state of the component
+function Component:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	for k,v in pairs(self._properties) do
+		state[k] = v
+	end
+
+	return state
+end
+
+-- restore the state of the component
+function Component:setState(state)
+end
+
 
 -- the class
 return Component
