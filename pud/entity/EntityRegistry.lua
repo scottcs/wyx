@@ -122,18 +122,15 @@ function EntityRegistry:_getIDTable()
 	return count > 0 and allIDs or nil
 end
 
-function EntityRegistry:iterateIDs()
+function EntityRegistry:iterate()
 	local allIDs = self:_getIDTable()
 	if not allIDs then return nil end
 	local i = 0
-	return function() i = i + 1; return allIDs[i] end
-end
-
-function EntityRegistry:iterateEntities()
-	local allIDs = self:_getIDTable()
-	if not allIDs then return nil end
-	local i = 0
-	return function() i = i + 1; return self._registry[allIDs[i]] end
+	return function()
+		i = i + 1
+		local id = allIDs[i]
+		return id, self._registry[id]
+	end
 end
 
 local _byElevel = function(a, b)
