@@ -1,5 +1,7 @@
 local Class = require 'lib.hump.class'
 
+local table_sort = table.sort
+
 -- EntityRegistry
 --
 local EntityRegistry = Class{name='EntityRegistry',
@@ -106,6 +108,33 @@ function EntityRegistry:exists(id) return self._registry[id] ~= nil end
 function EntityRegistry:get(id) return self._registry[id] end
 function EntityRegistry:getIDsByName(name) return self._byname[name] end
 function EntityRegistry:getIDsByType(etype) return self._bytype[etype] end
+
+function EntityRegistry:_getIDTable()
+	local allIDs = {}
+	local count = 0
+	if self._registry then
+		for k in pairs(self._registry) do
+			count = count + 1
+			allIDs[count] = k
+		end
+		table.sort(allIDs)
+	end
+	return count > 0 and allIDs or nil
+end
+
+function EntityRegistry:iterateIDs()
+	local allIDs = self:_getIDTable()
+	if not allIDs then return nil end
+	local i = 0
+	return function() i = i + 1; return allIDs[i] end
+end
+
+function EntityRegistry:iterateEntities()
+	local allIDs = self:_getIDTable()
+	if not allIDs then return nil end
+	local i = 0
+	return function() i = i + 1; return self._registry[allIDs[i]] end
+end
 
 local _byElevel = function(a, b)
 	if nil == a then return false end
