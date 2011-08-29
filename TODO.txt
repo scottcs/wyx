@@ -3,9 +3,9 @@
 Save:
   d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  + World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
+  d World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
   +   serialiazable
-  + Dungeon class: creates and owns Levels
+  d Dungeon class: creates and owns Levels
   +   serialiazable
   + make Level serializable
   + make Map serializable
@@ -107,16 +107,17 @@ Interface:
       MainMenu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
 
   Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
-  + Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
+  d Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
   d rename GameState object to RunState
 
-  ? perhaps a push() and pop() for RunState?
+  ? perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
   d fix play RunState init,enter,leave so that it can leave [to a menu RunState, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu RunState] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
   o   And a Portrait field.
+  ? how to show damage range? [since it's usually a function]
   x UISystem - handles User Interface
 
 For v0.1.0:
