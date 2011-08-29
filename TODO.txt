@@ -56,57 +56,61 @@ Interface:
 
   NOTES:
     RunState Flow:
-    MAIN -> Intro -> Menu
-      Menu -> Initialize
-      Menu -> Options
-      Menu -> Help
-      Menu -> Shutdown
+    MAIN -> Intro -> MainMenu
+      MainMenu -> Initialize
+      MainMenu -> Options
+      MainMenu -> Help
+      MainMenu -> Shutdown
         Initialize -> LoadGame
         Initialize -> NewGame
-        Options -> Menu
-        Help -> Menu
+        Options -> MainMenu
+        Help -> MainMenu
           LoadGame -> Construct
           NewGame -> Construct
             Construct -> Play
-              Play -> Options
-              Play -> Help
-              Play -> Save
-              Play -> Destroy (quit without saving)
-                Options -> Play
-                Help -> Play
-                Save -> Play
-                Save -> Destroy
-                Destroy -> Menu
-                  Destroy -> Menu
+              Play -> PlayMenu
+                PlayMenu -> Options
+                PlayMenu -> Help
+                PlayMenu -> Save
+                PlayMenu -> Destroy (quit without saving)
+                  Options -> PlayMenu
+                  Help -> PlayMenu
+                  Save -> PlayMenu
+                  Save -> Destroy
+                  Destroy -> MainMenu
+                    Destroy -> MainMenu
 
     Individual States and their potential links:
       RunState:     From:                           To:
       MAIN          --                              Intro
-      Intro         MAIN                            Menu
-      Menu          Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
-      Initialize    Menu                            NewGame, LoadGame
+      Intro         MAIN                            MainMenu
+      MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
+      Initialize    MainMenu                        NewGame, LoadGame
       LoadGame      Initialize                      Construct
       NewGame       Initialize                      Construct
-      Options       Menu, Play                      Menu, Play
-      Help          Menu, Play                      Menu, Play
+      Options       MainMenu, PlayMenu              MainMenu, PlayMenu
+      Help          MainMenu, PlayMenu              MainMenu, PlayMenu
       Construct     LoadGame, NewGame               Play
-      Play          Construct, Options, Help, Save  Options, Help, Save, Destroy
-      Save          Play                            Destroy, Play
-      Destroy       Play, Save                      Menu
-      Shutdown      Menu                            --
+      Play          Construct                       PlayMenu
+      PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
+      Save          PlayMenu                        Destroy, PlayMenu
+      Destroy       PlayMenu, Save                  MainMenu
+      Shutdown      MainMenu                        --
 
     Loops:
-      Menu -> Help -> Menu
-      Menu -> Options -> Menu
-      Play -> Help -> Play
-      Play -> Options -> Play
-      Play -> Save -> Play
-      Menu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> (Save ->) Destroy -> Menu
+      MainMenu -> Help -> MainMenu
+      MainMenu -> Options -> MainMenu
+      Play -> PlayMenu -> Play
+      PlayMenu -> Help -> PlayMenu
+      PlayMenu -> Options -> PlayMenu
+      PlayMenu -> Save -> PlayMenu
+      MainMenu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
 
   Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
   + Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
   d rename GameState object to RunState
 
+  ? perhaps a push() and pop() for RunState?
   d fix play RunState init,enter,leave so that it can leave [to a menu RunState, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu RunState] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
