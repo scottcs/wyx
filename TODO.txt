@@ -1,18 +1,27 @@
 
 
-  Construct state was a bad idea. Creating new Levels should be transparent to the user. With this state, though, the draw / update cycle is interrupted.
-  + Remove (or refactor) Construct state.
-  + Need a new class to hold the Levels and EntityRegistry for each Level. Like a GameState class [but named something else since we already have one of those. or rename current GameState to ProgramState or something].
-  +   This "GameState" class will be the only thing we need to serialize.
-  +   Likewise, when loading, this will be the only thing we need to change.
-
 Save:
-  d first, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  d then, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  + World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
+  +   serialiazable
+  + Dungeon class: creates and owns Levels
+  +   serialiazable
+  + make Level serializable
+  + make Map serializable
+  o on Save: serialize World
+  o  -> loop Dungeons and serialize
+  o    -> loop Levels and serialize
+  o    -> loop Maps and serialize
+  o  -> loop EntityRegistry and serialize Entities
+  o    -> loop Components and serialize
+  o      -> container components repeat this
   d save Random Seed [for the whole game, not just the level]
   o save version with each section
-  o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
-  o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Play
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
 
   Entities:
   d save IDs and a table that maps IDs to entities
@@ -30,7 +39,7 @@ Save:
 Load:
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
-  o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
 
   Entities:
   o read ID table on load before loading entities
@@ -46,7 +55,7 @@ Load:
 Interface:
 
   NOTES:
-    State Flow:
+    RunState Flow:
     MAIN -> Intro -> Menu
       Menu -> Initialize
       Menu -> Options
@@ -59,7 +68,6 @@ Interface:
           LoadGame -> Construct
           NewGame -> Construct
             Construct -> Play
-              Play -> Construct
               Play -> Options
               Play -> Help
               Play -> Save
@@ -72,7 +80,7 @@ Interface:
                   Destroy -> Menu
 
     Individual States and their potential links:
-      State:        From:                           To:
+      RunState:     From:                           To:
       MAIN          --                              Intro
       Intro         MAIN                            Menu
       Menu          Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
@@ -81,8 +89,8 @@ Interface:
       NewGame       Initialize                      Construct
       Options       Menu, Play                      Menu, Play
       Help          Menu, Play                      Menu, Play
-      Construct     LoadGame, NewGame, Play         Play
-      Play          Construct, Options, Help, Save  Construct, Options, Help, Save, Destroy
+      Construct     LoadGame, NewGame               Play
+      Play          Construct, Options, Help, Save  Options, Help, Save, Destroy
       Save          Play                            Destroy, Play
       Destroy       Play, Save                      Menu
       Shutdown      Menu                            --
@@ -92,11 +100,14 @@ Interface:
       Menu -> Options -> Menu
       Play -> Help -> Play
       Play -> Options -> Play
-      Play -> Construct -> Play
       Play -> Save -> Play
       Menu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> (Save ->) Destroy -> Menu
 
-  d fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
+  Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
+  + Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
+  d rename GameState object to RunState
+
+  d fix play RunState init,enter,leave so that it can leave [to a menu RunState, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu RunState] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
