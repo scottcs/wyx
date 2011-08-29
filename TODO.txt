@@ -1,18 +1,25 @@
 
+
+  Construct state was a bad idea. Creating new Levels should be transparent to the user. With this state, though, the draw / update cycle is interrupted.
+  + Remove (or refactor) Construct state.
+  + Need a new class to hold the Levels and EntityRegistry for each Level. Like a GameState class [but named something else since we already have one of those. or rename current GameState to ProgramState or something].
+  +   This "GameState" class will be the only thing we need to serialize.
+  +   Likewise, when loading, this will be the only thing we need to change.
+
 Save:
   d first, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d then, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  o save Random Seed [for the whole game, not just the level]
+  d save Random Seed [for the whole game, not just the level]
   o save version with each section
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
 
   Entities:
-  o save IDs and a table that maps IDs to entities
-  o Entity:getState()
+  d save IDs and a table that maps IDs to entities
+  d Entity:getState()
 
   Components:
-  o Component:getState()
+  d Component:getState()
 
   Maps:
   o including "seen" node table or something
@@ -22,7 +29,7 @@ Save:
 
 Load:
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
-  o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens.
+  o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
 
   Entities:
