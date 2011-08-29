@@ -6,13 +6,13 @@
    screens with fading.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 function st:init() end
 
 function st:enter(prevState)
 	print('intro')
-	GameState.switch(State.menu)
+	RunState.switch(State.menu)
 end
 
 function st:leave() end

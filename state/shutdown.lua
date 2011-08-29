@@ -7,7 +7,7 @@
  State, Shutdown and exit.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 function st:init() end
 

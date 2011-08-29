@@ -9,7 +9,7 @@
    states.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 function st:enter(prevState)
 	print('destroy')
@@ -35,7 +35,7 @@ function st:enter(prevState)
 	State.initialize = nil
 
 	-- switch to the main menu
-	GameState.switch(State.menu)
+	RunState.switch(State.menu)
 end
 
 return st

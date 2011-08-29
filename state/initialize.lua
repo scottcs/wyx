@@ -6,7 +6,7 @@
    needed for the game.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 function st:init()
 	-- entity databases
@@ -51,7 +51,7 @@ function st:_load()
 		[1] = function() HeroDB:load() end,
 		[2] = function() EnemyDB:load() end,
 		[3] = function() ItemDB:load() end,
-		[4] = function() GameState.switch(self._nextState) end,
+		[4] = function() RunState.switch(self._nextState) end,
 		default = function() end,
 	}
 

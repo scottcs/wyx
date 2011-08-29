@@ -5,7 +5,7 @@
      Save the game.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 require 'lib.serialize'
 local warning, tostring = warning, tostring
@@ -17,7 +17,7 @@ function st:enter(prevState, nextState)
 	self:_chooseFile()
 	self:_removeFile()
 	self:_saveGame()
-	GameState.switch(nextState)
+	RunState.switch(nextState)
 end
 
 function st:leave()

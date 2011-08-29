@@ -5,7 +5,7 @@
       Play the game.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
 local MessageHUD = getClass 'pud.view.MessageHUD'
@@ -143,16 +143,16 @@ function st:keypressed(key, unicode)
 		}
 	else
 		switch(key) {
-			escape = function() GameState.switch(State.save, State.destroy) end,
+			escape = function() RunState.switch(State.save, State.destroy) end,
 			['1'] = function()
 				self._view:setAnimate(false)
-				GameState.switch(State.construct,
+				RunState.switch(State.construct,
 					self._level,
 					self._level.generateSimpleGridMap)
 			end,
 			['2'] = function()
 				self._view:setAnimate(false)
-				GameState.switch(State.construct,
+				RunState.switch(State.construct,
 					self._level,
 					self._level.generateFileMap)
 			end,

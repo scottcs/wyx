@@ -50,7 +50,7 @@ end
      GLOBAL CLASSES
          --]]--
 
-GameState = require 'lib.hump.gamestate'
+RunState = require 'lib.hump.gamestate'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -139,8 +139,8 @@ function love.load()
 			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
 	}
 
-	-- register all love events with gamestate
-	GameState.registerEvents()
+	-- register all love events with run state
+	RunState.registerEvents()
 
 	-- create global event managers (event "channels")
 	local EventManager = getClass 'pud.event.EventManager'
@@ -161,7 +161,7 @@ function love.load()
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	GameState.switch(State.intro)
+	RunState.switch(State.intro)
 end
 
 function love.update(dt)

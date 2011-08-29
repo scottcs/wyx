@@ -6,7 +6,7 @@
      the play state.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 local Level = getClass 'pud.map.Level'
 local GameCam = getClass 'pud.view.GameCam'
@@ -104,7 +104,7 @@ function st:_load()
 		[5] = function() self:_createMapView() end,
 		[6] = function() self:_createCamera() end,
 		[7] = function()
-			GameState.switch(State.play, self._level, self._view, self._cam)
+			RunState.switch(State.play, self._level, self._view, self._cam)
 		end,
 		default = function() end,
 	}

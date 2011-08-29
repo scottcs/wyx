@@ -5,16 +5,16 @@
   Display the main menu.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 function st:init() end
 
 function st:enter(prevState)
 	print('menu')
 	if prevState == State.intro then
-		GameState.switch(State.initialize, State.newgame)
+		RunState.switch(State.initialize, State.newgame)
 	else
-		GameState.switch(State.shutdown)
+		RunState.switch(State.shutdown)
 	end
 end
 

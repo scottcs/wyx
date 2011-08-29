@@ -6,7 +6,7 @@
   needed for a new game.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 
 function st:init() end
@@ -35,7 +35,7 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function() GameState.switch(State.construct) end,
+		[1] = function() RunState.switch(State.construct) end,
 		default = function() end,
 	}
 
