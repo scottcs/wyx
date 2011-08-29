@@ -152,9 +152,6 @@ function love.load()
 	Console = getClass('pud.debug.Console')()
 	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
-	-- create global entity registry
-  EntityRegistry = getClass('pud.entity.EntityRegistry')()
-
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
@@ -233,8 +230,6 @@ function love.quit()
 	tween.stopAll()
 
 	Console:destroy()
-
-	EntityRegistry:destroy()
 
 	GameEvents:destroy()
 	InputEvents:destroy()

@@ -23,11 +23,13 @@ function st:init()
 	end
 end
 
-function st:enter(prevState, level, view, cam)
+function st:enter(prevState, world, view, cam)
 	print('play')
-	self._level = level
-	self._view = view
-	self._cam = cam
+	self._world = self._world or world
+	local place = self._world:getCurrentPlace()
+	self._level = self._level or place:getCurrentLevel()
+	self._view = self._view or view
+	self._cam = self._cam or cam
 
 	GameEvents:register(self, {
 		ZoneTriggerEvent,
@@ -43,6 +45,10 @@ end
 
 function st:destroy()
 	self:_killMessageHUD()
+	self._level = nil
+	self._world = nil
+	self._view = nil
+	self._cam = nil
 	if self._debugHUD then self._debugHUD:destroy() end
 	self._debug = nil
 end
@@ -144,18 +150,6 @@ function st:keypressed(key, unicode)
 	else
 		switch(key) {
 			escape = function() RunState.switch(State.save, State.destroy) end,
-			['1'] = function()
-				self._view:setAnimate(false)
-				RunState.switch(State.construct,
-					self._level,
-					self._level.generateSimpleGridMap)
-			end,
-			['2'] = function()
-				self._view:setAnimate(false)
-				RunState.switch(State.construct,
-					self._level,
-					self._level.generateFileMap)
-			end,
 
 			-- camera
 			pageup = function()

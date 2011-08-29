@@ -8,25 +8,19 @@
 
 local st = RunState.new()
 
-local Level = getClass 'pud.map.Level'
 local GameCam = getClass 'pud.view.GameCam'
 local TileMapView = getClass 'pud.view.TileMapView'
 
 local math_floor = math.floor
 
 
-function st:init()
-	-- create systems
-	RenderSystem = getClass('pud.system.RenderSystem')()
-	TimeSystem = getClass('pud.system.TimeSystem')()
-	CollisionSystem = getClass('pud.system.CollisionSystem')()
-end
+function st:init() end
 
-function st:enter(prevState, level, generateFunc)
+function st:enter(prevState, world)
 	print('construct')
-	if Console then Console:show() end
-	self._level = level
-	self._generateFunc = generateFunc
+	self._world = world
+	local place = self._world:getCurrentPlace()
+	self._level = place:getCurrentLevel()
 	self._loadStep = 0
 	self._doLoadStep = true
 end
@@ -38,20 +32,11 @@ function st:leave()
 end
 
 function st:destroy()
-	self._level:destroy()
-	self._level = nil
+	self._world = nil
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
 	self._cam = nil
-
-	-- destroy systems
-	RenderSystem:destroy()
-	TimeSystem:destroy()
-	CollisionSystem:destroy()
-	RenderSystem = nil
-	TimeSystem = nil
-	CollisionSystem = nil
 end
 
 function st:_createMapView()
@@ -91,20 +76,12 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function() if not self._level then self._level = Level() end end,
-		[2] = function()
-			if self._generateFunc then
-				self._generateFunc(self._level)
-			else
-				self._level:generateSimpleGridMap()
-			end
-		end,
-		[3] = function() CollisionSystem:setLevel(self._level) end,
-		[4] = function() self._level:setPlayerControlled() end,
-		[5] = function() self:_createMapView() end,
-		[6] = function() self:_createCamera() end,
-		[7] = function()
-			RunState.switch(State.play, self._level, self._view, self._cam)
+		[1] = function() CollisionSystem:setLevel(self._level) end,
+		[2] = function() self._level:setPlayerControlled() end,
+		[3] = function() self:_createMapView() end,
+		[4] = function() self:_createCamera() end,
+		[5] = function()
+			RunState.switch(State.play, self._world, self._view, self._cam)
 		end,
 		default = function() end,
 	}

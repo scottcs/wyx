@@ -8,11 +8,21 @@
 
 local st = RunState.new()
 
+local World = getClass 'pud.map.World'
+
 function st:init()
 	-- entity databases
 	HeroDB = getClass('pud.entity.HeroEntityDB')()
 	EnemyDB = getClass('pud.entity.EnemyEntityDB')()
 	ItemDB = getClass('pud.entity.ItemEntityDB')()
+
+	-- create systems
+	RenderSystem = getClass('pud.system.RenderSystem')()
+	TimeSystem = getClass('pud.system.TimeSystem')()
+	CollisionSystem = getClass('pud.system.CollisionSystem')()
+
+	-- instantiate world
+	self._world = World()
 end
 
 function st:enter(prevState, nextState)
@@ -29,6 +39,18 @@ function st:leave()
 end
 
 function st:destroy()
+	self._world:destroy()
+
+	EntityRegistry = nil
+
+	-- destroy systems
+	RenderSystem:destroy()
+	TimeSystem:destroy()
+	CollisionSystem:destroy()
+	RenderSystem = nil
+	TimeSystem = nil
+	CollisionSystem = nil
+
 	-- destroy entity databases
 	HeroDB:destroy()
 	EnemyDB:destroy()
@@ -36,6 +58,12 @@ function st:destroy()
 	HeroDB = nil
 	EnemyDB = nil
 	ItemDB = nil
+end
+
+function st:_makeWorld()
+	self._world:generate()
+	-- TODO: make this not global
+	EntityRegistry = self._world:getEntityRegistry()
 end
 
 function st:_nextLoadStep()
@@ -48,10 +76,11 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function() HeroDB:load() end,
-		[2] = function() EnemyDB:load() end,
-		[3] = function() ItemDB:load() end,
-		[4] = function() RunState.switch(self._nextState) end,
+		[1] = function() self:_makeWorld() end,
+		[2] = function() HeroDB:load() end,
+		[3] = function() EnemyDB:load() end,
+		[4] = function() ItemDB:load() end,
+		[5] = function() RunState.switch(self._nextState, self._world) end,
 		default = function() end,
 	}
 
