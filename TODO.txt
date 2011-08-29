@@ -1,23 +1,40 @@
 
-Save/Load:
-
-  NOTES:
-    JSON format
-
-  Save:
+Save:
   d first, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d then, need state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  d save Random Seed [for the whole game, not just the level]
+  o save Random Seed [for the whole game, not just the level]
   o save version with each section
-  o save IDs and a table that maps IDs to entities
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
 
-  Load:
-  o read ID table on load before loading entities
+  Entities:
+  o save IDs and a table that maps IDs to entities
+  o Entity:getState()
+
+  Components:
+  o Component:getState()
+
+  Maps:
+  o including "seen" node table or something
+
+  Event Queues:
+  ? current state of queues? or just ignore?
+
+Load:
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens.
   o get state flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+
+  Entities:
+  o read ID table on load before loading entities
+
+  Components:
+  o in registry, need to attach new components as normal but set properties from file
+
+  Maps:
+
+  Event Queues:
+
 
 Interface:
 
@@ -38,10 +55,11 @@ Interface:
               Play -> Construct
               Play -> Options
               Play -> Help
-              Play -> Save (and quit)
+              Play -> Save
               Play -> Destroy (quit without saving)
                 Options -> Play
                 Help -> Play
+                Save -> Play
                 Save -> Destroy
                 Destroy -> Menu
                   Destroy -> Menu
@@ -57,10 +75,19 @@ Interface:
       Options       Menu, Play                      Menu, Play
       Help          Menu, Play                      Menu, Play
       Construct     LoadGame, NewGame, Play         Play
-      Play          Construct, Options, Help        Construct, Options, Help, Save, Destroy
-      Save          Play                            Destroy
+      Play          Construct, Options, Help, Save  Construct, Options, Help, Save, Destroy
+      Save          Play                            Destroy, Play
       Destroy       Play, Save                      Menu
       Shutdown      Menu                            --
+
+    Loops:
+      Menu -> Help -> Menu
+      Menu -> Options -> Menu
+      Play -> Help -> Play
+      Play -> Options -> Play
+      Play -> Construct -> Play
+      Play -> Save -> Play
+      Menu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> (Save ->) Destroy -> Menu
 
   d fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
