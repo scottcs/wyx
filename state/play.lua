@@ -143,7 +143,7 @@ function st:keypressed(key, unicode)
 		}
 	else
 		switch(key) {
-			escape = function() GameState.switch(State.destroy) end,
+			escape = function() GameState.switch(State.save, State.destroy) end,
 			['1'] = function()
 				self._view:setAnimate(false)
 				GameState.switch(State.construct,
