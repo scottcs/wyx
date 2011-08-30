@@ -4,21 +4,24 @@ Save:
   d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
-  +   serialiazable
-  d Dungeon class: creates and owns Levels
-  +   serialiazable
-  + make Level serializable
-  + make Map serializable
-  o on Save: serialize World
-  o  -> loop Dungeons and serialize
-  o    -> loop Levels and serialize
-  o    -> loop Maps and serialize
-  o  -> loop EntityRegistry and serialize Entities
-  o    -> loop Components and serialize
-  o      -> container components repeat this
+  d   serialiazable
+  d Place class: creates and owns Levels
+  d   serialiazable
+  d Dungeon class: child of Place, with dungeon specific code
+  d   serialiazable
+  d make Level serializable
+  d make Map serializable
+  d make MapNode serializable
+  d on Save: serialize World
+  d  -> loop Dungeons and serialize
+  d    -> loop Levels and serialize
+  d    -> loop Maps and serialize
+  d  -> loop EntityRegistry and serialize Entities
+  d    -> loop Components and serialize
+  d      -> container components repeat this
   d save Random Seed [for the whole game, not just the level]
-  o save version with each section
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  d save version with each section
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Play
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
@@ -31,12 +34,17 @@ Save:
   d Component:getState()
 
   Maps:
-  o including "seen" node table or something
+  d including "seen" node table or something
 
   Event Queues:
   ? current state of queues? or just ignore?
 
 Load:
+  + 1 loadgame RunState: load state from disk and save it to a variable
+	+ 2 when creating the world and dungeon and levels, call their :setState() with the appropriate data from the saved state variable before calling their :generate() [or whatever] methods.
+	+ 3 each of these will simply store the state in a variable as well
+	+ 4 when :generate() [or whatever] is called, check for the state variable and use it if found, otherwise continue as normal.
+	+ 5 erase the state variable after creation
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
@@ -151,6 +159,7 @@ BEYOND v0.1.0:
   o Level templates
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
   o make stairs work [generate new map]
+	+ maps should be referenced by ID like entities [with portals, anyway]
 
   Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
@@ -182,5 +191,6 @@ BEYOND v0.1.0:
 
   Other:
   - fix tests
+	+ make EntityRegistry not a global [it's in the World]
 
 NOTES & IDEAS:
