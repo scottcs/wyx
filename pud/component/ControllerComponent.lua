@@ -64,6 +64,12 @@ function ControllerComponent:_attemptMove(x, y)
 	CollisionSystem:check(self._mediator, newX, newY)
 end
 
+function ControllerComponent:_attemptPortalIn()
+	print('in')
+	local pos = self._mediator:query(property('Position'))
+	CollisionSystem:checkPortal(self._mediator, pos[1], pos[2])
+end
+
 function ControllerComponent:_wait()
 	self:_sendCommand(WaitCommand(self._mediator))
 end
