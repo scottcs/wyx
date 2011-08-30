@@ -64,5 +64,28 @@ function MapNode:setMapType(mapType)
 end
 function MapNode:getMapType() return self._mapType end
 
+-- get the state of this mapnode
+function MapNode:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+	state.mapType = setmetatable({}, mt)
+
+	state.isAccessible = self._isAccessible
+	state.isLit = self._isLit
+	state.isTransparent = self._isTransparent
+	state.wasSeen = self._wasSeen
+
+	state.mapType.type = tostring(self._mapType.__class)
+	state.mapType.variant = self._mapType:getVariant()
+	state.mapType.style = self._mapType:getStyle()
+
+	return state
+end
+
+-- set the state of this mapnode
+function MapNode:setState()
+end
+
+
 -- the class
 return MapNode

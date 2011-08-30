@@ -6,7 +6,8 @@ local table_concat = table.concat
 local math_floor = math.floor
 
 -- Map
-local Map = Class{name='Map', inherits=Rect,
+local Map = Class{name='Map',
+	inherits=Rect,
 	function(self, ...)
 		Rect.construct(self, ...)
 		self._layout = {}
@@ -165,6 +166,41 @@ function Map:getZonesFromPoint(x, y)
 	end
 	return num > 0 and zones or nil
 end
+
+-- get the state of this map
+function Map:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+	state.layout = setmetatable({}, mt)
+	state.zones = setmetatable({}, mt)
+	state.portals = setmetatable({}, mt)
+
+	state.x, state.y = self:getPosition()
+	state.w, state.h = self:getSize()
+
+	for y=1,state.h do
+		state.layout[y] = state.layout[y] or setmetatable({}, mt)
+		for x=1,state.w do
+			if self._layout[y][x] then
+				state.layout[y][x] = self._layout[y][x]:getState()
+			end
+		end
+	end
+
+	for k,z in pairs(self._zones) do
+		state.zones[k] = setmetatable({}, mt)
+		state.zones[k].x, state.zones[k].y = z:getPosition()
+		state.zones[k].w, state.zones[k].h = z:getSize()
+	end
+	for k,p in pairs(self._portals) do state.portals[k] = p end
+
+	return state
+end
+
+-- set the state of this map
+function Map:setState()
+end
+
 
 -- the class
 return Map

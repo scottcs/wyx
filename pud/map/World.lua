@@ -53,6 +53,31 @@ end
 -- return the entity registry
 function World:getEntityRegistry() return self._eregistry end
 
+-- save the world (forget the cheerleader)
+function World:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+	state.entities = setmetatable({}, mt)
+	state.places = setmetatable({}, mt)
+
+	state.curPlace = self._curPlace
+	state.lastPlace = self._lastPlace
+	
+	for id, entity in self._eregistry:iterate() do
+		state.entities[id] = entity:getState()
+	end
+
+	for name, place in pairs(self._places) do
+		state.places[name] = place:getState()
+	end
+
+	return state
+end
+
+-- load the world
+function World:setState()
+end
+
 
 -- the class
 return World

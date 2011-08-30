@@ -152,6 +152,26 @@ function AttachmentComponent:getProperty(p, intermediate, ...)
 	end
 end
 
+-- override the default getState to deal with contained entities
+function AttachmentComponent:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	for k,v in pairs(self._properties) do
+		if k == 'AttachedEntities' then
+			state[k] = self._entities:getArray()
+		else
+			state[k] = v
+		end
+	end
+
+	return state
+end
+
+-- override the default setState to deal with contained entities
+function AttachmentComponent:setState(state)
+end
+
 
 -- the class
 return AttachmentComponent

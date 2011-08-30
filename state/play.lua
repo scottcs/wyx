@@ -149,7 +149,9 @@ function st:keypressed(key, unicode)
 		}
 	else
 		switch(key) {
-			escape = function() RunState.switch(State.save, State.destroy) end,
+			escape = function()
+				RunState.switch(State.save, self._world, State.destroy)
+			end,
 
 			-- camera
 			pageup = function()

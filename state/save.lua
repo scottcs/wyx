@@ -12,8 +12,9 @@ local warning, tostring = warning, tostring
 
 function st:init() end
 
-function st:enter(prevState, nextState)
+function st:enter(prevState, world, nextState)
 	print('save')
+	self._world = world
 	self:_chooseFile()
 	self:_removeFile()
 	self:_saveGame()
@@ -22,6 +23,7 @@ end
 
 function st:leave()
 	if self._file then self._file:close() end
+	self._world = nil
 	self._file = nil
 	self._filename = nil
 end
@@ -51,13 +53,9 @@ function st:_saveGame()
 	local opts = {indent = true, level = 0}
 	local mt = {__mode = 'kv'}
 
-	local state = setmetatable({}, mt)
-	state.seed = RANDOMSEED
-	state.entities = setmetatable({}, mt)
-
-	for id, entity in EntityRegistry:iterate() do
-		state.entities[id] = entity:getState()
-	end
+	local state = self._world:getState()
+	state.SEED = RANDOMSEED
+	state.VERSION = VERSION
 
 	--[[
 	local inspect = require 'lib.inspect'

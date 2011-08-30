@@ -460,6 +460,25 @@ function Level:getLightingColor(x, y)
 	return self._lightColor[color]
 end
 
+-- get the state of this level
+function Level:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	state.primeEntity = self._primeEntity
+	state.lightColor = self._lightColor
+	state.lightmap = self._lightmap
+	state.turns = self._turns
+	state.entities = self._entities:getArray()
+	state.map = self._map:getState()
+
+	return state
+end
+
+-- set the state of this level
+function Level:setState()
+end
+
 
 -- the class
 return Level

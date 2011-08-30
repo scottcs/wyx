@@ -52,5 +52,26 @@ function Place:setCurrentLevel(which)
 	self._curLevel = which
 end
 
+-- get the state of this place
+function Place:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+	state.levels = setmetatable({}, mt)
+
+	state.curLevel = self._curLevel
+	state.name = self._name
+	
+	for which, level in pairs(self._levels) do
+		state.levels[which] = level:getState()
+	end
+
+	return state
+end
+
+-- set the state of this place
+function Place:setState()
+end
+
+
 -- the class
 return Place
