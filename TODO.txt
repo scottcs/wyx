@@ -1,8 +1,8 @@
 
 
 Save:
-  d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
-  d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
   d World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
   d   serialiazable
   d Place class: creates and owns Levels
@@ -21,8 +21,8 @@ Save:
   d      -> container components repeat this
   d save Random Seed [for the whole game, not just the level]
   d save version with each section
-  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> NewGame -> Construct -> Play -> Save -> Play
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Play
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
 
@@ -70,11 +70,10 @@ Interface:
       MainMenu -> Help
       MainMenu -> Shutdown
         Initialize -> LoadGame
-        Initialize -> NewGame
+        Initialize -> Construct
         Options -> MainMenu
         Help -> MainMenu
           LoadGame -> Construct
-          NewGame -> Construct
             Construct -> Play
               Play -> PlayMenu
                 PlayMenu -> Options
@@ -93,12 +92,11 @@ Interface:
       MAIN          --                              Intro
       Intro         MAIN                            MainMenu
       MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
-      Initialize    MainMenu                        NewGame, LoadGame
+      Initialize    MainMenu                        Construct, LoadGame
       LoadGame      Initialize                      Construct
-      NewGame       Initialize                      Construct
       Options       MainMenu, PlayMenu              MainMenu, PlayMenu
       Help          MainMenu, PlayMenu              MainMenu, PlayMenu
-      Construct     LoadGame, NewGame               Play
+      Construct     LoadGame, Initialize            Play
       Play          Construct                       PlayMenu
       PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
       Save          PlayMenu                        Destroy, PlayMenu
@@ -112,7 +110,7 @@ Interface:
       PlayMenu -> Help -> PlayMenu
       PlayMenu -> Options -> PlayMenu
       PlayMenu -> Save -> PlayMenu
-      MainMenu -> Initialize -> NewGame/LoadGame -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
 
   Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
   d Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
