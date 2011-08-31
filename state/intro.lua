@@ -12,7 +12,7 @@ function st:init() end
 
 function st:enter(prevState)
 	print('intro')
-	RunState.switch(State.menu)
+	RunState.switch(State.menu, State.initialize)
 end
 
 function st:leave() end

@@ -60,8 +60,7 @@ function st:destroy()
 	ItemDB = nil
 end
 
-function st:_makeWorld()
-	self._world:generate()
+function st:_makeEntityRegistry()
 	-- TODO: make this not global
 	EntityRegistry = self._world:getEntityRegistry()
 end
@@ -76,7 +75,7 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function() self:_makeWorld() end,
+		[1] = function() self:_makeEntityRegistry() end,
 		[2] = function() HeroDB:load() end,
 		[3] = function() EnemyDB:load() end,
 		[4] = function() ItemDB:load() end,
@@ -84,7 +83,7 @@ function st:_load()
 		default = function() end,
 	}
 
-	cron.after(.1, self._nextLoadStep, self)
+	cron.after(LOAD_DELAY, self._nextLoadStep, self)
 end
 
 function st:update(dt)
