@@ -50,6 +50,12 @@ function st:_loadFile()
 	local ok, state = pcall(contents)
 	if ok then
 		self._state = state
+
+		if state.GAMESEED then
+			GAMESEED = state.GAMESEED
+			Random = random.new(GAMESEED)
+		end
+
 	else
 		warning(state..' (Game not loaded)')
 	end

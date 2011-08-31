@@ -54,13 +54,8 @@ function st:_saveGame()
 	local mt = {__mode = 'kv'}
 
 	local state = self._world:getState()
-	state.SEED = RANDOMSEED
+	state.GAMESEED = GAMESEED
 	state.VERSION = VERSION
-
-	--[[
-	local inspect = require 'lib.inspect'
-	print(inspect(state))
-	]]--
 
 	ok = ok and self:_write(serialize(state))
 
