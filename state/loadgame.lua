@@ -47,17 +47,22 @@ end
 
 function st:_loadFile()
 	local contents = love.filesystem.read(self._filename)
-	local ok, state = pcall(contents)
+	local ok, err = pcall(loadstring,contents)
 	if ok then
-		self._state = state
+		ok, err = pcall(err)
+		if ok then
+			self._state = err
 
-		if state.GAMESEED then
-			GAMESEED = state.GAMESEED
-			Random = random.new(GAMESEED)
+			if self._state.GAMESEED then
+				GAMESEED = self._state.GAMESEED
+				Random = random.new(GAMESEED)
+			end
 		end
+	end
 
-	else
-		warning(state..' (Game not loaded)')
+	if not ok then
+		err = err or ''
+		warning(err..' (Game not loaded)')
 	end
 end
 
