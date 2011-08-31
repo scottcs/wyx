@@ -20,9 +20,17 @@ function Place:destroy()
 	end
 	self._levels = nil
 	self._curLevel = nil
+	self._loadstate = nil
 end
 
--- get/set the name of the dungeon
+-- generate a new level
+-- (subclass Place and override this function)
+function Place:generateLevel(which) end
+
+-- regenerate all levels from a saved state
+function Place:regenerate() end
+
+-- get/set the name of the place
 function Place:getName() return self._name end
 function Place:setName(name)
 	verify('string', name)
@@ -60,6 +68,7 @@ function Place:getState()
 
 	state.curLevel = self._curLevel
 	state.name = self._name
+	state.class = tostring(self.__class)
 	
 	for which, level in pairs(self._levels) do
 		state.levels[which] = level:getState()
@@ -69,8 +78,7 @@ function Place:getState()
 end
 
 -- set the state of this place
-function Place:setState()
-end
+function Place:setState(state) self._loadstate = state end
 
 
 -- the class

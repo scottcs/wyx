@@ -19,8 +19,6 @@ function st:init() end
 function st:enter(prevState, world)
 	print('construct')
 	self._world = world
-	local place = self._world:getCurrentPlace()
-	self._level = place:getCurrentLevel()
 	self._loadStep = 0
 	self._doLoadStep = true
 end
@@ -37,6 +35,12 @@ function st:destroy()
 	self._view = nil
 	self._cam:destroy()
 	self._cam = nil
+end
+
+function st:_generateWorld()
+	self._world:generate()
+	local place = self._world:getCurrentPlace()
+	self._level = place:getCurrentLevel()
 end
 
 function st:_createMapView()
@@ -76,17 +80,18 @@ function st:_load()
 
 	-- load entities
 	switch(self._loadStep) {
-		[1] = function() CollisionSystem:setLevel(self._level) end,
-		[2] = function() self._level:setPlayerControlled() end,
-		[3] = function() self:_createMapView() end,
-		[4] = function() self:_createCamera() end,
-		[5] = function()
+		[1] = function() self:_generateWorld() end,
+		[2] = function() CollisionSystem:setLevel(self._level) end,
+		[3] = function() self._level:setPlayerControlled() end,
+		[4] = function() self:_createMapView() end,
+		[5] = function() self:_createCamera() end,
+		[6] = function()
 			RunState.switch(State.play, self._world, self._view, self._cam)
 		end,
 		default = function() end,
 	}
 
-	cron.after(.1, self._nextLoadStep, self)
+	cron.after(LOAD_DELAY, self._nextLoadStep, self)
 end
 
 function st:update(dt)

@@ -476,7 +476,7 @@ function Level:getState()
 end
 
 -- set the state of this level
-function Level:setState()
+function Level:setState(state)
 end
 
 

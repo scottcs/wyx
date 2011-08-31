@@ -18,6 +18,7 @@ function World:destroy()
 		self._places[k]:destroy()
 		self._places[k] = nil
 	end
+	self._loadstate = nil
 	self._eregistry:destroy()
 	self._eregistry = nil
 	self._places = nil
@@ -27,7 +28,23 @@ end
 
 -- generate the world
 function World:generate()
-	-- XXX nothing to do for now
+	if self._loadstate then
+		for name,place in pairs(self._state.places) do
+			if place.class == 'Dungeon' then
+				local dungeon = Dungeon(name)
+				dungeon:setState(place)
+				dungeon:regenerate()
+				self:addPlace(dungeon)
+			end
+		end
+
+		self._curPlace = state.curPlace
+		self._lastPlace = state.lastPlace
+	else
+		local dungeon = Dungeon('Lonely Dungeon')
+		dungeon:generateLevel(1)
+		self:addPlace(dungeon)
+	end
 end
 
 function World:addPlace(place)
@@ -75,8 +92,7 @@ function World:getState()
 end
 
 -- load the world
-function World:setState()
-end
+function World:setState(state) self._loadstate = state end
 
 
 -- the class
