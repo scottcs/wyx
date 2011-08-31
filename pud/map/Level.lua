@@ -201,12 +201,12 @@ function Level:regenerate()
 
 		-- TODO: entities - just IDs, need to translate to new IDs
 		self._map = Map()
-		self._map:setState(state.map)
+		self._map:setState(self._loadstate.map)
 
-		self._primeEntity = state.primeEntity
-		self._lightColor = state.lightColor
-		self._lightmap = state.lightMap
-		self._turns = state.turns
+		self._primeEntity = self._loadstate.primeEntity
+		self._lightColor = self._loadstate.lightColor
+		self._lightmap = self._loadstate.lightMap
+		self._turns = self._loadstate.turns
 
 		self._loadstate = nil
 	end

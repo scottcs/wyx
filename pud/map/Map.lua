@@ -194,7 +194,11 @@ function Map:getState()
 		end
 	end
 
-	for k,z in pairs(self._zones) do state.zones[k] = z:clone() end
+	for k,z in pairs(self._zones) do
+		state.zones[k] = setmetatable({}, mt)
+		state.zones[k].x, state.zones[k].y = z:getPosition()
+		state.zones[k].w, state.zones[k].h = z:getSize()
+	end
 	for k,p in pairs(self._portals) do state.portals[k] = p end
 
 	return state
@@ -218,7 +222,10 @@ function Map:setState(state)
 		end
 	end
 
-	for k,z in pairs(state.zones) do self:setZone(k, z) end
+	for k,z in pairs(state.zones) do
+		local rect = Rect(z.x, z.y, z.w, z.h)
+		self:setZone(k, rect)
+	end
 	for k,p in pairs(state.portals) do self._portals[k] = p end
 end
 

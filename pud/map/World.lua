@@ -41,8 +41,8 @@ function World:generate()
 			end
 		end
 
-		self._curPlace = state.curPlace
-		self._lastPlace = state.lastPlace
+		self._curPlace = self._loadstate.curPlace
+		self._lastPlace = self._loadstate.lastPlace
 
 		self._loadstate = nil
 	else
