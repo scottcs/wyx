@@ -162,7 +162,6 @@ end
 
 -- setState accepts a table with key/value pairs representing state data
 function Entity:setState(state)
-	verify('table', state)
 end
 
 

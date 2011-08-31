@@ -35,6 +35,22 @@ function Dungeon:generateLevel(which)
 	self:setLevel(which, level)
 end
 
+-- regenerate all levels from the saved state
+function Dungeon:regenerate()
+	if self._loadstate then
+		for which,levelState in pairs(self._loadstate.levels) do
+			local level = Level()
+			level:setState(levelState)
+			level:regenerate()
+			self:setLevel(which, level)
+		end
+
+		self._curLevel = self._loadstate.curLevel
+
+		self._loadstate = nil
+	end
+end
+
 
 -- the class
 return Dungeon

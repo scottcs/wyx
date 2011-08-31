@@ -29,7 +29,10 @@ end
 -- generate the world
 function World:generate()
 	if self._loadstate then
-		for name,place in pairs(self._state.places) do
+		for id, entityState in pairs(self._loadstate.entities) do
+		end
+
+		for name,place in pairs(self._loadstate.places) do
 			if place.class == 'Dungeon' then
 				local dungeon = Dungeon(name)
 				dungeon:setState(place)
@@ -40,6 +43,8 @@ function World:generate()
 
 		self._curPlace = state.curPlace
 		self._lastPlace = state.lastPlace
+
+		self._loadstate = nil
 	else
 		local dungeon = Dungeon('Lonely Dungeon')
 		dungeon:generateLevel(1)

@@ -87,6 +87,10 @@ function Level:destroy()
 	self._lightmap = nil
 
 	self._turns = nil
+
+	self._loadstate = nil
+	self._generator = nil
+	self._generatorArgs = nil
 end
 
 local vec2_equal = vec2.equal
@@ -121,11 +125,16 @@ function Level:generateFileMap(file)
 	local maps = enumerate('map')
 	file = file or maps[Random(#maps)]
 	local builder = FileMapBuilder('map/'..file)
+	self._generator = 'File'
+	self._generatorArgs = file
 	self:_generateMap(builder)
 end
 
-function Level:generateSimpleGridMap()
-	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16)
+function Level:generateSimpleGridMap(seed)
+	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16, seed)
+	seed = builder:getSeed()
+	self._generator = 'SimpleGrid'
+	self._generatorArgs = seed
 	self:_generateMap(builder)
 end
 
@@ -176,6 +185,31 @@ function Level:_generateMap(builder)
 	self:_bakeLights(true)
 	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
+end
+
+-- regenerate the level from a saved state
+function Level:regenerate()
+	if self._loadstate then
+		--[[
+		local genfunc = switch(state.generator) {
+			File = self.generateFileMap,
+			SimpleGrid = self.generateSimpleGridMap,
+			default = self.generateSimpleGridMap,
+		}
+		genfunc(self, state.generatorArgs)
+		]]--
+
+		-- TODO: entities - just IDs, need to translate to new IDs
+		self._map = Map()
+		self._map:setState(state.map)
+
+		self._primeEntity = state.primeEntity
+		self._lightColor = state.lightColor
+		self._lightmap = state.lightMap
+		self._turns = state.turns
+
+		self._loadstate = nil
+	end
 end
 
 -- get the size of the map
@@ -469,6 +503,8 @@ function Level:getState()
 	state.lightColor = self._lightColor
 	state.lightmap = self._lightmap
 	state.turns = self._turns
+	state.generator = self._generator
+	state.generatorArgs = self._generatorArgs
 	state.entities = self._entities:getArray()
 	state.map = self._map:getState()
 
@@ -476,8 +512,7 @@ function Level:getState()
 end
 
 -- set the state of this level
-function Level:setState(state)
-end
+function Level:setState(state) self._loadstate = state end
 
 
 -- the class

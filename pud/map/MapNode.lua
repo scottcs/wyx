@@ -83,7 +83,21 @@ function MapNode:getState()
 end
 
 -- set the state of this mapnode
-function MapNode:setState()
+function MapNode:setState(state)
+	local maptypeClass = 'pud.map.'..state.mapType.type
+	local mapType = getClass(maptypeClass)()
+	if state.mapType.variant then
+		mapType:setVariant(state.mapType.variant)
+	end
+	if state.mapType.style then
+		mapType:setStyle(state.mapType.style)
+	end
+
+	self:setMapType(mapType)
+	self:setAccessible(state.isAccessible)
+	self:setLit(state.isLit)
+	self:setTransparent(state.isTransparent)
+	self:setSeen(state.wasSeen)
 end
 
 
