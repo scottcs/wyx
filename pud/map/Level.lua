@@ -245,26 +245,19 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	print('create')
 	if self._loadstate then
-		print('loadstate')
 		if self._loadstate.entities then
-			print('entities')
 			local num = #self._loadstate.entities
 
 			for i=1,num do
 				local id = self._loadstate.entities[i]
 				local info = EntityRegistry:getEntityLoadState(id)
-				print('id',id)
 
 				if info then
-					print('etype',info.etype)
 					switch(info.etype) {
 						hero = function()
 							local newID = self._heroFactory:createEntity(info)
-							print('newID',newID)
 							if id == self._loadstate.primeEntity then
-								print('prime')
 								self._primeEntity = newID
 							end
 							self._heroFactory:registerEntity(newID)
@@ -347,7 +340,6 @@ end
 function Level:setPlayerControlled()
 	local PIC = getClass 'pud.component.PlayerInputComponent'
 	local input = PIC()
-	print(self._primeEntity)
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 
 	local entity = EntityRegistry:get(self._primeEntity)
