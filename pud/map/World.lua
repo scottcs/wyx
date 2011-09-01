@@ -29,8 +29,7 @@ end
 -- generate the world
 function World:generate()
 	if self._loadstate then
-		for id, entityState in pairs(self._loadstate.entities) do
-		end
+		self._eregistry:setState(self._loadstate.eregistry)
 
 		for name,place in pairs(self._loadstate.places) do
 			if place.class == 'Dungeon' then
@@ -79,15 +78,11 @@ function World:getEntityRegistry() return self._eregistry end
 function World:getState()
 	local mt = {__mode = 'kv'}
 	local state = setmetatable({}, mt)
-	state.entities = setmetatable({}, mt)
 	state.places = setmetatable({}, mt)
 
 	state.curPlace = self._curPlace
 	state.lastPlace = self._lastPlace
-	
-	for id, entity in self._eregistry:iterate() do
-		state.entities[id] = entity:getState()
-	end
+	state.eregistry = self._eregistry:getState()
 
 	for name, place in pairs(self._places) do
 		state.places[name] = place:getState()
