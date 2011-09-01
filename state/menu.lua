@@ -1,18 +1,21 @@
 
          --[[--
-     SHUTDOWN STATE
+     MAIN MENU STATE
           ----
- Destroy everything that
- was created in the Menu
- State, Shutdown and exit.
+  Display the main menu.
          --]]--
 
 local st = RunState.new()
 
 function st:init() end
 
-function st:enter(prevState)
-	love.event.push('q')
+function st:enter(prevState, nextState)
+	if nil ~= nextState then
+		RunState.switch(nextState, State.construct)
+		--RunState.switch(nextState, State.loadgame)
+	else
+		RunState.switch(State.shutdown)
+	end
 end
 
 function st:leave() end

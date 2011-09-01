@@ -87,6 +87,10 @@ function Level:destroy()
 	self._lightmap = nil
 
 	self._turns = nil
+
+	self._loadstate = nil
+	self._generator = nil
+	self._generatorArgs = nil
 end
 
 local vec2_equal = vec2.equal
@@ -121,50 +125,67 @@ function Level:generateFileMap(file)
 	local maps = enumerate('map')
 	file = file or maps[Random(#maps)]
 	local builder = FileMapBuilder('map/'..file)
+	self._generator = 'File'
+	self._generatorArgs = file
 	self:_generateMap(builder)
+	self:_populateMap()
 end
 
-function Level:generateSimpleGridMap()
-	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16)
+function Level:generateSimpleGridMap(seed)
+	local builder = SimpleGridMapBuilder(80,80, 10,10, 8,16, seed)
+	seed = builder:getSeed()
+	self._generator = 'SimpleGrid'
+	self._generatorArgs = seed
 	self:_generateMap(builder)
+	self:_populateMap()
 end
 
 function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
+	builder:destroy()
+end
 
+function Level:_populateMap()
 	self:removeAllEntities()
 	self:createEntities()
 
 	local setPosition = message('SET_POSITION')
+	local position = property('Position')
 	local remove = {}
 
 	for entityID in self._entities:iterate() do
-		if entityID == self._primeEntity then
-			local ups = {}
-			for _,name in ipairs(self._map:getPortalNames()) do
-				if match(name, "^up%d") then ups[#ups+1] = name end
-			end
-			local x, y = self._map:getPortal(ups[Random(#ups)])
+		if self._loadstate then
 			local entity = EntityRegistry:get(entityID)
-			entity:send(setPosition, x, y, x, y)
+			local pos = entity:query(position)
+			entity:send(setPosition, pos[1], pos[2], pos[1], pos[2])
 		else
-			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
-			local x, y
-			local clear = false
-			local tries = mapW*mapH
-			repeat
-				x = Random(mapW)
-				y = Random(mapH)
-				local mt = self._map:getLocation(x, y):getMapType()
-				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
-				tries = tries - 1
-			until clear or tries == 0
-			if clear and tries > 0 then
+			if entityID == self._primeEntity then
+				local ups = {}
+				for _,name in ipairs(self._map:getPortalNames()) do
+					if match(name, "^up%d") then ups[#ups+1] = name end
+				end
+				local x, y = self._map:getPortal(ups[Random(#ups)])
 				local entity = EntityRegistry:get(entityID)
 				entity:send(setPosition, x, y, x, y)
 			else
-				remove[#remove+1] = entity
+				local mapW, mapH = self._map:getWidth(), self._map:getHeight()
+				local x, y
+				local clear = false
+				local tries = mapW*mapH
+				repeat
+					x = Random(mapW)
+					y = Random(mapH)
+					local mt = self._map:getLocation(x, y):getMapType()
+					clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
+					tries = tries - 1
+				until clear or tries == 0
+				if clear and tries > 0 then
+					local entity = EntityRegistry:get(entityID)
+					entity:send(setPosition, x, y, x, y)
+				else
+					remove[#remove+1] = entity
+				end
 			end
 		end
 	end
@@ -174,8 +195,24 @@ function Level:_generateMap(builder)
 	end
 
 	self:_bakeLights(true)
-	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
+end
+
+-- regenerate the level from a saved state
+function Level:regenerate()
+	if self._loadstate then
+		self._map = Map()
+		self._map:setState(self._loadstate.map)
+		self:_populateMap()
+
+		self._lightColor = self._loadstate.lightColor
+		self._lightmap = self._loadstate.lightmap
+		self:_bakeLights()
+
+		self._turns = self._loadstate.turns
+
+		self._loadstate = nil
+	end
 end
 
 -- get the size of the map
@@ -215,34 +252,83 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: choose hero from interface
-	local hero = enumerate('entity/hero')
-	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	local which = HeroDB:getByFilename(heroName)
-	self._primeEntity = self._heroFactory:createEntity(which)
-	self._heroFactory:registerEntity(self._primeEntity)
-	self._entities:add(self._primeEntity)
+	if self._loadstate then
+		if self._loadstate.entities then
+			local num = #self._loadstate.entities
 
-	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,1000)
-	if enemyEntities then
-		local numEnemyEntities = #enemyEntities
-		for i=1,10 do
-			local which = enemyEntities[Random(numEnemyEntities)]
-			local entityID = self._enemyFactory:createEntity(which)
-			self._enemyFactory:registerEntity(entityID)
-			self._entities:add(entityID)
+			for i=1,num do
+				local id = self._loadstate.entities[i]
+				local info = EntityRegistry:getEntityLoadState(id)
+
+				if info then
+					switch(info.etype) {
+						hero = function()
+							local newID = self._heroFactory:createEntity(info)
+							if id == self._loadstate.primeEntity then
+								self._primeEntity = newID
+							end
+							self._heroFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						enemy = function()
+							local newID = self._enemyFactory:createEntity(info)
+							self._enemyFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						item = function()
+							local newID = self._itemFactory:createEntity(info)
+							self._itemFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						default = function()
+							warning('Invalid entity type on load: %q', tostring(info.etype))
+						end,
+					}
+				end -- if info then
+			end -- for i=1,num do
+
+			-- iterate through the entities again and send a message that all
+			-- entities are loaded.
+			local message = message('ENTITIES_LOADED')
+			for i=1,num do
+				local id = self._loadstate.entities[i]
+				local entity = EntityRegistry:get(id)
+				entity:send(message)
+			end
+		end -- if self._loadstate.entities
+	else
+		-- TODO: choose hero from interface
+		local hero = enumerate('entity/hero')
+		local heroName = match(hero[Random(#hero)], "(%w+)%.json")
+		local which = HeroDB:getByFilename(heroName)
+		self._primeEntity = self._heroFactory:createEntity(which)
+		self._heroFactory:registerEntity(self._primeEntity)
+		self._entities:add(self._primeEntity)
+
+		-- TODO: get entities algorithmically
+		local enemyEntities = EnemyDB:getByELevel(1,1000)
+		if enemyEntities then
+			local numEnemyEntities = #enemyEntities
+			for i=1,10 do
+				local which = enemyEntities[Random(numEnemyEntities)]
+				local entityID = self._enemyFactory:createEntity(which)
+				self._enemyFactory:registerEntity(entityID)
+				self._entities:add(entityID)
+			end
 		end
-	end
 
-	local itemEntities = ItemDB:getByELevel(1,1000)
-	if itemEntities then
-		local numItemEntities = #itemEntities
-		for i=1,10 do
-			local which = itemEntities[Random(numItemEntities)]
-			local entityID = self._itemFactory:createEntity(which)
-			self._itemFactory:registerEntity(entityID)
-			self._entities:add(entityID)
+		local itemEntities = ItemDB:getByELevel(1,1000)
+		if itemEntities then
+			local numItemEntities = #itemEntities
+			for i=1,10 do
+				local which = itemEntities[Random(numItemEntities)]
+				local entityID = self._itemFactory:createEntity(which)
+				self._itemFactory:registerEntity(entityID)
+				self._entities:add(entityID)
+			end
 		end
 	end
 end
@@ -310,7 +396,7 @@ function Level:EntityDeathEvent(e)
 
 	local entity = EntityRegistry:get(entityID)
 	local name = entity and entity:getName() or "unknown entity"
-	GameEvents:push(ConsoleEvent('Death: {%08d} %s [%s]',
+	GameEvents:push(ConsoleEvent('Death: {%08s} %s [%s]',
 		entityID, name, reason))
 
 	if entityID == self._primeEntity then
@@ -437,8 +523,8 @@ end
 
 local positionProp = property('Position')
 local screenStatusMsg = message('SCREEN_STATUS')
-function Level:_notifyScreenStatus(ent, x, y)
-	local entity = EntityRegistry:get(ent)
+function Level:_notifyScreenStatus(entityID, x, y)
+	local entity = EntityRegistry:get(entityID)
 	local pos = entity:query(positionProp)
 	x = x or pos[1]
 	y = y or pos[2]
@@ -459,6 +545,26 @@ function Level:getLightingColor(x, y)
 	local color = self._lightmap[x] and self._lightmap[x][y] or 'black'
 	return self._lightColor[color]
 end
+
+-- get the state of this level
+function Level:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	state.primeEntity = self._primeEntity
+	state.lightColor = self._lightColor
+	state.lightmap = self._lightmap
+	state.turns = self._turns
+	state.generator = self._generator
+	state.generatorArgs = self._generatorArgs
+	state.entities = self._entities:getArray()
+	state.map = self._map:getState()
+
+	return state
+end
+
+-- set the state of this level
+function Level:setState(state) self._loadstate = state end
 
 
 -- the class

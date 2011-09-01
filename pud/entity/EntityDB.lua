@@ -31,34 +31,38 @@ local EntityDB = Class{name='EntityDB',
 
 -- destructor
 function EntityDB:destroy()
+	self:clear()
 	self._etype = nil
-
-	for i=1,#self._byFilename do self._byFilename[i] = nil end
 	self._byFilename = nil
+	self._byELevel = nil
+	self._byFam = nil
+	self._byFamK = nil
+	self._byFamKV = nil
+	self._byName = nil
+end
+
+-- clear all loaded data
+function EntityDB:clear()
+	for i=1,#self._byFilename do self._byFilename[i] = nil end
 
 	for k,v in pairs(self._byELevel) do
 		for j in pairs(v) do v[j] = nil end
 		self._byELevel[k] = nil
 	end
-	self._byELevel = nil
 
 	for k,v in pairs(self._byFam) do
 		for j in pairs(v) do v[j] = nil end
 		self._byFam[k] = nil
 	end
-	self._byFam = nil
 
 	for k,v in pairs(self._byFamK) do
 		for j in pairs(v) do v[j] = nil end
 		self._byFamK[k] = nil
 	end
-	self._byFamK = nil
 
 	for i=1,#self._byFamKV do self._byFamKV[i] = nil end
-	self._byFamKV = nil
 
 	for i=1,#self._byName do self._byName[i] = nil end
-	self._byName = nil
 end
 
 -- load all entity files of self._etype
@@ -68,6 +72,8 @@ function EntityDB:load()
 	local numFiles = #entityFiles
 
 	if Console then Console:print('Loading %q Entities...', self._etype) end
+
+	self:clear()
 
 	for i=1,numFiles do
 		local filename = entityFiles[i]

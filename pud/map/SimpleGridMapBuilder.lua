@@ -25,8 +25,6 @@ local MINROOMSIZE = 4
 local SimpleGridMapBuilder = Class{name='SimpleGridMapBuilder',
 	inherits = MapBuilder,
 	function(self, ...)
-		self._seed = Random()
-		self._random = Random.new(self._seed)
 		self._grid = {}
 		self._rooms = {}
 		-- construct calls self:init(...)
@@ -67,7 +65,7 @@ function SimpleGridMapBuilder:destroy()
 end
 
 -- initialize the builder
-function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
+function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms, seed)
 	local t = type(w) == 'table' and w or {
 		w = w,
 		h = h,
@@ -75,7 +73,15 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 		cellH = cellH,
 		minRooms = minRooms,
 		maxRooms = maxRooms,
+		seed = seed,
 	}
+
+	if t.seed then
+		self._seed = t.seed
+	else
+		self._seed = Random()
+	end
+	self._random = Random.new(self._seed)
 
 	t.w, t.h = t.w or MAPW, t.h or MAPH
 	MapBuilder.init(self, t.w, t.h)
@@ -104,6 +110,9 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms)
 	self._cellW = t.cellW
 	self._cellH = t.cellH
 end
+
+-- return the seed of this map
+function SimpleGridMapBuilder:getSeed() return self._seed end
 
 -- generate all the rooms with random sizes between min and max
 function SimpleGridMapBuilder:createMap()

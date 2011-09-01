@@ -64,6 +64,12 @@ function ControllerComponent:_attemptMove(x, y)
 	CollisionSystem:check(self._mediator, newX, newY)
 end
 
+function ControllerComponent:_attemptPortalIn()
+	print('in')
+	local pos = self._mediator:query(property('Position'))
+	CollisionSystem:checkPortal(self._mediator, pos[1], pos[2])
+end
+
 function ControllerComponent:_wait()
 	self:_sendCommand(WaitCommand(self._mediator))
 end
@@ -253,7 +259,7 @@ function ControllerComponent:receive(sender, msg, ...)
 			if id then
 				local item = EntityRegistry:get(id)
 				local name = item:getName()
-				GameEvents:push(ConsoleEvent('Item found: %s {%08d}', name, id))
+				GameEvents:push(ConsoleEvent('Item found: %s {%08s}', name, id))
 			end
 		end
 

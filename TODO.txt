@@ -1,15 +1,135 @@
 
-Save/Load:
-  ? format... JSON?
-  o save IDs and a table that maps IDs to entities
-  o read above table on load before loading entities
+
+Save:
+  d first, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d then, need RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d World class: creates and owns Dungeons, EntityRegistry [among other things, much later]
+  d   serialiazable
+  d Place class: creates and owns Levels
+  d   serialiazable
+  d Dungeon class: child of Place, with dungeon specific code
+  d   serialiazable
+  d make Level serializable
+  d make Map serializable
+  d make MapNode serializable
+  d on Save: serialize World
+  d  -> loop Dungeons and serialize
+  d    -> loop Levels and serialize
+  d    -> loop Maps and serialize
+  d  -> loop EntityRegistry and serialize Entities
+  d    -> loop Components and serialize
+  d      -> container components repeat this
+  d save Random Seed [for the whole game, not just the level]
+  d save version with each section
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Play
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
+
+  Entities:
+  d save IDs and a table that maps IDs to entities
+  d Entity:getState()
+
+  Components:
+  d Component:getState()
+
+  Maps:
+  d including "seen" node table or something
+
+  Event Queues:
+  ? current state of queues? or just ignore?
+
+Load:
+  d 1 loadgame RunState: load state from disk and save it to a variable
+	d 2 when creating the world and dungeon and levels, call their :setState() with the appropriate data from the saved state variable before calling their :generate() [or whatever] methods.
+	d 3 each of these will simply store the state in a variable as well
+	d 4 when :generate() [or whatever] is called, check for the state variable and use it if found, otherwise continue as normal.
+	d 5 erase the state variable after creation
+	d EntityRegistry must provide an id translation table... or a way to link two IDs to the same entity, that will also remove both IDs when the entity is removed.
+	d need to supply an info table to EntityFactory that mimics the info table coming from EntityDB.
+	d   so, saving an entity should save an info table, instead of the current thing.
+	d EntityRegistry assigns IDs instead of Entity class
+	d fix attached/contained entities not showing up after load
+	d fix incorrect position of entities after load
+  o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
+  o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+
+  Entities:
+  d read ID table on load before loading entities
+
+  Components:
+  d in registry, need to attach new components as normal but set properties from file
+
+  Maps:
+
+  Event Queues:
+
 
 Interface:
+
+  NOTES:
+    RunState Flow:
+    MAIN -> Intro -> MainMenu
+      MainMenu -> Initialize
+      MainMenu -> Options
+      MainMenu -> Help
+      MainMenu -> Shutdown
+        Initialize -> LoadGame
+        Initialize -> Construct
+        Options -> MainMenu
+        Help -> MainMenu
+          LoadGame -> Construct
+            Construct -> Play
+              Play -> PlayMenu
+                PlayMenu -> Options
+                PlayMenu -> Help
+                PlayMenu -> Save
+                PlayMenu -> Destroy (quit without saving)
+                  Options -> PlayMenu
+                  Help -> PlayMenu
+                  Save -> PlayMenu
+                  Save -> Destroy
+                  Destroy -> MainMenu
+                    Destroy -> MainMenu
+
+    Individual States and their potential links:
+      RunState:     From:                           To:
+      MAIN          --                              Intro
+      Intro         MAIN                            MainMenu
+      MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
+      Initialize    MainMenu                        Construct, LoadGame
+      LoadGame      Initialize                      Construct
+      Options       MainMenu, PlayMenu              MainMenu, PlayMenu
+      Help          MainMenu, PlayMenu              MainMenu, PlayMenu
+      Construct     LoadGame, Initialize            Play
+      Play          Construct                       PlayMenu
+      PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
+      Save          PlayMenu                        Destroy, PlayMenu
+      Destroy       PlayMenu, Save                  MainMenu
+      Shutdown      MainMenu                        --
+
+    Loops:
+      MainMenu -> Help -> MainMenu
+      MainMenu -> Options -> MainMenu
+      Play -> PlayMenu -> Play
+      PlayMenu -> Help -> PlayMenu
+      PlayMenu -> Options -> PlayMenu
+      PlayMenu -> Save -> PlayMenu
+      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+
+  Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
+  d Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
+  d rename GameState object to RunState
+
+  ? perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
+  d fix play RunState init,enter,leave so that it can leave [to a menu RunState, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu RunState] and kill everything.
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
   o   And a Portrait field.
+  ? how to show damage range? [since it's usually a function]
   x UISystem - handles User Interface
 
 For v0.1.0:
@@ -20,27 +140,35 @@ For v0.1.0:
 
 BEYOND v0.1.0:
 
-Items:
+  Items:
   o Entity Inventory [this could also be used for bags? Item with an inventory?]
   o   UsableComponent? [this needs scripting in JSON files]
   o     UseCommand [call onUse(), potentially destroy entity]
+  o id as hex value
 
-Console/Debug:
+  Input/Events/Config:
+  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
+  o read keybindings from a config file. [make a default config in the Pud dir]
+
+  Console/Debug:
   - log console to file (with an option)
   - maybe different levels of messages [only log certain lines?]
   - allow input and create some awesome commands
   o every event and command needs a tostring method that is called when debugEvents is on.
   - wizard mode
 
-Level:
+  Level:
   - change Level representation of enemy to be by position in a table for faster lookup
   o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
   o Level templates
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
   o make stairs work [generate new map]
+	+ maps should be referenced by ID like entities [with portals, anyway]
 
-Expressions:
+  Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
+
+    Example of use:
     "+USE_ENTITY": "@Owner:send(HEALTH_MODIFY, 12) @Destroy()",
     "+COMBAT_HIT": "@Target:send(KNOCK_BACK, 2)",
     "+TIME_TICK": "@OnChance(1, 10, @RandomChoice(%SayMessage))",
@@ -50,13 +178,13 @@ Expressions:
       "Honk if you're horny!",
     },
 
-Other:
-  - fix tests
-  - fix play state init,enter,leave so that it can leave [to a menu state, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu state] and kill everything.
+  Graphics:
   - make hero movement smoother [tweened... possibly only move camera when near edges?]
-  - support sprite batches if framebuffers are unsupported
+  o support sprite batches if framebuffers are unsupported
+	+ fix wrong dungeon colors after load
+	+    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
-Map:
+  Map:
   - map as quad-tree [or something?]
   ? maptypes as composites?
   - poisson disk sampling for decoration/item/monster placement [map gen too?]
@@ -66,3 +194,9 @@ Map:
   o Create another View that can show simple representation of map nodes for Minimap.
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
   o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
+
+  Other:
+  - fix tests
+	+ make EntityRegistry not a global [it's in the World]
+
+NOTES & IDEAS:

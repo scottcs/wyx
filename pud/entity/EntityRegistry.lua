@@ -1,5 +1,8 @@
 local Class = require 'lib.hump.class'
 
+local table_sort = table.sort
+local strhash, dec2hex, hex2dec = strhash, dec2hex, hex2dec
+
 -- EntityRegistry
 --
 local EntityRegistry = Class{name='EntityRegistry',
@@ -7,6 +10,8 @@ local EntityRegistry = Class{name='EntityRegistry',
 		self._registry = {}
 		self._byname = {}
 		self._bytype = {}
+		self._duplicates = {}
+		self._duplicatesRev = {}
 	end
 }
 
@@ -29,24 +34,35 @@ function EntityRegistry:destroy()
 		self._bytype[k] = nil
 	end
 	self._bytype = nil
+
+	self._loadstate = nil
+	self._duplicates = nil
+	self._duplicatesRev = nil
 end
 
+local _id_inc = 0
 function EntityRegistry:register(entity)
 	verifyClass('pud.entity.Entity', entity)
-	local id = entity:getID()
 	local name = entity:getName()
 	local etype = entity:getEntityType()
-	verify('number', id)
 	verify('string', name, etype)
 
+	-- not really necessary to wrap around like this in Lua, I guess.
+	-- but, just in case.
+	_id_inc = _id_inc < 100000000 and _id_inc + 1 or 1
+	local key = name..tostring(_id_inc)
+
+	local id = dec2hex(strhash(key))
+	entity:setID(id)
+
 	if nil ~= self._registry[id] then
-		warning('Entity registration overwitten: %s (%d)', name, id)
+		warning('Entity registration overwitten: %s (%s)', name, id)
 	end
 
 	self._registry[id] = entity
 
 	if debug then
-		Console:print('Registered Entity: {%08d} %s [%s]', id, name, etype)
+		Console:print('Registered Entity: {%08s} %s [%s]', id, name, etype)
 	end
 
 	self._byname[name] = self._byname[name] or {}
@@ -87,11 +103,19 @@ local _removeID = function(id, t)
 end
 
 function EntityRegistry:unregister(id)
+	if self._duplicates[id] then
+		id, self._duplicates[id] = self._duplicates[id], nil
+		self._duplicatesRev[id] = nil
+	elseif self._duplicatesRev[id] then
+		self._duplicates[self._duplicatesRev[id]] = nil
+		self._duplicatesRev[id] = nil
+	end
+
 	local entity = self._registry[id]
-	assert(entity, 'No such entity to unregister: %d', id)
+	assert(entity, 'No such entity to unregister: %s', id)
 
 	if debug then
-		Console:print('Unregistered Entity: {%08d} %s [%s]',
+		Console:print('Unregistered Entity: {%08s} %s [%s]',
 			id, entity:getName(), entity:getEntityType())
 	end
 
@@ -102,10 +126,40 @@ function EntityRegistry:unregister(id)
 	return entity
 end
 
-function EntityRegistry:exists(id) return self._registry[id] ~= nil end
-function EntityRegistry:get(id) return self._registry[id] end
+function EntityRegistry:get(id)
+	id = self._duplicates[id] or id
+	return self._registry[id]
+end
+function EntityRegistry:exists(id)
+	id = self._duplicates[id] or id
+	return self._registry[id] ~= nil
+end
 function EntityRegistry:getIDsByName(name) return self._byname[name] end
 function EntityRegistry:getIDsByType(etype) return self._bytype[etype] end
+
+function EntityRegistry:_getIDTable()
+	local allIDs = {}
+	local count = 0
+	if self._registry then
+		for k in pairs(self._registry) do
+			count = count + 1
+			allIDs[count] = k
+		end
+		table.sort(allIDs)
+	end
+	return count > 0 and allIDs or nil
+end
+
+function EntityRegistry:iterate()
+	local allIDs = self:_getIDTable()
+	if not allIDs then return nil end
+	local i = 0
+	return function()
+		i = i + 1
+		local id = allIDs[i]
+		return id, self._registry[id]
+	end
+end
 
 local _byElevel = function(a, b)
 	if nil == a then return false end
@@ -164,12 +218,47 @@ function EntityRegistry:_printEntitiesToConsole(ents, color)
 	color = color or 'GREY50'
 	for i=1,num do
 		local e = ents[i]
-		local id = e:getID() or -1
+		local id = e:getID() or '?'
 		local elevel = e:getELevel() or -1
 		local name = e:getName() or '?'
-		Console:print(color, '  {%08d} %4d  %s', id, elevel, name)
+		Console:print(color, '  {%08s} %4d  %s', id, elevel, name)
 	end
 end
+
+-- get the state of the registry for serialization
+function EntityRegistry:getState()
+	local state = setmetatable({}, {__mode = 'kv'})
+
+	for id,entity in self:iterate() do
+		state[id] = entity:getState()
+	end
+
+	return state
+end
+
+-- set the state of the registry from load
+function EntityRegistry:setState(state) self._loadstate = state end
+
+-- return an entity's load state
+function EntityRegistry:getEntityLoadState(id)
+	if self._loadstate and self._loadstate[id] then
+		return self._loadstate[id]
+	end
+	return nil
+end
+
+-- set an id as a duplicate to another id
+function EntityRegistry:setDuplicateID(oldID, newID)
+	self._duplicates[oldID] = newID
+	self._duplicatesRev[newID] = oldID
+end
+
+-- get the currently valid duplicate ID
+function EntityRegistry:getValidID(id)
+	if self._duplicates[id] then return self._duplicates[id] end
+	if self._registry[id] then return id end
+end
+
 
 -- the class
 return EntityRegistry

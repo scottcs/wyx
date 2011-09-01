@@ -46,7 +46,16 @@ end
 function ContainerComponent:receive(sender, msg, ...)
 	local continue = true
 
-	if     msg == message('CONTAINER_INSERT') then
+	if     msg == message('ENTITIES_LOADED') then
+		local containedProp = property('ContainedEntities')
+		if self._properties
+			and self._properties[containedProp]
+		then
+			local contained = self._properties[containedProp]
+			self._properties[containedProp] = nil
+			self:_insert(unpack(contained))
+		end
+	elseif msg == message('CONTAINER_INSERT') then
 		self:_insert(...)
 		continue = false
 	elseif msg == message('CONTAINER_REMOVE') then
@@ -63,7 +72,7 @@ function ContainerComponent:receive(sender, msg, ...)
 			if entity then
 				entity:rawsend(sender, msg, ...)
 			else
-				warning('ContainerComponent: entity does not exist %d', id)
+				warning('ContainerComponent: entity does not exist %q', id)
 			end
 		end
 	end
@@ -79,9 +88,14 @@ function ContainerComponent:_insert(...)
 
 		for i=1,loop do
 			local id = select(i, ...)
-			if self._entities:add(id) then
-				local entity = EntityRegistry:get(id)
-				entity:send(msg, self)
+			id = EntityRegistry:getValidID(id)
+			if id then
+				if self._entities:add(id) then
+					local entity = EntityRegistry:get(id)
+					entity:send(msg, self)
+				end
+			else
+				warning('Invalid id %q when insterting into container.', id)
 			end
 		end
 	end
@@ -113,6 +127,19 @@ function ContainerComponent:getProperty(p, intermediate, ...)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
+end
+
+-- override the default getState to deal with contained entities
+function ContainerComponent:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	for k,v in pairs(self._properties) do
+		state[k] = v
+	end
+	state.ContainedEntities = self._entities:getArray()
+
+	return state
 end
 
 

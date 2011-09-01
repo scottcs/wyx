@@ -47,7 +47,16 @@ end
 function AttachmentComponent:receive(sender, msg, ...)
 	local continue = false
 
-	if     msg == message('ATTACHMENT_ATTACH') then
+	if     msg == message('ENTITIES_LOADED') then
+		local attachedProp = property('AttachedEntities')
+		if self._properties
+			and self._properties[attachedProp]
+		then
+			local attached = self._properties[attachedProp]
+			self._properties[attachedProp] = nil
+			self:_attach(unpack(attached))
+		end
+	elseif msg == message('ATTACHMENT_ATTACH') then
 		self:_attach(...)
 		continue = false
 	elseif msg == message('ATTACHMENT_DETACH') then
@@ -61,7 +70,7 @@ function AttachmentComponent:receive(sender, msg, ...)
 			if entity then
 				entity:rawsend(sender, msg, ...)
 			else
-				warning('AttachmentComponent (recv): entity does not exist %d', id)
+				warning('AttachmentComponent (recv): entity does not exist %q', id)
 			end
 		end
 	end
@@ -77,12 +86,17 @@ function AttachmentComponent:_attach(...)
 
 		for i=1,loop do
 			local id = select(i, ...)
-			local entity = EntityRegistry:get(id)
-			local efamily = entity:getFamily()
-			if efamily == self._family then
-				if self._entities:add(id) then
-					entity:send(msg, self)
+			id = EntityRegistry:getValidID(id)
+			if id then
+				local entity = EntityRegistry:get(id)
+				local efamily = entity:getFamily()
+				if efamily == self._family then
+					if self._entities:add(id) then
+						entity:send(msg, self)
+					end
 				end
+			else
+				warning('Invalid id %q when attaching.', id)
 			end
 		end
 	end
@@ -130,7 +144,7 @@ function AttachmentComponent:getProperty(p, intermediate, ...)
 			if entity then
 				intermediate = entity:rawquery(p, intermediate, ...)
 			else
-				warning('AttachmentComponent (getP): entity does not exist %d', id)
+				warning('AttachmentComponent (getP): entity does not exist %q', id)
 			end
 		end
 	end
@@ -150,6 +164,19 @@ function AttachmentComponent:getProperty(p, intermediate, ...)
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
+end
+
+-- override the default getState to deal with contained entities
+function AttachmentComponent:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	for k,v in pairs(self._properties) do
+		state[k] = v
+	end
+	state.AttachedEntities = self._entities:getArray()
+
+	return state
 end
 
 

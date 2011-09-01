@@ -22,7 +22,7 @@ end
 
 -- add entities to the array
 function EntityArray:add(id)
-	verify('number', id)
+	verify('string', id)
 
 	local success = false
 

@@ -62,6 +62,14 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == 'n' or key == 'kp3' then
 			self:_attemptMove( 1,   1)
 			doTick = true
+			--[[
+		elseif key == '>' or key == 'kp+' then
+			self:_attemptPortalIn()
+			doTick = true
+		elseif key == '<' or key == 'kp-' then
+			self:_attemptPortalOut()
+			doTick = true
+			]]--
 		elseif key == 'p' then
 			self:_tryToPickup()
 			doTick = true
@@ -98,7 +106,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 					if entity:query(property('IsAttached')) then
 						equipped = ' (equipped)'
 					end
-					GameEvents:push(ConsoleEvent('   %d - {%08d} %s%s',
+					GameEvents:push(ConsoleEvent('   %d - {%08s} %s%s',
 						i, e, entity:getName(), equipped))
 				end
 			end

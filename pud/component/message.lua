@@ -20,6 +20,7 @@ end
 -- Component messages
 message.ALL                   = 'ALL'
 message.ENTITY_CREATED        = 'ENTITY_CREATED'
+message.ENTITIES_LOADED       = 'ENTITIES_LOADED'
 
 -- MotionComponent messages
 message.HAS_MOVED             = 'HAS_MOVED'
@@ -30,6 +31,7 @@ message.COLLIDE_NONE          = 'COLLIDE_NONE'
 message.COLLIDE_HERO          = 'COLLIDE_HERO'
 message.COLLIDE_ENEMY         = 'COLLIDE_ENEMY'
 message.COLLIDE_ITEM          = 'COLLIDE_ITEM'
+message.COLLIDE_PORTAL        = 'COLLIDE_PORTAL'
 message.COLLIDE_BLOCKED       = 'COLLIDE_BLOCKED'
 
 -- GraphicsComponent messages

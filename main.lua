@@ -5,6 +5,7 @@ require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
 GAMENAME = 'Pud'
+LOAD_DELAY = 0.05
 
 
          --[[--
@@ -50,7 +51,7 @@ end
      GLOBAL CLASSES
          --]]--
 
-GameState = require 'lib.hump.gamestate'
+RunState = require 'lib.hump.gamestate'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
 
@@ -95,6 +96,9 @@ function love.load()
 	-- set window title
 	love.graphics.setCaption(GAMENAME..' v'..VERSION)
 
+	-- set key repeat
+	love.keyboard.setKeyRepeat(100, 200)
+
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
 	NUM_SOUNDS = 11
@@ -102,8 +106,19 @@ function love.load()
 	-- global tile width and height
 	TILEW, TILEH = 32, 32
 
-	-- global random number generator instance
-	Random = random.new()
+	-- make a ridiculous seed for the PRNG
+	local time = os.time()
+	local ltime = math.floor(love.timer.getTime() * 10000000)
+	local mtime = math.floor(love.timer.getMicroTime() * 1000)
+	local mx = love.mouse.getX()
+	local my = love.mouse.getY()
+	GAMESEED = (time - ltime) + mtime + mx + my
+	math.randomseed(GAMESEED) math.random() math.random() math.random()
+	local rand = math.floor(math.random() * 10000000)
+	GAMESEED = GAMESEED + rand
+
+	-- create the real global PRNG instance with this ridiculous seed
+	Random = random.new(GAMESEED)
 
 	-- define game fonts
 	GameFont = {
@@ -125,8 +140,8 @@ function love.load()
 			'0123456789`~!@#$%^&*()_+-={}[]\\/|<>,.;:\'" '),
 	}
 
-	-- register all love events with gamestate
-	GameState.registerEvents()
+	-- register all love events with run state
+	RunState.registerEvents()
 
 	-- create global event managers (event "channels")
 	local EventManager = getClass 'pud.event.EventManager'
@@ -138,16 +153,13 @@ function love.load()
 	Console = getClass('pud.debug.Console')()
 	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
-	-- create global entity registry
-  EntityRegistry = getClass('pud.entity.EntityRegistry')()
-
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
 	-----------------------------------
 	-- "The real Pud starts here..." --
 	-----------------------------------
-	GameState.switch(State.intro)
+	RunState.switch(State.intro)
 end
 
 function love.update(dt)
@@ -220,8 +232,6 @@ function love.quit()
 
 	Console:destroy()
 
-	EntityRegistry:destroy()
-
 	GameEvents:destroy()
 	InputEvents:destroy()
 	CommandEvents:destroy()
@@ -230,10 +240,8 @@ function love.quit()
 end
 
 local collectgarbage = collectgarbage
-local getTime = love.timer.getTime
-local getDelta = love.timer.getDelta
+local getMicroTime = love.timer.getMicroTime
 local sleep = love.timer.sleep
-local step = love.timer.step
 local event = love.event
 local poll = love.event.poll
 local audio = love.audio
@@ -242,61 +250,30 @@ local handlers = love.handlers
 local clear = love.graphics.clear
 local present = love.graphics.present
 
--- determine how much time it takes to clean up garbage in a single frame
-local function getGarbageTime(timePerFrame)
-	collectgarbage('stop')
-	local preCount = collectgarbage('count')
-	local dummy
-	local time = timePerFrame
-
-	-- spend an entire frame creating tables
-	while time > 0 do
-		local start = getTime()
-		dummy = {Random:number()}
-		time = time - (getTime() - start)
-	end
-
-	time = 0
-	-- test the length of time it takes to clear the garbage
-	while time < timePerFrame and collectgarbage('count') > preCount do
-		local start = getTime()
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-		time = time + (getTime() - start)
-	end
-
-	time = time * (timePerFrame/500) -- spread collection out over 500 frames
-
-	collectgarbage('restart')
-
-	return time
-end
-
-local function idle(maxTime)
-	local start = getTime()
+local function rungb(maxTime)
+	local start = getMicroTime()
 	local time = 0
 	while time < maxTime do
 		collectgarbage('step', 0)
 		collectgarbage('stop')
-		time = getTime() - start
+		time = getMicroTime() - start
 	end
 end
 
 function love.run()
 	if love.load then love.load(arg) end
 
-	local dtTarget = 1/60  -- 60 Hz
-	local dt = 0
-	local time
-	local idletime = getGarbageTime(dtTarget)
+	local Hz60 = 1/60
+	local dt = Hz60/4
+	local currentTime = getMicroTime()
+	local accumulator = 0.0
+	local gbcount = 0
 
 	-- disable automatic garbage collector
 	collectgarbage('stop')
 
 	-- Main loop time.
 	while true do
-		local time = getTime()
-
 		-- Process events.
 		if event then
 			for e,a,b,c in poll() do
@@ -314,23 +291,33 @@ function love.run()
 			end
 		end
 
-		step()
-		dt = getDelta()
+		local newTime = getMicroTime()
+		local frameTime = newTime - currentTime
+		frameTime = frameTime > 0.25 and 0.25 or frameTime
+		currentTime = newTime
 
-		if love.update then love.update(dt) end
+		accumulator = accumulator + frameTime
+
+		if frameTime < Hz60 then
+			gbcount = gbcount + 1
+			local idletime = (Hz60 - frameTime) * 0.99
+
+			-- every once in a while, collect some garbage instead of sleeping
+			if gbcount > 10 then
+				rungb(idletime)
+				gbcount = 0
+			else
+				sleep(idletime*1000)
+			end
+		end
+
+		while accumulator >= dt do
+			if love.update then love.update(dt) end
+			accumulator = accumulator - dt
+		end
 
 		clear()
 		if love.draw then love.draw() end
 		present()
-
-		-- collect a little garbage manually
-		idle(idletime)
-
-		local timeWorked = getTime() - time
-		if timeWorked < dtTarget then
-			local sleepTime = (dtTarget-timeWorked) * 1000
-			sleepTime = sleepTime > 1 and 1 or sleepTime
-			if sleepTime > 0 then sleep(sleepTime) end
-		end
 	end
 end
