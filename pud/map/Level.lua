@@ -151,34 +151,41 @@ function Level:_populateMap()
 	self:createEntities()
 
 	local setPosition = message('SET_POSITION')
+	local position = property('Position')
 	local remove = {}
 
 	for entityID in self._entities:iterate() do
-		if entityID == self._primeEntity then
-			local ups = {}
-			for _,name in ipairs(self._map:getPortalNames()) do
-				if match(name, "^up%d") then ups[#ups+1] = name end
-			end
-			local x, y = self._map:getPortal(ups[Random(#ups)])
+		if self._loadstate then
 			local entity = EntityRegistry:get(entityID)
-			entity:send(setPosition, x, y, x, y)
+			local pos = entity:query(position)
+			entity:send(setPosition, pos[1], pos[2], pos[1], pos[2])
 		else
-			local mapW, mapH = self._map:getWidth(), self._map:getHeight()
-			local x, y
-			local clear = false
-			local tries = mapW*mapH
-			repeat
-				x = Random(mapW)
-				y = Random(mapH)
-				local mt = self._map:getLocation(x, y):getMapType()
-				clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
-				tries = tries - 1
-			until clear or tries == 0
-			if clear and tries > 0 then
+			if entityID == self._primeEntity then
+				local ups = {}
+				for _,name in ipairs(self._map:getPortalNames()) do
+					if match(name, "^up%d") then ups[#ups+1] = name end
+				end
+				local x, y = self._map:getPortal(ups[Random(#ups)])
 				local entity = EntityRegistry:get(entityID)
 				entity:send(setPosition, x, y, x, y)
 			else
-				remove[#remove+1] = entity
+				local mapW, mapH = self._map:getWidth(), self._map:getHeight()
+				local x, y
+				local clear = false
+				local tries = mapW*mapH
+				repeat
+					x = Random(mapW)
+					y = Random(mapH)
+					local mt = self._map:getLocation(x, y):getMapType()
+					clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
+					tries = tries - 1
+				until clear or tries == 0
+				if clear and tries > 0 then
+					local entity = EntityRegistry:get(entityID)
+					entity:send(setPosition, x, y, x, y)
+				else
+					remove[#remove+1] = entity
+				end
 			end
 		end
 	end
