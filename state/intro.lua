@@ -11,7 +11,6 @@ local st = RunState.new()
 function st:init() end
 
 function st:enter(prevState)
-	print('intro')
 	RunState.switch(State.menu, State.initialize)
 end
 

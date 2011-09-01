@@ -13,7 +13,6 @@ local warning, tostring = warning, tostring
 function st:init() end
 
 function st:enter(prevState, world, nextState)
-	print('save')
 	self._world = world
 	self:_chooseFile()
 	self:_removeFile()
@@ -58,6 +57,8 @@ function st:_saveGame()
 	state.VERSION = VERSION
 
 	ok = ok and self:_write(serialize(state))
+
+	if Console then Console:print('Game saved to %q', self._filename) end
 
 	if not self._file:close() then
 		warning('Could not close file %q after writing.',

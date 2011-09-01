@@ -15,8 +15,6 @@ local warning, tostring = warning, tostring
 function st:init() end
 
 function st:enter(prevState, world)
-	print('newgame')
-
 	self._world = world
 	self._loadStep = 0
 

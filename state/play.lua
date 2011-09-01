@@ -24,7 +24,6 @@ function st:init()
 end
 
 function st:enter(prevState, world, view, cam)
-	print('play')
 	self._world = self._world or world
 	local place = self._world:getCurrentPlace()
 	self._level = self._level or place:getCurrentLevel()
@@ -150,8 +149,8 @@ function st:keypressed(key, unicode)
 	else
 		switch(key) {
 			escape = function()
-				RunState.switch(State.save, self._world, State.destroy)
-				--RunState.switch(State.destroy)
+				--RunState.switch(State.save, self._world, State.destroy)
+				RunState.switch(State.destroy)
 			end,
 			['1'] = function()
 				RunState.switch(State.destroy, State.intro)

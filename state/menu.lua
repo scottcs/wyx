@@ -10,9 +10,9 @@ local st = RunState.new()
 function st:init() end
 
 function st:enter(prevState, nextState)
-	print('menu')
 	if nil ~= nextState then
 		RunState.switch(nextState, State.construct)
+		--RunState.switch(nextState, State.loadgame)
 	else
 		RunState.switch(State.shutdown)
 	end

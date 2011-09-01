@@ -17,7 +17,6 @@ local math_floor = math.floor
 function st:init() end
 
 function st:enter(prevState, world)
-	print('construct')
 	self._world = world
 	self._loadStep = 0
 	self._doLoadStep = true

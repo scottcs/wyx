@@ -26,7 +26,6 @@ function st:init()
 end
 
 function st:enter(prevState, nextState)
-	print('initialize')
 	if Console then Console:show() end
 	self._nextState = nextState
 	self._loadStep = 0

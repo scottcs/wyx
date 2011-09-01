@@ -12,7 +12,6 @@ local st = RunState.new()
 function st:init() end
 
 function st:enter(prevState)
-	print('shutdown')
 	love.event.push('q')
 end
 

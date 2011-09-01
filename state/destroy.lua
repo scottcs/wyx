@@ -12,7 +12,6 @@
 local st = RunState.new()
 
 function st:enter(prevState, nextState)
-	print('destroy')
 	-- reset all game states
 	if State.save.destroy then State.save:destroy() end
 	State.save = nil
