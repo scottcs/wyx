@@ -5,15 +5,16 @@ local Event = getClass 'pud.event.Event'
 --
 local LightingStatusRequest = Class{name='LightingStatusRequest',
 	inherits=Event,
-	function(self, entity, x, y)
-		if type(entity) ~= number then entity = entity:getID() end
-		verify('number', entity, x, y)
-		assert(EntityRegistry:exists(entity),
-			'LightingStatusRequest: entity %d does not exist', entity)
+	function(self, entityID, x, y)
+		if type(entityID) ~= 'string' then entityID = entityID:getID() end
+		verify('string', entityID)
+		verify('number', x, y)
+		assert(EntityRegistry:exists(entityID),
+			'LightingStatusRequest: entityID %q does not exist', entityID)
 
 		Event.construct(self, 'Lighting Status Request')
 
-		self._entity = entity
+		self._entityID = entityID
 		self._x = x
 		self._y = y
 	end
@@ -21,11 +22,11 @@ local LightingStatusRequest = Class{name='LightingStatusRequest',
 
 -- destructor
 function LightingStatusRequest:destroy()
-	self._entity = nil
+	self._entityID = nil
 	Event.destroy(self)
 end
 
-function LightingStatusRequest:getEntity() return self._entity end
+function LightingStatusRequest:getEntity() return self._entityID end
 function LightingStatusRequest:getPosition() return self._x, self._y end
 
 -- the class

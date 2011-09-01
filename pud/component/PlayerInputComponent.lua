@@ -62,6 +62,14 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == 'n' or key == 'kp3' then
 			self:_attemptMove( 1,   1)
 			doTick = true
+			--[[
+		elseif key == '>' or key == 'kp+' then
+			self:_attemptPortalIn()
+			doTick = true
+		elseif key == '<' or key == 'kp-' then
+			self:_attemptPortalOut()
+			doTick = true
+			]]--
 		elseif key == 'p' then
 			self:_tryToPickup()
 			doTick = true
@@ -98,7 +106,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 					if entity:query(property('IsAttached')) then
 						equipped = ' (equipped)'
 					end
-					GameEvents:push(ConsoleEvent('   %d - {%08d} %s%s',
+					GameEvents:push(ConsoleEvent('   %d - {%08s} %s%s',
 						i, e, entity:getName(), equipped))
 				end
 			end
@@ -132,6 +140,14 @@ function PlayerInputComponent:KeyboardEvent(e)
 			local visibilityBonus = self._mediator:query(property('VisibilityBonus'))
 			visibility = visibility + visibilityBonus
 
+			local attackCost = self._mediator:query(property('AttackCost'))
+			local attackCostBonus = self._mediator:query(property('AttackCostBonus'))
+			attackCost = attackCost + attackCostBonus
+
+			local moveCost = self._mediator:query(property('MoveCost'))
+			local moveCostBonus = self._mediator:query(property('MoveCostBonus'))
+			moveCost = moveCost + moveCostBonus
+
 			GameEvents:push(ConsoleEvent('Stats:'))
 			GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
 				health, healthBonus, maxHealth, maxHealthBonus))
@@ -139,8 +155,11 @@ function PlayerInputComponent:KeyboardEvent(e)
 				attack, attackBonus))
 			GameEvents:push(ConsoleEvent('     Def: %d (%+d)',
 				defense, defenseBonus))
-			GameEvents:push(ConsoleEvent('     Spd: %d (%+d)',
-				speed, speedBonus))
+			GameEvents:push(ConsoleEvent(
+				'     Spd: %d (%+d)  AttCost: %d (%+d)  MovCost: %d (%+d)',
+				speed, speedBonus,
+				attackCost, attackCostBonus,
+				moveCost, moveCostBonus))
 			GameEvents:push(ConsoleEvent('     Vis: %d (%+d)',
 				visibility, visibilityBonus))
 		end

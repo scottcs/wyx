@@ -4,17 +4,14 @@ local property = require 'pud.component.property'
 
 local verify, verifyClass, isClass = verify, verifyClass, isClass
 local type, pairs, tostring = type, pairs, tostring
+local match = string.match
 
 -- Entity
 --
-local _id = 0
 local Entity = Class{name = 'Entity',
 	inherits=ComponentMediator,
 	function(self, etype, info, components)
 		ComponentMediator.construct(self)
-		_id = _id + 1
-		self._id = _id
-
 		verify('string', etype)
 		verify('table', info)
 
@@ -52,7 +49,10 @@ function Entity:destroy()
 	ComponentMediator.destroy(self)
 end
 
+-- get/set the ID of this entity
 function Entity:getID() return self._id end
+function Entity:setID(id) self._id = id end
+
 function Entity:getName() return self._name end
 function Entity:getEntityType() return self._etype end
 function Entity:getFamily() return self._family end
@@ -137,6 +137,28 @@ function Entity:rawquery(prop, intermediate, ...)
 	return intermediate
 end
 
+-- functions to save and restore state
+-- getState returns a table with key/value pairs representing state data
+function Entity:getState()
+	local mt = {__mode = 'kv'}
+	local state = setmetatable({}, mt)
+
+	state.name = self._name
+	state.etype = self._etype
+	state.family = self._family
+	state.kind = self._kind
+	state.variation = self._variation
+	state.elevel = self._elevel
+	state.components = setmetatable({}, mt)
+
+	if self._components then
+		for name,comp in pairs(self._components) do
+			state.components[name] = comp:getState()
+		end
+	end
+
+	return state
+end
 
 
 -- the class

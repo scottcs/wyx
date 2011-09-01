@@ -5,15 +5,16 @@ local Event = getClass 'pud.event.Event'
 --
 local EntityPositionEvent = Class{name='EntityPositionEvent',
 	inherits=Event,
-	function(self, entity, toX, toY, fromX, fromY)
-		if type(entity) ~= 'number' then entity = entity:getID() end
-		verify('number', entity, toX, toY, fromX, fromY)
-		assert(EntityRegistry:exists(entity),
-			'EntityPositionEvent: entity %d does not exist', entity)
+	function(self, entityID, toX, toY, fromX, fromY)
+		if type(entityID) ~= 'string' then entityID = entityID:getID() end
+		verify('string', entityID)
+		verify('number', toX, toY, fromX, fromY)
+		assert(EntityRegistry:exists(entityID),
+			'EntityPositionEvent: entityID %q does not exist', entityID)
 
 		Event.construct(self, 'Entity Position Event')
 
-		self._entity = entity
+		self._entityID = entityID
 		self._toX = toX
 		self._toY = toY
 		self._fromX = fromX
@@ -23,7 +24,7 @@ local EntityPositionEvent = Class{name='EntityPositionEvent',
 
 -- destructor
 function EntityPositionEvent:destroy()
-	self._entity = nil
+	self._entityID = nil
 	self._toX = nil
 	self._toY = nil
 	self._fromX = nil
@@ -31,7 +32,7 @@ function EntityPositionEvent:destroy()
 	Event.destroy(self)
 end
 
-function EntityPositionEvent:getEntity() return self._entity end
+function EntityPositionEvent:getEntity() return self._entityID end
 function EntityPositionEvent:getDestination() return self._toX, self._toY end
 function EntityPositionEvent:getOrigin() return self._fromX, self._fromY end
 

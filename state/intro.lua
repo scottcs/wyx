@@ -6,22 +6,22 @@
    screens with fading.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
-function st:init()
+function st:init() end
+
+function st:enter(prevState)
+	RunState.switch(State.menu, State.initialize)
 end
 
-function st:enter(prev)
-	GameState.switch(State.load)
-end
+function st:leave() end
 
-function st:update(dt)
-end
+function st:destroy() end
 
-function st:draw()
-end
+function st:update(dt) end
 
-function st:keypressed(key, unicode)
-end
+function st:draw() end
+
+function st:keypressed(key, unicode) end
 
 return st

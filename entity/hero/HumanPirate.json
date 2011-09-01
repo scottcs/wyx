@@ -11,8 +11,8 @@
 			"Visibility": 4,
 		},
 		"TimeComponent": {
-			"AttackCost": 1.5,
-			"MoveCost": -0.5,
+			"AttackCost": "!$Speed * 1.2",
+			"MoveCost": "!$Speed * 0.8",
 		},
 		"HealthComponent": {
 			"MaxHealth": 10,

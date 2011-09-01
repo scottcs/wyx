@@ -5,23 +5,10 @@
       Play the game.
          --]]--
 
-local st = GameState.new()
+local st = RunState.new()
 
 local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
 local MessageHUD = getClass 'pud.view.MessageHUD'
-
-local math_floor, math_max, math_min = math.floor, math.max, math.min
-
--- systems
-local RenderSystemClass = getClass 'pud.system.RenderSystem'
-local TimeSystemClass = getClass 'pud.system.TimeSystem'
-local CollisionSystemClass = getClass 'pud.system.CollisionSystem'
-
--- level
-local Level = getClass 'pud.map.Level'
-
--- Camera
-local GameCam = getClass 'pud.view.GameCam'
 
 -- events
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
@@ -29,34 +16,40 @@ local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
 local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
 local GameEvents = GameEvents
 
--- views
-local TileMapView = getClass 'pud.view.TileMapView'
-
-function st:enter()
-	self._keyDelay, self._keyInterval = love.keyboard.getKeyRepeat()
-	love.keyboard.setKeyRepeat(100, 200)
-
-	-- create level
-	self._level = Level()
-
-	-- create systems
-	RenderSystem = RenderSystemClass()
-	TimeSystem = TimeSystemClass()
-	CollisionSystem = CollisionSystemClass(self._level)
-
-	self._level:generateSimpleGridMap()
-	self._level:setPlayerControlled()
-	self:_createMapView()
-	self:_createCamera()
+function st:init()
 	if debug then
 		self:_createDebugHUD()
 		self._debug = true
 	end
+end
+
+function st:enter(prevState, world, view, cam)
+	self._world = self._world or world
+	local place = self._world:getCurrentPlace()
+	self._level = self._level or place:getCurrentLevel()
+	self._view = self._view or view
+	self._cam = self._cam or cam
+
 	GameEvents:register(self, {
 		ZoneTriggerEvent,
 		DisplayPopupMessageEvent,
 		ConsoleEvent,
 	})
+end
+
+function st:leave()
+	self:_killMessageHUD()
+	GameEvents:unregisterAll(self)
+end
+
+function st:destroy()
+	self:_killMessageHUD()
+	self._level = nil
+	self._world = nil
+	self._view = nil
+	self._cam = nil
+	if self._debugHUD then self._debugHUD:destroy() end
+	self._debug = nil
 end
 
 function st:ZoneTriggerEvent(e)
@@ -84,44 +77,23 @@ function st:ConsoleEvent(e)
 	end
 end
 
-function st:_createMapView(viewClass)
-	if self._view then self._view:destroy() end
-	self._view = TileMapView(self._level)
-	self._view:registerEvents()
-end
-
-function st:_createCamera()
-	local mapW, mapH = self._level:getMapSize()
-	local tileW, tileH = self._view:getTileSize()
-	local mapTileW, mapTileH = mapW * tileW, mapH * tileH
-	local startX = math_floor(mapW/2+0.5) * tileW - math_floor(tileW/2)
-	local startY = math_floor(mapH/2+0.5) * tileH - math_floor(tileH/2)
-
-	if not self._cam then
-		self._cam = GameCam(startX, startY, zoom)
-	else
-		self._cam:setHome(startX, startY)
-	end
-
-	local minX, minY = math_floor(tileW/2), math_floor(tileH/2)
-	local maxX, maxY = mapTileW - minX, mapTileH - minY
-	self._cam:setLimits(minX, minY, maxX, maxY)
-	self._cam:home()
-	self._cam:followTarget(self._level:getPrimeEntity())
-	self._view:setViewport(self._cam:getViewport())
-end
-
 function st:_createDebugHUD()
 	self._debugHUD = DebugHUD()
+end
+
+function st:_killMessageHUD()
+	if self._messageHUD then
+		if self._messageID then cron.cancel(self._messageID) end
+		self._messageID = nil
+		self._messageHUD:destroy()
+		self._messageHUD = nil
+	end
 end
 
 function st:_displayMessage(message, time)
 	GameEvents:push(ConsoleEvent(message))
 
-	if self._messageHUD then
-		cron.cancel(self._messageID)
-		self._messageHUD:destroy()
-	end
+	self:_killMessageHUD()
 
 	time = time or 2
 	self._messageHUD = MessageHUD(message, time)
@@ -154,23 +126,6 @@ function st:draw()
 	if Console then Console:draw() end
 end
 
-function st:leave()
-	RenderSystem:destroy()
-	TimeSystem:destroy()
-	CollisionSystem:destroy()
-	GameEvents:unregisterAll(self)
-	love.keyboard.setKeyRepeat(self._keyDelay, self._keyInterval)
-	self._keyDelay = nil
-	self._keyInterval = nil
-	self._view:destroy()
-	self._view = nil
-	self._cam:destroy()
-	self._cam = nil
-	self._messageHUD = nil
-	if self._debugHUD then self._debugHUD:destroy() end
-	self._debug = nil
-end
-
 function st:_postZoomIn(vp)
 	self._view:setViewport(vp)
 	self._view:setAnimate(true)
@@ -193,20 +148,12 @@ function st:keypressed(key, unicode)
 		}
 	else
 		switch(key) {
-			escape = function() GameState.switch(State.shutdown) end,
-			['1'] = function()
-				self._view:setAnimate(false)
-				self._level:generateSimpleGridMap()
-				self._level:setPlayerControlled()
-				self:_createMapView()
-				self:_createCamera()
+			escape = function()
+				--RunState.switch(State.save, self._world, State.destroy)
+				RunState.switch(State.destroy)
 			end,
-			['2'] = function()
-				self._view:setAnimate(false)
-				self._level:generateFileMap()
-				self._level:setPlayerControlled()
-				self:_createMapView()
-				self:_createCamera()
+			['1'] = function()
+				RunState.switch(State.destroy, State.intro)
 			end,
 
 			-- camera
@@ -229,6 +176,11 @@ function st:keypressed(key, unicode)
 					self._cam:home()
 				end
 			end,
+			f1 = function()
+				RunState.switch(State.save, self._world, State.play)
+			end,
+
+			f3 = function() if debug then self._debug = not self._debug end end,
 			f4 = function()
 				self._cam:unfollowTarget()
 				self._view:setViewport(self._cam:getViewport())
@@ -237,7 +189,6 @@ function st:keypressed(key, unicode)
 				self._cam:followTarget(self._level:getPrimeEntity())
 				self._view:setViewport(self._cam:getViewport())
 			end,
-			f3 = function() if debug then self._debug = not self._debug end end,
 			f7 = function()
 				if self._debug then self._debugHUD:clearExtremes() end
 			end,
