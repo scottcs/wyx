@@ -128,6 +128,7 @@ function Level:generateFileMap(file)
 	self._generator = 'File'
 	self._generatorArgs = file
 	self:_generateMap(builder)
+	self:_populateMap()
 end
 
 function Level:generateSimpleGridMap(seed)
@@ -136,12 +137,16 @@ function Level:generateSimpleGridMap(seed)
 	self._generator = 'SimpleGrid'
 	self._generatorArgs = seed
 	self:_generateMap(builder)
+	self:_populateMap()
 end
 
 function Level:_generateMap(builder)
 	if self._map then self._map:destroy() end
 	self._map = MapDirector:generateStandard(builder)
+	builder:destroy()
+end
 
+function Level:_populateMap()
 	self:removeAllEntities()
 	self:createEntities()
 
@@ -183,29 +188,20 @@ function Level:_generateMap(builder)
 	end
 
 	self:_bakeLights(true)
-	builder:destroy()
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
 end
 
 -- regenerate the level from a saved state
 function Level:regenerate()
 	if self._loadstate then
-		--[[
-		local genfunc = switch(state.generator) {
-			File = self.generateFileMap,
-			SimpleGrid = self.generateSimpleGridMap,
-			default = self.generateSimpleGridMap,
-		}
-		genfunc(self, state.generatorArgs)
-		]]--
-
-		-- TODO: entities - just IDs, need to translate to new IDs
 		self._map = Map()
 		self._map:setState(self._loadstate.map)
+		self:_populateMap()
 
-		self._primeEntity = self._loadstate.primeEntity
 		self._lightColor = self._loadstate.lightColor
-		self._lightmap = self._loadstate.lightMap
+		self._lightmap = self._loadstate.lightmap
+		self:_bakeLights()
+
 		self._turns = self._loadstate.turns
 
 		self._loadstate = nil
