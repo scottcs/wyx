@@ -48,8 +48,10 @@ Load:
 	d EntityRegistry must provide an id translation table... or a way to link two IDs to the same entity, that will also remove both IDs when the entity is removed.
 	d need to supply an info table to EntityFactory that mimics the info table coming from EntityDB.
 	d   so, saving an entity should save an info table, instead of the current thing.
-	+ EntityRegistry assigns IDs instead of Entity class
+	d EntityRegistry assigns IDs instead of Entity class
 	+ fix attached/contained entities not showing up after load
+	+ fix wrong dungeon colors after load
+	+ fix incorrect position of entities after load
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
   o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
