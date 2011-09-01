@@ -177,6 +177,11 @@ function st:keypressed(key, unicode)
 					self._cam:home()
 				end
 			end,
+			f1 = function()
+				RunState.switch(State.save, self._world, State.play)
+			end,
+
+			f3 = function() if debug then self._debug = not self._debug end end,
 			f4 = function()
 				self._cam:unfollowTarget()
 				self._view:setViewport(self._cam:getViewport())
@@ -185,7 +190,6 @@ function st:keypressed(key, unicode)
 				self._cam:followTarget(self._level:getPrimeEntity())
 				self._view:setViewport(self._cam:getViewport())
 			end,
-			f3 = function() if debug then self._debug = not self._debug end end,
 			f7 = function()
 				if self._debug then self._debugHUD:clearExtremes() end
 			end,
