@@ -149,6 +149,7 @@ function Entity:getState()
 	state.family = self._family
 	state.kind = self._kind
 	state.variation = self._variation
+	state.elevel = self._elevel
 	state.components = setmetatable({}, mt)
 
 	if self._components then
