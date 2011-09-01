@@ -249,34 +249,81 @@ function Level:getEntitiesAtLocation(x, y)
 end
 
 function Level:createEntities()
-	-- TODO: choose hero from interface
-	local hero = enumerate('entity/hero')
-	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	local which = HeroDB:getByFilename(heroName)
-	self._primeEntity = self._heroFactory:createEntity(which)
-	self._heroFactory:registerEntity(self._primeEntity)
-	self._entities:add(self._primeEntity)
+	print('create')
+	if self._loadstate then
+		print('loadstate')
+		if self._loadstate.entities then
+			print('entities')
+			local num = #self._loadstate.entities
 
-	-- TODO: get entities algorithmically
-	local enemyEntities = EnemyDB:getByELevel(1,1000)
-	if enemyEntities then
-		local numEnemyEntities = #enemyEntities
-		for i=1,10 do
-			local which = enemyEntities[Random(numEnemyEntities)]
-			local entityID = self._enemyFactory:createEntity(which)
-			self._enemyFactory:registerEntity(entityID)
-			self._entities:add(entityID)
+			for i=1,num do
+				local id = self._loadstate.entities[i]
+				local info = EntityRegistry:getEntityLoadState(id)
+				print('id',id)
+
+				if info then
+					print('etype',info.etype)
+					switch(info.etype) {
+						hero = function()
+							local newID = self._heroFactory:createEntity(info)
+							print('newID',newID)
+							if id == self._loadstate.primeEntity then
+								print('prime')
+								self._primeEntity = newID
+							end
+							self._heroFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						enemy = function()
+							local newID = self._enemyFactory:createEntity(info)
+							self._enemyFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						item = function()
+							local newID = self._itemFactory:createEntity(info)
+							self._itemFactory:registerEntity(newID)
+							self._entities:add(newID)
+							EntityRegistry:setDuplicateID(id, newID)
+						end,
+						default = function()
+							warning('Invalid entity type on load: %q', tostring(info.etype))
+						end,
+					}
+				end -- if info then
+			end -- for i=1,num do
+		end -- if self._loadstate.entities
+	else
+		-- TODO: choose hero from interface
+		local hero = enumerate('entity/hero')
+		local heroName = match(hero[Random(#hero)], "(%w+)%.json")
+		local which = HeroDB:getByFilename(heroName)
+		self._primeEntity = self._heroFactory:createEntity(which)
+		self._heroFactory:registerEntity(self._primeEntity)
+		self._entities:add(self._primeEntity)
+
+		-- TODO: get entities algorithmically
+		local enemyEntities = EnemyDB:getByELevel(1,1000)
+		if enemyEntities then
+			local numEnemyEntities = #enemyEntities
+			for i=1,10 do
+				local which = enemyEntities[Random(numEnemyEntities)]
+				local entityID = self._enemyFactory:createEntity(which)
+				self._enemyFactory:registerEntity(entityID)
+				self._entities:add(entityID)
+			end
 		end
-	end
 
-	local itemEntities = ItemDB:getByELevel(1,1000)
-	if itemEntities then
-		local numItemEntities = #itemEntities
-		for i=1,10 do
-			local which = itemEntities[Random(numItemEntities)]
-			local entityID = self._itemFactory:createEntity(which)
-			self._itemFactory:registerEntity(entityID)
-			self._entities:add(entityID)
+		local itemEntities = ItemDB:getByELevel(1,1000)
+		if itemEntities then
+			local numItemEntities = #itemEntities
+			for i=1,10 do
+				local which = itemEntities[Random(numItemEntities)]
+				local entityID = self._itemFactory:createEntity(which)
+				self._itemFactory:registerEntity(entityID)
+				self._entities:add(entityID)
+			end
 		end
 	end
 end
@@ -304,6 +351,7 @@ end
 function Level:setPlayerControlled()
 	local PIC = getClass 'pud.component.PlayerInputComponent'
 	local input = PIC()
+	print(self._primeEntity)
 	self._heroFactory:setInputComponent(self._primeEntity, input)
 
 	local entity = EntityRegistry:get(self._primeEntity)
