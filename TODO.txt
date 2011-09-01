@@ -22,9 +22,9 @@ Save:
   d save Random Seed [for the whole game, not just the level]
   d save version with each section
   d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Play
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> Construct -> Play -> Save -> Play
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Destroy -> Menu -> Shutdown
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Save -> Play
 
   Entities:
   d save IDs and a table that maps IDs to entities
@@ -53,13 +53,13 @@ Load:
 	d fix incorrect position of entities after load
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
-  o get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
+  d get RunState flow to work: MAIN -> Intro -> Menu -> Initialize -> LoadGame -> Construct -> Play -> Destroy -> Menu -> Shutdown
 
   Entities:
-  o read ID table on load before loading entities
+  d read ID table on load before loading entities
 
   Components:
-  o in registry, need to attach new components as normal but set properties from file
+  d in registry, need to attach new components as normal but set properties from file
 
   Maps:
 
