@@ -47,7 +47,16 @@ end
 function AttachmentComponent:receive(sender, msg, ...)
 	local continue = false
 
-	if     msg == message('ATTACHMENT_ATTACH') then
+	if     msg == message('ENTITY_CREATED') then
+		local attachedProp = property('AttachedEntities')
+		if self._properties
+			and self._properties[attachedProp]
+		then
+			local attached = self._properties[attachedProp]
+			self._properties[attachedProp] = nil
+			self:_attach(unpack(attached))
+		end
+	elseif msg == message('ATTACHMENT_ATTACH') then
 		self:_attach(...)
 		continue = false
 	elseif msg == message('ATTACHMENT_DETACH') then

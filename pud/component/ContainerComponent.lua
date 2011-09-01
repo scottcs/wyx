@@ -46,7 +46,16 @@ end
 function ContainerComponent:receive(sender, msg, ...)
 	local continue = true
 
-	if     msg == message('CONTAINER_INSERT') then
+	if     msg == message('ENTITY_CREATED') then
+		local containedProp = property('ContainedEntities')
+		if self._properties
+			and self._properties[containedProp]
+		then
+			local contained = self._properties[containedProp]
+			self._properties[containedProp] = nil
+			self:_insert(unpack(contained))
+		end
+	elseif msg == message('CONTAINER_INSERT') then
 		self:_insert(...)
 		continue = false
 	elseif msg == message('CONTAINER_REMOVE') then
