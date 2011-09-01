@@ -46,7 +46,7 @@ end
 function ContainerComponent:receive(sender, msg, ...)
 	local continue = true
 
-	if     msg == message('ENTITY_CREATED') then
+	if     msg == message('ENTITIES_LOADED') then
 		local containedProp = property('ContainedEntities')
 		if self._properties
 			and self._properties[containedProp]
@@ -88,9 +88,14 @@ function ContainerComponent:_insert(...)
 
 		for i=1,loop do
 			local id = select(i, ...)
-			if self._entities:add(id) then
-				local entity = EntityRegistry:get(id)
-				entity:send(msg, self)
+			id = EntityRegistry:getValidID(id)
+			if id then
+				if self._entities:add(id) then
+					local entity = EntityRegistry:get(id)
+					entity:send(msg, self)
+				end
+			else
+				warning('Invalid id %q when insterting into container.', id)
 			end
 		end
 	end
@@ -130,18 +135,11 @@ function ContainerComponent:getState()
 	local state = setmetatable({}, mt)
 
 	for k,v in pairs(self._properties) do
-		if k == 'ContainedEntities' then
-			state[k] = self._entities:getArray()
-		else
-			state[k] = v
-		end
+		state[k] = v
 	end
+	state.ContainedEntities = self._entities:getArray()
 
 	return state
-end
-
--- override the default setState to deal with contained entities
-function ContainerComponent:setState(state)
 end
 
 

@@ -47,7 +47,7 @@ end
 function AttachmentComponent:receive(sender, msg, ...)
 	local continue = false
 
-	if     msg == message('ENTITY_CREATED') then
+	if     msg == message('ENTITIES_LOADED') then
 		local attachedProp = property('AttachedEntities')
 		if self._properties
 			and self._properties[attachedProp]
@@ -86,12 +86,17 @@ function AttachmentComponent:_attach(...)
 
 		for i=1,loop do
 			local id = select(i, ...)
-			local entity = EntityRegistry:get(id)
-			local efamily = entity:getFamily()
-			if efamily == self._family then
-				if self._entities:add(id) then
-					entity:send(msg, self)
+			id = EntityRegistry:getValidID(id)
+			if id then
+				local entity = EntityRegistry:get(id)
+				local efamily = entity:getFamily()
+				if efamily == self._family then
+					if self._entities:add(id) then
+						entity:send(msg, self)
+					end
 				end
+			else
+				warning('Invalid id %q when attaching.', id)
 			end
 		end
 	end
@@ -167,18 +172,11 @@ function AttachmentComponent:getState()
 	local state = setmetatable({}, mt)
 
 	for k,v in pairs(self._properties) do
-		if k == 'AttachedEntities' then
-			state[k] = self._entities:getArray()
-		else
-			state[k] = v
-		end
+		state[k] = v
 	end
+	state.AttachedEntities = self._entities:getArray()
 
 	return state
-end
-
--- override the default setState to deal with contained entities
-function AttachmentComponent:setState(state)
 end
 
 

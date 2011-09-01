@@ -20,6 +20,7 @@ end
 -- Component messages
 message.ALL                   = 'ALL'
 message.ENTITY_CREATED        = 'ENTITY_CREATED'
+message.ENTITIES_LOADED       = 'ENTITIES_LOADED'
 
 -- MotionComponent messages
 message.HAS_MOVED             = 'HAS_MOVED'

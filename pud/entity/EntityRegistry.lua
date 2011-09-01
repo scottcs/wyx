@@ -253,6 +253,12 @@ function EntityRegistry:setDuplicateID(oldID, newID)
 	self._duplicatesRev[newID] = oldID
 end
 
+-- get the currently valid duplicate ID
+function EntityRegistry:getValidID(id)
+	if self._duplicates[id] then return self._duplicates[id] end
+	if self._registry[id] then return id end
+end
+
 
 -- the class
 return EntityRegistry

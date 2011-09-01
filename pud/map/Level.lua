@@ -289,6 +289,15 @@ function Level:createEntities()
 					}
 				end -- if info then
 			end -- for i=1,num do
+
+			-- iterate through the entities again and send a message that all
+			-- entities are loaded.
+			local message = message('ENTITIES_LOADED')
+			for i=1,num do
+				local id = self._loadstate.entities[i]
+				local entity = EntityRegistry:get(id)
+				entity:send(message)
+			end
 		end -- if self._loadstate.entities
 	else
 		-- TODO: choose hero from interface
