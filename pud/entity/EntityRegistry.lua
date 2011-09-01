@@ -9,6 +9,8 @@ local EntityRegistry = Class{name='EntityRegistry',
 		self._registry = {}
 		self._byname = {}
 		self._bytype = {}
+		self._duplicates = {}
+		self._duplicatesRev = {}
 	end
 }
 
@@ -31,6 +33,10 @@ function EntityRegistry:destroy()
 		self._bytype[k] = nil
 	end
 	self._bytype = nil
+
+	self._loadstate = nil
+	self._duplicates = nil
+	self._duplicatesRev = nil
 end
 
 function EntityRegistry:register(entity)
@@ -89,6 +95,14 @@ local _removeID = function(id, t)
 end
 
 function EntityRegistry:unregister(id)
+	if self._duplicates[id] then
+		id, self._duplicates[id] = self._duplicates[id], nil
+		self._duplicatesRev[id] = nil
+	elseif self._duplicatesRev[id] then
+		self._duplicates[self._duplicatesRev[id]] = nil
+		self._duplicatesRev[id] = nil
+	end
+
 	local entity = self._registry[id]
 	assert(entity, 'No such entity to unregister: %d', id)
 
@@ -104,8 +118,14 @@ function EntityRegistry:unregister(id)
 	return entity
 end
 
-function EntityRegistry:exists(id) return self._registry[id] ~= nil end
-function EntityRegistry:get(id) return self._registry[id] end
+function EntityRegistry:get(id)
+	id = self._duplicates[id] or id
+	return self._registry[id]
+end
+function EntityRegistry:exists(id)
+	id = self._duplicates[id] or id
+	return self._registry[id] ~= nil
+end
 function EntityRegistry:getIDsByName(name) return self._byname[name] end
 function EntityRegistry:getIDsByType(etype) return self._bytype[etype] end
 
@@ -196,6 +216,35 @@ function EntityRegistry:_printEntitiesToConsole(ents, color)
 		Console:print(color, '  {%08d} %4d  %s', id, elevel, name)
 	end
 end
+
+-- get the state of the registry for serialization
+function EntityRegistry:getState()
+	local state = setmetatable({}, {__mode = 'kv'})
+
+	for id,entity in self:iterate() do
+		state[id] = entity:getState()
+	end
+
+	return state
+end
+
+-- set the state of the registry from load
+function EntityRegistry:setState(state) self._loadstate = state end
+
+-- return an entity's load state
+function EntityRegistry:getEntityLoadState(id)
+	if self._loadstate and self._loadstate[id] then
+		return self._loadstate[id]
+	end
+	return nil
+end
+
+-- set an id as a duplicate to another id
+function EntityRegistry:setDuplicateID(oldID, newID)
+	self._duplicates[oldID] = newID
+	self._duplicatesRev[newID] = oldID
+end
+
 
 -- the class
 return EntityRegistry
