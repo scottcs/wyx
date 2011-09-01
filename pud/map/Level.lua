@@ -388,7 +388,7 @@ function Level:EntityDeathEvent(e)
 
 	local entity = EntityRegistry:get(entityID)
 	local name = entity and entity:getName() or "unknown entity"
-	GameEvents:push(ConsoleEvent('Death: {%08d} %s [%s]',
+	GameEvents:push(ConsoleEvent('Death: {%08s} %s [%s]',
 		entityID, name, reason))
 
 	if entityID == self._primeEntity then
@@ -515,8 +515,8 @@ end
 
 local positionProp = property('Position')
 local screenStatusMsg = message('SCREEN_STATUS')
-function Level:_notifyScreenStatus(ent, x, y)
-	local entity = EntityRegistry:get(ent)
+function Level:_notifyScreenStatus(entityID, x, y)
+	local entity = EntityRegistry:get(entityID)
 	local pos = entity:query(positionProp)
 	x = x or pos[1]
 	y = y or pos[2]

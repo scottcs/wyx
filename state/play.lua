@@ -151,6 +151,7 @@ function st:keypressed(key, unicode)
 		switch(key) {
 			escape = function()
 				RunState.switch(State.save, self._world, State.destroy)
+				--RunState.switch(State.destroy)
 			end,
 			['1'] = function()
 				RunState.switch(State.destroy, State.intro)

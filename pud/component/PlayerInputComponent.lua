@@ -106,7 +106,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 					if entity:query(property('IsAttached')) then
 						equipped = ' (equipped)'
 					end
-					GameEvents:push(ConsoleEvent('   %d - {%08d} %s%s',
+					GameEvents:push(ConsoleEvent('   %d - {%08s} %s%s',
 						i, e, entity:getName(), equipped))
 				end
 			end

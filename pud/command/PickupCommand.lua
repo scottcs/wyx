@@ -10,7 +10,7 @@ local PickupCommand = Class{name='PickupCommand',
 	inherits=Command,
 	function(self, target, itemID)
 		verifyClass('pud.component.ComponentMediator', target)
-		verify('number', itemID)
+		verify('string', itemID)
 
 		Command.construct(self, target)
 		self._itemID = itemID
@@ -26,7 +26,7 @@ end
 function PickupCommand:execute()
 	self._target:send(message('CONTAINER_INSERT'), self._itemID)
 	local item = EntityRegistry:get(self._itemID)
-	GameEvents:push(ConsoleEvent('Pickup: %s {%08d} -> %s {%08d}',
+	GameEvents:push(ConsoleEvent('Pickup: %s {%08s} -> %s {%08s}',
 		self._target:getName(), self._target:getID(),
 		item:getName(), self._itemID))
 	return Command.execute(self)

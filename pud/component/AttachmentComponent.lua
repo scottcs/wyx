@@ -61,7 +61,7 @@ function AttachmentComponent:receive(sender, msg, ...)
 			if entity then
 				entity:rawsend(sender, msg, ...)
 			else
-				warning('AttachmentComponent (recv): entity does not exist %d', id)
+				warning('AttachmentComponent (recv): entity does not exist %q', id)
 			end
 		end
 	end
@@ -130,7 +130,7 @@ function AttachmentComponent:getProperty(p, intermediate, ...)
 			if entity then
 				intermediate = entity:rawquery(p, intermediate, ...)
 			else
-				warning('AttachmentComponent (getP): entity does not exist %d', id)
+				warning('AttachmentComponent (getP): entity does not exist %q', id)
 			end
 		end
 	end

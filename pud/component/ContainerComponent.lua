@@ -63,7 +63,7 @@ function ContainerComponent:receive(sender, msg, ...)
 			if entity then
 				entity:rawsend(sender, msg, ...)
 			else
-				warning('ContainerComponent: entity does not exist %d', id)
+				warning('ContainerComponent: entity does not exist %q', id)
 			end
 		end
 	end

@@ -135,10 +135,6 @@ function Component:getState()
 	return state
 end
 
--- restore the state of the component
-function Component:setState(state)
-end
-
 
 -- the class
 return Component

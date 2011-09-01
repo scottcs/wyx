@@ -259,7 +259,7 @@ function ControllerComponent:receive(sender, msg, ...)
 			if id then
 				local item = EntityRegistry:get(id)
 				local name = item:getName()
-				GameEvents:push(ConsoleEvent('Item found: %s {%08d}', name, id))
+				GameEvents:push(ConsoleEvent('Item found: %s {%08s}', name, id))
 			end
 		end
 

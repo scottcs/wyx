@@ -2,7 +2,7 @@ local select, type, tostring = select, type, tostring
 local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
 local string_len, string_byte = string.len, string.byte
-local sqrt = math.sqrt
+local sqrt, tonumber = math.sqrt, tonumber
 
 
          --[[--
@@ -218,10 +218,17 @@ function vec2.tostring(x, y) return format("(%d,%d)", x,y) end
 function vec2.tostringf(x, y) return format("(%.2f,%.2f)", x,y) end
 
 
+-----------------------------
+-- decimal to hex and back --
+-----------------------------
+function dec2hex(n) return format('%x', n) end
+function hex2dec(n) return tonumber(n, 16) end
+
+
 -----------------------------------
 -- string hash (thanks, WoWWiki) --
 -----------------------------------
-function string.hash(s)
+function strhash(s)
 	local len = string_len(s)
 	local counter = 1
 
@@ -234,6 +241,7 @@ function string.hash(s)
 
 	return (counter % 4294967291)
 end
+
 
          --[[--
       LÖVE UTILITIES

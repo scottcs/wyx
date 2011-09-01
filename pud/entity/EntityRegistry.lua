@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 
 local table_sort = table.sort
+local strhash, dec2hex, hex2dec = strhash, dec2hex, hex2dec
 
 -- EntityRegistry
 --
@@ -39,22 +40,29 @@ function EntityRegistry:destroy()
 	self._duplicatesRev = nil
 end
 
+local _id_inc = 0
 function EntityRegistry:register(entity)
 	verifyClass('pud.entity.Entity', entity)
-	local id = entity:getID()
 	local name = entity:getName()
 	local etype = entity:getEntityType()
-	verify('number', id)
 	verify('string', name, etype)
 
+	-- not really necessary to wrap around like this in Lua, I guess.
+	-- but, just in case.
+	_id_inc = _id_inc < 100000000 and _id_inc + 1 or 1
+	local key = name..tostring(_id_inc)
+
+	local id = dec2hex(strhash(key))
+	entity:setID(id)
+
 	if nil ~= self._registry[id] then
-		warning('Entity registration overwitten: %s (%d)', name, id)
+		warning('Entity registration overwitten: %s (%s)', name, id)
 	end
 
 	self._registry[id] = entity
 
 	if debug then
-		Console:print('Registered Entity: {%08d} %s [%s]', id, name, etype)
+		Console:print('Registered Entity: {%08s} %s [%s]', id, name, etype)
 	end
 
 	self._byname[name] = self._byname[name] or {}
@@ -104,10 +112,10 @@ function EntityRegistry:unregister(id)
 	end
 
 	local entity = self._registry[id]
-	assert(entity, 'No such entity to unregister: %d', id)
+	assert(entity, 'No such entity to unregister: %s', id)
 
 	if debug then
-		Console:print('Unregistered Entity: {%08d} %s [%s]',
+		Console:print('Unregistered Entity: {%08s} %s [%s]',
 			id, entity:getName(), entity:getEntityType())
 	end
 
@@ -210,10 +218,10 @@ function EntityRegistry:_printEntitiesToConsole(ents, color)
 	color = color or 'GREY50'
 	for i=1,num do
 		local e = ents[i]
-		local id = e:getID() or -1
+		local id = e:getID() or '?'
 		local elevel = e:getELevel() or -1
 		local name = e:getName() or '?'
-		Console:print(color, '  {%08d} %4d  %s', id, elevel, name)
+		Console:print(color, '  {%08s} %4d  %s', id, elevel, name)
 	end
 end
 

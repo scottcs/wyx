@@ -5,28 +5,27 @@ local Event = getClass 'pud.event.Event'
 --
 local EntityDeathEvent = Class{name='EntityDeathEvent',
 	inherits=Event,
-	function(self, entity, reason)
-		if type(entity) ~= number then entity = entity:getID() end
-		verify('number', entity)
-		verify('string', reason)
-		assert(EntityRegistry:exists(entity),
-			'EntityDeathEvent: entity %d does not exist', entity)
+	function(self, entityID, reason)
+		if type(entityID) ~= 'string' then entityID = entityID:getID() end
+		verify('string', entityID, reason)
+		assert(EntityRegistry:exists(entityID),
+			'EntityDeathEvent: entityID %q does not exist', entityID)
 
 		Event.construct(self, 'Entity Death Event')
 
-		self._entity = entity
+		self._entityID = entityID
 		self._reason = reason
 	end
 }
 
 -- destructor
 function EntityDeathEvent:destroy()
-	self._entity = nil
+	self._entityID = nil
 	self._reason = nil
 	Event.destroy(self)
 end
 
-function EntityDeathEvent:getEntity() return self._entity end
+function EntityDeathEvent:getEntity() return self._entityID end
 function EntityDeathEvent:getReason() return self._reason end
 
 -- the class
