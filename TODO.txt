@@ -1,69 +1,36 @@
-
 Interface:
-
-  NOTES:
-    RunState Flow:
-    MAIN -> Intro -> MainMenu
-      MainMenu -> Initialize
-      MainMenu -> Options
-      MainMenu -> Help
-      MainMenu -> Shutdown
-        Initialize -> LoadGame
-        Initialize -> Construct
-        Options -> MainMenu
-        Help -> MainMenu
-          LoadGame -> Construct
-            Construct -> Play
-              Play -> PlayMenu
-                PlayMenu -> Options
-                PlayMenu -> Help
-                PlayMenu -> Save
-                PlayMenu -> Destroy (quit without saving)
-                  Options -> PlayMenu
-                  Help -> PlayMenu
-                  Save -> PlayMenu
-                  Save -> Destroy
-                  Destroy -> MainMenu
-                    Destroy -> MainMenu
-
-    Individual States and their potential links:
-      RunState:     From:                           To:
-      MAIN          --                              Intro
-      Intro         MAIN                            MainMenu
-      MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
-      Initialize    MainMenu                        Construct, LoadGame
-      LoadGame      Initialize                      Construct
-      Options       MainMenu, PlayMenu              MainMenu, PlayMenu
-      Help          MainMenu, PlayMenu              MainMenu, PlayMenu
-      Construct     LoadGame, Initialize            Play
-      Play          Construct                       PlayMenu
-      PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
-      Save          PlayMenu                        Destroy, PlayMenu
-      Destroy       PlayMenu, Save                  MainMenu
-      Shutdown      MainMenu                        --
-
-    Loops:
-      MainMenu -> Help -> MainMenu
-      MainMenu -> Options -> MainMenu
-      Play -> PlayMenu -> Play
-      PlayMenu -> Help -> PlayMenu
-      PlayMenu -> Options -> PlayMenu
-      PlayMenu -> Save -> PlayMenu
-      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
-
-  Construct RunState was a bad idea. Creating new Levels should be transparent to the user. With this RunState, though, the draw / update cycle is interrupted.
-  d Refactor Construct RunState to not construct Level [should be done in Play with GameState object].
-  d rename GameState object to RunState
-
-  ? perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
-  d fix play RunState init,enter,leave so that it can leave [to a menu RunState, for example] without destroying anything, and come back. Or it can leave [to shutdown or main menu RunState] and kill everything.
+  x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
   o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
   o   And a Portrait field.
-  ? how to show damage range? [since it's usually a function]
+  ?   how to show damage range? [since it's usually a function]
+	o HUD
+	o   Design what it should look like before coding it
+	o   Inventory/Equipment in a line along bottom
+	?   Stats in a line along top? Or in a panel on one side? or in a line above inventory?
+	o   Score or some way to show progress
   x UISystem - handles User Interface
+
+	UI Elements:
+	o Buttons/Slots
+	o   Can be pressed, hovered
+	o   Can contain an image within its border [an item, for instance]
+	o   Can contain a label/text box
+	o Text entry
+	o   with label
+	-   with cursor
+	o Text box or label
+	o Info bar [health bar, etc]
+	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
+	- Minimap
+	- Ability to click on entities/map tiles directly
+	?   Context menu
+	?   Click-to-move?
+
+	Options / Config:
+	o key bindings
 
 For v0.1.0:
   o interface
@@ -71,17 +38,16 @@ For v0.1.0:
 
 
 BEYOND v0.1.0:
-Save/Load:
 
+Save/Load:
   Event Queues:
   ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
-  Items:
-  o Entity Inventory [this could also be used for bags? Item with an inventory?]
-  o   UsableComponent? [this needs scripting in JSON files]
-  o     UseCommand [call onUse(), potentially destroy entity]
-  o id as hex value
+
+Items:
+  o UsableComponent? [this needs scripting in JSON files]
+  o   UseCommand [call onUse(), potentially destroy entity]
 
 Input/Events/Config:
   o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
@@ -116,17 +82,21 @@ Expressions:
     },
 
 Graphics:
-  - make hero movement smoother [tweened... possibly only move camera when near edges?]
-  o support sprite batches if framebuffers are unsupported
+  x make hero movement smoother [tweened... possibly only move camera when near edges?]
+  - support sprite batches if framebuffers are unsupported
 	+ fix wrong dungeon colors after load
 	+    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
+Sound:
+  o add sounds
+	o add music
+
 Map:
-  - map as quad-tree [or something?]
+  x map as quad-tree [or something?]
   ? maptypes as composites?
   - poisson disk sampling for decoration/item/monster placement [map gen too?]
-  o map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
-  o   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
+  + map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
+  +   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
   ? How to handle map deformation? Would like ability to mine/dig/etc.
   o Create another View that can show simple representation of map nodes for Minimap.
   o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
@@ -137,3 +107,55 @@ Other:
 	+ make EntityRegistry not a global [it's in the World]
 
 NOTES & IDEAS:
+
+Interface:
+
+  RunState Flow:
+    MAIN -> Intro -> MainMenu
+      MainMenu -> Initialize
+      MainMenu -> Options
+      MainMenu -> Help
+      MainMenu -> Shutdown
+        Initialize -> LoadGame
+        Initialize -> Construct
+        Options -> MainMenu
+        Help -> MainMenu
+          LoadGame -> Construct
+            Construct -> Play
+              Play -> PlayMenu
+                PlayMenu -> Options
+                PlayMenu -> Help
+                PlayMenu -> Save
+                PlayMenu -> Destroy (quit without saving)
+                  Options -> PlayMenu
+                  Help -> PlayMenu
+                  Save -> PlayMenu
+                  Save -> Destroy
+                  Destroy -> MainMenu
+                    Destroy -> MainMenu
+
+  Individual States and their potential links:
+      RunState:     From:                           To:
+      MAIN          --                              Intro
+      Intro         MAIN                            MainMenu
+      MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
+      Initialize    MainMenu                        Construct, LoadGame
+      LoadGame      Initialize                      Construct
+      Options       MainMenu, PlayMenu              MainMenu, PlayMenu
+      Help          MainMenu, PlayMenu              MainMenu, PlayMenu
+      Construct     LoadGame, Initialize            Play
+      Play          Construct                       PlayMenu
+      PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
+      Save          PlayMenu                        Destroy, PlayMenu
+      Destroy       PlayMenu, Save                  MainMenu
+      Shutdown      MainMenu                        --
+
+  Loops:
+      MainMenu -> Help -> MainMenu
+      MainMenu -> Options -> MainMenu
+      Play -> PlayMenu -> Play
+      PlayMenu -> Help -> PlayMenu
+      PlayMenu -> Options -> PlayMenu
+      PlayMenu -> Save -> PlayMenu
+      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+
