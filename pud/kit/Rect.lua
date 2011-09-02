@@ -83,7 +83,7 @@ end
 function Rect:containsPoint(x, y)
 	local x1, y1 = self._x, self._y
 	local x2, y2 = x1 + self._w, y1 + self._h
-	return x >= x1 and x <= x2 and y >= y1 and y <= y2
+	return (x >= x1 and x <= x2 and y >= y1 and y <= y2)
 end
 
 -- get and set size
