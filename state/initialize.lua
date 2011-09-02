@@ -78,7 +78,7 @@ function st:_load()
 		[2] = function() HeroDB:load() end,
 		[3] = function() EnemyDB:load() end,
 		[4] = function() ItemDB:load() end,
-		[5] = function() RunState.switch(self._nextState, self._world) end,
+		[5] = function() RunState.switch(State[self._nextState], self._world) end,
 		default = function() end,
 	}
 

@@ -17,7 +17,7 @@ function st:enter(prevState, world, nextState)
 	self:_chooseFile()
 	self:_removeFile()
 	self:_saveGame()
-	RunState.switch(nextState)
+	RunState.switch(State[nextState])
 end
 
 function st:leave()

@@ -149,11 +149,11 @@ function st:keypressed(key, unicode)
 	else
 		switch(key) {
 			escape = function()
-				--RunState.switch(State.save, self._world, State.destroy)
+				--RunState.switch(State.save, self._world, 'destroy')
 				RunState.switch(State.destroy)
 			end,
 			['1'] = function()
-				RunState.switch(State.destroy, State.intro)
+				RunState.switch(State.destroy, 'intro')
 			end,
 
 			-- camera
@@ -177,9 +177,11 @@ function st:keypressed(key, unicode)
 				end
 			end,
 			f1 = function()
-				RunState.switch(State.save, self._world, State.play)
+				RunState.switch(State.save, self._world, 'play')
 			end,
-
+			f2 = function()
+				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
+			end,
 			f3 = function() if debug then self._debug = not self._debug end end,
 			f4 = function()
 				self._cam:unfollowTarget()
