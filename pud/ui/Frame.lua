@@ -167,7 +167,7 @@ function Frame:onPress(button, mods)
 	self:_drawFB()
 end
 
--- onPress - called when the mouse is pressed inside the frame
+-- onRelease - called when the mouse is released inside the frame
 function Frame:onRelease(button, mods, wasInside)
 	if self._hovered then
 		self._curStyle = self._hoverStyle or self._normalStyle
