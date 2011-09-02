@@ -179,6 +179,9 @@ function st:keypressed(key, unicode)
 			f1 = function()
 				RunState.switch(State.save, self._world, 'play')
 			end,
+			f2 = function()
+				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
+			end,
 			f3 = function() if debug then self._debug = not self._debug end end,
 			f4 = function()
 				self._cam:unfollowTarget()
