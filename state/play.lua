@@ -8,7 +8,7 @@
 local st = RunState.new()
 
 local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
-local MessageHUD = getClass 'pud.view.MessageHUD'
+local MessageHUD = getClass 'pud.ui.MessageHUD'
 
 -- events
 local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
