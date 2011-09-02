@@ -1,5 +1,7 @@
 local Class = require 'lib.hump.class'
 local Rect = getClass 'pud.kit.Rect'
+local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
 
 local math_max = math.max
 local getMousePosition = love.mouse.getPosition
@@ -12,6 +14,8 @@ local popRenderTarget = popRenderTarget
 local nearestPO2 = nearestPO2
 local colors = colors
 
+local FRAME_UPDATE_TICK = 1/60
+
 -- Frame
 -- Basic UI Element
 local Frame = Class{name='Frame',
@@ -21,7 +25,11 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 
+		self._accum = 0
+
 		self:_drawFB()
+
+		InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
 	end
 }
 
@@ -53,7 +61,31 @@ function Frame:destroy()
 		self._activeStyle = nil
 	end
 
+	self._hovered = nil
+	self._mouseDown = nil
+	self._accum = nil
+
 	Rect.destroy(self)
+end
+
+-- MousePressedEvent - check if the event occurred within this frame
+function Frame:MousePressedEvent(e)
+	self._mouseDown = true
+	local x, y = e:getPosition()
+	if self:containsPoint(x, y) then
+		local button = e:getButton()
+		local mods = e:getModifiers()
+		self:onPress(button, mods)
+	end
+end
+
+-- MouseReleasedEvent - check if the event occurred within this frame
+function Frame:MouseReleasedEvent(e)
+	self._mouseDown = false
+	local x, y = e:getPosition()
+	local button = e:getButton()
+	local mods = e:getModifiers()
+	self:onRelease(button, mods, self:containsPoint(x, y))
 end
 
 -- add a child
@@ -91,22 +123,27 @@ end
 
 -- update - check for mouse hover
 function Frame:update(dt, x, y)
-	if nil == x or nil == y then
-		x, y = getMousePosition()
-	end
+	self._accum = self._accum + dt
+	if self._accum > FRAME_UPDATE_TICK then
+		self._accum = 0
 
-	if self:containsPoint(x, y) then
-		if not self._hovered then self:onHoverIn(x, y) end
-		self._hovered = true
-	else
-		if self._hovered then self:onHoverOut(x, y) end
-		self._hovered = false
-	end
+		if nil == x or nil == y then
+			x, y = getMousePosition()
+		end
 
-	local num = #self._children
-	for i = 1,num do
-		local child = self._children[i]
-		child:update(dt, x, y)
+		if self:containsPoint(x, y) then
+			if not self._hovered then self:onHoverIn(x, y) end
+			self._hovered = true
+		else
+			if self._hovered then self:onHoverOut(x, y) end
+			self._hovered = false
+		end
+
+		local num = #self._children
+		for i = 1,num do
+			local child = self._children[i]
+			child:update(dt, x, y)
+		end
 	end
 end
 
@@ -118,7 +155,25 @@ end
 
 -- onHoverOut - called when the mouse stops hovering over the frame
 function Frame:onHoverOut(x, y)
-	self._curStyle = self._normalStyle
+	if not self._mouseDown then
+		self._curStyle = self._normalStyle
+	end
+	self:_drawFB()
+end
+
+-- onPress - called when the mouse is pressed inside the frame
+function Frame:onPress(button, mods)
+	self._curStyle = self._activeStyle or self._hoverStyle or self._normalStyle
+	self:_drawFB()
+end
+
+-- onPress - called when the mouse is pressed inside the frame
+function Frame:onRelease(button, mods, wasInside)
+	if self._hovered then
+		self._curStyle = self._hoverStyle or self._normalStyle
+	else
+		self._curStyle = self._normalStyle
+	end
 	self:_drawFB()
 end
 
@@ -152,28 +207,27 @@ function Frame:getActiveStyle() return self._activeStyle end
 function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
 	pushRenderTarget(self._bfb)
-
-	if self._curStyle then
-		-- TODO: add fonts and image
-		local color = self._curStyle:getColor()
-		if color then
-			setColor(color)
-			rectangle('fill', 0, 0, self._w, self._h)
-		end
-
-		-- XXX vvvv delete this from Frame... goes in Label
-		local font = self._curStyle:getFont()
-		if font then
-			local fontcolor = self._curStyle:getFontColor()
-			love.graphics.setFont(font)
-			setColor(fontcolor)
-			love.graphics.print('TEST', self._x + 20, self._y + 20)
-		end
-		-- XXX ^^^^ delete this from Frame... goes in Label
-	end
-
+	self:_drawBackground()
 	popRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
+end
+
+function Frame:_drawBackground()
+	if self._curStyle then
+		local color = self._curStyle:getColor()
+		local image = self._curStyle:getImage()
+
+		if color then
+			setColor(color)
+
+			if image then
+				-- TODO: draw image
+			else
+				-- draw background rectangle if color was specified
+				rectangle('fill', 0, 0, self._w, self._h)
+			end
+		end
+	end
 end
 
 -- draw the framebuffer and all child framebuffers
