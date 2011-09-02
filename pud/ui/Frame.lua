@@ -35,6 +35,8 @@ local Frame = Class{name='Frame',
 
 -- destructor
 function Frame:destroy()
+	InputEvents:unregisterAll(self)
+
 	for k,v in pairs(self._children) do
 		self._children[k]:destroy()
 		self._children[k] = nil
