@@ -216,12 +216,20 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = getClass 'pud.event.MouseEvent'
+local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
-	local btns = _getButtons()
-	InputEvents:push(MouseEvent(x, y, button,
+	InputEvents:push(MousePressedEvent(x, y, button,
+		love.mouse.isGrabbed(),
+		love.mouse.isVisible(),
+		mods))
+end
+
+function love.mousereleased(x, y, button)
+	local mods = _getModifiers()
+	InputEvents:push(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))
