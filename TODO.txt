@@ -78,6 +78,7 @@ Console/Debug:
   - allow input and create some awesome commands
   o every event and command needs a tostring method that is called when debugEvents is on.
   - wizard mode
+	+ printing to Console while rendertarget is set to something else has strange implications
 
 Level:
   - change Level representation of enemy to be by position in a table for faster lookup
