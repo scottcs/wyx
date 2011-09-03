@@ -14,8 +14,6 @@ local popRenderTarget = popRenderTarget
 local nearestPO2 = nearestPO2
 local colors = colors
 
-local FRAME_UPDATE_TICK = 1/60
-
 -- Frame
 -- Basic UI Element
 local Frame = Class{name='Frame',
@@ -25,6 +23,7 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 
+		self._FRAME_UPDATE_TICK = 1/60
 		self._accum = 0
 
 		self:_drawFB()
@@ -126,7 +125,7 @@ end
 -- update - check for mouse hover
 function Frame:update(dt, x, y)
 	self._accum = self._accum + dt
-	if self._accum > FRAME_UPDATE_TICK then
+	if self._accum > self._FRAME_UPDATE_TICK then
 		self._accum = 0
 
 		if nil == x or nil == y then
