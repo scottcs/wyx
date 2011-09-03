@@ -7,7 +7,7 @@ local Text = getClass 'pud.ui.Text'
 local Button = Class{name='Button',
 	inherits=Text,
 	function(self, ...)
-		Frame.construct(self, ...)
+		Text.construct(self, ...)
 		self._callbacks = {}
 		self._callbackArgs = {}
 	end
@@ -18,7 +18,7 @@ function Button:destroy()
 	for k in pairs(self._callbacks) do self:_clearCallback(k) end
 	self._callbacks = nil
 	self._callbackArgs = nil
-	Frame.destroy(self)
+	Text.destroy(self)
 end
 
 -- override Frame onRelease
