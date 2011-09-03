@@ -20,6 +20,7 @@ function Bar:destroy()
 	self._min = nil
 	self._max = nil
 	self._val = nil
+	self._watched = nil
 	Frame.destroy(self)
 end
 
@@ -58,6 +59,20 @@ function Bar:setMargins(l, t, r, b)
 	self._margins[4] = b
 
 	self:_drawFB()
+end
+
+-- watch a table (this replaces self._val)
+-- the table must be an array, but only the first item is watched
+function Bar:watch(t)
+	verify('table', t)
+	self._watched = t
+end
+function Bar:unwatch() self._watched = nil end
+
+-- onTick - check watched table
+function Bar:_onTick(dt, x, y)
+	if self._watched then self:setValue(self._watched[1]) end
+	Frame._onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()
