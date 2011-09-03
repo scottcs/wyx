@@ -25,6 +25,7 @@ Interface:
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
+	o   Can just display an image if needed
 	d Text [subclass Frame]
 	d   Displays text
 	d   Wraps text
@@ -34,19 +35,20 @@ Interface:
 	d   Can be pressed, hovered
 	d TextEntry [subclass Text]
 	d   allows multi-line input with backspace and enter
-	o   with label [another Text object]
 	-   with cursor
 	o Slots [subclass Button]
 	o   Can contain another image within its border [an item, for instance]
 	o   Can watch a variable
-	o Info bar [health bar, etc] [subclass Frame or Text]
-	?   subclass Frame or Text?
-	o   optional Label at either end (or both ends)
-	o   Label can show value or static text [Expression?]
+	o Bar [subclass Frame]
 	o   Has a min and max and current value
 	o   Can watch a variable
-	?   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	?   Animation?
+	o Info bar [health bar, etc] [subclass Frame]
+	o   optional Text as cur/max or as %
+	o      can position text anywhere
+	o   optional Text as label
+	o      can position anywhere
+	?   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
 	- Minimap
 	- Ability to click on entities/map tiles directly
