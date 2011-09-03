@@ -77,7 +77,12 @@ function TextEntry:KeyboardEvent(e)
 				self._isEnteringText = false
 				self:onRelease()
 			end,
-			default = function() text = format('%s%s', text, e:getUnicode()) end,
+			default = function()
+				local unicode = e:getUnicode()
+				if unicode then
+					text = format('%s%s', text, unicode)
+				end
+			end,
 		}
 
 		self._text[line] = text
