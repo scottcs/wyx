@@ -18,14 +18,13 @@ Interface:
 	d   Has background or overlay color
 	d   Has a font
 	d   Has a fontcolor
-	o   Has a background image
-	o     if image, color = overlay
-	?     defined how? ImageData? Or give it quads and coordinates and tileset to build its own?
+	d   Has a background image
+	d     if image, color = overlay
 	d     if not image, color = background and rectangle is drawn
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
-	o   Can just display an image if needed
+	d   Can just display an image if needed
 	d Text [subclass Frame]
 	d   Displays text
 	d   Wraps text
