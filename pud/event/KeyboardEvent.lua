@@ -31,7 +31,7 @@ function KeyboardEvent:getUnicodeValue() return self._unicode end
 function KeyboardEvent:getUnicode()
 	local c = nil
 	if self._unicode and self._unicode ~= 0 and self._unicode < 1000 then
-		c = string_char(unicode)
+		c = string_char(self._unicode)
 	end
 	return c
 end
