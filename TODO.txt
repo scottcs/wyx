@@ -29,7 +29,7 @@ Interface:
 	d   Displays text
 	d   Wraps text
 	d   Wraps text correctly based on pixel size
-	o   Can watch a variable
+	d   Can watch a variable
 	o Buttons [subclass Text]
 	d   Can be pressed, hovered
 	d TextEntry [subclass Text]
