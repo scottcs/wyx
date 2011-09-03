@@ -8,6 +8,8 @@ local gprint = love.graphics.print
 
 local math_floor = math.floor
 local string_sub = string.sub
+local string_gsub = string.gsub
+local format = string.format
 
 -- Text
 -- A static text frame
@@ -36,31 +38,46 @@ end
 function Text:setText(text)
 	if type(text) == 'string' then text = {text} end
 	verify('table', text)
+	self._text = text
+	self:_drawFB()
+end
 
-	local font
-	if self._curStyle then
-		font = self._curStyle:getFont()
-	end
-	font = font or GameFont.small
-
-	-- assuming width is constant, clip lines if they're larger than the width
-	-- of this frame.
-	local w = font:getWidth('W')
+-- assuming width is constant, wrap lines if they're larger than the width
+-- of this frame.
+function Text:_wrap(font)
+	local w = font:getWidth('0')
 	local margin = self._margin or 0
 	local frameWidth = self:getWidth() - (2 * margin)
 	local max = math_floor(frameWidth/w)
-	local num = #text
+	local num = #self._text
+	local wrapped
+	local wrapcount = 0
+
 	for i=1,num do
-		print(font:getWidth(text[i]), frameWidth, max)
-		if font:getWidth(text[i]) > frameWidth then
-			local clipped = string_sub(text[i], 1, max)
-			warning('Clipping text %q to %q (%d max)', text[i], clipped, max)
-			text[i] = clipped
+		wrapcount = wrapcount + 1
+		wrapped = wrapped or {}
+
+		if font:getWidth(self._text[i]) > frameWidth then
+			local here = 0
+			string_gsub(self._text[i], '(%s*)()(%S+)()', function(sp, st, word, fi)
+				if fi-here > max then
+					here = st
+					wrapcount = wrapcount + 1
+					wrapped[wrapcount] = word
+				else
+					if wrapped[wrapcount] then
+						wrapped[wrapcount] = format('%s %s', wrapped[wrapcount], word)
+					else
+						wrapped[wrapcount] = word
+					end
+				end
+			end)
+		else
+			wrapped[wrapcount] = self._text[i]
 		end
 	end
 
-	self._text = text
-	self:_drawFB()
+	return wrapped and wrapped or self._text
 end
 
 -- returns the currently set text as a table of strings, one per line
@@ -84,21 +101,24 @@ function Text:_drawFB()
 	pushRenderTarget(self._bfb)
 	self:_drawBackground()
 
-	local numLines = self._text and #self._text or 0
 
-	if numLines > 0 then
+	if self._text and #self._text > 0 then
 		if self._curStyle then
 			local font = self._curStyle:getFont()
 			if font then
 				local height = font:getHeight()
 				local margin = self._margin or 0
+				local text = self:_wrap(font)
+				local textLines = #text
+				local maxLines = math_floor((self:getHeight() - (2*margin)) / height)
+				local numLines = textLines > maxLines and maxLines or textLines
 				local fontcolor = self._curStyle:getFontColor()
 
 				setFont(font)
 				setColor(fontcolor)
 
 				for i=1,numLines do
-					local line = self._text[i]
+					local line = text[i]
 					local h = (i-1) * height
 					local w = font:getWidth(line)
 					local y = margin + h
