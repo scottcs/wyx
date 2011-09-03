@@ -96,7 +96,7 @@ function Text:_wrap(text)
 								wordW = font:getWidth(word)
 								width = prevWidth + wordW
 							end
-							warning('Word %q is too long, truncating to %q', old, word)
+							--warning('Word %q is too long, truncating to %q', old, word)
 						end
 
 						if prevWidth == 0 then
