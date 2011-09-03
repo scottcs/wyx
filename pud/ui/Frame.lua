@@ -221,7 +221,7 @@ end
 
 function Frame:_drawBackground()
 	if self._curStyle then
-		local color = self._curStyle:getColor()
+		local color = self._curStyle:getBGColor()
 		local image = self._curStyle:getImage()
 		local quad = self._curStyle:getQuad()
 

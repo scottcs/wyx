@@ -191,7 +191,7 @@ function Text:_drawFB()
 				local textLines = #text
 				local maxLines = math_floor((self:getHeight() - (2*margin)) / height)
 				local numLines = textLines > maxLines and maxLines or textLines
-				local fontcolor = self._curStyle:getFontColor()
+				local fontcolor = self._curStyle:getFGColor()
 
 				setFont(font)
 				setColor(fontcolor)
