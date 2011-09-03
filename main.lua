@@ -86,12 +86,20 @@ local function _makeSaveDirectories()
 	}) do _makeADir(dir) end
 end
 
+local function _setIcon()
+	local icon = love.graphics.newImage('icon.png')
+	love.graphics.setIcon(icon)
+end
+
 function love.load()
 	-- start the profiler
 	if doGlobalProfile then globalProfiler.start() end
 
 	-- set graphics mode
 	resizeScreen(1024, 768)
+
+	-- set the program icon
+	_setIcon()
 
 	-- set window title
 	love.graphics.setCaption(GAMENAME..' v'..VERSION)
