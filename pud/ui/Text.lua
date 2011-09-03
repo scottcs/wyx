@@ -17,6 +17,7 @@ local Text = Class{name='Text',
 	inherits=Frame,
 	function(self, ...)
 		Frame.construct(self, ...)
+		self._maxLines = 1
 		self._text = {}
 		self._justify = 'l'
 		self._margin = 0
@@ -25,7 +26,7 @@ local Text = Class{name='Text',
 
 -- destructor
 function Text:destroy()
-	for k,v in pairs(self._text) do self._text[k] = nil end
+	self:clear()
 	self._text = nil
 	self._justify = nil
 	self._margin = nil
@@ -38,7 +39,22 @@ end
 function Text:setText(text)
 	if type(text) == 'string' then text = {text} end
 	verify('table', text)
-	self._text = text
+
+	self:clear()
+
+	local numLines = #text
+
+	if numLines > self._maxLines then
+		warning('setText(lines): number of lines (%d) exceeds maximum (%d)',
+			numLines, self._maxLines)
+
+		for i=1,self._maxLines do
+			self._text[i] = text[i]
+		end
+	else
+		self._text = text
+	end
+
 	self:_drawFB()
 end
 
@@ -82,6 +98,17 @@ end
 
 -- returns the currently set text as a table of strings, one per line
 function Text:getText() return self._text end
+
+-- clear the current text
+function Text:clear()
+	for k in pairs(self._text) do self._text[k] = nil end
+end
+
+-- set the maximum number of lines
+function Text:setMaxLines(max)
+	verify('number', max)
+	self._maxLines = max
+end
 
 -- set the margin between the frame edge and the text
 function Text:setMargin(margin)
