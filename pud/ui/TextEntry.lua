@@ -59,20 +59,25 @@ function TextEntry:KeyboardEvent(e)
 	if not self._isEnteringText then return end
 
 	if self._text then
-		local text
-		local line = #self._text + 1
+		-- copy the entire text
+		local text = {}
+		local numLines = #self._text
+		for i=1,numLines do text[i] = self._text[i] end
+		
+		local line
+		local lineNum = numLines + 1
 
 		repeat
-			line = line - 1
-			text = self._text[line]
-		until string.len(text) ~= 0 or line < 1
+			lineNum = lineNum - 1
+			line = text[lineNum]
+		until string.len(line) ~= 0 or lineNum < 1
 
-		if line < 1 then line = 1 end
-		text = text or self._text[line]
+		if lineNum < 1 then lineNum = 1 end
+		line = line or text[lineNum]
 
 		local key = e:getKey()
 		switch(key) {
-			backspace = function() text = string_sub(text, 1, -2) end,
+			backspace = function() line = string_sub(line, 1, -2) end,
 			escape = function()
 				self._isEnteringText = false
 				self:onRelease()
@@ -80,12 +85,13 @@ function TextEntry:KeyboardEvent(e)
 			default = function()
 				local unicode = e:getUnicode()
 				if unicode then
-					text = format('%s%s', text, unicode)
+					line = format('%s%s', line, unicode)
 				end
 			end,
 		}
 
-		self._text[line] = text
+		text[lineNum] = line
+		self:setText(text)
 		self:_drawFB()
 	else
 		warning('Text is missing!')
