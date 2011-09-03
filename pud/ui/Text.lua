@@ -30,6 +30,7 @@ function Text:destroy()
 	self._text = nil
 	self._justify = nil
 	self._margin = nil
+	self._watched = nil
 	Frame.destroy(self)
 end
 
@@ -136,6 +137,14 @@ end
 -- returns the currently set text as a table of strings, one per line
 function Text:getText() return self._text end
 
+-- watch a table (this replaces any text already set)
+-- the table must be an array
+function Text:watch(t)
+	verify('table', t)
+	self._watched = t
+end
+function Text:unwatch() self._watched = nil end
+
 -- clear the current text
 function Text:clear()
 	for k in pairs(self._text) do self._text[k] = nil end
@@ -158,6 +167,18 @@ end
 function Text:setJustifyLeft()   self._justify = 'l' end
 function Text:setJustifyRight()  self._justify = 'r' end
 function Text:setJustifyCenter() self._justify = 'c' end
+
+-- update - check watched table
+function Text:update(dt, x, y)
+	self._accum = self._accum + dt
+	if self._accum > self._FRAME_UPDATE_TICK then
+		if self._watched then
+			self:setText(self._watched)
+		end
+	end
+
+	Frame.update(self, dt, x, y)
+end
 
 -- override Frame:_drawFB()
 function Text:_drawFB()
