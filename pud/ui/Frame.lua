@@ -9,6 +9,7 @@ local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
+local drawq = love.graphics.drawq
 local pushRenderTarget = pushRenderTarget
 local popRenderTarget = popRenderTarget
 local nearestPO2 = nearestPO2
@@ -222,12 +223,17 @@ function Frame:_drawBackground()
 	if self._curStyle then
 		local color = self._curStyle:getColor()
 		local image = self._curStyle:getImage()
+		local quad = self._curStyle:getQuad()
 
 		if color then
 			setColor(color)
 
 			if image then
-				-- TODO: draw image
+				if quad then
+					drawq(image, quad, 0, 0)
+				else
+					draw(image, 0, 0)
+				end
 			else
 				-- draw background rectangle if color was specified
 				rectangle('fill', 0, 0, self._w, self._h)
