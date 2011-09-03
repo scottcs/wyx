@@ -14,15 +14,34 @@ Interface:
   x UISystem - handles User Interface
 
 	UI Elements:
-	o Buttons/Slots
-	o   Can be pressed, hovered
-	o   Can contain an image within its border [an item, for instance]
-	o   Can contain a label/text box
-	o Text entry
-	o   with label
+	d Styles
+	d   Has background or overlay color
+	d   Has a font
+	d   Has a fontcolor
+	o   Has a background image
+	o     if image, color = overlay
+	?     defined how? ImageData? Or give it quads and coordinates and tileset to build its own?
+	d     if not image, color = background and rectangle is drawn
+	d Frames
+	d   Have hover/press checks, call onHover, onPress
+	d   Has Styles
+	d Text [subclass Frame]
+	d   Displays text
+	d   Wraps text
+	o Buttons [subclass Text]
+	d   Can be pressed, hovered
+	d TextEntry [subclass Text]
+	o   with label [another Text object]
 	-   with cursor
-	o Text box or label
-	o Info bar [health bar, etc]
+	o Slots [subclass Button]
+	o   Can contain another image within its border [an item, for instance]
+	o Info bar [health bar, etc] [subclass Frame or Text]
+	?   subclass Frame or Text?
+	o   optional Label at either end (or both ends)
+	o   Label can show value or static text [Expression?]
+	o   Has a min and max and current value
+	?   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+	?   Animation?
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
 	- Minimap
 	- Ability to click on entities/map tiles directly
