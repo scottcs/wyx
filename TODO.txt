@@ -28,18 +28,23 @@ Interface:
 	d Text [subclass Frame]
 	d   Displays text
 	d   Wraps text
+	d   Wraps text correctly based on pixel size
+	o   Can watch a variable
 	o Buttons [subclass Text]
 	d   Can be pressed, hovered
 	d TextEntry [subclass Text]
+	d   allows multi-line input with backspace and enter
 	o   with label [another Text object]
 	-   with cursor
 	o Slots [subclass Button]
 	o   Can contain another image within its border [an item, for instance]
+	o   Can watch a variable
 	o Info bar [health bar, etc] [subclass Frame or Text]
 	?   subclass Frame or Text?
 	o   optional Label at either end (or both ends)
 	o   Label can show value or static text [Expression?]
 	o   Has a min and max and current value
+	o   Can watch a variable
 	?   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	?   Animation?
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
