@@ -64,24 +64,34 @@ function TextEntry:KeyboardEvent(e)
 		local numLines = #self._text
 		for i=1,numLines do text[i] = self._text[i] end
 		
-		local line
-		local lineNum = numLines + 1
-
-		repeat
-			lineNum = lineNum - 1
-			line = text[lineNum]
-		until string.len(line) ~= 0 or lineNum < 1
+		local lineNum = numLines
 
 		if lineNum < 1 then lineNum = 1 end
-		line = line or text[lineNum]
+		local line = text[lineNum] or ''
 
 		local key = e:getKey()
 		switch(key) {
-			backspace = function() line = string_sub(line, 1, -2) end,
+			backspace = function()
+				line = string_sub(line, 1, -2)
+				if string.len(line) < 1 then
+					text[lineNum] = nil
+					lineNum = lineNum - 1
+					if lineNum < 1 then lineNum = 1 end
+					line = text[lineNum] or ''
+				end
+			end,
+
+			['return'] = function()
+				local nextLine = lineNum + 1
+				if nextLine > self._maxLines then nextLine = self._maxLines end
+				text[nextLine] = text[nextLine] or ''
+			end,
+
 			escape = function()
 				self._isEnteringText = false
 				self:onRelease()
 			end,
+
 			default = function()
 				local unicode = e:getUnicode()
 				if unicode then
