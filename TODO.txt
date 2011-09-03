@@ -30,7 +30,7 @@ Interface:
 	d   Wraps text
 	d   Wraps text correctly based on pixel size
 	d   Can watch a variable
-	o Buttons [subclass Text]
+	d Buttons [subclass Text]
 	d   Can be pressed, hovered
 	d TextEntry [subclass Text]
 	d   allows multi-line input with backspace and enter
@@ -38,16 +38,16 @@ Interface:
 	o Slots [subclass Button]
 	o   Can contain another image within its border [an item, for instance]
 	o   Can watch a variable
-	o Bar [subclass Frame]
-	o   Has a min and max and current value
-	o   Can watch a variable
-	?   Animation?
+	d Bar [subclass Frame]
+	d   Has a min and max and current value
+	d   Can watch a variable
+	x   Animation?
 	o Info bar [health bar, etc] [subclass Frame]
 	o   optional Text as cur/max or as %
 	o      can position text anywhere
 	o   optional Text as label
 	o      can position anywhere
-	?   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+	x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
 	- Minimap
 	- Ability to click on entities/map tiles directly
