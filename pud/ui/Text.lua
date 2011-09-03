@@ -8,7 +8,7 @@ local gprint = love.graphics.print
 
 local math_floor = math.floor
 local string_sub = string.sub
-local string_gsub = string.gsub
+local string_gmatch = string.gmatch
 local format = string.format
 
 -- Text
@@ -41,6 +41,7 @@ function Text:setText(text)
 	verify('table', text)
 
 	self:clear()
+	text = self:_wrap(text)
 
 	local numLines = #text
 
@@ -60,40 +61,76 @@ end
 
 -- assuming width is constant, wrap lines if they're larger than the width
 -- of this frame.
-function Text:_wrap(font)
-	local w = font:getWidth('0')
-	local margin = self._margin or 0
-	local frameWidth = self:getWidth() - (2 * margin)
-	local max = math_floor(frameWidth/w)
-	local num = #self._text
-	local wrapped
-	local wrapcount = 0
+function Text:_wrap(text)
+	local font = self._curStyle:getFont()
+	if font then
+		local space = font:getWidth(' ')
+		local margin = self._margin or 0
+		local frameWidth = self:getWidth() - (2 * margin)
+		local num = #text
+		local wrapped
+		local wrapcount = 0
 
-	for i=1,num do
-		wrapcount = wrapcount + 1
-		wrapped = wrapped or {}
+		for i=1,num do
+			wrapcount = wrapcount + 1
+			wrapped = wrapped or {}
 
-		if font:getWidth(self._text[i]) > frameWidth then
-			local here = 0
-			string_gsub(self._text[i], '(%s*)()(%S+)()', function(sp, st, word, fi)
-				if fi-here > max then
-					here = st
-					wrapcount = wrapcount + 1
-					wrapped[wrapcount] = word
-				else
-					if wrapped[wrapcount] then
-						wrapped[wrapcount] = format('%s %s', wrapped[wrapcount], word)
+			-- if width is too long, wrap
+			if font:getWidth(text[i]) > frameWidth then
+				local width = 0
+				local here = 0
+
+				-- check one word at a time
+				for word in string_gmatch(text[i], '%s*(%S+)') do
+					local wordW = font:getWidth(word)
+					local prevWidth = width
+					width = width + wordW
+
+					-- if the running width of all checked words is too long, wrap
+					if width > frameWidth then
+						-- if it's a single word, or we're on the last line, truncate
+						if width == wordW or wrapcount == self._maxLines then
+							local old = word
+							while #word > 0 and width > frameWidth do
+								word = string_sub(word, 1, -2)
+								wordW = font:getWidth(word)
+								width = prevWidth + wordW
+							end
+							warning('Word %q is too long, truncating to %q', old, word)
+						end
+
+						if prevWidth == 0 then
+							-- single word
+							width = -space
+							wrapped[wrapcount] = word
+						elseif wrapcount == self._maxLines then
+							-- last line
+							width = frameWidth - space
+							wrapped[wrapcount] = format('%s %s', wrapped[wrapcount], word)
+						else
+							-- neither single word or last line
+							width = wordW
+							wrapcount = wrapcount + 1
+							wrapped[wrapcount] = word
+						end
 					else
-						wrapped[wrapcount] = word
-					end
-				end
-			end)
-		else
-			wrapped[wrapcount] = self._text[i]
-		end
-	end
+						-- didn't wrap, just add the word
+						if wrapped[wrapcount] then
+							wrapped[wrapcount] = format('%s %s', wrapped[wrapcount], word)
+						else
+							wrapped[wrapcount] = word
+						end
+					end -- if width > frameWidth
 
-	return wrapped and wrapped or self._text
+					width = width + space
+				end -- for word in string_gmatch
+			else
+				wrapped[wrapcount] = text[i]
+			end -- if font:getWidth
+		end
+
+		return wrapped and wrapped or text
+	end
 end
 
 -- returns the currently set text as a table of strings, one per line
@@ -135,7 +172,7 @@ function Text:_drawFB()
 			if font then
 				local height = font:getHeight()
 				local margin = self._margin or 0
-				local text = self:_wrap(font)
+				local text = self._text
 				local textLines = #text
 				local maxLines = math_floor((self:getHeight() - (2*margin)) / height)
 				local numLines = textLines > maxLines and maxLines or textLines
