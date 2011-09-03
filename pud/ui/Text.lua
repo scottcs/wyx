@@ -168,16 +168,10 @@ function Text:setJustifyLeft()   self._justify = 'l' end
 function Text:setJustifyRight()  self._justify = 'r' end
 function Text:setJustifyCenter() self._justify = 'c' end
 
--- update - check watched table
-function Text:update(dt, x, y)
-	self._accum = self._accum + dt
-	if self._accum > self._FRAME_UPDATE_TICK then
-		if self._watched then
-			self:setText(self._watched)
-		end
-	end
-
-	Frame.update(self, dt, x, y)
+-- onTick - check watched table
+function Text:_onTick(dt, x, y)
+	if self._watched then self:setText(self._watched) end
+	Frame._onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()
