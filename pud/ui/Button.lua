@@ -10,6 +10,8 @@ local Button = Class{name='Button',
 		Text.construct(self, ...)
 		self._callbacks = {}
 		self._callbackArgs = {}
+		self:setJustifyCenter()
+		self:setAlignCenter()
 	end
 }
 
