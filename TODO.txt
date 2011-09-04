@@ -37,9 +37,11 @@ Interface:
 	d   Can watch a variable
 	d Buttons [subclass Text]
 	d   Can be pressed, hovered
+	d   Has an optional callback when pressed
 	d TextEntry [subclass Text]
 	d   allows multi-line input with backspace and enter
-	-   with cursor
+	d   with cursor
+	o   Has an optional callback when editing stops
 	o Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
 	o   default background color is slightly transparent black
 	o   scales well with its content
