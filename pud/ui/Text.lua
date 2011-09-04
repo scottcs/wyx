@@ -164,9 +164,9 @@ function Text:setMargin(margin)
 end
 
 -- set the justification
-function Text:setJustifyLeft()   self._justify = 'l' end
-function Text:setJustifyRight()  self._justify = 'r' end
-function Text:setJustifyCenter() self._justify = 'c' end
+function Text:setJustifyLeft()   self._justify = 'l'; self:_drawFB() end
+function Text:setJustifyRight()  self._justify = 'r'; self:_drawFB() end
+function Text:setJustifyCenter() self._justify = 'c'; self:_drawFB() end
 
 -- onTick - check watched table
 function Text:_onTick(dt, x, y)
