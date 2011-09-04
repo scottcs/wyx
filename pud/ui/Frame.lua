@@ -29,6 +29,7 @@ local Frame = Class{name='Frame',
 
 		self:_drawFB()
 		self:becomeIndependent()
+		InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
 	end
 }
 
@@ -41,6 +42,7 @@ function Frame:destroy()
 		self._children[k] = nil
 	end
 	self._children = nil
+	self._isChild = nil
 
 	self._ffb = nil
 	self._bfb = nil
@@ -72,11 +74,14 @@ end
 -- MousePressedEvent - check if the event occurred within this frame
 function Frame:MousePressedEvent(e)
 	self._mouseDown = true
-	local x, y = e:getPosition()
-	local button = e:getButton()
-	local mods = e:getModifiers()
 
-	self:_handleMousePress(x, y, button, mods)
+	if not self._isChild then
+		local x, y = e:getPosition()
+		local button = e:getButton()
+		local mods = e:getModifiers()
+
+		self:_handleMousePress(x, y, button, mods)
+	end
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
@@ -96,33 +101,51 @@ function Frame:_handleMousePress(x, y, button, mods)
 
 		if not handled then
 			self:onPress(button, mods)
+			self:switchToActiveStyle()
 			handled = true
 		end
+	else
+		self:switchToNormalStyle()
 	end
 
+	self:_drawFB()
 	return handled
 end
 
 -- MouseReleasedEvent
 function Frame:MouseReleasedEvent(e)
 	self._mouseDown = false
-	local x, y = e:getPosition()
-	local button = e:getButton()
-	local mods = e:getModifiers()
-	self:_handleMouseRelease(x, y, button, mods)
+
+	if not self._isChild then
+		local x, y = e:getPosition()
+		local button = e:getButton()
+		local mods = e:getModifiers()
+		self:_handleMouseRelease(x, y, button, mods)
+	end
 end
 
 function Frame:_handleMouseRelease(x, y, button, mods)
-	local inside = self:containsPoint(x, y)
 	local num = #self._children
+	local handled = false
 
-	for i = 1,num do
+	local i = 0
+	while not handled and i < num do
+		i = i + 1
 		local child = self._children[i]
-		child:_handleMouseRelease(x, y, button, mods)
+		handled = child:_handleMouseRelease(x, y, button, mods)
 	end
 
-	-- some frame descendants use 'inside', but Frame itself does not
-	self:onRelease(button, mods, inside)
+	if handled or not self:containsPoint(x, y) then
+		self:switchToNormalStyle()
+	elseif not handled then
+		self:onRelease(button, mods)
+		self:switchToHoverStyle()
+		handled = true
+	end
+
+	self._pressed = false
+	self:_drawFB()
+	return handled
 end
 
 -- add a child
@@ -163,7 +186,7 @@ end
 
 -- perform necessary tasks to become an independent frame (no parent)
 function Frame:becomeIndependent(parent)
-	InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
+	self._isChild = false
 	if parent then
 		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
 		self:setPosition(x, y)
@@ -172,11 +195,55 @@ end
 
 -- perform necessary tasks to become a child frame (with a parent)
 function Frame:becomeChild(parent)
-	InputEvents:unregisterAll(self)
+	self._isChild = true
 	if parent then
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
 	end
+end
+
+-- override Rect:setX() to send translation to children
+function Frame:setX(x)
+	local oldx = self:getX()
+	local diff
+	if oldx then diff = x - oldx end
+
+	Rect.setX(self, x)
+
+	if diff then
+		local num = #self._children
+		for i=1,num do
+			local child = self._children[i]
+			child:_adjustX(diff)
+		end
+	end
+end
+
+-- override Rect:setY() to send translation to children
+function Frame:setY(y)
+	local oldy = self:getY()
+	local diff
+	if oldy then diff = y - oldy end
+
+	Rect.setY(self, y)
+
+	if diff then
+		local num = #self._children
+		for i=1,num do
+			local child = self._children[i]
+			child:_adjustY(diff)
+		end
+	end
+end
+
+-- adjust x position
+function Frame:_adjustX(diff)
+	self:setX(self:getX() + diff)
+end
+
+-- adjust y position
+function Frame:_adjustY(diff)
+	self:setY(self:getY() + diff)
 end
 
 -- what to do when update ticks
@@ -198,12 +265,13 @@ function Frame:_onTick(dt, x, y)
 	if not hovered and self:containsPoint(x, y) then
 		if not self._hovered then self:onHoverIn(x, y) end
 		self._hovered = true
+		hovered = true
 	else
 		if self._hovered then self:onHoverOut(x, y) end
 		self._hovered = false
 	end
 
-	return self._hovered
+	return hovered
 end
 
 -- update - check for mouse hover
@@ -217,32 +285,27 @@ end
 
 -- onHoverIn - called when the mouse starts hovering over the frame
 function Frame:onHoverIn(x, y)
-	self._curStyle = self._hoverStyle or self._normalStyle
-	self:_drawFB()
+	if not self._mouseDown then
+		self:switchToHoverStyle()
+		self:_drawFB()
+	end
 end
 
 -- onHoverOut - called when the mouse stops hovering over the frame
 function Frame:onHoverOut(x, y)
 	if not self._mouseDown then
-		self._curStyle = self._normalStyle
+		self:switchToNormalStyle()
+		self:_drawFB()
 	end
-	self:_drawFB()
 end
 
 -- onPress - called when the mouse is pressed inside the frame
 function Frame:onPress(button, mods)
-	self._curStyle = self._activeStyle or self._hoverStyle or self._normalStyle
-	self:_drawFB()
+	self._pressed = true
 end
 
--- onRelease - called when the mouse is released
+-- onRelease - called when the mouse is released inside the frame
 function Frame:onRelease(button, mods)
-	if self._hovered then
-		self._curStyle = self._hoverStyle or self._normalStyle
-	else
-		self._curStyle = self._normalStyle
-	end
-	self:_drawFB()
 end
 
 -- set the given style
@@ -270,6 +333,28 @@ function Frame:setActiveStyle(style)
 	self:_setStyle('_activeStyle', style)
 end
 function Frame:getActiveStyle() return self._activeStyle end
+
+-- switch between the styles
+function Frame:switchToNormalStyle()
+	self._curStyle = self._normalStyle
+end
+
+function Frame:switchToHoverStyle()
+	if self._hoverStyle then
+		self._curStyle = self._hoverStyle
+	else
+		self:switchToNormalStyle()
+	end
+end
+
+function Frame:switchToActiveStyle()
+	if self._activeStyle then
+		self._curStyle = self._activeStyle
+	else
+		self:switchToHoverStyle()
+	end
+end
+
 
 -- draw the frame to framebuffer
 function Frame:_drawFB()

@@ -22,14 +22,15 @@ function Button:destroy()
 end
 
 -- override Frame onRelease
-function Button:onRelease(button, mods, wasInside)
-	Frame.onRelease(self, button, mods)
-	if wasInside and self._callbacks[button] then
-		local args = self._callbackArgs[button]
-		if args then
-			self._callbacks[button](mods, unpack(args))
-		else
-			self._callbacks[button](mods)
+function Button:onRelease(button, mods)
+	if self._pressed then
+		if self._callbacks[button] then
+			local args = self._callbackArgs[button]
+			if args then
+				self._callbacks[button](mods, unpack(args))
+			else
+				self._callbacks[button](mods)
+			end
 		end
 	end
 end
