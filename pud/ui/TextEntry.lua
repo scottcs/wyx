@@ -20,10 +20,33 @@ local TextEntry = Class{name='TextEntry',
 -- destructor
 function TextEntry:destroy()
 	self._isEnteringText = nil
+	self:_clearCallback()
 
 	-- Frame will unregister all InputEvents
 	Text.destroy(self)
 end
+
+-- clear the callback
+function TextEntry:_clearCallback()
+	self._callback = nil
+	if self._callbackArgs then
+		for k,v in self._callbackArgs do self._callbackArgs[k] = nil end
+		self._callbackArgs = nil
+	end
+end
+
+-- set the callback function and arguments
+-- this will be called when editing mode ends
+function TextEntry:setCallback(func, ...)
+	verify('function', func)
+	self:_clearCallback()
+
+	self._callback = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._callbackArgs = {...} end
+end
+
 
 -- override Frame:onRelease()
 function TextEntry:onRelease(button, mods)
@@ -88,9 +111,12 @@ function TextEntry:KeyboardEvent(e)
 		if lineNum < 1 then lineNum = 1 end
 		local line = text[lineNum] or ''
 
+		local doCallback = false
+
 		local _stopEntering = function()
 			self:toggleEnterMode(false)
 			self:_handleMouseRelease(love.mouse.getPosition())
+			doCallback = true
 		end
 
 		local _nextLine = function()
@@ -130,6 +156,18 @@ function TextEntry:KeyboardEvent(e)
 
 		text[lineNum] = line
 		self:setText(text)
+
+		if doCallback then
+			if self._callback then
+				local args = self._callbackArgs
+				if args then
+					self._callback(unpack(args))
+				else
+					self._callback()
+				end
+			end
+		end
+
 		self:_drawFB()
 	else
 		warning('Text is missing!')
