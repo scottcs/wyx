@@ -1,4 +1,73 @@
-Pud
+2011.09.04
+----------
+Essences
+    Every entity (and dungeon object? and maptype?) has an essence. These are
+    base materials that, if you could distill the thing, would be the majority
+    of what comes out (using creative licence... humanoids would theoretically
+    be mostly water, but we'll choose Bone or Blood or something instead).
+
+    Some essences are boosted by other essences, and some are held back.
+
+    These should be tangible, visceral things.
+
+    Examples:
+        Wood
+        Metal
+        Gem
+        Stone
+        Glass
+        Fur
+        Leather
+        Bone
+        Blood
+        Plant
+        Dirt
+        Water
+
+        (not sure about these:)
+        Fire   - every game has fire and fire-based attacks...
+        Electricity - same as fire
+        Acid   - kind of a mix of water and ... blood? metal? I dunno
+        Lava   - kind of a mix of stone and fire
+        Vapor  - kind of water-ish
+        Light  - not exactly tangible
+
+        So maybe Plant, Glass, Fur and Wood are weak to Metal. You wouldn't be
+        able to use those kinds of scrolls if you were wearing or holding
+        something metal... or at least you would get a penalty. And vice
+        versa, if you were wearing those essences, you would have a hard time
+        using a scroll that has a metal essence.
+
+no class choice at start.
+    as you equip different weapons, armor, and rings, your class changes
+    (avatar changes too)
+
+    maybe just tied to armor
+
+    Examples:
+    Equip Necromancer's Robe = Necromancer
+        Robe has bonus to bone/blood scrolls, and bone/blood resistance
+    Equip Leather Armor = Rogue
+        Leather armor has better defense than a robe.
+        Some special leather armor has bonus to accuracy.
+        If you are also holding a Bow then you become a Ranger/Hunter.
+        !!! (What happens if you hold a bow without wearing leather?)
+
+ALL items are useful!
+    NO trash items!
+
+    this goes better with the limited inventory and equipment.
+    items are less like pinata prizes and more like skills that you have to
+    make choices about which to use and which to ignore.
+
+    !!! AVOID having to juggle items too much (would get tedious). There
+    should be enuogh overlap that you don't have to swap them out too often.
+    !!! At the same time, you want to make sure there is SOMETHING interesting
+    occasionally that you DO want to swap out.
+
+
+
+OLD
 ---
 
 each level contains:
