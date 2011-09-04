@@ -247,7 +247,7 @@ function Text:_drawFB()
 					end
 
 					gprint(line, x, y)
-				end
+				end -- for i=1,numLines
 
 				-- print cursor
 				if self._showCursor then
@@ -257,10 +257,25 @@ function Text:_drawFB()
 
 					setColor(fontcolor)
 					rectangle('fill', x, y, 4, height)
-				end
-			end
-		end
-	end
+				end -- if self._showCursor
+			end -- if font
+		end -- if self._curStyle
+	else
+		-- print cursor when no text
+		if self._showCursor then
+			if self._curStyle then
+				local font = self._curStyle:getFont()
+				if font then
+					local fontcolor = self._curStyle:getFGColor()
+					local height = font:getHeight()
+					local margin = self._margin or 0
+
+					setColor(fontcolor)
+					rectangle('fill', margin, margin, 4, height)
+				end -- if font
+			end -- if self._curStyle
+		end -- if self._showCursor
+	end -- if self._text
 
 	popRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
