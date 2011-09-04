@@ -21,7 +21,7 @@ local Text = Class{name='Text',
 		self._maxLines = 1
 		self._text = {}
 		self._justify = 'l'
-		self._align = 'c'
+		self._align = 't'
 		self._margin = 0
 		self._showCursor = false
 	end
