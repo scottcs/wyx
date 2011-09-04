@@ -28,14 +28,24 @@ end
 -- override Frame:onRelease()
 function TextEntry:onRelease(button, mods)
 	if self._pressed then
-		if 'l' == button then
-			self._isEnteringText = not self._isEnteringText
-			if self._isEnteringText then
-				self:showCursor()
-			else
-				self:hideCursor()
-			end
-		end
+		if 'l' == button then self:toggleEnterMode() end
+	else
+		self:toggleEnterMode(false)
+	end
+end
+
+-- toggle whether we're entering text or not
+function TextEntry:toggleEnterMode(status)
+	if type(status) == 'boolean' then
+		self._isEnteringText = status
+	else
+		self._isEnteringText = not self._isEnteringText
+	end
+
+	if self._isEnteringText then
+		self:showCursor()
+	else
+		self:hideCursor()
 	end
 end
 
@@ -79,8 +89,7 @@ function TextEntry:KeyboardEvent(e)
 		local line = text[lineNum] or ''
 
 		local _stopEntering = function()
-			self._isEnteringText = false
-			self:hideCursor()
+			self:toggleEnterMode(false)
 			self:_handleMouseRelease(love.mouse.getPosition())
 		end
 
