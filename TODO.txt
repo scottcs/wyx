@@ -23,6 +23,7 @@ Interface:
 	d   Has a background image
 	d     if image, color = overlay
 	d     if not image, color = background and rectangle is drawn
+	o   Needs a border that is drawn on top of everything else
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
