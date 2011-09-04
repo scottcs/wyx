@@ -97,8 +97,9 @@ function TextEntry:KeyboardEvent(e)
 		local key = e:getKey()
 		switch(key) {
 			backspace = function()
+				local len = string.len(line)
 				line = string_sub(line, 1, -2)
-				if string.len(line) < 1 then
+				if string.len(line) == len then
 					text[lineNum] = nil
 					lineNum = lineNum - 1
 					if lineNum < 1 then lineNum = 1 end
