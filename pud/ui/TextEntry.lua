@@ -116,12 +116,12 @@ function TextEntry:KeyboardEvent(e)
 		local _stopEntering = function()
 			self:toggleEnterMode(false)
 			self:_handleMouseRelease(love.mouse.getPosition())
-			doCallback = true
 		end
 
 		local _nextLine = function()
 			if self._maxLines == 1 then
 				_stopEntering()
+				doCallback = true
 			else
 				local nextLine = lineNum + 1
 				if nextLine > self._maxLines then nextLine = self._maxLines end
