@@ -27,7 +27,8 @@ Interface:
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
 	d   Can just display an image if needed
-	o   onClick - depth first, and don't pass it on if you handle it
+	d   onClick - depth first, and don't pass it on if you handle it
+	o   can attach/detach a Tooltip
 	d Text [subclass Frame]
 	d   Displays text
 	d   Wraps text
@@ -38,8 +39,17 @@ Interface:
 	d TextEntry [subclass Text]
 	d   allows multi-line input with backspace and enter
 	-   with cursor
-	o Tooltip
-	o   Frame that pops up when parent frame is hovered
+	o Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
+	o   default background color is slightly transparent black
+	o   scales well with its content
+	o   has a border that is drawn [scales with size of tooltip]
+	o   contains an Icon [top left]
+	o   contains a Title [top right]
+	o   contains one or more info lines
+	o     can be a Text frame
+	o     can be a Bar frame
+	o     can be an InfoBar frame
+	o     can be a blank vertical space
 	o Slots [subclass Button]
 	o   Can contain another image within its border [an item, for instance]
 	o   Can watch a variable
