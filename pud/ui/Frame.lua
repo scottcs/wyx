@@ -25,12 +25,10 @@ local Frame = Class{name='Frame',
 		Rect.construct(self, ...)
 
 		self._children = {}
-
 		self._accum = 0
 
 		self:_drawFB()
-
-		InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
+		self:becomeIndependent()
 	end
 }
 
@@ -75,20 +73,56 @@ end
 function Frame:MousePressedEvent(e)
 	self._mouseDown = true
 	local x, y = e:getPosition()
-	if self:containsPoint(x, y) then
-		local button = e:getButton()
-		local mods = e:getModifiers()
-		self:onPress(button, mods)
-	end
+	local button = e:getButton()
+	local mods = e:getModifiers()
+
+	self:_handleMousePress(x, y, button, mods)
 end
 
--- MouseReleasedEvent - check if the event occurred within this frame
+-- depth-first search of children, lowest child that contains the mouse click
+-- will handle it
+function Frame:_handleMousePress(x, y, button, mods)
+	local handled = false
+
+	if self:containsPoint(x, y) then
+		local num = #self._children
+		local i = 0
+
+		while not handled and i < num do
+			i = i + 1
+			local child = self._children[i]
+			handled = child:_handleMousePress(x, y, button, mods)
+		end
+
+		if not handled then
+			self:onPress(button, mods)
+			handled = true
+		end
+	end
+
+	return handled
+end
+
+-- MouseReleasedEvent
 function Frame:MouseReleasedEvent(e)
 	self._mouseDown = false
 	local x, y = e:getPosition()
 	local button = e:getButton()
 	local mods = e:getModifiers()
-	self:onRelease(button, mods, self:containsPoint(x, y))
+	self:_handleMouseRelease(x, y, button, mods)
+end
+
+function Frame:_handleMouseRelease(x, y, button, mods)
+	local inside = self:containsPoint(x, y)
+	local num = #self._children
+
+	for i = 1,num do
+		local child = self._children[i]
+		child:_handleMouseRelease(x, y, button, mods)
+	end
+
+	-- some frame descendants use 'inside', but Frame itself does not
+	self:onRelease(button, mods, inside)
 end
 
 -- add a child
@@ -97,6 +131,7 @@ function Frame:addChild(frame)
 
 	local num = #self._children
 	self._children[num+1] = frame
+	frame:becomeChild(self)
 end
 
 -- remove a child
@@ -110,6 +145,8 @@ function Frame:removeChild(frame)
 		if child ~= frame then
 			count = count + 1
 			newChildren[count] = child
+		else
+			child:becomeIndependent(self)
 		end
 		self._children[i] = nil
 	end
@@ -124,13 +161,41 @@ function Frame:_getFramebuffer()
 	return fb
 end
 
+-- perform necessary tasks to become an independent frame (no parent)
+function Frame:becomeIndependent(parent)
+	InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
+	if parent then
+		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
+		self:setPosition(x, y)
+	end
+end
+
+-- perform necessary tasks to become a child frame (with a parent)
+function Frame:becomeChild(parent)
+	InputEvents:unregisterAll(self)
+	if parent then
+		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
+		self:setPosition(x, y)
+	end
+end
+
 -- what to do when update ticks
 function Frame:_onTick(dt, x, y)
 	if nil == x or nil == y then
 		x, y = getMousePosition()
 	end
 
-	if self:containsPoint(x, y) then
+	local hovered = false
+	local num = #self._children
+	local i = 0
+
+	while not hovered and i < num do
+		i = i + 1
+		local child = self._children[i]
+		hovered = child:_onTick(dt, x, y)
+	end
+
+	if not hovered and self:containsPoint(x, y) then
 		if not self._hovered then self:onHoverIn(x, y) end
 		self._hovered = true
 	else
@@ -138,11 +203,7 @@ function Frame:_onTick(dt, x, y)
 		self._hovered = false
 	end
 
-	local num = #self._children
-	for i = 1,num do
-		local child = self._children[i]
-		child:update(dt, x, y)
-	end
+	return self._hovered
 end
 
 -- update - check for mouse hover
@@ -174,8 +235,8 @@ function Frame:onPress(button, mods)
 	self:_drawFB()
 end
 
--- onRelease - called when the mouse is released inside the frame
-function Frame:onRelease(button, mods, wasInside)
+-- onRelease - called when the mouse is released
+function Frame:onRelease(button, mods)
 	if self._hovered then
 		self._curStyle = self._hoverStyle or self._normalStyle
 	else
@@ -210,7 +271,7 @@ function Frame:setActiveStyle(style)
 end
 function Frame:getActiveStyle() return self._activeStyle end
 
--- draw the frame to framebuffer (including all children)
+-- draw the frame to framebuffer
 function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
 	pushRenderTarget(self._bfb)
@@ -243,15 +304,11 @@ function Frame:_drawBackground()
 end
 
 -- draw the framebuffer and all child framebuffers
-function Frame:draw(offsetX, offsetY)
+function Frame:draw()
 	if self._ffb then
-		offsetX = offsetX or 0
-		offsetY = offsetY or 0
-
-		local drawX, drawY = self._x + offsetX, self._y + offsetY
 
 		setColor(colors.WHITE)
-		draw(self._ffb, drawX, drawY)
+		draw(self._ffb, self._x, self._y)
 
 		love.graphics.setFont(GameFont.console)
 		local coords = love.mouse.getX()..','..love.mouse.getY()
@@ -260,7 +317,7 @@ function Frame:draw(offsetX, offsetY)
 		local num = #self._children
 		for i=1,num do
 			local child = self._children[i]
-			child:draw(drawX, drawY)
+			child:draw()
 		end
 	end
 end

@@ -171,7 +171,7 @@ function Text:setJustifyCenter() self._justify = 'c' end
 -- onTick - check watched table
 function Text:_onTick(dt, x, y)
 	if self._watched then self:setText(self._watched) end
-	Frame._onTick(self, dt, x, y)
+	return Frame._onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()

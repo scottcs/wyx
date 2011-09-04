@@ -72,7 +72,7 @@ function Bar:unwatch() self._watched = nil end
 -- onTick - check watched table
 function Bar:_onTick(dt, x, y)
 	if self._watched then self:setValue(self._watched[1]) end
-	Frame._onTick(self, dt, x, y)
+	return Frame._onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()
