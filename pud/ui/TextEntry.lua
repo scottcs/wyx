@@ -26,20 +26,12 @@ function TextEntry:destroy()
 end
 
 -- override Frame:onRelease()
-function TextEntry:onRelease(button, mods, wasInside)
-	if wasInside and 'l' == button then
-		self._isEnteringText = not self._isEnteringText
+function TextEntry:onRelease(button, mods)
+	if self._pressed then
+		if 'l' == button then
+			self._isEnteringText = not self._isEnteringText
+		end
 	end
-
-	if self._isEnteringText then
-		self._curStyle = self._activeStyle or self._hoverStyle or self._normalStyle
-	elseif self._hovered then
-		self._curStyle = self._hoverStyle or self._normalStyle
-	else
-		self._curStyle = self._normalStyle
-	end
-
-	self:_drawFB()
 end
 
 -- override Frame:onHoverIn()
@@ -48,10 +40,22 @@ function TextEntry:onHoverIn(x, y)
 	Text.onHoverIn(self, x, y)
 end
 
--- override TextEntry:onHoverOut()
+-- override Frame:onHoverOut()
 function TextEntry:onHoverOut(x, y)
 	if self._isEnteringText then return end
 	Text.onHoverOut(self, x, y)
+end
+
+-- override Frame:switchToNormalStyle()
+function TextEntry:switchToNormalStyle()
+	if self._isEnteringText then return end
+	Text.switchToNormalStyle(self)
+end
+
+-- override Frame:switchToHoverStyle()
+function TextEntry:switchToHoverStyle()
+	if self._isEnteringText then return end
+	Text.switchToHoverStyle(self)
 end
 
 -- capture text input if in editing mode
@@ -89,7 +93,7 @@ function TextEntry:KeyboardEvent(e)
 
 			escape = function()
 				self._isEnteringText = false
-				self:onRelease()
+				self:_handleMouseRelease(love.mouse.getPosition())
 			end,
 
 			default = function()
