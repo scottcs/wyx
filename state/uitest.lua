@@ -20,9 +20,9 @@ local a1Style = Style({font=GameFont.big, fgcolor=colors.WHITE, bgcolor=colors.R
 local n2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.DARKORANGE})
 local h2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.LIGHTORANGE})
 local a2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.ORANGE})
-local n3Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.DARKYELLOW})
-local h3Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.LIGHTYELLOW})
-local a3Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.YELLOW})
+local n3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.DARKYELLOW})
+local h3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.LIGHTYELLOW})
+local a3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.YELLOW})
 local n4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.DARKPURPLE})
 local h4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.LIGHTPURPLE})
 local a4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.PURPLE})
@@ -35,6 +35,12 @@ function st:enter(prevState, nextState, ...)
 	self._testFrame:setHoverStyle(h1Style)
 	self._testFrame:setActiveStyle(a1Style)
 
+	self._testFrame2 = Frame(20, 450, WIDTH-40, 60)
+
+	self._responseText = Text(20, 600, WIDTH-40, n1Style:getFont():getHeight() + 8)
+	self._responseText:setNormalStyle(n1Style)
+	self._responseText:setMargin(4)
+
 	local frame2 = Text(20, 20, 560, 360)
 	frame2:setNormalStyle(n2Style)
 	frame2:setHoverStyle(h2Style)
@@ -44,10 +50,6 @@ function st:enter(prevState, nextState, ...)
 	frame2:setJustifyRight()
 	frame2:setAlignCenter()
 	frame2:setText({'UI TEST', 'Written by scx', 'for PUD'})
-
-	self._responseText = Text(20, 450, WIDTH-40, n1Style:getFont():getHeight() + 8)
-	self._responseText:setNormalStyle(n1Style)
-	self._responseText:setMargin(4)
 
 	local button1 = Button(10, 10, 100, n4Style:getFont():getHeight() + 8)
 	button1:setNormalStyle(n4Style)
@@ -83,8 +85,30 @@ function st:enter(prevState, nextState, ...)
 	frame2:addChild(button1)
 	frame2:addChild(button2)
 	frame2:addChild(entry1)
-
 	self._testFrame:addChild(frame2)
+
+
+	local cwidth = n3Style:getFont():getWidth('>') + 8
+	local cheight = n3Style:getFont():getHeight() + 8
+	local commandPrompt = Text(0, 0, cwidth, cheight)
+	commandPrompt:setNormalStyle(n3Style)
+	commandPrompt:setHoverStyle(h3Style)
+	commandPrompt:setActiveStyle(a3Style)
+	commandPrompt:setMargin(4)
+	commandPrompt:setText('>')
+
+	local commandEntry = TextEntry(cwidth, 0, WIDTH-(40+cwidth), cheight)
+	commandEntry:setNormalStyle(n3Style)
+	commandEntry:setHoverStyle(h3Style)
+	commandEntry:setActiveStyle(a3Style)
+	commandEntry:setMargin(4)
+	commandEntry:setCallback(function(e)
+		self._responseText:setText(table.concat(e:getText(), ' '))
+		e:clear()
+	end, commandEntry)
+
+	self._testFrame2:addChild(commandPrompt)
+	self._testFrame2:addChild(commandEntry)
 end
 
 function st:leave() end
@@ -94,11 +118,13 @@ function st:destroy() end
 function st:update(dt)
 	if self._testFrame then self._testFrame:update(dt) end
 	if self._responseText then self._responseText:update(dt) end
+	if self._testFrame2 then self._testFrame2:update(dt) end
 end
 
 function st:draw()
 	if self._testFrame then self._testFrame:draw() end
 	if self._responseText then self._responseText:draw() end
+	if self._testFrame2 then self._testFrame2:draw() end
 end
 
 function st:keypressed(key, unicode)
