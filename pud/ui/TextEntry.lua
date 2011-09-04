@@ -30,6 +30,11 @@ function TextEntry:onRelease(button, mods)
 	if self._pressed then
 		if 'l' == button then
 			self._isEnteringText = not self._isEnteringText
+			if self._isEnteringText then
+				self:showCursor()
+			else
+				self:hideCursor()
+			end
 		end
 	end
 end
@@ -93,6 +98,7 @@ function TextEntry:KeyboardEvent(e)
 
 			escape = function()
 				self._isEnteringText = false
+				self:hideCursor()
 				self:_handleMouseRelease(love.mouse.getPosition())
 			end,
 

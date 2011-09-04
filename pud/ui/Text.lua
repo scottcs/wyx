@@ -5,6 +5,7 @@ local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setColor = love.graphics.setColor
 local setFont = love.graphics.setFont
 local gprint = love.graphics.print
+local rectangle = love.graphics.rectangle
 
 local math_floor = math.floor
 local string_sub = string.sub
@@ -22,6 +23,7 @@ local Text = Class{name='Text',
 		self._justify = 'l'
 		self._align = 'c'
 		self._margin = 0
+		self._showCursor = false
 	end
 }
 
@@ -33,6 +35,7 @@ function Text:destroy()
 	self._align = nil
 	self._margin = nil
 	self._watched = nil
+	self._showCursor = nil
 	Frame.destroy(self)
 end
 
@@ -139,6 +142,12 @@ end
 -- returns the currently set text as a table of strings, one per line
 function Text:getText() return self._text end
 
+-- show the cursor when drawing text
+function Text:showCursor() self._showCursor = true end
+
+-- hide the cursor when drawing text
+function Text:hideCursor() self._showCursor = false end
+
 -- watch a table (this replaces any text already set)
 -- the table must be an array
 function Text:watch(t)
@@ -238,6 +247,16 @@ function Text:_drawFB()
 					end
 
 					gprint(line, x, y)
+				end
+
+				-- print cursor
+				if self._showCursor then
+					local lastLine = text[numLines]
+					local y = (totalHeight - height) + margin
+					local x = font:getWidth(lastLine) + 4
+
+					setColor(fontcolor)
+					rectangle('fill', x, y, 4, height)
 				end
 			end
 		end
