@@ -78,6 +78,22 @@ function TextEntry:KeyboardEvent(e)
 		if lineNum < 1 then lineNum = 1 end
 		local line = text[lineNum] or ''
 
+		local _stopEntering = function()
+			self._isEnteringText = false
+			self:hideCursor()
+			self:_handleMouseRelease(love.mouse.getPosition())
+		end
+
+		local _nextLine = function()
+			if self._maxLines == 1 then
+				_stopEntering()
+			else
+				local nextLine = lineNum + 1
+				if nextLine > self._maxLines then nextLine = self._maxLines end
+				text[nextLine] = text[nextLine] or ''
+			end
+		end
+
 		local key = e:getKey()
 		switch(key) {
 			backspace = function()
@@ -90,17 +106,9 @@ function TextEntry:KeyboardEvent(e)
 				end
 			end,
 
-			['return'] = function()
-				local nextLine = lineNum + 1
-				if nextLine > self._maxLines then nextLine = self._maxLines end
-				text[nextLine] = text[nextLine] or ''
-			end,
-
-			escape = function()
-				self._isEnteringText = false
-				self:hideCursor()
-				self:_handleMouseRelease(love.mouse.getPosition())
-			end,
+			['return'] = _nextLine,
+			kpenter = _nextLine,
+			escape = _stopEntering,
 
 			default = function()
 				local unicode = e:getUnicode()
