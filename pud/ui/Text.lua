@@ -20,6 +20,7 @@ local Text = Class{name='Text',
 		self._maxLines = 1
 		self._text = {}
 		self._justify = 'l'
+		self._align = 'c'
 		self._margin = 0
 	end
 }
@@ -29,6 +30,7 @@ function Text:destroy()
 	self:clear()
 	self._text = nil
 	self._justify = nil
+	self._align = nil
 	self._margin = nil
 	self._watched = nil
 	Frame.destroy(self)
@@ -168,6 +170,11 @@ function Text:setJustifyLeft()   self._justify = 'l'; self:_drawFB() end
 function Text:setJustifyRight()  self._justify = 'r'; self:_drawFB() end
 function Text:setJustifyCenter() self._justify = 'c'; self:_drawFB() end
 
+-- set the vertical alignment
+function Text:setAlignTop()    self._align = 't'; self:_drawFB() end
+function Text:setAlignBottom() self._align = 'b'; self:_drawFB() end
+function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
+
 -- onTick - check watched table
 function Text:_onTick(dt, x, y)
 	if self._watched then self:setText(self._watched) end
@@ -191,6 +198,8 @@ function Text:_drawFB()
 				local textLines = #text
 				local maxLines = math_floor((self:getHeight() - (2*margin)) / height)
 				local numLines = textLines > maxLines and maxLines or textLines
+				local totalHeight = height * numLines
+				local halfHeight = totalHeight/2
 				local fontcolor = self._curStyle:getFGColor()
 
 				setFont(font)
@@ -200,8 +209,7 @@ function Text:_drawFB()
 					local line = text[i]
 					local h = (i-1) * height
 					local w = font:getWidth(line)
-					local y = margin + h
-					local x
+					local x, y
 
 					if     'l' == self._justify then
 						x = margin
@@ -211,9 +219,22 @@ function Text:_drawFB()
 					elseif 'r' == self._justify then
 						x = self:getWidth() - (margin + w)
 					else
-						x, y = 0, 0
+						x = 0
 						warning('Unjustified (justify is set to %q)',
 							tostring(self._justify))
+					end
+
+					if     't' == self._align then
+						y = margin + h
+					elseif 'c' == self._align then
+						local cy = self:getHeight() / 2
+						y = math_floor(cy - halfHeight) + h
+					elseif 'b' == self._align then
+						y = self:getHeight() - (margin + totalHeight) + h
+					else
+						y = 0
+						warning('Unaligned (align is set to %q)',
+							tostring(self._align))
 					end
 
 					gprint(line, x, y)
