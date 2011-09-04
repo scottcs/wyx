@@ -305,8 +305,7 @@ function Frame:onPress(button, mods)
 end
 
 -- onRelease - called when the mouse is released inside the frame
-function Frame:onRelease(button, mods)
-end
+function Frame:onRelease(button, mods) end
 
 -- set the given style
 function Frame:_setStyle(which, style)
