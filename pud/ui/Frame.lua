@@ -1,7 +1,5 @@
 local Class = require 'lib.hump.class'
 local Rect = getClass 'pud.kit.Rect'
-local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
-local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
 
 local math_max = math.max
 local getMousePosition = love.mouse.getPosition
@@ -15,8 +13,6 @@ local popRenderTarget = popRenderTarget
 local nearestPO2 = nearestPO2
 local colors = colors
 
-local FRAME_UPDATE_TICK = 1/60
-
 -- Frame
 -- Basic UI Element
 local Frame = Class{name='Frame',
@@ -29,20 +25,16 @@ local Frame = Class{name='Frame',
 
 		self:_drawFB()
 		self:becomeIndependent()
-		InputEvents:register(self, {MousePressedEvent, MouseReleasedEvent})
 	end
 }
 
 -- destructor
 function Frame:destroy()
-	InputEvents:unregisterAll(self)
-
 	for k,v in pairs(self._children) do
 		self._children[k]:destroy()
 		self._children[k] = nil
 	end
 	self._children = nil
-	self._isChild = nil
 
 	self._ffb = nil
 	self._bfb = nil
@@ -69,19 +61,6 @@ function Frame:destroy()
 	self._accum = nil
 
 	Rect.destroy(self)
-end
-
--- MousePressedEvent - check if the event occurred within this frame
-function Frame:MousePressedEvent(e)
-	self._mouseDown = true
-
-	if not self._isChild then
-		local x, y = e:getPosition()
-		local button = e:getButton()
-		local mods = e:getModifiers()
-
-		self:handleMousePress(x, y, button, mods)
-	end
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
@@ -112,18 +91,6 @@ function Frame:handleMousePress(x, y, button, mods)
 	return handled
 end
 
--- MouseReleasedEvent
-function Frame:MouseReleasedEvent(e)
-	self._mouseDown = false
-
-	if not self._isChild then
-		local x, y = e:getPosition()
-		local button = e:getButton()
-		local mods = e:getModifiers()
-		self:handleMouseRelease(x, y, button, mods)
-	end
-end
-
 function Frame:handleMouseRelease(x, y, button, mods)
 	local num = #self._children
 	local handled = false
@@ -144,6 +111,27 @@ function Frame:handleMouseRelease(x, y, button, mods)
 	end
 
 	self._pressed = false
+	self:_drawFB()
+	return handled
+end
+
+-- handle keyboard events
+function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
+	local handled = false
+
+	local num = #self._children
+	local i = 0
+
+	while not handled and i < num do
+		i = i + 1
+		local child = self._children[i]
+		handled = child:handleKeyboard(key, unicode, unicodeValue, mods)
+	end
+
+	if not handled then
+		handled = self:onKey(key, unicode, unicodeValue, mods)
+	end
+
 	self:_drawFB()
 	return handled
 end
@@ -186,7 +174,6 @@ end
 
 -- perform necessary tasks to become an independent frame (no parent)
 function Frame:becomeIndependent(parent)
-	self._isChild = false
 	if parent then
 		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
 		self:setPosition(x, y)
@@ -195,7 +182,6 @@ end
 
 -- perform necessary tasks to become a child frame (with a parent)
 function Frame:becomeChild(parent)
-	self._isChild = true
 	if parent then
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
@@ -271,15 +257,6 @@ function Frame:onTick(dt, x, y, hovered)
 	return hovered
 end
 
--- update - check for mouse hover
-function Frame:update(dt)
-	self._accum = self._accum + dt
-	if self._accum > FRAME_UPDATE_TICK then
-		self._accum = 0
-		self:onTick(dt)
-	end
-end
-
 -- onHoverIn - called when the mouse starts hovering over the frame
 function Frame:onHoverIn(x, y)
 	if not self._mouseDown then
@@ -303,6 +280,9 @@ end
 
 -- onRelease - called when the mouse is released inside the frame
 function Frame:onRelease(button, mods) end
+
+-- onKey - called when a key is pressed
+function Frame:onKey(key, unicode, unicodeValue, mods) end
 
 -- set the given style
 function Frame:_setStyle(which, style)

@@ -1,6 +1,5 @@
 local Class = require 'lib.hump.class'
 local Text = getClass 'pud.ui.Text'
-local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 
 local string_len = string.len
 local string_sub = string.sub
@@ -12,8 +11,6 @@ local TextEntry = Class{name='TextEntry',
 	inherits=Text,
 	function(self, ...)
 		Text.construct(self, ...)
-
-		InputEvents:register(self, KeyboardEvent)
 	end
 }
 
@@ -21,8 +18,6 @@ local TextEntry = Class{name='TextEntry',
 function TextEntry:destroy()
 	self._isEnteringText = nil
 	self:_clearCallback()
-
-	-- Frame will unregister all InputEvents
 	Text.destroy(self)
 end
 
@@ -97,7 +92,7 @@ function TextEntry:switchToHoverStyle()
 end
 
 -- capture text input if in editing mode
-function TextEntry:KeyboardEvent(e)
+function TextEntry:onKey(key, unicode, unicodeValue, mods)
 	if not self._isEnteringText then return end
 
 	if self._text then
@@ -129,7 +124,6 @@ function TextEntry:KeyboardEvent(e)
 			end
 		end
 
-		local key = e:getKey()
 		switch(key) {
 			backspace = function()
 				local len = string.len(line)
@@ -147,7 +141,6 @@ function TextEntry:KeyboardEvent(e)
 			escape = _stopEntering,
 
 			default = function()
-				local unicode = e:getUnicode()
 				if unicode then
 					line = format('%s%s', line, unicode)
 				end
@@ -167,11 +160,11 @@ function TextEntry:KeyboardEvent(e)
 				end
 			end
 		end
-
-		self:_drawFB()
 	else
 		warning('Text is missing!')
 	end
+
+	return true
 end
 
 

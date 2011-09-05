@@ -29,19 +29,21 @@ local a4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=co
 local nBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.BLUE, bgcolor=colors.DARKBLUE})
 local hBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.LIGHTBLUE, bgcolor=colors.DARKBLUE})
 
-function st:init() end
+function st:init()
+	UISystem = getClass('pud.system.UISystem')()
+end
 
 function st:enter(prevState, nextState, ...)
-	self._testFrame = Frame(20, 20, 600, 400)
-	self._testFrame:setNormalStyle(n1Style)
-	self._testFrame:setHoverStyle(h1Style)
-	self._testFrame:setActiveStyle(a1Style)
+	testFrame1 = Frame(20, 20, 600, 400)
+	testFrame1:setNormalStyle(n1Style)
+	testFrame1:setHoverStyle(h1Style)
+	testFrame1:setActiveStyle(a1Style)
 
-	self._testFrame2 = Frame(20, 450, WIDTH-40, 60)
+	testFrame2 = Frame(20, 450, WIDTH-40, 60)
 
-	self._responseText = Text(20, 600, WIDTH-40, n1Style:getFont():getHeight() + 8)
-	self._responseText:setNormalStyle(n1Style)
-	self._responseText:setMargin(4)
+	testFrame3 = Text(20, 600, WIDTH-40, n1Style:getFont():getHeight() + 8)
+	testFrame3:setNormalStyle(n1Style)
+	testFrame3:setMargin(4)
 
 	local text1 = Text(20, 20, 560, 360)
 	text1:setNormalStyle(n2Style)
@@ -59,9 +61,9 @@ function st:enter(prevState, nextState, ...)
 	button1:setActiveStyle(a4Style)
 	button1:setText('Button 1')
 	button1:setCallback('l', function(mods)
-		if mods.shift then self._responseText:setText('shift yeah!')
-		elseif mods.ctrl then self._responseText:setText('ctrl woo!')
-		else self._responseText:setText('yay!')
+		if mods.shift then testFrame3:setText('shift yeah!')
+		elseif mods.ctrl then testFrame3:setText('ctrl woo!')
+		else testFrame3:setText('yay!')
 		end
 	end)
 
@@ -71,9 +73,9 @@ function st:enter(prevState, nextState, ...)
 	button2:setActiveStyle(a4Style)
 	button2:setText('Button 2')
 	button2:setCallback('l', function(mods)
-		if mods.shift then self._responseText:setText('it\'s-a-shift-a!')
-		elseif mods.ctrl then self._responseText:setText('ctrllllllllll!')
-		else self._responseText:setText('click!')
+		if mods.shift then testFrame3:setText('it\'s-a-shift-a!')
+		elseif mods.ctrl then testFrame3:setText('ctrllllllllll!')
+		else testFrame3:setText('click!')
 		end
 	end)
 
@@ -109,7 +111,7 @@ function st:enter(prevState, nextState, ...)
 	text1:addChild(text2)
 	text1:addChild(entry1)
 	text1:addChild(bar1)
-	self._testFrame:addChild(text1)
+	testFrame1:addChild(text1)
 
 
 	local cwidth = n3Style:getFont():getWidth('>') + 8
@@ -127,28 +129,31 @@ function st:enter(prevState, nextState, ...)
 	commandEntry:setActiveStyle(a3Style)
 	commandEntry:setMargin(4)
 	commandEntry:setCallback(function(e)
-		self._responseText:setText(table.concat(e:getText(), ' '))
+		testFrame3:setText(table.concat(e:getText(), ' '))
 		e:clear()
 	end, commandEntry)
 
-	self._testFrame2:addChild(commandPrompt)
-	self._testFrame2:addChild(commandEntry)
+	testFrame2:addChild(commandPrompt)
+	testFrame2:addChild(commandEntry)
+
+	UISystem:register(testFrame1)
+	UISystem:register(testFrame2)
+	UISystem:register(testFrame3)
 end
 
 function st:leave() end
 
-function st:destroy() end
+function st:destroy()
+	UISystem:destroy()
+	UISystem = nil
+end
 
 function st:update(dt)
-	if self._testFrame then self._testFrame:update(dt) end
-	if self._responseText then self._responseText:update(dt) end
-	if self._testFrame2 then self._testFrame2:update(dt) end
+	UISystem:update(dt)
 end
 
 function st:draw()
-	if self._testFrame then self._testFrame:draw() end
-	if self._responseText then self._responseText:draw() end
-	if self._testFrame2 then self._testFrame2:draw() end
+	UISystem:draw()
 end
 
 function st:keypressed(key, unicode)
