@@ -26,6 +26,8 @@ local a3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors
 local n4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.DARKPURPLE})
 local h4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.LIGHTPURPLE})
 local a4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.PURPLE})
+local nBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.BLUE, bgcolor=colors.DARKBLUE})
+local hBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.LIGHTBLUE, bgcolor=colors.DARKBLUE})
 
 function st:init() end
 
@@ -82,6 +84,7 @@ function st:enter(prevState, nextState, ...)
 	entry1:setMargin(4)
 	entry1:setText('EditBox')
 
+	local someval = 100
 	local text2 = Text(10, 120, 300, n4Style:getFont():getHeight() + 8)
 	text2:setNormalStyle(n4Style)
 	text2:setMargin(4)
@@ -91,10 +94,21 @@ function st:enter(prevState, nextState, ...)
 		return text
 	end, 'Watched: ')
 
+	local bar1 = Bar(10, 180, 200, 20)
+	bar1:setNormalStyle(nBarStyle)
+	bar1:setHoverStyle(hBarStyle)
+	bar1:setLimits(0, 100)
+	bar1:setValue(someval)
+	bar1:watch(function()
+		someval = someval >= 0 and someval - 0.5 or 100
+		return someval
+	end)
+
 	text1:addChild(button1)
 	text1:addChild(button2)
 	text1:addChild(text2)
 	text1:addChild(entry1)
+	text1:addChild(bar1)
 	self._testFrame:addChild(text1)
 
 
