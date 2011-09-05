@@ -1,6 +1,5 @@
 Interface:
   x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
-  o Need another draw routine in RenderSystem for drawing outside of camera translation.
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
@@ -8,12 +7,15 @@ Interface:
   ?   how to show damage range? [since it's usually a function]
 	o     execute 100 [or 1000] times on load, then cache min/max values
 	o     or, do away with dice rolls, specify min/max instead
-	o HUD
+	o Main game interface
 	o   Design what it should look like before coding it
 	o   Inventory/Equipment in a line along bottom
-	?   Stats in a line along top? Or in a panel on one side? or in a line above inventory?
-	o   Score or some way to show progress
-  x UISystem - handles User Interface
+	?   Score or some way to show progress?
+  + UISystem
+	+   ticks registered UI Frames
+	+   draws registered UI Frames [draw after camera translation]
+	+   listens for user input - mouse and keyboard
+	+     sends events [based on configured keybindings eventually] translated from input
 
 	UI Elements:
 	d Styles
