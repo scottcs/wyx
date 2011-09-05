@@ -80,13 +80,13 @@ function Frame:MousePressedEvent(e)
 		local button = e:getButton()
 		local mods = e:getModifiers()
 
-		self:_handleMousePress(x, y, button, mods)
+		self:handleMousePress(x, y, button, mods)
 	end
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
 -- will handle it
-function Frame:_handleMousePress(x, y, button, mods)
+function Frame:handleMousePress(x, y, button, mods)
 	local handled = false
 
 	if self:containsPoint(x, y) then
@@ -96,7 +96,7 @@ function Frame:_handleMousePress(x, y, button, mods)
 		while not handled and i < num do
 			i = i + 1
 			local child = self._children[i]
-			handled = child:_handleMousePress(x, y, button, mods)
+			handled = child:handleMousePress(x, y, button, mods)
 		end
 
 		if not handled then
@@ -120,11 +120,11 @@ function Frame:MouseReleasedEvent(e)
 		local x, y = e:getPosition()
 		local button = e:getButton()
 		local mods = e:getModifiers()
-		self:_handleMouseRelease(x, y, button, mods)
+		self:handleMouseRelease(x, y, button, mods)
 	end
 end
 
-function Frame:_handleMouseRelease(x, y, button, mods)
+function Frame:handleMouseRelease(x, y, button, mods)
 	local num = #self._children
 	local handled = false
 
@@ -132,7 +132,7 @@ function Frame:_handleMouseRelease(x, y, button, mods)
 	while not handled and i < num do
 		i = i + 1
 		local child = self._children[i]
-		handled = child:_handleMouseRelease(x, y, button, mods)
+		handled = child:handleMouseRelease(x, y, button, mods)
 	end
 
 	if handled or not self:containsPoint(x, y) then

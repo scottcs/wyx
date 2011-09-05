@@ -115,7 +115,7 @@ function TextEntry:KeyboardEvent(e)
 
 		local _stopEntering = function()
 			self:toggleEnterMode(false)
-			self:_handleMouseRelease(love.mouse.getPosition())
+			self:handleMouseRelease(love.mouse.getPosition())
 		end
 
 		local _nextLine = function()
