@@ -24,7 +24,8 @@ end
 
 -- draw
 function RenderSystem:draw()
-	for i=#self._depths,1,-1 do
+	local numDepths = #self._depths
+	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for obj in self._registered[depth]:listeners() do obj:draw() end
 	end
@@ -38,13 +39,19 @@ function RenderSystem:_touchDepth(depth)
 		-- create sorted, unique array
 		local unique = {}
 		unique[depth] = true
+		local numDepths = #self._depths
 
-		for i,l in pairs(self._depths) do
+		for i=1,numDepths do
+			local l = self._depths[i]
 			unique[l] = true
 			self._depths[i] = nil
 		end
 
-		for l in pairs(unique) do self._depths[#self._depths+1] = l end
+		local count = #self._depths
+		for l in pairs(unique) do
+			count = count + 1
+			self._depths[count] = l
+		end
 		table_sort(self._depths)
 	end
 end
@@ -59,7 +66,9 @@ end
 
 -- unregister an object
 function RenderSystem:unregister(obj)
-	for _,l in pairs(self._depths) do
+	local numDepths = #self._depths
+	for i=1,numDepths do
+		local l = self._depths[i]
 		if self._registered[l] then self._registered[l]:pop(obj) end
 	end
 end
