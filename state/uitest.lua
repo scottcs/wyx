@@ -41,15 +41,15 @@ function st:enter(prevState, nextState, ...)
 	self._responseText:setNormalStyle(n1Style)
 	self._responseText:setMargin(4)
 
-	local frame2 = Text(20, 20, 560, 360)
-	frame2:setNormalStyle(n2Style)
-	frame2:setHoverStyle(h2Style)
-	frame2:setActiveStyle(a2Style)
-	frame2:setMargin(10)
-	frame2:setMaxLines(10)
-	frame2:setJustifyRight()
-	frame2:setAlignCenter()
-	frame2:setText({'UI TEST', 'Written by scx', 'for PUD'})
+	local text1 = Text(20, 20, 560, 360)
+	text1:setNormalStyle(n2Style)
+	text1:setHoverStyle(h2Style)
+	text1:setActiveStyle(a2Style)
+	text1:setMargin(10)
+	text1:setMaxLines(10)
+	text1:setJustifyRight()
+	text1:setAlignCenter()
+	text1:setText({'UI TEST', 'Written by scx', 'for PUD'})
 
 	local button1 = Button(10, 10, 100, n4Style:getFont():getHeight() + 8)
 	button1:setNormalStyle(n4Style)
@@ -63,7 +63,7 @@ function st:enter(prevState, nextState, ...)
 		end
 	end)
 
-	local button2 = Button(10, 110, 100, n4Style:getFont():getHeight() + 8)
+	local button2 = Button(10, 60, 100, n4Style:getFont():getHeight() + 8)
 	button2:setNormalStyle(n4Style)
 	button2:setHoverStyle(h4Style)
 	button2:setActiveStyle(a4Style)
@@ -75,17 +75,27 @@ function st:enter(prevState, nextState, ...)
 		end
 	end)
 
-	local entry1 = TextEntry(10, 300, 200, n3Style:getFont():getHeight() + 8)
+	local entry1 = TextEntry(10, 300, 300, n3Style:getFont():getHeight() + 8)
 	entry1:setNormalStyle(n3Style)
 	entry1:setHoverStyle(h3Style)
 	entry1:setActiveStyle(a3Style)
 	entry1:setMargin(4)
-	entry1:setText('ChangeMe')
+	entry1:setText('EditBox')
 
-	frame2:addChild(button1)
-	frame2:addChild(button2)
-	frame2:addChild(entry1)
-	self._testFrame:addChild(frame2)
+	local text2 = Text(10, 120, 300, n4Style:getFont():getHeight() + 8)
+	text2:setNormalStyle(n4Style)
+	text2:setMargin(4)
+	text2:watch(function(s)
+		local text = entry1:getText() or {}
+		text[1] = (s or '')..(text[1] or '')
+		return text
+	end, 'Watched: ')
+
+	text1:addChild(button1)
+	text1:addChild(button2)
+	text1:addChild(text2)
+	text1:addChild(entry1)
+	self._testFrame:addChild(text1)
 
 
 	local cwidth = n3Style:getFont():getWidth('>') + 8

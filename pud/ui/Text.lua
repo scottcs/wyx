@@ -29,12 +29,12 @@ local Text = Class{name='Text',
 
 -- destructor
 function Text:destroy()
+	self:unwatch()
 	self:clear()
 	self._text = nil
 	self._justify = nil
 	self._align = nil
 	self._margin = nil
-	self._watched = nil
 	self._showCursor = nil
 	Frame.destroy(self)
 end
@@ -153,13 +153,25 @@ function Text:showCursor() self._showCursor = true end
 -- hide the cursor when drawing text
 function Text:hideCursor() self._showCursor = false end
 
--- watch a table (this replaces any text already set)
--- the table must be an array
-function Text:watch(t)
-	verify('table', t)
-	self._watched = t
+-- watch a function. this function will be polled every tick for a return
+-- value, which will replace the text of this Text object.
+function Text:watch(func, ...)
+	verify('function', func)
+	self:unwatch()
+	self._watched = func
+	if select('#', ...) > 0 then
+		self._watchedArgs = {...}
+	end
 end
-function Text:unwatch() self._watched = nil end
+
+-- stop watching a function.
+function Text:unwatch()
+	self._watched = nil
+	if self._watchedArgs then
+		for k in pairs(self._watchedArgs) do self._watchedArgs[k] = nil end
+		self._watchedArgs = nil
+	end
+end
 
 -- clear the current text
 function Text:clear()
@@ -191,7 +203,19 @@ function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
 
 -- onTick - check watched table
 function Text:_onTick(dt, x, y)
-	if self._watched then self:setText(self._watched) end
+	if self._watched then
+		local text
+		if self._watchedArgs then
+			text = self._watched(unpack(self._watchedArgs))
+		else
+			text = self._watched()
+		end
+
+		if text then
+			self:setText(text)
+		end
+	end
+
 	return Frame._onTick(self, dt, x, y)
 end
 
