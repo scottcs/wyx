@@ -202,7 +202,7 @@ function Text:setAlignBottom() self._align = 'b'; self:_drawFB() end
 function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
 
 -- onTick - check watched function
-function Text:_onTick(dt, x, y)
+function Text:onTick(dt, x, y)
 	if self._watched then
 		local text
 		if self._watchedArgs then
@@ -216,7 +216,7 @@ function Text:_onTick(dt, x, y)
 		end
 	end
 
-	return Frame._onTick(self, dt, x, y)
+	return Frame.onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()

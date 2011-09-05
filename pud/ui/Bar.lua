@@ -82,7 +82,7 @@ function Bar:unwatch()
 end
 
 -- onTick - check watched table
-function Bar:_onTick(dt, x, y)
+function Bar:onTick(dt, x, y)
 	if self._watched then
 		local value
 		if self._watchedArgs then
@@ -96,7 +96,7 @@ function Bar:_onTick(dt, x, y)
 		end
 	end
 
-	return Frame._onTick(self, dt, x, y)
+	return Frame.onTick(self, dt, x, y)
 end
 
 -- override Frame:_drawFB()

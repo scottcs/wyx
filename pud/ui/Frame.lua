@@ -247,7 +247,7 @@ function Frame:_adjustY(diff)
 end
 
 -- what to do when update ticks
-function Frame:_onTick(dt, x, y, hovered)
+function Frame:onTick(dt, x, y, hovered)
 	if nil == x or nil == y then
 		x, y = getMousePosition()
 	end
@@ -256,7 +256,7 @@ function Frame:_onTick(dt, x, y, hovered)
 	local num = #self._children
 	for i=1,num do
 		local child = self._children[i]
-		hovered = child:_onTick(dt, x, y, hovered) or hovered
+		hovered = child:onTick(dt, x, y, hovered) or hovered
 	end
 
 	if not hovered and self:containsPoint(x, y) then
@@ -272,11 +272,11 @@ function Frame:_onTick(dt, x, y, hovered)
 end
 
 -- update - check for mouse hover
-function Frame:update(dt, x, y)
+function Frame:update(dt)
 	self._accum = self._accum + dt
 	if self._accum > FRAME_UPDATE_TICK then
 		self._accum = 0
-		self:_onTick(dt, x, y)
+		self:onTick(dt)
 	end
 end
 
