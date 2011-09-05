@@ -140,7 +140,12 @@ function Text:_wrap(text)
 end
 
 -- returns the currently set text as a table of strings, one per line
-function Text:getText() return self._text end
+function Text:getText()
+	local text = {}
+	local num = #self._text
+	for i=1,num do text[i] = self._text[i] end
+	return text
+end
 
 -- show the cursor when drawing text
 function Text:showCursor() self._showCursor = true end
