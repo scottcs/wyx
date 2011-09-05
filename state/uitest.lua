@@ -34,16 +34,16 @@ function st:init()
 end
 
 function st:enter(prevState, nextState, ...)
-	testFrame1 = Frame(20, 20, 600, 400)
-	testFrame1:setNormalStyle(n1Style)
-	testFrame1:setHoverStyle(h1Style)
-	testFrame1:setActiveStyle(a1Style)
+	self._testFrame1 = Frame(20, 20, 600, 400)
+	self._testFrame1:setNormalStyle(n1Style)
+	self._testFrame1:setHoverStyle(h1Style)
+	self._testFrame1:setActiveStyle(a1Style)
 
-	testFrame2 = Frame(20, 450, WIDTH-40, 60)
+	self._testFrame2 = Frame(20, 450, WIDTH-40, 60)
 
-	testFrame3 = Text(20, 600, WIDTH-40, n1Style:getFont():getHeight() + 8)
-	testFrame3:setNormalStyle(n1Style)
-	testFrame3:setMargin(4)
+	self._testFrame3 = Text(20, 600, WIDTH-40, n1Style:getFont():getHeight() + 8)
+	self._testFrame3:setNormalStyle(n1Style)
+	self._testFrame3:setMargin(4)
 
 	local text1 = Text(20, 20, 560, 360)
 	text1:setNormalStyle(n2Style)
@@ -61,9 +61,9 @@ function st:enter(prevState, nextState, ...)
 	button1:setActiveStyle(a4Style)
 	button1:setText('Button 1')
 	button1:setCallback('l', function(mods)
-		if mods.shift then testFrame3:setText('shift yeah!')
-		elseif mods.ctrl then testFrame3:setText('ctrl woo!')
-		else testFrame3:setText('yay!')
+		if mods.shift then self._testFrame3:setText('shift yeah!')
+		elseif mods.ctrl then self._testFrame3:setText('ctrl woo!')
+		else self._testFrame3:setText('yay!')
 		end
 	end)
 
@@ -73,9 +73,9 @@ function st:enter(prevState, nextState, ...)
 	button2:setActiveStyle(a4Style)
 	button2:setText('Button 2')
 	button2:setCallback('l', function(mods)
-		if mods.shift then testFrame3:setText('it\'s-a-shift-a!')
-		elseif mods.ctrl then testFrame3:setText('ctrllllllllll!')
-		else testFrame3:setText('click!')
+		if mods.shift then self._testFrame3:setText('it\'s-a-shift-a!')
+		elseif mods.ctrl then self._testFrame3:setText('ctrllllllllll!')
+		else self._testFrame3:setText('click!')
 		end
 	end)
 
@@ -111,7 +111,7 @@ function st:enter(prevState, nextState, ...)
 	text1:addChild(text2)
 	text1:addChild(entry1)
 	text1:addChild(bar1)
-	testFrame1:addChild(text1)
+	self._testFrame1:addChild(text1)
 
 
 	local cwidth = n3Style:getFont():getWidth('>') + 8
@@ -129,19 +129,26 @@ function st:enter(prevState, nextState, ...)
 	commandEntry:setActiveStyle(a3Style)
 	commandEntry:setMargin(4)
 	commandEntry:setCallback(function(e)
-		testFrame3:setText(table.concat(e:getText(), ' '))
+		self._testFrame3:setText(table.concat(e:getText(), ' '))
 		e:clear()
 	end, commandEntry)
 
-	testFrame2:addChild(commandPrompt)
-	testFrame2:addChild(commandEntry)
+	self._testFrame2:addChild(commandPrompt)
+	self._testFrame2:addChild(commandEntry)
 
-	UISystem:register(testFrame1)
-	UISystem:register(testFrame2)
-	UISystem:register(testFrame3)
+	UISystem:register(self._testFrame1)
+	UISystem:register(self._testFrame2)
+	UISystem:register(self._testFrame3)
 end
 
-function st:leave() end
+function st:leave()
+	self._testFrame1:destroy()
+	self._testFrame1 = nil
+	self._testFrame2:destroy()
+	self._testFrame2 = nil
+	self._testFrame3:destroy()
+	self._testFrame3 = nil
+end
 
 function st:destroy()
 	UISystem:destroy()
