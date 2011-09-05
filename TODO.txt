@@ -11,11 +11,11 @@ Interface:
 	o   Design what it should look like before coding it
 	o   Inventory/Equipment in a line along bottom
 	?   Score or some way to show progress?
-  + UISystem
-	+   ticks registered UI Frames
-	+   draws registered UI Frames [draw after camera translation]
-	+   listens for user input - mouse and keyboard
-	+     sends events [based on configured keybindings eventually] translated from input
+  d UISystem
+	d   ticks registered UI Frames
+	d   draws registered UI Frames [draw after camera translation]
+	d   listens for user input - mouse and keyboard
+	-     sends events [based on configured keybindings eventually] translated from input
 
 	UI Elements:
 	d Styles
@@ -55,9 +55,11 @@ Interface:
 	o     can be a Bar frame
 	o     can be an InfoBar frame
 	o     can be a blank vertical space
+	o custom mouse cursor
 	o Slots [subclass Button]
 	o   Can contain another image within its border [an item, for instance]
 	o   Can watch a variable
+	o   When clicked, change mouse cursor
 	d Bar [subclass Frame]
 	d   Has a min and max and current value
 	d   Can watch a variable
@@ -75,7 +77,7 @@ Interface:
 	?   Click-to-move?
 
 	Options / Config:
-	o key bindings
+	- key bindings
 
 For v0.1.0:
   o interface
