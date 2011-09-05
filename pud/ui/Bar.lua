@@ -17,10 +17,10 @@ local Bar = Class{name='Bar',
 
 -- destructor
 function Bar:destroy()
+	self:unwatch()
 	self._min = nil
 	self._max = nil
 	self._val = nil
-	self._watched = nil
 	Frame.destroy(self)
 end
 
@@ -61,17 +61,41 @@ function Bar:setMargins(l, t, r, b)
 	self:_drawFB()
 end
 
--- watch a table (this replaces self._val)
--- the table must be an array, but only the first item is watched
-function Bar:watch(t)
-	verify('table', t)
-	self._watched = t
+-- watch a function. this function will be polled every tick for a return
+-- value, which will replace the value of this Bar object.
+function Bar:watch(func, ...)
+	verify('function', func)
+	self:unwatch()
+	self._watched = func
+	if select('#', ...) > 0 then
+		self._watchedArgs = {...}
+	end
 end
-function Bar:unwatch() self._watched = nil end
+
+-- stop watching a function.
+function Bar:unwatch()
+	self._watched = nil
+	if self._watchedArgs then
+		for k in pairs(self._watchedArgs) do self._watchedArgs[k] = nil end
+		self._watchedArgs = nil
+	end
+end
 
 -- onTick - check watched table
 function Bar:_onTick(dt, x, y)
-	if self._watched then self:setValue(self._watched[1]) end
+	if self._watched then
+		local value
+		if self._watchedArgs then
+			value = self._watched(unpack(self._watchedArgs))
+		else
+			value = self._watched()
+		end
+
+		if value then
+			self:setValue(value)
+		end
+	end
+
 	return Frame._onTick(self, dt, x, y)
 end
 

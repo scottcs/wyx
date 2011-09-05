@@ -201,7 +201,7 @@ function Text:setAlignTop()    self._align = 't'; self:_drawFB() end
 function Text:setAlignBottom() self._align = 'b'; self:_drawFB() end
 function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
 
--- onTick - check watched table
+-- onTick - check watched function
 function Text:_onTick(dt, x, y)
 	if self._watched then
 		local text
