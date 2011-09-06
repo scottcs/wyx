@@ -9,6 +9,7 @@ local RenderSystem = Class{name='RenderSystem',
 	function(self)
 		self._registered = {}
 		self._depths = {}
+		self._defaultDepth = 1
 	end
 }
 
@@ -58,7 +59,18 @@ end
 
 -- register an object
 function RenderSystem:register(obj, depth)
-	depth = depth or 1
+	if nil == depth then
+		if obj
+			and type(obj) == 'table'
+			and obj.getDepth
+			and type(obj.getDepth) == 'function'
+		then
+			depth = obj:getDepth()
+		else
+			depth = self._defaultDepth
+		end
+	end
+
 	verify('number', depth)
 	self:_touchDepth(depth)
 	self._registered[depth]:push(obj)
