@@ -25,7 +25,7 @@ Interface:
 	d   Has a background image
 	d     if image, color = overlay
 	d     if not image, color = background and rectangle is drawn
-	o   Ability to copy/clone
+	d   Ability to copy/clone
 	x   Needs a border that is drawn on top of everything else
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
@@ -56,11 +56,16 @@ Interface:
 	o     can be a Bar frame
 	o     can be an InfoBar frame
 	o     can be a blank vertical space
-	o custom mouse cursor
-	o Slots [subclass Button]
-	o   Can contain another image within its border [an item, for instance]
-	o   Can watch a variable
-	o   When clicked, change mouse cursor
+	- custom mouse cursor
+	o StickyButton [subclass Button]
+	o   Can watch a variable [for image it represents]
+	o     displays image [icon]
+	o   attaches to mouse cursor when clicked
+	o   is placed in nearest overlapping Slot when clicked again
+	o   'use' command on right-click
+	o Slots [subclass Frame]
+	o   Can contain a StickyButton
+	o   Draws StickyButton instead of self when containing one.
 	d Bar [subclass Frame]
 	d   Has a min and max and current value
 	d   Can watch a variable
