@@ -371,10 +371,6 @@ function Frame:draw()
 		setColor(colors.WHITE)
 		draw(self._ffb, self._x, self._y)
 
-		love.graphics.setFont(GameFont.console)
-		local coords = love.mouse.getX()..','..love.mouse.getY()
-		love.graphics.print(coords, 0, 0)
-
 		local num = #self._children
 		for i=1,num do
 			local child = self._children[i]
