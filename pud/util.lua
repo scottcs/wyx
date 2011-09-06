@@ -37,9 +37,14 @@ function verify(theType, ...)
 		local x = select(i, ...)
 		local xType = type(x)
 		if isExpr then
-			assert(isExpr(x), 'expression expected (was %s)', xType)
+			assert(isExpr(x), 'type was %s: %q, expected: expression',
+				xType,
+				tostring(x))
 		else
-			assert(xType == theType, '%s expected (was %s)', theType, xType)
+			assert(xType == theType, 'type was %s: %q, expected: %s',
+				xType,
+				tostring(x),
+				theType)
 		end
 	end
 	return true
@@ -66,7 +71,9 @@ function verifyAny(theObject, ...)
 		end
 	end
 
-	assert(is, 'type was %s, expected any of: %s', theType,
+	assert(is, 'type was %s: %q, expected any of: %s',
+		theType,
+		tostring(theObject),
 		table.concat({...}, ', '))
 
 	return true
