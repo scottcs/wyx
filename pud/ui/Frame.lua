@@ -22,6 +22,7 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 		self._accum = 0
+		self._depth = 30
 
 		self:_drawFB()
 		self:becomeIndependent()
@@ -178,6 +179,8 @@ function Frame:becomeIndependent(parent)
 		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
 		self:setPosition(x, y)
 	end
+
+	UISystem:register(self)
 end
 
 -- perform necessary tasks to become a child frame (with a parent)
@@ -186,6 +189,8 @@ function Frame:becomeChild(parent)
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
 	end
+
+	UISystem:unregister(self)
 end
 
 -- override Rect:setX() to send translation to children
@@ -331,6 +336,12 @@ function Frame:switchToActiveStyle()
 	end
 end
 
+-- get/set frame depth (draw layer... lower number is above higher number)
+function Frame:getDepth() return self._depth end
+function Frame:setDepth(depth)
+	verify('number', depth)
+	self._depth = depth
+end
 
 -- draw the frame to framebuffer
 function Frame:_drawFB()
