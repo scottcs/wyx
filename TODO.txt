@@ -25,7 +25,8 @@ Interface:
 	d   Has a background image
 	d     if image, color = overlay
 	d     if not image, color = background and rectangle is drawn
-	o   Needs a border that is drawn on top of everything else
+	o   Ability to copy/clone
+	x   Needs a border that is drawn on top of everything else
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
@@ -89,6 +90,7 @@ BEYOND v0.1.0:
 
 Save/Load:
   Event Queues:
+	+ change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
   ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
