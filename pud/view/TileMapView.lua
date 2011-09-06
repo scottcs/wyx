@@ -34,7 +34,7 @@ local nearestPO2 = nearestPO2
 -- drawn to screen
 local TileMapView = Class{name='TileMapView',
 	inherits=MapView,
-	function(self, level)
+	function(self, level, state)
 		MapView.construct(self)
 
 		verifyClass('pud.map.Level', level)
@@ -50,22 +50,24 @@ local TileMapView = Class{name='TileMapView',
 		self._frontfb = newFramebuffer(size, size)
 		self._backfb = newFramebuffer(size, size)
 
+		if state then self:setState(state) end
+
 		local styles = {1, 2, 3, 4}
 		local s = styles[Random(#styles)]
 		if     3 == s then table_remove(styles, 4)
 		elseif 4 == s then table_remove(styles, 3)
 		end
 		table_remove(styles, s)
-		self._wallStyle = tostring(s)
+		self._wallStyle = self._wallStyle or tostring(s)
 
-		s = styles[Random(#styles)]
-		table_remove(styles, s)
-		self._floorStyle = tostring(s)
+		local s2 = styles[Random(#styles)]
+		table_remove(styles, s2)
+		self._floorStyle = self._floorStyle or tostring(s2)
 
-		table_insert(styles, tonumber(self._wallStyle))
-		self._stairStyle = tostring(styles[Random(#styles)])
+		table_insert(styles, s)
+		self._stairStyle = self._stairStyle or tostring(styles[Random(#styles)])
 
-		self._doorStyle = tostring(Random(1,5))
+		self._doorStyle = self._doorStyle or tostring(Random(1,5))
 
 		self._tiles = {}
 		self._animatedTiles = {}
@@ -465,6 +467,26 @@ function TileMapView:draw()
 		draw(self._frontfb)
 	end
 end
+
+-- save the state of the view
+function TileMapView:getState()
+	local state = setmetatable({}, {__mode = 'kv'})
+
+	state.wallStyle = self._wallStyle
+	state.floorStyle = self._floorStyle
+	state.stairStyle = self._stairStyle
+	state.doorStyle = self._doorStyle
+
+	return state
+end
+
+function TileMapView:setState(state)
+	self._wallStyle = state.wallStyle or self._wallStyle
+	self._floorStyle = state.floorStyle or self._floorStyle
+	self._stairStyle = state.stairStyle or self._stairStyle
+	self._doorStyle = state.doorStyle or self._doorStyle
+end
+
 
 -- the class
 return TileMapView

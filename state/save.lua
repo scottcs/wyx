@@ -12,8 +12,9 @@ local warning, tostring = warning, tostring
 
 function st:init() end
 
-function st:enter(prevState, world, nextState)
+function st:enter(prevState, world, view, nextState)
 	self._world = world
+	self._view = view
 	self:_chooseFile()
 	self:_removeFile()
 	self:_saveGame()
@@ -23,6 +24,7 @@ end
 function st:leave()
 	if self._file then self._file:close() end
 	self._world = nil
+	self._view = nil
 	self._file = nil
 	self._filename = nil
 end
@@ -53,6 +55,7 @@ function st:_saveGame()
 	local mt = {__mode = 'kv'}
 
 	local state = self._world:getState()
+	state.view = self._view:getState()
 	state.GAMESEED = GAMESEED
 	state.VERSION = VERSION
 

@@ -177,7 +177,7 @@ function st:keypressed(key, unicode)
 				end
 			end,
 			f1 = function()
-				RunState.switch(State.save, self._world, 'play')
+				RunState.switch(State.save, self._world, self._view, 'play')
 			end,
 			f2 = function()
 				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
