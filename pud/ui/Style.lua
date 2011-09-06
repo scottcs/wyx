@@ -6,6 +6,7 @@ local colors = colors
 -- Represents a style of graphics, color, and font elements for a Frame.
 local Style = Class{name='Style',
 	function(self, t)
+		t = t or {}
 		verify('table', t)
 
 		t.fgcolor = t.fgcolor or colors.BLACK
@@ -70,6 +71,21 @@ function Style:setImageQuad(x, y, w, h)
 	assert(quad and quad.typeOf and quad:typeOf('Quad'), 'Style: invalid quad')
 
 	self._quad = quad
+end
+
+-- return a copy of this Style
+-- possibly changing some values in the copy
+function Style:clone(t)
+	t = t or {}
+	verify('table', t)
+
+	t.fgcolor = t.fgcolor or self._fgcolor
+	t.bgcolor = t.bgcolor or self._bgcolor
+	t.image = t.image or self._image
+	t.quad = t.quad or self._quad
+	t.font = t.font or self._font
+
+	return Style(t)
 end
 
 
