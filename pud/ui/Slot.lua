@@ -27,15 +27,15 @@ function Slot:swap(button)
 	if self._button then
 		self._button:setDepth(10)
 		self:removeChild(self._button)
+		self._button:attachToMouse()
 		self._button = nil
 	end
 
-	if button then
+	if button and oldButton ~= button then
 		verifyClass('pud.ui.StickyButton', button)
 
 		self._button = button
-		self._button:setDepth(30)
-		self:addChild(self._button)
+		self:addChild(self._button, self._depth - 1)
 		self._button:detachFromMouse(self)
 		self._button:setCenter(self:getCenter())
 	end

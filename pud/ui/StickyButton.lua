@@ -1,6 +1,8 @@
 local Class = require 'lib.hump.class'
 local Button = getClass 'pud.ui.Button'
 
+local getMousePos = love.mouse.getPosition
+
 -- StickyButton
 -- A Button that is picked up and dropped by the mouse.
 local StickyButton = Class{name='StickyButton',
@@ -38,13 +40,26 @@ end
 -- insert into the nearest Slot (unattach from mouse cursor)
 function StickyButton:_findSlot()
 	local frames = UISystem:getIntersection()
+	local x, y = getMousePos()
 
 	if frames then
-		local num = #frames
-		for i=1,num do
-			local f = frames[i]
+		return self:_recursiveFindSlot(frames, x, y)
+	end
+end
+
+function StickyButton:_recursiveFindSlot(frames, x, y)
+	local num = #frames
+	for i=1,num do
+		local f = frames[i]
+		if f:containsPoint(x, y) then
 			if isClass('pud.ui.Slot', f) then
 				return f
+			else
+				local children = f:getChildren()
+				if children then
+					local found = self:_recursiveFindSlot(children, x, y)
+					if found then return found end
+				end
 			end
 		end
 	end
@@ -54,6 +69,7 @@ end
 function StickyButton:attachToMouse()
 	self._slot = nil
 	self._attached = true
+	self:onTick()
 end
 
 -- detach from mouse cursor into slot
@@ -61,11 +77,17 @@ function StickyButton:detachFromMouse(slot)
 	verifyClass('pud.ui.Slot', slot)
 	self._slot = slot
 	self._attached = false
+	self:onTick()
 end
 
 -- override onTick() to change position to mouse position if attached
 function StickyButton:onTick(dt, x, y)
-	if self._attached then self:setCenter(x, y) end
+	if self._attached then
+		if nil == x and nil == y then x, y = getMousePos() end
+		self:setCenter(x, y)
+		return false
+	end
+
 	return Button.onTick(self, dt, x, y)
 end
 
