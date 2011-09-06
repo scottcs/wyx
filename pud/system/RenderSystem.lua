@@ -78,10 +78,21 @@ end
 
 -- unregister an object
 function RenderSystem:unregister(obj)
-	local numDepths = #self._depths
-	for i=1,numDepths do
-		local l = self._depths[i]
-		if self._registered[l] then self._registered[l]:pop(obj) end
+	if obj
+		and type(obj) == 'table'
+		and obj.getDepth
+		and type(obj.getDepth) == 'function'
+	then
+		local depth = obj:getDepth()
+		self._registered[depth]:pop(obj)
+	else
+		local numDepths = #self._depths
+		for i=1,numDepths do
+			local l = self._depths[i]
+			if self._registered[l] then
+				self._registered[l]:pop(obj)
+			end
+		end
 	end
 end
 
