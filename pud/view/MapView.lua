@@ -21,5 +21,9 @@ function MapView:registerEvents() end
 -- handle events
 function MapView:onEvent(e, ...) end
 
+-- serialize
+function MapView:getState() end
+function MapView:setState(state) end
+
 -- the class
 return MapView

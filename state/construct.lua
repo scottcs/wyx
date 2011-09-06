@@ -16,8 +16,9 @@ local math_floor = math.floor
 
 function st:init() end
 
-function st:enter(prevState, world)
+function st:enter(prevState, world, viewstate)
 	self._world = world
+	self._viewstate = viewstate
 	self._loadStep = 0
 	self._doLoadStep = true
 end
@@ -25,11 +26,12 @@ end
 function st:leave()
 	self._doLoadStep = nil
 	self._loadStep = nil
+	self._world = nil
+	self._viewstate = nil
 	if Console then Console:hide() end
 end
 
 function st:destroy()
-	self._world = nil
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
@@ -44,7 +46,8 @@ end
 
 function st:_createMapView()
 	if self._view then self._view:destroy() end
-	self._view = TileMapView(self._level)
+
+	self._view = TileMapView(self._level, self._viewstate)
 	self._view:registerEvents()
 end
 
