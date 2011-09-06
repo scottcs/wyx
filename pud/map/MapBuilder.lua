@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Map = getClass 'pud.map.Map'
 local MapNode = getClass 'pud.map.MapNode'
 local WallMapType = getClass 'pud.map.WallMapType'
+local DoorMapType = getClass 'pud.map.DoorMapType'
 
 -- MapBuilder
 local MapBuilder = Class{name='MapBuilder',
@@ -46,7 +47,8 @@ function MapBuilder:postProcess()
 				local below = self._map:getLocation(x, y+1)
 				if below then
 					local bMapType = below:getMapType()
-					horizontal = not isClass(WallMapType, bMapType)
+					horizontal = not (isClass(WallMapType, bMapType)
+						or isClass(DoorMapType, bMapType))
 				end
 
 				if not horizontal then
