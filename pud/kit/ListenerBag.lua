@@ -6,7 +6,7 @@ local pairs = pairs
 --
 local ListenerBag = Class{name='ListenerBag',
 	function(self)
-		self._queue = setmetatable({}, {__mode = 'k'})
+		self._queue = {}
 	end
 }
 
