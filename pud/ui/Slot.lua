@@ -1,0 +1,64 @@
+local Class = require 'lib.hump.class'
+local Frame = getClass 'pud.ui.Frame'
+
+local setColor = love.graphics.setColor
+local draw = love.graphics.draw
+local colors = colors
+
+-- Slot
+-- A place to stick a StickyButton.
+local Slot = Class{name='Slot',
+	inherits=Frame,
+	function(self, ...)
+		Frame.construct(self, ...)
+	end
+}
+
+-- destructor
+function Slot:destroy()
+	self._button = nil
+	Frame.destroy(self)
+end
+
+-- swap the given StickyButton with the current one
+function Slot:swap(button)
+	local oldButton = self._button
+
+	if self._button then
+		self._button:setDepth(10)
+		self:removeChild(self._button)
+		self._button = nil
+	end
+
+	if button then
+		verifyClass('pud.ui.StickyButton', button)
+
+		self._button = button
+		self._button:setDepth(30)
+		self:addChild(self._button)
+		self._button:detachFromMouse(self)
+		self._button:setCenter(self:getCenter())
+	end
+
+	if oldButton then oldButton:attachToMouse() end
+end
+
+-- override Frame:draw() to not draw if a button is in the slot
+function Slot:draw()
+	if self._ffb then
+		if not self._button then
+			setColor(colors.WHITE)
+			draw(self._ffb, self._x, self._y)
+		end
+
+		local num = #self._children
+		for i=1,num do
+			local child = self._children[i]
+			child:draw()
+		end
+	end
+end
+
+
+-- the class
+return Slot
