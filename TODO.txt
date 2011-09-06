@@ -57,15 +57,16 @@ Interface:
 	o     can be an InfoBar frame
 	o     can be a blank vertical space
 	- custom mouse cursor
-	o StickyButton [subclass Button]
+	d StickyButton [subclass Button]
 	o   Can watch a variable [for image it represents]
 	o     displays image [icon]
-	o   attaches to mouse cursor when clicked
-	o   is placed in nearest overlapping Slot when clicked again
+	d   attaches to mouse cursor when clicked
+	d   is placed in nearest overlapping Slot when clicked again
 	o   'use' command on right-click
-	o Slots [subclass Frame]
-	o   Can contain a StickyButton
-	o   Draws StickyButton instead of self when containing one.
+	d Slots [subclass Frame]
+	d   Can contain a StickyButton
+	d   Draws StickyButton instead of self when containing one.
+	o     actually, needs to draw a background when containing a StickyButton [second Style?]
 	d Bar [subclass Frame]
 	d   Has a min and max and current value
 	d   Can watch a variable
