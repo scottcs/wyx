@@ -34,7 +34,7 @@ local nearestPO2 = nearestPO2
 -- drawn to screen
 local TileMapView = Class{name='TileMapView',
 	inherits=MapView,
-	function(self, level)
+	function(self, level, state)
 		MapView.construct(self)
 
 		verifyClass('pud.map.Level', level)
@@ -50,22 +50,22 @@ local TileMapView = Class{name='TileMapView',
 		self._frontfb = newFramebuffer(size, size)
 		self._backfb = newFramebuffer(size, size)
 
+		if state then self:setState(state) end
+
 		local styles = {1, 2, 3, 4}
 		local s = styles[Random(#styles)]
 		if     3 == s then table_remove(styles, 4)
 		elseif 4 == s then table_remove(styles, 3)
 		end
 		table_remove(styles, s)
-		self._wallStyle = tostring(s)
+		self._wallStyle = self._wallStyle or tostring(s)
 
-		s = styles[Random(#styles)]
-		table_remove(styles, s)
-		self._floorStyle = tostring(s)
+		local s2 = styles[Random(#styles)]
+		table_remove(styles, s2)
+		self._floorStyle = self._floorStyle or tostring(s2)
 
-		table_insert(styles, tonumber(self._wallStyle))
-		self._stairStyle = tostring(styles[Random(#styles)])
-
-		self._doorStyle = tostring(Random(1,5))
+		table_insert(styles, s)
+		self._stairStyle = self._stairStyle or tostring(styles[Random(#styles)])
 
 		self._tiles = {}
 		self._animatedTiles = {}
@@ -96,7 +96,6 @@ function TileMapView:destroy()
 	self._wallStyle = nil
 	self._floorStyle = nil
 	self._stairStyle = nil
-	self._doorStyle = nil
 	self._quadresults = nil
 	self._floorcache = nil
 
@@ -296,10 +295,8 @@ function TileMapView:_setupQuads()
 		self:_makeQuad(FloorMapType,      'rug',      i,  9, i)
 		self:_makeQuad(StairMapType,       'up',      i, 10, i)
 		self:_makeQuad(StairMapType,     'down',      i, 11, i)
-	end
-	for i=1,5 do
-		self:_makeQuad(DoorMapType,      'shut',      i, i+(i-1), 5)
-		self:_makeQuad(DoorMapType,      'open',      i,     i*2, 5)
+		self:_makeQuad(DoorMapType,      'shut',      i, 12, i)
+		self:_makeQuad(DoorMapType,      'open',      i, 13, i)
 	end
 	for i=1,6 do
 		self:_makeQuad(TrapMapType,    'normal', 'A'..i, i+(i-1), 6)
@@ -371,8 +368,6 @@ function TileMapView:_setupTiles()
 				else
 					if isClass(FloorMapType, mapType) then
 						mapType:setStyle(self._floorStyle)
-					elseif isClass(DoorMapType, mapType) then
-						mapType:setStyle(self._doorStyle)
 					elseif isClass(StairMapType, mapType) then
 						mapType:setStyle(self._stairStyle)
 					else
@@ -465,6 +460,24 @@ function TileMapView:draw()
 		draw(self._frontfb)
 	end
 end
+
+-- save the state of the view
+function TileMapView:getState()
+	local state = setmetatable({}, {__mode = 'kv'})
+
+	state.wallStyle = self._wallStyle
+	state.floorStyle = self._floorStyle
+	state.stairStyle = self._stairStyle
+
+	return state
+end
+
+function TileMapView:setState(state)
+	self._wallStyle = state.wallStyle or self._wallStyle
+	self._floorStyle = state.floorStyle or self._floorStyle
+	self._stairStyle = state.stairStyle or self._stairStyle
+end
+
 
 -- the class
 return TileMapView

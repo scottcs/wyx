@@ -82,7 +82,10 @@ function st:_load()
 	switch(self._loadStep) {
 		[1] = function() self:_loadFile() end,
 		[2] = function() self:_setWorldState() end,
-		[3] = function() RunState.switch(State.construct, self._world) end,
+		[3] = function()
+			local viewstate = self._state and self._state.view
+			RunState.switch(State.construct, self._world, viewstate)
+		end,
 		default = function() end,
 	}
 
