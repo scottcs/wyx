@@ -4,6 +4,8 @@ local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
 local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 
+local getMousePos = love.mouse.getPosition
+
 -- how many times per second should we tick?
 local FRAME_UPDATE_TICK = 1/20
 
@@ -13,6 +15,7 @@ local UISystem = Class{name='UISystem',
 	inherits=RenderSystem,
 	function(self)
 		RenderSystem.construct(self)
+		self._defaultDepth = 30
 		self._accum = 0
 		InputEvents:register(self, {
 			MousePressedEvent,
@@ -80,6 +83,32 @@ function UISystem:KeyboardEvent(e)
 			steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
 		end
 	end
+end
+
+-- get all frames under the mouse cursor
+function UISystem:getIntersection(x, y)
+	if nil == x and nil == y then
+		x, y = getMousePos()
+	end
+
+	local numDepths = #self._depths
+	local intersection
+	local count = 0
+	print(x, y)
+
+	for i=numDepths, 1, -1 do
+		local depth = self._depths[i]
+		for frame in self._registered[depth]:listeners() do
+				print(frame:getX(), frame:getY(), frame:getWidth(), frame:getHeight())
+			if frame:containsPoint(x, y) then
+				count = count + 1
+				intersection = intersection or {}
+				intersection[count] = frame
+			end
+		end
+	end
+
+	return intersection
 end
 
 -- update
