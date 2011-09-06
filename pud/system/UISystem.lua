@@ -7,7 +7,7 @@ local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
 local getMousePos = love.mouse.getPosition
 
 -- how many times per second should we tick?
-local FRAME_UPDATE_TICK = 1/20
+local FRAME_UPDATE_TICK = 1/30
 
 -- UISystem
 -- Handles input and draws User Interface Frames
@@ -94,12 +94,10 @@ function UISystem:getIntersection(x, y)
 	local numDepths = #self._depths
 	local intersection
 	local count = 0
-	print(x, y)
 
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-				print(frame:getX(), frame:getY(), frame:getWidth(), frame:getHeight())
 			if frame:containsPoint(x, y) then
 				count = count + 1
 				intersection = intersection or {}
