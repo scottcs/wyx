@@ -138,12 +138,12 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 end
 
 -- add a child
-function Frame:addChild(frame)
+function Frame:addChild(frame, depth)
 	verifyClass(Frame, frame)
 
 	local num = #self._children
 	self._children[num+1] = frame
-	frame:becomeChild(self)
+	frame:becomeChild(self, depth)
 end
 
 -- remove a child
@@ -166,6 +166,9 @@ function Frame:removeChild(frame)
 	self._children = newChildren
 end
 
+-- get all of the children of this frame
+function Frame:getChildren() return self._children end
+
 -- get an appropriately sized PO2 framebuffer
 function Frame:_getFramebuffer()
 	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
@@ -184,13 +187,14 @@ function Frame:becomeIndependent(parent)
 end
 
 -- perform necessary tasks to become a child frame (with a parent)
-function Frame:becomeChild(parent)
+function Frame:becomeChild(parent, depth)
 	if parent then
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
 	end
 
 	UISystem:unregister(self)
+	if depth then self:setDepth(depth) end
 end
 
 -- override Rect:setX() to send translation to children
