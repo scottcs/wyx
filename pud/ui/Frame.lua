@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Rect = getClass 'pud.kit.Rect'
 
 local math_max = math.max
+local math_floor = math.floor
 local getMousePosition = love.mouse.getPosition
 local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
@@ -394,15 +395,15 @@ function Frame:_drawLayer(color, image, quad)
 			if quad then
 				local _,_, w, h = quad:getViewport()
 				local sw, sh = self:getSize()
-				local x = (sw-w) * 0.5
-				local y = (sh-h) * 0.5
+				local x = math_floor((sw-w) * 0.5)
+				local y = math_floor((sh-h) * 0.5)
 
 				drawq(image, quad, x, y)
 			else
 				local w, h = image:getWidth(), image:getHeight()
 				local sw, sh = self:getSize()
-				local x = (sw-w) * 0.5
-				local y = (sh-h) * 0.5
+				local x = math_floor((sw-w) * 0.5)
+				local y = math_floor((sh-h) * 0.5)
 
 				draw(image, x, y)
 			end

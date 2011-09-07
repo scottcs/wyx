@@ -84,7 +84,7 @@ end
 function StickyButton:onTick(dt, x, y)
 	if self._attached then
 		if nil == x and nil == y then x, y = getMousePos() end
-		self:setCenter(x, y)
+		self:setCenter(x, y, 'floor')
 		return false
 	end
 
