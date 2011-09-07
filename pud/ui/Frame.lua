@@ -392,9 +392,19 @@ function Frame:_drawLayer(color, image, quad)
 
 		if image then
 			if quad then
-				drawq(image, quad, 0, 0)
+				local _,_, w, h = quad:getViewport()
+				local sw, sh = self:getSize()
+				local x = (sw-w) * 0.5
+				local y = (sh-h) * 0.5
+
+				drawq(image, quad, x, y)
 			else
-				draw(image, 0, 0)
+				local w, h = image:getWidth(), image:getHeight()
+				local sw, sh = self:getSize()
+				local x = (sw-w) * 0.5
+				local y = (sh-h) * 0.5
+
+				draw(image, x, y)
 			end
 		else
 			rectangle('fill', 0, 0, self._w, self._h)
