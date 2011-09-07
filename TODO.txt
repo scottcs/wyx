@@ -19,14 +19,17 @@ Interface:
 
 	UI Elements:
 	d Styles
-	d   Has background or overlay color
+	d   Has background color
 	d   Has a font
-	d   Has a fontcolor
+	d   Has a fontcolor [equals fgcolor if nil]
 	d   Has a background image
-	d     if image, color = overlay
-	d     if not image, color = background and rectangle is drawn
+	d     if image, bgcolor = overlay
+	d     if not image, bgcolor = background and rectangle is drawn
 	d   Ability to copy/clone
-	x   Needs a border that is drawn on top of everything else
+	d   Has a foreground image
+	d   Has a foreground color
+	o   Has a midground image
+	o   Has a midground color
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
@@ -58,15 +61,15 @@ Interface:
 	o     can be a blank vertical space
 	- custom mouse cursor
 	d StickyButton [subclass Button]
-	o   Can watch a variable [for image it represents]
+	o   Can watch a variable [for image it represents] -- is a "view" of an item
 	o     displays image [icon]
 	d   attaches to mouse cursor when clicked
 	d   is placed in nearest overlapping Slot when clicked again
-	o   'use' command on right-click
 	d Slots [subclass Frame]
 	d   Can contain a StickyButton
 	d   Draws StickyButton instead of self when containing one.
-	o     actually, needs to draw a background when containing a StickyButton [second Style?]
+	d     actually, needs to draw a background when containing a StickyButton [second Style?]
+	o   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
 	d Bar [subclass Frame]
 	d   Has a min and max and current value
 	d   Can watch a variable
