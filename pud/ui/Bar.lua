@@ -100,11 +100,7 @@ function Bar:onTick(dt, x, y)
 end
 
 -- override Frame:_drawFB()
-function Bar:_drawFB()
-	self._bfb = self._bfb or self:_getFramebuffer()
-	pushRenderTarget(self._bfb)
-	self:_drawBackground()
-
+function Bar:_drawForeground()
 	if self._min and self._max and self._val then
 		if self._curStyle then
 			local x = self._margins[1]
@@ -119,9 +115,6 @@ function Bar:_drawFB()
 			rectangle('fill', x, y, w, h)
 		end
 	end
-
-	popRenderTarget()
-	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
 

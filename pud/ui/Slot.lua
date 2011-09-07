@@ -43,19 +43,10 @@ function Slot:swap(button)
 	if oldButton then oldButton:attachToMouse() end
 end
 
--- override Frame:draw() to not draw if a button is in the slot
-function Slot:draw()
-	if self._ffb then
-		if not self._button then
-			setColor(colors.WHITE)
-			draw(self._ffb, self._x, self._y)
-		end
-
-		local num = #self._children
-		for i=1,num do
-			local child = self._children[i]
-			child:draw()
-		end
+-- override Frame:_drawForeground() to not draw if a button is in the slot
+function Slot:_drawForeground()
+	if not self._button then
+		Frame._drawForeground(self)
 	end
 end
 

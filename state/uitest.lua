@@ -16,28 +16,34 @@ local Bar = getClass 'pud.ui.Bar'
 local Slot = getClass 'pud.ui.Slot'
 local Style = getClass 'pud.ui.Style'
 
-local n1Style = Style({font=GameFont.big, fgcolor=colors.WHITE, bgcolor=colors.DARKRED})
-local h1Style = Style({font=GameFont.big, fgcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
-local a1Style = Style({font=GameFont.big, fgcolor=colors.WHITE, bgcolor=colors.RED})
-local n2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.BLACK})
-local h2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.GREY30})
-local a2Style = Style({font=GameFont.small, fgcolor=colors.WHITE, bgcolor=colors.GREY60})
-local n3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.DARKYELLOW})
-local h3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.LIGHTYELLOW})
-local a3Style = Style({font=GameFont.small, fgcolor=colors.BLACK, bgcolor=colors.YELLOW})
-local n4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.DARKPURPLE})
-local h4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.LIGHTPURPLE})
-local a4Style = Style({font=GameFont.verysmall, fgcolor=colors.WHITE, bgcolor=colors.PURPLE})
-local inventorySlotStyle = Style({image=Image.interface})
-inventorySlotStyle:setImageQuad(0, 288, 40, 40)
-local itemNStyle = Style({image=Image.item, bgcolor=colors.GREY90})
-itemNStyle:setImageQuad(0, 96, 32, 32)
+local n1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.DARKRED})
+local h1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
+local a1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.RED})
+local n2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.BLACK})
+local h2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY30})
+local a2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY60})
+local n3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.DARKYELLOW})
+local h3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.LIGHTYELLOW})
+local a3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.YELLOW})
+local n4Style = Style({font=GameFont.verysmall, fontcolor=colors.WHITE, bgcolor=colors.DARKPURPLE})
+local h4Style = Style({font=GameFont.verysmall, fontcolor=colors.WHITE, bgcolor=colors.LIGHTPURPLE})
+local a4Style = Style({font=GameFont.verysmall, fontcolor=colors.WHITE, bgcolor=colors.PURPLE})
+local inventorySlotStyle = Style({
+	bgimage=Image.interface,
+	bgcolor=colors.WHITE,
+	fgimage=Image.interface,
+	fgcolor=colors.WHITE,
+})
+inventorySlotStyle:setBGQuad(0, 288, 40, 40)
+inventorySlotStyle:setFGQuad(80, 292, 32, 32)
+local itemNStyle = Style({bgimage=Image.item, bgcolor=colors.GREY90})
+itemNStyle:setBGQuad(0, 96, 32, 32)
 local item2NStyle = itemNStyle:clone()
-item2NStyle:setImageQuad(32, 96, 32, 32)
+item2NStyle:setBGQuad(32, 96, 32, 32)
 local itemHStyle = itemNStyle:clone({bgcolor=colors.WHITE})
 local item2HStyle = item2NStyle:clone({bgcolor=colors.WHITE})
-local nBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.BLUE, bgcolor=colors.DARKBLUE})
-local hBarStyle = Style({font=GameFont.verysmall, fgcolor=colors.LIGHTBLUE, bgcolor=colors.DARKBLUE})
+local nBarStyle = Style({fgcolor=colors.BLUE, bgcolor=colors.DARKBLUE})
+local hBarStyle = Style({fgcolor=colors.LIGHTBLUE, bgcolor=colors.DARKBLUE})
 
 function st:init()
 	UISystem = getClass('pud.system.UISystem')()
@@ -75,7 +81,6 @@ function st:enter(prevState, nextState, ...)
 		end
 	end)
 
-	local invImg = inventorySlotStyle:getImage()
 	local invW, invH = 40, 40
 	local slotW = invW+4
 	local slot1 = Slot(10, 60, invW, invH)

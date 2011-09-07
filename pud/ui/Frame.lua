@@ -144,6 +144,8 @@ function Frame:addChild(frame, depth)
 	local num = #self._children
 	self._children[num+1] = frame
 	frame:becomeChild(self, depth)
+
+	self:_drawFB()
 end
 
 -- remove a child
@@ -164,6 +166,8 @@ function Frame:removeChild(frame)
 	end
 
 	self._children = newChildren
+
+	self:_drawFB()
 end
 
 -- get all of the children of this frame
@@ -352,29 +356,48 @@ function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
 	pushRenderTarget(self._bfb)
 	self:_drawBackground()
+	self:_drawMidground()
+	self:_drawForeground()
 	popRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
+-- draw the background
 function Frame:_drawBackground()
 	if self._curStyle then
-		local color = self._curStyle:getBGColor()
-		local image = self._curStyle:getImage()
-		local quad = self._curStyle:getQuad()
+		local bgcolor = self._curStyle:getBGColor()
+		local bgimage = self._curStyle:getBGImage()
+		local bgquad = self._curStyle:getBGQuad()
+		self:_drawLayer(bgcolor, bgimage, bgquad)
+	end
+end
 
-		if color then
-			setColor(color)
+-- override this if needed
+function Frame:_drawMidground() end
 
-			if image then
-				if quad then
-					drawq(image, quad, 0, 0)
-				else
-					draw(image, 0, 0)
-				end
+-- draw the foreground
+function Frame:_drawForeground()
+	if self._curStyle then
+		local fgcolor = self._curStyle:getFGColor()
+		local fgimage = self._curStyle:getFGImage()
+		local fgquad = self._curStyle:getFGQuad()
+		self:_drawLayer(fgcolor, fgimage, fgquad)
+	end
+end
+
+-- draw a single layer (foreground or background)
+function Frame:_drawLayer(color, image, quad)
+	if color then
+		setColor(color)
+
+		if image then
+			if quad then
+				drawq(image, quad, 0, 0)
 			else
-				-- draw background rectangle if color was specified
-				rectangle('fill', 0, 0, self._w, self._h)
+				draw(image, 0, 0)
 			end
+		else
+			rectangle('fill', 0, 0, self._w, self._h)
 		end
 	end
 end

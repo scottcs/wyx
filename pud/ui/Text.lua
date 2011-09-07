@@ -238,7 +238,7 @@ function Text:_drawFB()
 				local numLines = textLines > maxLines and maxLines or textLines
 				local totalHeight = height * numLines
 				local halfHeight = totalHeight/2
-				local fontcolor = self._curStyle:getFGColor()
+				local fontcolor = self._curStyle:getFontColor()
 
 				setFont(font)
 				setColor(fontcolor)
@@ -295,7 +295,7 @@ function Text:_drawFB()
 			if self._curStyle then
 				local font = self._curStyle:getFont()
 				if font then
-					local fontcolor = self._curStyle:getFGColor()
+					local fontcolor = self._curStyle:getFontColor()
 					local height = font:getHeight()
 					local margin = self._margin or 0
 
