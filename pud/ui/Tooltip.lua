@@ -138,16 +138,16 @@ function Tooltip:_adjustLayout()
 	local numLines = self._lines and #self._lines or 0
 
 	if self._icon or self._header1 or self._header2 or numLines > 0 then
-		local x, y = self._margin, self._margin
-		local width, height = 0, 0
+		local width, height = self._margin, self._margin
+		local x, y = self._x + width, self._y + height
 		local spacing = self:getSpacing()
 
 		if spacing then
 			if self._icon then
 				self._icon:setPosition(x, y)
 
-				width = self._icon:getWidth()
-				x = width + spacing
+				width = width + self._icon:getWidth()
+				x = self._x + width + spacing
 			end
 
 			local headerWidth = 0
@@ -175,7 +175,7 @@ function Tooltip:_adjustLayout()
 					y = y + spacing
 				end
 
-				x = self._margin
+				x = self._x + self._margin
 
 				for i=1,numLines do
 					local line = self._lines[i]
@@ -187,8 +187,8 @@ function Tooltip:_adjustLayout()
 				end -- for i=1,num
 			end -- if self._lines
 
-			width = width + self._margin*2
-			height = height + self._margin*2    -- XXX: might have an extra spacing
+			width = width + self._margin
+			height = height + self._margin    -- XXX: might have an extra spacing
 
 			self:setSize(width, height)
 		end -- if spacing
