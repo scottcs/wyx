@@ -28,8 +28,8 @@ Interface:
 	d   Ability to copy/clone
 	d   Has a foreground image
 	d   Has a foreground color
-	o   Has a midground image
-	o   Has a midground color
+	d   Has a border image
+	d   Has a border color
 	d Frames
 	d   Have hover/press checks, call onHover, onPress
 	d   Has Styles
@@ -51,7 +51,6 @@ Interface:
 	o Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
 	o   default background color is slightly transparent black
 	o   scales well with its content
-	o   has a border that is drawn [scales with size of tooltip]
 	o   contains an Icon [top left]
 	o   contains a Title [top right]
 	o   contains one or more info lines
@@ -80,6 +79,7 @@ Interface:
 	o   optional Text as label
 	o      can position anywhere
 	x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+	+ Pause ability
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
 	- Minimap
 	- Ability to click on entities/map tiles directly
