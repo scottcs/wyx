@@ -357,7 +357,6 @@ function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
 	pushRenderTarget(self._bfb)
 	self:_drawBackground()
-	self:_drawMidground()
 	self:_drawForeground()
 	self:_drawBorder()
 	popRenderTarget()
@@ -373,9 +372,6 @@ function Frame:_drawBackground()
 		self:_drawLayer(bgcolor, bgimage, bgquad)
 	end
 end
-
--- override this if needed
-function Frame:_drawMidground() end
 
 -- draw the foreground
 function Frame:_drawForeground()
