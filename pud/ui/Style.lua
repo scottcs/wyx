@@ -15,6 +15,10 @@ local Style = Class{name='Style',
 		if t.fgimage then self:setFGImage(t.fgimage) end
 		if t.fgquad then self:setFGQuad(t.fgquad) end
 		if t.fgcolor then self:setFGColor(t.fgcolor) end
+		if t.borderimage then self:setBorderImage(t.borderimage) end
+		if t.borderquad then self:setBorderQuad(t.borderquad) end
+		if t.bordercolor then self:setBorderColor(t.bordercolor) end
+		if t.bordersize then self:setBorderSize(t.bordersize) end
 		if t.font then self:setFont(t.font, t.fontcolor) end
 	end
 }
@@ -26,6 +30,10 @@ function Style:destroy()
 	self._fgcolor = nil
 	self._fgimage = nil
 	self._fgquad = nil
+	self._bordersize = nil
+	self._bordercolor = nil
+	self._borderimage = nil
+	self._borderquad = nil
 	self._bgcolor = nil
 	self._bgimage = nil
 	self._bgquad = nil
@@ -43,6 +51,34 @@ function Style:getFontColor() return self._fontcolor end
 function Style:setFontColor(color)
 	verify('table', color)
 	self._fontcolor = color
+end
+
+-- get/set border color
+function Style:getBorderColor() return self._bordercolor end
+function Style:setBorderColor(color)
+	verify('table', color)
+	self._bordercolor = color
+end
+
+-- get/set border image
+function Style:getBorderImage() return self._borderimage end
+function Style:setBorderImage(image, ...)
+	if self._borderquad then self._borderquad = nil end
+	self._borderimage = image
+	if select('#', ...) > 0 then self:setBorderQuad(...) end
+end
+
+-- get/set border image quad
+function Style:getBorderQuad() return self._borderquad end
+function Style:setBorderQuad(x, y, w, h)
+	self._borderquad = self:_makeQuad(self._borderimage, x, y, w, h)
+end
+
+-- get/set border size
+function Style:getBorderSize() return self._bordersize end
+function Style:setBorderSize(size)
+	verify('number', size)
+	self._bordersize = size
 end
 
 -- get/set foreground color
@@ -110,6 +146,10 @@ function Style:clone(t)
 	t = t or {}
 	verify('table', t)
 
+	t.bordersize = t.bordersize or self._bordersize
+	t.bordercolor = t.bordercolor or self._bordercolor
+	t.borderimage = t.borderimage or self._borderimage
+	t.borderquad = t.borderquad or self._borderquad
 	t.fgcolor = t.fgcolor or self._fgcolor
 	t.fgimage = t.fgimage or self._fgimage
 	t.fgquad = t.fgquad or self._fgquad
