@@ -359,6 +359,7 @@ function Frame:_drawFB()
 	self:_drawBackground()
 	self:_drawMidground()
 	self:_drawForeground()
+	self:_drawBorder()
 	popRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
 end
@@ -386,8 +387,19 @@ function Frame:_drawForeground()
 	end
 end
 
+-- draw the border
+function Frame:_drawBorder()
+	if self._curStyle then
+		local bordersize = self._curStyle:getBorderSize()
+		local bordercolor = self._curStyle:getBorderColor()
+		local borderimage = self._curStyle:getBorderImage()
+		local borderquad = self._curStyle:getBorderQuad()
+		self:_drawLayer(bordercolor, borderimage, borderquad, bordersize)
+	end
+end
+
 -- draw a single layer (foreground or background)
-function Frame:_drawLayer(color, image, quad)
+function Frame:_drawLayer(color, image, quad, bordersize)
 	if color then
 		setColor(color)
 
@@ -408,7 +420,15 @@ function Frame:_drawLayer(color, image, quad)
 				draw(image, x, y)
 			end
 		else
-			rectangle('fill', 0, 0, self._w, self._h)
+			if bordersize then
+				local w, h = self._w, self._h
+				rectangle('fill', 0, 0, bordersize, h)
+				rectangle('fill', 0, 0, w, bordersize)
+				rectangle('fill', w-bordersize, 0, bordersize, h)
+				rectangle('fill', 0, h-bordersize, w, bordersize)
+			else
+				rectangle('fill', 0, 0, self._w, self._h)
+			end
 		end
 	end
 end
