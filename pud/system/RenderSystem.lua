@@ -84,7 +84,9 @@ function RenderSystem:unregister(obj)
 		and type(obj.getDepth) == 'function'
 	then
 		local depth = obj:getDepth()
-		self._registered[depth]:pop(obj)
+		if self._registered[depth] then
+			self._registered[depth]:pop(obj)
+		end
 	else
 		local numDepths = #self._depths
 		for i=1,numDepths do
