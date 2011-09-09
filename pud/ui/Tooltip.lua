@@ -9,9 +9,10 @@ local Tooltip = Class{name='Tooltip',
 	inherits=Frame,
 	function(self, ...)
 		Frame.construct(self, ...)
-		self:setDepth(5)
 		self._margin = 0
-		self._show = false
+
+		self:setDepth(5)
+		self:hide()
 	end
 }
 
@@ -114,12 +115,14 @@ function Tooltip:addBar(bar)
 end
 
 -- add a blank space
-function Tooltip:addSpace()
-	local spacing = self:_getSpacing()
-	if spacing then
-		local space = Frame(0, 0, 0, spacing)
-		self:_addLine(space)
+function Tooltip:addSpace(size)
+	if nil == size then
+		size = self._lines and self._lines[1]:getHeight() or self._margin
 	end
+	verify('number', size)
+
+	local space = Frame(0, 0, 0, size)
+	self:_addLine(space)
 end
 
 -- add a line to the tooltip
@@ -146,82 +149,64 @@ function Tooltip:_adjustLayout()
 	if self._icon or self._header1 or self._header2 or numLines > 0 then
 		local x, y = self._margin, self._margin
 		local width, height = 0, 0
-		local spacing = self:_getSpacing()
+		local headerW, headerH, iconH = 0, 0, 0
 
-		if spacing then
-			local headerW, headerH, iconH = 0, 0, 0
+		if self._icon then
+			self._icon:setPosition(x, y)
 
-			if self._icon then
-				self._icon:setPosition(x, y)
+			iconH = self._icon:getHeight()
+			width = self._icon:getWidth() + self._margin
+			x = x + width
+		end
 
-				iconH = self._icon:getHeight()
-				width = self._icon:getWidth() + spacing
-				x = width
+		if self._header1 then
+			self._header1:setPosition(x, y)
+
+			headerW = self._header1:getWidth()
+			headerH = self._header1:getHeight()
+			y = y + headerH
+		end
+
+		if self._header2 then
+			self._header2:setPosition(x, y)
+
+			local h2width, h2height = self._header2:getSize()
+			headerW = headerW > h2width and headerW or h2width
+			headerH = headerH + h2height
+			y = y + h2height
+		end
+
+		width = width + headerW
+		height = height + (headerH > iconH and headerH or iconH)
+
+		if numLines > 0 then
+			-- set some blank space if any headers exist
+			if self._icon or self._header1 or self._header2 then
+				local blankspace = self._lines[1]:getHeight()
+				height = height + blankspace
+				y = self._margin + height
 			end
 
-			if self._header1 then
-				self._header1:setPosition(x, y)
+			x = self._margin
 
-				headerW = self._header1:getWidth()
-				headerH = headerH + spacing
-				y = y + spacing
-			end
+			for i=1,numLines do
+				local line = self._lines[i]
+				line:setPosition(x, y)
 
-			if self._header2 then
-				self._header2:setPosition(x, y)
+				local lineWidth, lineHeight = line:getSize()
+				width = width > lineWidth and width or lineWidth
+				height = height + lineHeight
+				y = y + lineHeight
+			end -- for i=1,num
+		end -- if self._lines
 
-				local h2width = self._header2:getWidth()
-				headerW = headerW > h2width and headerW or h2width
-				headerH = headerH + spacing
-				y = y + spacing
-			end
+		width = width + self._margin*2
+		height = height + self._margin*2
 
-			width = width + headerW
-			height = height + (headerH > iconH and headerH or iconH)
-
-			if numLines > 0 then
-				-- set some blank space if any headers exist
-				if self._icon or self._header1 or self._header2 then
-					height = height + spacing
-					y = y + spacing
-				end
-
-				x = self._margin
-
-				for i=1,numLines do
-					local line = self._lines[i]
-					line:setPosition(x, y)
-
-					local lineWidth = line:getWidth()
-					width = width > lineWidth and width or lineWidth
-					height = height + spacing
-					y = y + spacing
-				end -- for i=1,num
-			end -- if self._lines
-
-			width = width + self._margin*2
-			height = height + self._margin*2    -- XXX: might have an extra spacing
-
-			self:setSize(width, height)
-			self._ffb, self._bfb = nil, nil
-		end -- if spacing
+		self:setSize(width, height)
+		self._ffb, self._bfb = nil, nil
 	end -- if self._icon or self._header1 or ...
 end
-
-function Tooltip:_getSpacing()
-	local spacing
-	local normalStyle = self:getNormalStyle()
-
-	if normalStyle then
-		local font = normalStyle:getFont()
-		if font then spacing = font:getHeight() end
-	end
-
-	if nil == spacing then warning('Please set Tooltip normal font style.') end
-
-	return spacing
-end
-
 
 -- draw in the foreground layer
 -- draws over any foreground set in the Style. Usually, you just don't want to
