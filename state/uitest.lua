@@ -20,7 +20,7 @@ local Tooltip = getClass 'pud.ui.Tooltip'
 local n1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.DARKRED})
 local h1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
 local a1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.RED})
-local n2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY20})
+local n2Style = Style({font=GameFont.verysmall, fontcolor=colors.WHITE})
 local h2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY40})
 local a2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY60})
 local n3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.DARKYELLOW})
@@ -50,8 +50,6 @@ local tooltipStyle = Style({
 	bgcolor=colors.GREY20,
 	bordersize=2,
 	bordercolor=colors.GREEN,
-	font=GameFont.small,
-	fontcolor=colors.GREY80,
 })
 
 function st:init()
@@ -76,37 +74,38 @@ function st:enter(prevState, nextState, ...)
 	local lineH = lineFont:getHeight()
 	local line = 'Potion of Speeeed'
 	local lineW = lineFont:getWidth(line)
-	local header1 = Text(0,0,lineW + 8,lineH + 8)
+	local header1 = Text(0,0,lineW,lineH)
 	header1:setNormalStyle(n2Style)
 	header1:setText(line)
 	line = '@50'
 	lineW = lineFont:getWidth(line)
-	local header2 = Text(0,0,lineW,lineH + 8)
+	local header2 = Text(0,0,lineW,lineH)
 	header2:setNormalStyle(n2Style)
 	header2:setText(line)
 	line = 'Speeds up user by 200000%'
 	lineW = lineFont:getWidth(line)
-	local textLine = Text(0,0,lineW,lineH + 8)
+	local textLine = Text(0,0,lineW,lineH)
 	textLine:setNormalStyle(n2Style)
 	textLine:setText(line)
 	line = 'Non-Drowsy'
 	lineW = lineFont:getWidth(line)
-	local textLine2 = Text(0,0,lineW,lineH + 8)
+	local textLine2 = Text(0,0,lineW,lineH)
 	textLine2:setNormalStyle(n2Style)
 	textLine2:setText(line)
 	line = '(use as directed)'
 	lineW = lineFont:getWidth(line)
-	local textLine3 = Text(0,0,lineW,lineH + 8)
+	local textLine3 = Text(0,0,lineW,lineH)
 	textLine3:setNormalStyle(n2Style)
 	textLine3:setText(line)
 	local tooltip1 = Tooltip()
 	tooltip1:setNormalStyle(tooltipStyle)
-	tooltip1:setMargin(8)
+	tooltip1:setMargin(16)
 	tooltip1:setIcon(icon1)
 	tooltip1:setHeader1(header1)
 	tooltip1:setHeader2(header2)
 	tooltip1:addText(textLine)
 	tooltip1:addText(textLine2)
+	tooltip1:addSpace()
 	tooltip1:addText(textLine3)
 
 	local text1 = Text(20, 20, 560, 360)
