@@ -15,12 +15,13 @@ local TextEntry = getClass 'pud.ui.TextEntry'
 local Bar = getClass 'pud.ui.Bar'
 local Slot = getClass 'pud.ui.Slot'
 local Style = getClass 'pud.ui.Style'
+local Tooltip = getClass 'pud.ui.Tooltip'
 
 local n1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.DARKRED})
 local h1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
 local a1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.RED})
-local n2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.BLACK})
-local h2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY30})
+local n2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY20})
+local h2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY40})
 local a2Style = Style({font=GameFont.small, fontcolor=colors.WHITE, bgcolor=colors.GREY60})
 local n3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.DARKYELLOW})
 local h3Style = Style({font=GameFont.small, fontcolor=colors.BLACK, bgcolor=colors.LIGHTYELLOW})
@@ -45,6 +46,14 @@ local item2HStyle = item2NStyle:clone({bgcolor=colors.WHITE})
 local nBarStyle = Style({fgcolor=colors.BLUE, bgcolor=colors.DARKBLUE})
 local hBarStyle = Style({fgcolor=colors.LIGHTBLUE, bgcolor=colors.DARKBLUE})
 
+local tooltipStyle = Style({
+	bgcolor=colors.GREY20,
+	bordersize=2,
+	bordercolor=colors.GREEN,
+	font=GameFont.small,
+	fontcolor=colors.GREY80,
+})
+
 function st:init()
 	UISystem = getClass('pud.system.UISystem')()
 end
@@ -61,8 +70,47 @@ function st:enter(prevState, nextState, ...)
 	self._testFrame3:setNormalStyle(n1Style)
 	self._testFrame3:setMargin(4)
 
+	local icon1 = Frame(0,0,32,32)
+	icon1:setNormalStyle(itemNStyle)
+	local lineFont = n2Style:getFont()
+	local lineH = lineFont:getHeight()
+	local line = 'Potion of Speeeed'
+	local lineW = lineFont:getWidth(line)
+	local header1 = Text(0,0,lineW + 8,lineH + 8)
+	header1:setNormalStyle(n2Style)
+	header1:setText(line)
+	line = '@50'
+	lineW = lineFont:getWidth(line)
+	local header2 = Text(0,0,lineW,lineH + 8)
+	header2:setNormalStyle(n2Style)
+	header2:setText(line)
+	line = 'Speeds up user by 200000%'
+	lineW = lineFont:getWidth(line)
+	local textLine = Text(0,0,lineW,lineH + 8)
+	textLine:setNormalStyle(n2Style)
+	textLine:setText(line)
+	line = 'Non-Drowsy'
+	lineW = lineFont:getWidth(line)
+	local textLine2 = Text(0,0,lineW,lineH + 8)
+	textLine2:setNormalStyle(n2Style)
+	textLine2:setText(line)
+	line = '(use as directed)'
+	lineW = lineFont:getWidth(line)
+	local textLine3 = Text(0,0,lineW,lineH + 8)
+	textLine3:setNormalStyle(n2Style)
+	textLine3:setText(line)
+	local tooltip1 = Tooltip()
+	tooltip1:setNormalStyle(tooltipStyle)
+	tooltip1:setMargin(8)
+	tooltip1:setIcon(icon1)
+	tooltip1:setHeader1(header1)
+	tooltip1:setHeader2(header2)
+	tooltip1:addText(textLine)
+	tooltip1:addText(textLine2)
+	tooltip1:addText(textLine3)
+
 	local text1 = Text(20, 20, 560, 360)
-	text1:setNormalStyle(n2Style)
+	text1:setNormalStyle(h2Style)
 	text1:setMargin(10)
 	text1:setMaxLines(10)
 	text1:setJustifyRight()
@@ -93,6 +141,7 @@ function st:enter(prevState, nextState, ...)
 	local sbut1 = StickyButton(0, 0, 32, 32)
 	sbut1:setNormalStyle(itemNStyle)
 	sbut1:setHoverStyle(itemHStyle)
+	sbut1:attachTooltip(tooltip1)
 	slot1:swap(sbut1)
 
 	local sbut2 = StickyButton(0, 0, 32, 32)
@@ -159,9 +208,11 @@ function st:enter(prevState, nextState, ...)
 	self._testFrame2:addChild(commandPrompt)
 	self._testFrame2:addChild(commandEntry)
 
+	--[[
 	UISystem:register(self._testFrame1)
 	UISystem:register(self._testFrame2)
 	UISystem:register(self._testFrame3)
+	]]--
 end
 
 function st:leave()
