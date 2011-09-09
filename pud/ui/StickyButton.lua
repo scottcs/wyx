@@ -69,6 +69,7 @@ end
 function StickyButton:attachToMouse()
 	self._slot = nil
 	self._attached = true
+	self._hovered = false
 	self:onTick()
 end
 
@@ -77,6 +78,7 @@ function StickyButton:detachFromMouse(slot)
 	verifyClass('pud.ui.Slot', slot)
 	self._slot = slot
 	self._attached = false
+	self._hovered = true
 	self:onTick()
 end
 
