@@ -1,10 +1,10 @@
-local Map = require 'pud.map.Map'
-local MapNode = require 'pud.map.MapNode'
-local MapType = require 'pud.map.MapType'
-local FloorMapType = require 'pud.map.FloorMapType'
-local WallMapType = require 'pud.map.WallMapType'
-local DoorMapType = require 'pud.map.DoorMapType'
-local Rect = require 'pud.kit.Rect'
+local Map = require 'wyx.map.Map'
+local MapNode = require 'wyx.map.MapNode'
+local MapType = require 'wyx.map.MapType'
+local FloorMapType = require 'wyx.map.FloorMapType'
+local WallMapType = require 'wyx.map.WallMapType'
+local DoorMapType = require 'wyx.map.DoorMapType'
+local Rect = require 'wyx.kit.Rect'
 
 context('Map', function()
 	context('When instantiating with no arguments', function()

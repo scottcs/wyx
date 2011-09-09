@@ -8,8 +8,8 @@
 
 local st = RunState.new()
 
-local GameCam = getClass 'pud.view.GameCam'
-local TileMapView = getClass 'pud.view.TileMapView'
+local GameCam = getClass 'wyx.view.GameCam'
+local TileMapView = getClass 'wyx.view.TileMapView'
 
 local math_floor = math.floor
 

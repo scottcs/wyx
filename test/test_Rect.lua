@@ -1,4 +1,4 @@
-local Rect = require 'pud.kit.Rect'
+local Rect = require 'wyx.kit.Rect'
 
 context('Rect', function()
 	context('When instantiated with no arguments', function()

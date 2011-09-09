@@ -1,4 +1,4 @@
-This file documents pud Components and properties, and their default values.
+This file documents Wyx Components and properties, and their default values.
 
 Component Hierarchy
 ===================
@@ -97,7 +97,7 @@ Component Properties
         much more efficient than single tile files).
 
         Say you make a whole new set of enemies, and call it killerfish.png.
-        Make sure the file exists as "pud/image/killerfish.png", and then you
+        Make sure the file exists as "wyx/image/killerfish.png", and then you
         can specify it here with "TileSet": "killerfish".
 
     "TileSize": 32
@@ -117,17 +117,17 @@ Component Properties
 
         Notice that each coordinate pair is itself enclosed in curly braces.
 
-        Pud treats the following frame names as directional frames (for the
+        Wyx treats the following frame names as directional frames (for the
         eight cardinal directions): "front", "back", "left", "right",
         "frontleft", "frontright", "backleft", "backright". If any of the left
-        or right frames are missing, Pud will simply flip its counterpart (for
-        example, if "left" is missing, Pud will flip "right" to make left...
-        if "backright" is missing, Pud will flip "backleft" to make
+        or right frames are missing, Wyx will simply flip its counterpart (for
+        example, if "left" is missing, Wyx will flip "right" to make left...
+        if "backright" is missing, Wyx will flip "backleft" to make
         "backright", etc).
 
-        Pud will also use the first frame it finds, if it cannot find a frame
+        Wyx will also use the first frame it finds, if it cannot find a frame
         for a particular direction. So if you only supply "front", for
-        example, Pud will use "front" for every direction.
+        example, Wyx will use "front" for every direction.
 
         An example of how to specify multiple frames:
             "TileCoords": {
@@ -236,7 +236,7 @@ Default Components
 ==================
 These are the components that will be created for each kind of entity, whether
 you specify them in the entity file or not. (In other words, if
-MotionComponent is missing from an enemy entity, Pud will create a default
+MotionComponent is missing from an enemy entity, Wyx will create a default
 MotionComponent for the entity.)
 
 Hero:

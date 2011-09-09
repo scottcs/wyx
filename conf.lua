@@ -1,7 +1,7 @@
 function love.conf(t)
-	t.title = "Pud"
+	t.title = "Wyx"
 	t.author = "SCx Games"
-	t.identity = "pud"
+	t.identity = "wyx"
 	t.version = 72
 	t.screen.width = 1024
 	t.screen.height = 768
