@@ -63,6 +63,7 @@ function Frame:destroy()
 	self._mouseDown = nil
 	self._accum = nil
 	self._show = nil
+	self._registered = nil
 
 	Rect.destroy(self)
 end
@@ -191,6 +192,7 @@ function Frame:becomeIndependent(parent)
 	end
 
 	UISystem:register(self)
+	self._registered = true
 end
 
 -- perform necessary tasks to become a child frame (with a parent)
@@ -201,6 +203,7 @@ function Frame:becomeChild(parent, depth)
 	end
 
 	UISystem:unregister(self)
+	self._registered = false
 	if depth then self:setDepth(depth) end
 end
 
@@ -352,6 +355,10 @@ function Frame:getDepth() return self._depth end
 function Frame:setDepth(depth)
 	verify('number', depth)
 	self._depth = depth
+	if self._registered then
+		UISystem:unregister(self)
+		UISystem:register(self)
+	end
 end
 
 -- draw the frame to framebuffer
