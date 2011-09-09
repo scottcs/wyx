@@ -21,6 +21,7 @@ local Entity = Class{name = 'Entity',
 		self._kind = info.kind
 		self._variation = info.variation
 		self._elevel = info.elevel
+		self._description = info.description
 		self._components = {}
 		self._componentCache = setmetatable({}, {__mode = 'kv'})
 
@@ -59,6 +60,7 @@ function Entity:getFamily() return self._family end
 function Entity:getKind() return self._kind end
 function Entity:getVariation() return self._variation end
 function Entity:getELevel() return self._elevel end
+function Entity:getDescription() return self._description end
 
 function Entity:_clearComponentCache()
 	for k in pairs(self._componentCache) do self._componentCache[k] = nil end
@@ -149,6 +151,7 @@ function Entity:getState()
 	state.kind = self._kind
 	state.variation = self._variation
 	state.elevel = self._elevel
+	state.description = self._description
 	state.components = setmetatable({}, mt)
 
 	if self._components then
