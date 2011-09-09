@@ -24,6 +24,7 @@ local Frame = Class{name='Frame',
 		self._children = {}
 		self._accum = 0
 		self._depth = 30
+		self._show = true
 
 		self:_drawFB()
 		self:becomeIndependent()
@@ -61,6 +62,7 @@ function Frame:destroy()
 	self._hovered = nil
 	self._mouseDown = nil
 	self._accum = nil
+	self._show = nil
 
 	Rect.destroy(self)
 end
@@ -443,6 +445,9 @@ function Frame:draw()
 		end
 	end
 end
+
+function Frame:show() self._show = true end
+function Frame:hide() self._show = false end
 
 
 -- the class
