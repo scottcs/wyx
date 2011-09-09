@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
-local Frame = getClass 'pud.ui.Frame'
-local Text = getClass 'pud.ui.Text'
-local Bar = getClass 'pud.ui.Bar'
+local Frame = getClass 'wyx.ui.Frame'
+local Text = getClass 'wyx.ui.Text'
+local Bar = getClass 'wyx.ui.Bar'
 
 -- Tooltip
 --
@@ -74,7 +74,7 @@ all tooltips have this basic structure:
 
 -- set icon
 function Tooltip:setIcon(icon)
-	verifyClass('pud.ui.Frame', icon)
+	verifyClass('wyx.ui.Frame', icon)
 	if self._icon then self._icon:destroy() end
 	self._icon = icon
 	self._icon:becomeChild(self, self._depth)
@@ -84,7 +84,7 @@ end
 
 -- set header line 1
 function Tooltip:setHeader1(text)
-	verifyClass('pud.ui.Text', text)
+	verifyClass('wyx.ui.Text', text)
 	if self._header1 then self._header1:destroy() end
 	self._header1 = text
 	self._header1:becomeChild(self, self._depth)
@@ -94,7 +94,7 @@ end
 
 -- set header line 2
 function Tooltip:setHeader2(text)
-	verifyClass('pud.ui.Text', text)
+	verifyClass('wyx.ui.Text', text)
 	if self._header2 then self._header2:destroy() end
 	self._header2 = text
 	self._header2:becomeChild(self, self._depth)
@@ -104,13 +104,13 @@ end
 
 -- add a Text
 function Tooltip:addText(text)
-	verifyClass('pud.ui.Text', text)
+	verifyClass('wyx.ui.Text', text)
 	self:_addLine(text)
 end
 
 -- add a Bar
 function Tooltip:addBar(bar)
-	verifyClass('pud.ui.Bar', bar)
+	verifyClass('wyx.ui.Bar', bar)
 	self:_addLine(bar)
 end
 
@@ -127,7 +127,7 @@ end
 
 -- add a line to the tooltip
 function Tooltip:_addLine(frame)
-	verifyClass('pud.ui.Frame', frame)
+	verifyClass('wyx.ui.Frame', frame)
 	self._lines = self._lines or {}
 	self._lines[#self._lines + 1] = frame
 	frame:becomeChild(self, self._depth)

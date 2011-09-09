@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Button = getClass 'pud.ui.Button'
+local Button = getClass 'wyx.ui.Button'
 
 local getMousePos = love.mouse.getPosition
 
@@ -52,7 +52,7 @@ function StickyButton:_recursiveFindSlot(frames, x, y)
 	for i=1,num do
 		local f = frames[i]
 		if f:containsPoint(x, y) then
-			if isClass('pud.ui.Slot', f) then
+			if isClass('wyx.ui.Slot', f) then
 				return f
 			else
 				local children = f:getChildren()
@@ -75,7 +75,7 @@ end
 
 -- detach from mouse cursor into slot
 function StickyButton:detachFromMouse(slot)
-	verifyClass('pud.ui.Slot', slot)
+	verifyClass('wyx.ui.Slot', slot)
 	self._slot = slot
 	self._attached = false
 	self._hovered = true

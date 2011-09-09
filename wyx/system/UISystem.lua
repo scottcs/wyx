@@ -1,8 +1,8 @@
 local Class = require 'lib.hump.class'
-local RenderSystem = getClass 'pud.system.RenderSystem'
-local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
-local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
-local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local RenderSystem = getClass 'wyx.system.RenderSystem'
+local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
+local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 
 local getMousePos = love.mouse.getPosition
 

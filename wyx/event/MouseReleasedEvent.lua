@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local MouseEvent = getClass 'pud.event.MouseEvent'
+local MouseEvent = getClass 'wyx.event.MouseEvent'
 
 -- MouseReleasedEvent
 -- sent when the mouse is released

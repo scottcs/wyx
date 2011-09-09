@@ -1,6 +1,6 @@
 local Class = require 'lib.hump.class'
-local Frame = getClass 'pud.ui.Frame'
-local Text = getClass 'pud.ui.Text'
+local Frame = getClass 'wyx.ui.Frame'
+local Text = getClass 'wyx.ui.Text'
 
 -- Button
 -- a clickable Frame

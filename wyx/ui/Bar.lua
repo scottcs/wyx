@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Frame = getClass 'pud.ui.Frame'
+local Frame = getClass 'wyx.ui.Frame'
 
 local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setColor = love.graphics.setColor

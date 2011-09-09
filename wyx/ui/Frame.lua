@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Rect = getClass 'pud.kit.Rect'
+local Rect = getClass 'wyx.kit.Rect'
 
 local math_max = math.max
 local math_floor = math.floor
@@ -307,7 +307,7 @@ function Frame:onKey(key, unicode, unicodeValue, mods) end
 
 -- set the given style
 function Frame:_setStyle(which, style)
-	verifyClass('pud.ui.Style', style)
+	verifyClass('wyx.ui.Style', style)
 	self[which] = style
 	self._curStyle = self._curStyle or style
 	self:_drawFB()
@@ -354,7 +354,7 @@ end
 
 -- attach a tooltip to this frame that will be drawn on mouseover
 function Frame:attachTooltip(tooltip)
-	verifyClass('pud.ui.Tooltip', tooltip)
+	verifyClass('wyx.ui.Tooltip', tooltip)
 	self._tooltip = tooltip
 end
 

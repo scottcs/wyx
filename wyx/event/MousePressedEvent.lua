@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local MouseEvent = getClass 'pud.event.MouseEvent'
+local MouseEvent = getClass 'wyx.event.MouseEvent'
 
 -- MousePressedEvent
 -- sent when the mouse is pressed

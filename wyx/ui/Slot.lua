@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Frame = getClass 'pud.ui.Frame'
+local Frame = getClass 'wyx.ui.Frame'
 
 local setColor = love.graphics.setColor
 local draw = love.graphics.draw
@@ -32,7 +32,7 @@ function Slot:swap(button)
 	end
 
 	if button and oldButton ~= button then
-		verifyClass('pud.ui.StickyButton', button)
+		verifyClass('wyx.ui.StickyButton', button)
 
 		self._button = button
 		self:addChild(self._button, self._depth - 1)

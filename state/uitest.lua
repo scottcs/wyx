@@ -7,15 +7,15 @@
 
 local st = RunState.new()
 
-local Frame = getClass 'pud.ui.Frame'
-local Text = getClass 'pud.ui.Text'
-local Button = getClass 'pud.ui.Button'
-local StickyButton = getClass 'pud.ui.StickyButton'
-local TextEntry = getClass 'pud.ui.TextEntry'
-local Bar = getClass 'pud.ui.Bar'
-local Slot = getClass 'pud.ui.Slot'
-local Style = getClass 'pud.ui.Style'
-local Tooltip = getClass 'pud.ui.Tooltip'
+local Frame = getClass 'wyx.ui.Frame'
+local Text = getClass 'wyx.ui.Text'
+local Button = getClass 'wyx.ui.Button'
+local StickyButton = getClass 'wyx.ui.StickyButton'
+local TextEntry = getClass 'wyx.ui.TextEntry'
+local Bar = getClass 'wyx.ui.Bar'
+local Slot = getClass 'wyx.ui.Slot'
+local Style = getClass 'wyx.ui.Style'
+local Tooltip = getClass 'wyx.ui.Tooltip'
 
 local n1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.DARKRED})
 local h1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
@@ -53,7 +53,7 @@ local tooltipStyle = Style({
 })
 
 function st:init()
-	UISystem = getClass('pud.system.UISystem')()
+	UISystem = getClass('wyx.system.UISystem')()
 end
 
 function st:enter(prevState, nextState, ...)
@@ -114,7 +114,7 @@ function st:enter(prevState, nextState, ...)
 	text1:setMaxLines(10)
 	text1:setJustifyRight()
 	text1:setAlignCenter()
-	text1:setText({'UI TEST', 'Written by scx', 'for PUD'})
+	text1:setText({'UI TEST', 'Written by scx', 'for Wyx'})
 
 	local button1 = Button(10, 10, 100, n4Style:getFont():getHeight() + 8)
 	button1:setNormalStyle(n4Style)

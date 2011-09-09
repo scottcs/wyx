@@ -1,5 +1,5 @@
 local Class = require 'lib.hump.class'
-local Text = getClass 'pud.ui.Text'
+local Text = getClass 'wyx.ui.Text'
 
 local string_len = string.len
 local string_sub = string.sub

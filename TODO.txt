@@ -112,7 +112,7 @@ Items:
 
 Input/Events/Config:
   o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
-  o read keybindings from a config file. [make a default config in the Pud dir]
+  o read keybindings from a config file. [make a default config in the data dir]
 
 Console/Debug:
   - log console to file (with an option)
