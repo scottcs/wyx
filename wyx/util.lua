@@ -121,6 +121,7 @@ local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
 
 colors.BLACK = {0, 0, 0, p100}
 colors.BLACK_A90 = {0, 0, 0, p90}
+colors.BLACK_A85 = {0, 0, 0, p100*0.85}
 colors.BLACK_A80 = {0, 0, 0, p80}
 colors.BLACK_A70 = {0, 0, 0, p70}
 colors.BLACK_A60 = {0, 0, 0, p60}
