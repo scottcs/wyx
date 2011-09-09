@@ -1,10 +1,10 @@
 
 -- common utilities used throughout the program
-require 'pud.util'
+require 'wyx.util'
 require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
-GAMENAME = 'Pud'
+GAMENAME = 'Wyx'
 LOAD_DELAY = 0.05
 
 
@@ -152,20 +152,20 @@ function love.load()
 	RunState.registerEvents()
 
 	-- create global event managers (event "channels")
-	local EventManager = getClass 'pud.event.EventManager'
+	local EventManager = getClass 'wyx.event.EventManager'
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
 
 	-- create global console
-	Console = getClass('pud.debug.Console')()
+	Console = getClass('wyx.debug.Console')()
 	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
 	-----------------------------------
-	-- "The real Pud starts here..." --
+	-- "The real Wyx starts here..." --
 	-----------------------------------
 	RunState.switch(State.intro)
 end
@@ -211,7 +211,7 @@ local function _getModifiers()
 	return mods
 end
 
-local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 
 function love.keypressed(key, unicode)
 	local mods = _getModifiers()
@@ -224,8 +224,8 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MousePressedEvent = getClass 'pud.event.MousePressedEvent'
-local MouseReleasedEvent = getClass 'pud.event.MouseReleasedEvent'
+local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()

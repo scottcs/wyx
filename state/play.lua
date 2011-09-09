@@ -7,13 +7,13 @@
 
 local st = RunState.new()
 
-local DebugHUD = debug and getClass 'pud.debug.DebugHUD'
-local MessageHUD = getClass 'pud.ui.MessageHUD'
+local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
+local MessageHUD = getClass 'wyx.ui.MessageHUD'
 
 -- events
-local ZoneTriggerEvent = getClass 'pud.event.ZoneTriggerEvent'
-local DisplayPopupMessageEvent = getClass 'pud.event.DisplayPopupMessageEvent'
-local ConsoleEvent = getClass 'pud.event.ConsoleEvent'
+local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'
+local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
+local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local GameEvents = GameEvents
 
 function st:init()
