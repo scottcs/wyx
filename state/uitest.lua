@@ -16,6 +16,7 @@ local Bar = getClass 'wyx.ui.Bar'
 local Slot = getClass 'wyx.ui.Slot'
 local Style = getClass 'wyx.ui.Style'
 local Tooltip = getClass 'wyx.ui.Tooltip'
+local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
 
 local n1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.DARKRED})
 local h1Style = Style({font=GameFont.big, fontcolor=colors.WHITE, bgcolor=colors.LIGHTRED})
@@ -108,6 +109,10 @@ function st:enter(prevState, nextState, ...)
 	tooltip1:addSpace()
 	tooltip1:addText(textLine3)
 
+	local tooltipFactory = TooltipFactory()
+	local tooltip2 = tooltipFactory:makeSimpleTooltip('Potion of Snoring',
+		'This potion causes the user to snore. ZZZZZZzzzzzzz.')
+
 	local text1 = Text(20, 20, 560, 360)
 	text1:setNormalStyle(h2Style)
 	text1:setMargin(10)
@@ -146,6 +151,7 @@ function st:enter(prevState, nextState, ...)
 	local sbut2 = StickyButton(0, 0, 32, 32)
 	sbut2:setNormalStyle(item2NStyle)
 	sbut2:setHoverStyle(item2HStyle)
+	sbut2:attachTooltip(tooltip2)
 	slot2:swap(sbut2)
 
 	local entry1 = TextEntry(10, 300, 300, n3Style:getFont():getHeight() + 8)
