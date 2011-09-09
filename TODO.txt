@@ -35,7 +35,7 @@ Interface:
 	d   Has Styles
 	d   Can just display an image if needed
 	d   onClick - depth first, and don't pass it on if you handle it
-	o   can attach/detach a Tooltip
+	d   can attach/detach a Tooltip
 	d Text [subclass Frame]
 	d   Displays text
 	d   Wraps text
@@ -48,17 +48,18 @@ Interface:
 	d   allows multi-line input with backspace and enter
 	d   with cursor
 	d   Has an optional callback when editing stops
-	o Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
-	o   default background color is slightly transparent black
-	o   scales well with its content
-	o   contains an Icon [top left]
-	o   contains a Title [top right]
-	o   contains one or more info lines
-	o     can be a Text frame
-	o     can be a Bar frame
+	d Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
+	d   scales well with its content
+	d   contains an Icon [top left]
+	d   contains a Title [top right]
+	d   contains one or more info lines
+	d     can be a Text frame
+	d     can be a Bar frame
 	o     can be an InfoBar frame
-	o     can be a blank vertical space
-	- custom mouse cursor
+	d     can be a blank vertical space
+	o TooltipFactory
+	o   makeEntityTooltip(entity)
+	o   makeSimpleTooltip(header, text)
 	d StickyButton [subclass Button]
 	o   Can watch a variable [for image it represents] -- is a "view" of an item
 	o     displays image [icon]
@@ -80,6 +81,7 @@ Interface:
 	o      can position anywhere
 	x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	+ Pause ability
+	- custom mouse cursor
 	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
 	- Minimap
 	- Ability to click on entities/map tiles directly
