@@ -93,7 +93,7 @@ Interface:
 
 For v0.1.0:
   o interface
-	o rename this game
+	d rename this game [even if just a working name]
 
 
 
