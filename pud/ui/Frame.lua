@@ -64,6 +64,7 @@ function Frame:destroy()
 	self._accum = nil
 	self._show = nil
 	self._registered = nil
+	self._tooltip = nil
 
 	Rect.destroy(self)
 end
@@ -268,6 +269,7 @@ function Frame:onTick(dt, x, y, hovered)
 		if not self._hovered then self:onHoverIn(x, y) end
 		self._hovered = true
 		hovered = true
+		self:_setTooltipPosition(x, y)
 	else
 		if self._hovered then self:onHoverOut(x, y) end
 		self._hovered = false
@@ -350,6 +352,30 @@ function Frame:switchToActiveStyle()
 	end
 end
 
+-- attach a tooltip to this frame that will be drawn on mouseover
+function Frame:attachTooltip(tooltip)
+	verifyClass('pud.ui.Tooltip', tooltip)
+	self._tooltip = tooltip
+end
+
+-- set the position of the tooltip
+function Frame:_setTooltipPosition(x, y)
+	if self._tooltip then
+		local cursorW, cursorH = 8, 16
+		local tw, th = self._tooltip:getSize()
+		local w2, h2 = math_floor(WIDTH/2), math_floor(HEIGHT/2)
+
+		-- place tooltip so that it always grows toward the center of the screen
+		local left = (x + cursorW) > w2
+		local top = (y + cursorH) > h2
+	  x = top and x or x + cursorW
+		x = left and x - tw or x
+		y = top and y - th or y + cursorH
+
+		self._tooltip:setPosition(x, y)
+	end
+end
+
 -- get/set frame depth (draw layer... lower number is above higher number)
 function Frame:getDepth() return self._depth end
 function Frame:setDepth(depth)
@@ -407,32 +433,30 @@ end
 function Frame:_drawLayer(color, image, quad, bordersize)
 	if color then
 		setColor(color)
+		local w, h = self:getSize()
 
 		if image then
 			if quad then
-				local _,_, w, h = quad:getViewport()
-				local sw, sh = self:getSize()
-				local x = math_floor((sw-w) * 0.5)
-				local y = math_floor((sh-h) * 0.5)
+				local _,_, qw, qh = quad:getViewport()
+				local x = math_floor((w-qw) * 0.5)
+				local y = math_floor((h-qh) * 0.5)
 
 				drawq(image, quad, x, y)
 			else
-				local w, h = image:getWidth(), image:getHeight()
-				local sw, sh = self:getSize()
-				local x = math_floor((sw-w) * 0.5)
-				local y = math_floor((sh-h) * 0.5)
+				local iw, ih = image:getWidth(), image:getHeight()
+				local x = math_floor((w-iw) * 0.5)
+				local y = math_floor((h-ih) * 0.5)
 
 				draw(image, x, y)
 			end
 		else
 			if bordersize then
-				local w, h = self._w, self._h
 				rectangle('fill', 0, 0, bordersize, h)
 				rectangle('fill', 0, 0, w, bordersize)
 				rectangle('fill', w-bordersize, 0, bordersize, h)
 				rectangle('fill', 0, h-bordersize, w, bordersize)
 			else
-				rectangle('fill', 0, 0, self._w, self._h)
+				rectangle('fill', 0, 0, w, h)
 			end
 		end
 	end
@@ -440,7 +464,7 @@ end
 
 -- draw the framebuffer and all child framebuffers
 function Frame:draw()
-	if self._ffb then
+	if self._ffb and self._show then
 
 		setColor(colors.WHITE)
 		draw(self._ffb, self._x, self._y)
@@ -449,6 +473,14 @@ function Frame:draw()
 		for i=1,num do
 			local child = self._children[i]
 			child:draw()
+		end
+
+		if self._tooltip then
+			if self._hovered then
+				self._tooltip:show()
+			else
+				self._tooltip:hide()
+			end
 		end
 	end
 end
