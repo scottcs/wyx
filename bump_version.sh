@@ -1,5 +1,5 @@
 #!/bin/sh
-program='pud'
+program='wyx'
 versvar=$(echo $program | tr a-z A-Z)
 
 usage() {
