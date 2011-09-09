@@ -57,9 +57,11 @@ Interface:
 	d     can be a Bar frame
 	o     can be an InfoBar frame
 	d     can be a blank vertical space
-	o TooltipFactory
-	o   makeEntityTooltip(entity)
-	o   makeSimpleTooltip(header, text)
+	d TooltipFactory
+	d   makeEntityTooltip(entity)
+	o     display stats
+	o     needs to watch entity for value changes [health, stats]
+	d   makeSimpleTooltip(header, text)
 	d StickyButton [subclass Button]
 	o   Can watch a variable [for image it represents] -- is a "view" of an item
 	o     displays image [icon]
