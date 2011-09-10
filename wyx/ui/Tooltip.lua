@@ -46,6 +46,11 @@ function Tooltip:clear()
 	end
 end
 
+-- override Frame:onHoverIn() and Frame:onHoverOut()
+-- Tooltip shouldn't be hovered
+function Tooltip:onHoverIn() end
+function Tooltip:onHoverOut() end
+
 --[[
 all tooltips have this basic structure:
 
