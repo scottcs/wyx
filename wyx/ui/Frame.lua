@@ -50,17 +50,14 @@ function Frame:destroy()
 	self._curStyle = nil
 
 	if self._normalStyle then
-		self._normalStyle:destroy()
 		self._normalStyle = nil
 	end
 
 	if self._hoverStyle then
-		self._hoverStyle:destroy()
 		self._hoverStyle = nil
 	end
 
 	if self._activeStyle then
-		self._activeStyle:destroy()
 		self._activeStyle = nil
 	end
 
