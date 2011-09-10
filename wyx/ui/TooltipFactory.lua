@@ -16,8 +16,9 @@ local MINWIDTH = 300
 -- Common styles for tooltips
 local tooltipStyle = Style({
 	bgcolor = colors.BLACK_A85,
-	bordersize = 2,
-	bordercolor = colors.GREY40,
+	bordersize = 4,
+	borderinset = 4,
+	bordercolor = colors.GREY30,
 })
 
 local header1Style = Style({
