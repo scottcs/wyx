@@ -71,7 +71,7 @@ function Tooltip:setIcon(icon)
 	verifyClass('wyx.ui.Frame', icon)
 	if self._icon then self._icon:destroy() end
 	self._icon = icon
-	self._icon:becomeChild(self, self._depth)
+	self:addChild(self._icon, self._depth)
 	self:_adjustLayout()
 	self:_drawFB()
 end
@@ -81,7 +81,7 @@ function Tooltip:setHeader1(text)
 	verifyClass('wyx.ui.Text', text)
 	if self._header1 then self._header1:destroy() end
 	self._header1 = text
-	self._header1:becomeChild(self, self._depth)
+	self:addChild(self._header1, self._depth)
 	self:_adjustLayout()
 	self:_drawFB()
 end
@@ -91,7 +91,7 @@ function Tooltip:setHeader2(text)
 	verifyClass('wyx.ui.Text', text)
 	if self._header2 then self._header2:destroy() end
 	self._header2 = text
-	self._header2:becomeChild(self, self._depth)
+	self:addChild(self._header2, self._depth)
 	self:_adjustLayout()
 	self:_drawFB()
 end
@@ -124,7 +124,7 @@ function Tooltip:_addLine(frame)
 	verifyClass('wyx.ui.Frame', frame)
 	self._lines = self._lines or {}
 	self._lines[#self._lines + 1] = frame
-	frame:becomeChild(self, self._depth)
+	self:addChild(frame, self._depth)
 	self:_adjustLayout()
 	self:_drawFB()
 end
@@ -200,25 +200,6 @@ function Tooltip:_adjustLayout()
 		self:setSize(width, height)
 		self._ffb, self._bfb = nil, nil
 	end -- if self._icon or self._header1 or ...
-end
-
--- draw in the foreground layer
--- draws over any foreground set in the Style. Usually, you just don't want to
--- set a foreground in the Style.
-function Tooltip:_drawForeground()
-	Frame._drawForeground(self)
-
-	if self._icon then self._icon:draw() end
-	if self._header1 then self._header1:draw() end
-	if self._header2 then self._header2:draw() end
-
-	local numLines = self._lines and #self._lines or 0
-	if numLines > 0 then
-		for i=1,numLines do
-			local line = self._lines[i]
-			line:draw()
-		end
-	end
 end
 
 
