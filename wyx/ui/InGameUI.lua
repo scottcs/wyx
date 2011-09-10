@@ -37,11 +37,14 @@ local InGameUI = Class{name='InGameUI',
 function InGameUI:destroy()
 	self._viewW = nil
 	self._viewH = nil
+	self._bottomPanel = nil
 	Frame.destroy(self)
 end
 
+-- get the width and height of the non-ui view
 function InGameUI:getGameSize() return self._viewW, self._viewH end
 
+-- make the bottom panel
 function InGameUI:_makeBottomPanel()
 	local height = HEIGHT * BOTTOMPANEL_HEIGHT_MULT
 	local y = HEIGHT - height
@@ -51,6 +54,34 @@ function InGameUI:_makeBottomPanel()
 	f:setNormalStyle(panelStyle)
 
 	self:addChild(f)
+	self._bottomPanel = f
+end
+
+-- set the primary entity (usually the player)
+function InGameUI:setPrimeEntity(primeEntity)
+	verify('number', primeEntity)
+	self._primeEntity = primeEntity
+
+	if self._bottomPanel then
+		self._bottomPanel:clear()
+	else
+		self:_makeBottomPanel()
+	end
+
+	self:_makeEntityFrames()
+end
+
+-- make all of the frames that depend on the primary entity
+function InGameUI:_makeEntityFrames()
+	-- make portrait
+	-- make name and title
+	-- make health bar
+	-- make xp bar
+	-- make level text
+	-- TODO: make status effect icon area
+	-- make equipment slots
+	-- make inventory slots
+	-- make floor slots
 end
 
 
