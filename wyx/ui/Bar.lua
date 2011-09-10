@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
 
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 
