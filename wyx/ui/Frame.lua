@@ -33,6 +33,9 @@ local Frame = Class{name='Frame',
 
 -- destructor
 function Frame:destroy()
+	if self._registered then UISystem:unregister(self) end
+	self._registered = nil
+
 	for k,v in pairs(self._children) do
 		self._children[k]:destroy()
 		self._children[k] = nil
@@ -63,7 +66,6 @@ function Frame:destroy()
 	self._mouseDown = nil
 	self._accum = nil
 	self._show = nil
-	self._registered = nil
 	self._tooltip = nil
 
 	Rect.destroy(self)
