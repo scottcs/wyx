@@ -8,7 +8,7 @@
 local st = RunState.new()
 
 local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
-local MessageHUD = getClass 'wyx.view.MessageHUD'
+local MessageHUD = getClass 'wyx.ui.MessageHUD'
 
 -- events
 local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'

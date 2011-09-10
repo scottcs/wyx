@@ -119,19 +119,22 @@ local p50 = p100*0.5
 local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
 local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
 
+colors.BLACK = {0, 0, 0, p100}
+colors.BLACK_A90 = {0, 0, 0, p90}
+colors.BLACK_A85 = {0, 0, 0, p100*0.85}
+colors.BLACK_A80 = {0, 0, 0, p80}
+colors.BLACK_A70 = {0, 0, 0, p70}
+colors.BLACK_A60 = {0, 0, 0, p60}
+colors.BLACK_A50 = {0, 0, 0, p50}
+colors.BLACK_A40 = {0, 0, 0, p40}
+colors.BLACK_A30 = {0, 0, 0, p30}
+colors.BLACK_A20 = {0, 0, 0, p20}
+colors.BLACK_A10 = {0, 0, 0, p10}
+colors.BLACK_A00 = {0, 0, 0, 0}
+
 colors.WHITE = {p100, p100, p100, p100}
 colors.WHITE_A00 = {p100, p100, p100, 0}
-colors.BLACK = {0, 0, 0, p100}
-colors.BLACK_A70 = {0, 0, 0, p70}
-colors.BLACK_A00 = {0, 0, 0, 0}
-colors.YELLOW = {p100, p90, 0, p100}
-colors.RED = {p100, 0, 0, p100}
-colors.LIGHTRED = {p100, p60, p60, p100}
-colors.GREEN = {0, p100, 0, p100}
-colors.ORANGE = {p100, p100*0.75, p30, p100}
-colors.LIGHTORANGE = {p100, p100*0.88, p70, p100}
-colors.BROWN = {p50, p40, p20, p100}
-colors.BLUE = {p40, p40, p100, p100}
+
 colors.GREY90 = {p90, p90, p90, p100}
 colors.GREY80 = {p80, p80, p80, p100}
 colors.GREY70 = {p70, p70, p70, p100}
@@ -141,6 +144,32 @@ colors.GREY40 = {p40, p40, p40, p100}
 colors.GREY30 = {p30, p30, p30, p100}
 colors.GREY20 = {p20, p20, p20, p100}
 colors.GREY10 = {p10, p10, p10, p100}
+
+colors.RED = {p100, 0, 0, p100}
+colors.LIGHTRED = {p100, p60, p60, p100}
+colors.DARKRED = {p50, 0, 0, p100}
+
+colors.YELLOW = {p100, p90, 0, p100}
+colors.LIGHTYELLOW = {p100, p100*0.95, p80, p100}
+colors.DARKYELLOW = {p50, p40, 0, p100}
+
+colors.ORANGE = {p100, p100*0.75, p30, p100}
+colors.LIGHTORANGE = {p100, p100*0.88, p70, p100}
+colors.DARKORANGE = {p50, p100*0.45, p100*0.35, p100}
+colors.BROWN = {p50, p40, p20, p100}
+
+colors.GREEN = {0, p100, 0, p100}
+colors.LIGHTGREEN = {p70, p100, p70, p100}
+colors.DARKGREEN = {0, p50, 0, p100}
+
+colors.BLUE = {p30, p30, p100, p100}
+colors.LIGHTBLUE = {p70, p70, p100, p100}
+colors.DARKBLUE = {0, 0, p50, p100}
+
+colors.PURPLE = {p100, p40, p100, p100}
+colors.LIGHTPURPLE = {p100, p80, p100, p100}
+colors.DARKPURPLE = {p50, 0, p50, p100}
+
 function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
 
 

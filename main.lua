@@ -86,12 +86,20 @@ local function _makeSaveDirectories()
 	}) do _makeADir(dir) end
 end
 
+local function _setIcon()
+	local icon = love.graphics.newImage('icon.png')
+	love.graphics.setIcon(icon)
+end
+
 function love.load()
 	-- start the profiler
 	if doGlobalProfile then globalProfiler.start() end
 
 	-- set graphics mode
 	resizeScreen(1024, 768)
+
+	-- set the program icon
+	_setIcon()
 
 	-- set window title
 	love.graphics.setCaption(GAMENAME..' v'..VERSION)
@@ -216,12 +224,20 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = getClass 'wyx.event.MouseEvent'
+local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
-	local btns = _getButtons()
-	InputEvents:push(MouseEvent(x, y, button,
+	InputEvents:push(MousePressedEvent(x, y, button,
+		love.mouse.isGrabbed(),
+		love.mouse.isVisible(),
+		mods))
+end
+
+function love.mousereleased(x, y, button)
+	local mods = _getModifiers()
+	InputEvents:push(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))
