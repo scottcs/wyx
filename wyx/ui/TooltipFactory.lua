@@ -181,7 +181,7 @@ function TooltipFactory:_makeIcon(image, x, y, w, h)
 	style:setFGQuad(x, y, w, h)
 
 	local icon = Frame(0, 0, w, h)
-	icon:setNormalStyle(style)
+	icon:setNormalStyle(style, true)
 
 	return icon
 end
