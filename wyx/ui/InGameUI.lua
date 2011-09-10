@@ -48,6 +48,7 @@ function InGameUI:_makeBottomPanel()
 	local f = Frame(0, y, WIDTH, height)
 	f:setNormalStyle(panelStyle)
 
+	self:addChild(f)
 	self._bottomPanel = f
 end
 
