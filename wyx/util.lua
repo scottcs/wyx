@@ -3,6 +3,7 @@ local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
 local string_len, string_byte = string.len, string.byte
 local sqrt, tonumber = math.sqrt, tonumber
+local floor = math.floor
 
 
          --[[--
@@ -115,13 +116,13 @@ end
 -------------------
 colors = {}
 local p100 = 255
-local p50 = p100*0.5
-local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
-local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
+local p90, p80, p70 = floor(p100*0.9), floor(p100*0.8), floor(p100*0.7)
+local p60, p50, p40 = floor(p100*0.6), floor(p100*0.5), floor(p100*0.4)
+local p30, p20, p10 = floor(p100*0.3), floor(p100*0.2), floor(p100*0.1)
 
 colors.BLACK = {0, 0, 0, p100}
 colors.BLACK_A90 = {0, 0, 0, p90}
-colors.BLACK_A85 = {0, 0, 0, p100*0.85}
+colors.BLACK_A85 = {0, 0, 0, floor(p100*0.85)}
 colors.BLACK_A80 = {0, 0, 0, p80}
 colors.BLACK_A70 = {0, 0, 0, p70}
 colors.BLACK_A60 = {0, 0, 0, p60}
@@ -150,12 +151,12 @@ colors.LIGHTRED = {p100, p60, p60, p100}
 colors.DARKRED = {p50, 0, 0, p100}
 
 colors.YELLOW = {p100, p90, 0, p100}
-colors.LIGHTYELLOW = {p100, p100*0.95, p80, p100}
+colors.LIGHTYELLOW = {p100, floor(p100*0.95), p80, p100}
 colors.DARKYELLOW = {p50, p40, 0, p100}
 
-colors.ORANGE = {p100, p100*0.75, p30, p100}
-colors.LIGHTORANGE = {p100, p100*0.88, p70, p100}
-colors.DARKORANGE = {p50, p100*0.45, p100*0.35, p100}
+colors.ORANGE = {p100, floor(p100*0.75), p30, p100}
+colors.LIGHTORANGE = {p100, floor(p100*0.88), p70, p100}
+colors.DARKORANGE = {p50, floor(p100*0.45), floor(p100*0.35), p100}
 colors.BROWN = {p50, p40, p20, p100}
 
 colors.GREEN = {0, p100, 0, p100}
