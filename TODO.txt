@@ -10,7 +10,7 @@ Interface:
 	o Main game interface
 	d   Design what it should look like before coding it
 	o   Inventory/Equipment in a line along bottom
-	?   Score or some way to show progress?
+	o   Show turns
   d UISystem
 	d   ticks registered UI Frames
 	d   draws registered UI Frames [draw after camera translation]
