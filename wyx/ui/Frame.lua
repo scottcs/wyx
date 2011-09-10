@@ -466,8 +466,6 @@ end
 -- draw a single layer (foreground or background)
 function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 	if color then
-	local inspect = require 'lib.inspect'
-	print(tostring(self), inspect(color))
 		setColor(color)
 		local w, h = self:getSize()
 
