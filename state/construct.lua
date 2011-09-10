@@ -10,11 +10,14 @@ local st = RunState.new()
 
 local GameCam = getClass 'wyx.view.GameCam'
 local TileMapView = getClass 'wyx.view.TileMapView'
+local InGameUI = getClass 'wyx.ui.InGameUI'
 
 local math_floor = math.floor
 
 
-function st:init() end
+function st:init()
+	self._ui = InGameUI()
+end
 
 function st:enter(prevState, world, viewstate)
 	self._world = world
@@ -36,6 +39,8 @@ function st:destroy()
 	self._view = nil
 	self._cam:destroy()
 	self._cam = nil
+	self._ui:destroy()
+	self._ui = nil
 end
 
 function st:_generateWorld()
@@ -60,7 +65,8 @@ function st:_createCamera()
 
 	if not self._cam then
 		self._cam = GameCam(startX, startY, zoom)
-		self._cam:setWorldSize(math.floor(WIDTH), math.floor(HEIGHT))
+		local width, height = self._ui:getGameSize()
+		self._cam:setWorldSize(math.floor(width), math.floor(height))
 	else
 		self._cam:setHome(startX, startY)
 	end
