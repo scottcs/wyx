@@ -3,12 +3,12 @@ Interface:
   o TooltipComponent... mouseover info panel thingy
   o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
   o   Add a description field to JSON files.
-  o   And a Portrait field.
+  x   And a Portrait field.
   ?   how to show damage range? [since it's usually a function]
 	o     execute 100 [or 1000] times on load, then cache min/max values
 	o     or, do away with dice rolls, specify min/max instead
 	o Main game interface
-	o   Design what it should look like before coding it
+	d   Design what it should look like before coding it
 	o   Inventory/Equipment in a line along bottom
 	?   Score or some way to show progress?
   d UISystem
