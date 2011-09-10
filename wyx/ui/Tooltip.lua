@@ -50,12 +50,6 @@ function Tooltip:clear()
 	end
 end
 
--- XXX
--- subclass for entities
--- query entity for icon, name, family, kind, and loop through a list of properties
--- then build tooltip based on these
--- so this class need methods for building the tooltip
-
 --[[
 all tooltips have this basic structure:
 
