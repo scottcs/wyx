@@ -17,6 +17,7 @@ local BOTTOMPANEL_HEIGHT_MULT = 0.1146
 -- styles
 local panelStyle = Style({
 	bordersize = 4,
+	borderinset = 4,
 	bordercolor = colors.GREY20,
 	bgcolor = colors.GREY10,
 })

@@ -19,6 +19,7 @@ local Style = Class{name='Style',
 		if t.borderquad then self:setBorderQuad(t.borderquad) end
 		if t.bordercolor then self:setBorderColor(t.bordercolor) end
 		if t.bordersize then self:setBorderSize(t.bordersize) end
+		if t.borderinset then self:setBorderInset(t.borderinset) end
 		if t.font then self:setFont(t.font, t.fontcolor) end
 	end
 }
@@ -31,6 +32,7 @@ function Style:destroy()
 	self._fgimage = nil
 	self._fgquad = nil
 	self._bordersize = nil
+	self._borderinset = nil
 	self._bordercolor = nil
 	self._borderimage = nil
 	self._borderquad = nil
@@ -79,6 +81,13 @@ function Style:getBorderSize() return self._bordersize end
 function Style:setBorderSize(size)
 	verify('number', size)
 	self._bordersize = size
+end
+
+-- get/set border inset
+function Style:getBorderInset() return self._borderinset end
+function Style:setBorderInset(inset)
+	verify('number', inset)
+	self._borderinset = inset
 end
 
 -- get/set foreground color
@@ -147,6 +156,7 @@ function Style:clone(t)
 	verify('table', t)
 
 	t.bordersize = t.bordersize or self._bordersize
+	t.borderinset = t.borderinset or self._borderinset
 	t.bordercolor = t.bordercolor or self._bordercolor
 	t.borderimage = t.borderimage or self._borderimage
 	t.borderquad = t.borderquad or self._borderquad

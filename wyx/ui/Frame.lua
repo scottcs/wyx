@@ -444,16 +444,24 @@ end
 function Frame:_drawBorder()
 	if self._curStyle then
 		local bordersize = self._curStyle:getBorderSize()
+		local borderinset = self._curStyle:getBorderInset()
 		local bordercolor = self._curStyle:getBorderColor()
 		local borderimage = self._curStyle:getBorderImage()
 		local borderquad = self._curStyle:getBorderQuad()
-		self:_drawLayer(bordercolor, borderimage, borderquad, bordersize)
+		self:_drawLayer(
+			bordercolor,
+			borderimage,
+			borderquad,
+			bordersize,
+			borderinset)
 	end
 end
 
 -- draw a single layer (foreground or background)
-function Frame:_drawLayer(color, image, quad, bordersize)
+function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 	if color then
+	local inspect = require 'lib.inspect'
+	print(tostring(self), inspect(color))
 		setColor(color)
 		local w, h = self:getSize()
 
@@ -473,10 +481,15 @@ function Frame:_drawLayer(color, image, quad, bordersize)
 			end
 		else
 			if bordersize then
-				rectangle('fill', 0, 0, bordersize, h)
-				rectangle('fill', 0, 0, w, bordersize)
-				rectangle('fill', w-bordersize, 0, bordersize, h)
-				rectangle('fill', 0, h-bordersize, w, bordersize)
+				local x = borderinset and borderinset or 0
+				local y = x
+				w = borderinset and w - 2*borderinset or w
+				h = borderinset and h - 2*borderinset or h
+
+				rectangle('fill', x, y, bordersize, h)
+				rectangle('fill', x, y, w, bordersize)
+				rectangle('fill', x+(w-bordersize), y, bordersize, h)
+				rectangle('fill', x, y+(h-bordersize), w, bordersize)
 			else
 				rectangle('fill', 0, 0, w, h)
 			end
