@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
 
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setColor = love.graphics.setColor
 local setFont = love.graphics.setFont
 local gprint = love.graphics.print
@@ -219,13 +218,8 @@ function Text:onTick(dt, x, y)
 	return Frame.onTick(self, dt, x, y)
 end
 
--- override Frame:_drawFB()
-function Text:_drawFB()
-	self._bfb = self._bfb or self:_getFramebuffer()
-	pushRenderTarget(self._bfb)
-	self:_drawBackground()
-
-
+-- override Frame:_drawForeground()
+function Text:_drawForeground()
 	if self._text and #self._text > 0 then
 		if self._curStyle then
 			local font = self._curStyle:getFont()
@@ -305,9 +299,6 @@ function Text:_drawFB()
 			end -- if self._curStyle
 		end -- if self._showCursor
 	end -- if self._text
-
-	popRenderTarget()
-	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
 -- the class
