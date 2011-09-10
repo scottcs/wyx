@@ -25,25 +25,21 @@ end
 
 -- clear the tooltip
 function Tooltip:clear()
-	if self._header1 then
-		self._header1:destroy()
-		self._header1 = nil
+	if self._children then
+		for k,v in pairs(self._children) do
+			self:removeChild(k)
+			self._children[k]:destroy()
+			self._children[k] = nil
+		end
+		self._children = nil
 	end
 
-	if self._header2 then
-		self._header2:destroy()
-		self._header2 = nil
-	end
-
-	if self._icon then
-		self._icon:destroy()
-		self._icon = nil
-	end
-
+	self._icon = nil
+	self._header1 = nil
+	self._header2 = nil
 	if self._lines then
-		local numLines = #self._lines
-		for i=1,numLines do
-			self._lines[i]:destroy()
+		local num = #self._lines
+		for i=1,num do
 			self._lines[i] = nil
 		end
 		self._lines = nil
@@ -69,7 +65,11 @@ all tooltips have this basic structure:
 -- set icon
 function Tooltip:setIcon(icon)
 	verifyClass('wyx.ui.Frame', icon)
-	if self._icon then self._icon:destroy() end
+	if self._icon then 
+		self:removeChild(self._icon)
+		self._icon:destroy()
+	end
+
 	self._icon = icon
 	self:addChild(self._icon, self._depth)
 	self:_adjustLayout()
@@ -79,7 +79,11 @@ end
 -- set header line 1
 function Tooltip:setHeader1(text)
 	verifyClass('wyx.ui.Text', text)
-	if self._header1 then self._header1:destroy() end
+	if self._header1 then
+		self:removeChild(self._header1)
+		self._header1:destroy()
+	end
+
 	self._header1 = text
 	self:addChild(self._header1, self._depth)
 	self:_adjustLayout()
@@ -89,7 +93,11 @@ end
 -- set header line 2
 function Tooltip:setHeader2(text)
 	verifyClass('wyx.ui.Text', text)
-	if self._header2 then self._header2:destroy() end
+	if self._header2 then
+		self:removeChild(self._header2)
+		self._header2:destroy()
+	end
+
 	self._header2 = text
 	self:addChild(self._header2, self._depth)
 	self:_adjustLayout()
