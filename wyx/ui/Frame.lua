@@ -61,6 +61,15 @@ function Frame:destroy()
 		self._activeStyle = nil
 	end
 
+	if self._destroyStyles then
+		local num = #self._destroyStyles
+		for i=1,num do
+			self._destroyStyles[i]:destroy()
+			self._destroyStyles[i] = nil
+		end
+		self._destroyStyles = nil
+	end
+
 	self._hovered = nil
 	self._mouseDown = nil
 	self._accum = nil
@@ -315,22 +324,34 @@ function Frame:_setStyle(which, style)
 end
 
 -- set/get normal style
-function Frame:setNormalStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setNormalStyle(style, destroy)
 	self:_setStyle('_normalStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getNormalStyle() return self._normalStyle end
 
 -- set/get hover style
-function Frame:setHoverStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setHoverStyle(style, destroy)
 	self:_setStyle('_hoverStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getHoverStyle() return self._hoverStyle end
 
 -- set/get active style
-function Frame:setActiveStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setActiveStyle(style, destroy)
 	self:_setStyle('_activeStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getActiveStyle() return self._activeStyle end
+
+-- add a style to be destroyed when this Frame is destroyed
+function Frame:_addStyleToDestroy(style)
+	self._destroyStyles = self._destroyStyles or {}
+	self._destroyStyles[#self._destroyStyles + 1] = style
+end
 
 -- switch between the styles
 function Frame:switchToNormalStyle()
