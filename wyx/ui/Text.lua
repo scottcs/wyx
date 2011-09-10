@@ -29,7 +29,7 @@ local Text = Class{name='Text',
 -- destructor
 function Text:destroy()
 	self:unwatch()
-	self:clear()
+	self:clearText()
 	self._text = nil
 	self._justify = nil
 	self._align = nil
@@ -45,7 +45,7 @@ function Text:setText(text)
 	if type(text) == 'string' then text = {text} end
 	verify('table', text)
 
-	self:clear()
+	self:clearText()
 	text = self:_wrap(text)
 
 	local numLines = #text
@@ -173,7 +173,7 @@ function Text:unwatch()
 end
 
 -- clear the current text
-function Text:clear()
+function Text:clearText()
 	for k in pairs(self._text) do self._text[k] = nil end
 end
 

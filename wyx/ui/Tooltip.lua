@@ -33,21 +33,13 @@ local Tooltip = Class{name='Tooltip',
 
 -- destructor
 function Tooltip:destroy()
-	self:clear()
 	self._margin = nil
 	Frame.destroy(self)
 end
 
 -- clear the tooltip
 function Tooltip:clear()
-	if self._children then
-		for k,v in pairs(self._children) do
-			self:removeChild(k)
-			self._children[k]:destroy()
-			self._children[k] = nil
-		end
-		self._children = nil
-	end
+	Frame.clear(self)
 
 	self._icon = nil
 	self._header1 = nil

@@ -37,13 +37,7 @@ function Frame:destroy()
 	if self._registered then UISystem:unregister(self) end
 	self._registered = nil
 
-	if self._children then
-		for k,v in pairs(self._children) do
-			self._children[k]:destroy()
-			self._children[k] = nil
-		end
-		self._children = nil
-	end
+	self:clear()
 
 	self._ffb = nil
 	self._bfb = nil
@@ -78,6 +72,18 @@ function Frame:destroy()
 	self._tooltip = nil
 
 	Rect.destroy(self)
+end
+
+-- clear the frame by removing and destroying all children
+function Frame:clear()
+	if self._children then
+		for k,v in pairs(self._children) do
+			self:removeChild(k)
+			self._children[k]:destroy()
+			self._children[k] = nil
+		end
+		self._children = nil
+	end
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
