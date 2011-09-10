@@ -408,10 +408,13 @@ end
 function Frame:getDepth() return self._depth end
 function Frame:setDepth(depth)
 	verify('number', depth)
-	self._depth = depth
 	if self._registered then
+		-- NOTE: Order of operations here is very important
 		UISystem:unregister(self)
+		self._depth = depth
 		UISystem:register(self)
+	else
+		self._depth = depth
 	end
 end
 
