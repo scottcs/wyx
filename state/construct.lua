@@ -60,6 +60,7 @@ function st:_createCamera()
 
 	if not self._cam then
 		self._cam = GameCam(startX, startY, zoom)
+		self._cam:setWorldSize(math.floor(WIDTH), math.floor(HEIGHT))
 	else
 		self._cam:setHome(startX, startY)
 	end
