@@ -5,7 +5,7 @@ local format, match = string.format, string.match
 local unpack = unpack
 local gprint = love.graphics.print
 local draw = love.graphics.draw
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local rectangle = love.graphics.rectangle
 local setColor = love.graphics.setColor
 local setFont = love.graphics.setFont
@@ -109,7 +109,7 @@ function Console:_print(color, msg, ...)
 end
 
 function Console:_drawFB()
-	pushRenderTarget(self._bfb)
+	setRenderTarget(self._bfb)
 
 	setColor(colors.BLACK_A70)
 	rectangle('fill', 0, 0, WIDTH, HEIGHT)
@@ -134,7 +134,7 @@ function Console:_drawFB()
 		skip = skip + 1
 	end
 
-	popRenderTarget()
+	setRenderTarget()
 
 	self._ffb, self._bfb = self._bfb, self._ffb
 end

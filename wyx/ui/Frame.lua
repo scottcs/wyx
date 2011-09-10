@@ -9,8 +9,7 @@ local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
 local drawq = love.graphics.drawq
-local pushRenderTarget = pushRenderTarget
-local popRenderTarget = popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local nearestPO2 = nearestPO2
 local colors = colors
 
@@ -412,11 +411,11 @@ end
 -- draw the frame to framebuffer
 function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
-	pushRenderTarget(self._bfb)
+	setRenderTarget(self._bfb)
 	self:_drawBackground()
 	self:_drawForeground()
 	self:_drawBorder()
-	popRenderTarget()
+	setRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
 end
 

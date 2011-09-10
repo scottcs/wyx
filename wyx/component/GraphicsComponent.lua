@@ -6,7 +6,7 @@ local message = require 'wyx.component.message'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
@@ -215,10 +215,10 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		end
 		self._bfb = self._bfb or newFramebuffer(self._size, self._size)
 
-		pushRenderTarget(self._bfb)
+		setRenderTarget(self._bfb)
 		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
-		popRenderTarget()
+		setRenderTarget()
 
 		self._ffb, self._bfb = self._bfb, self._ffb
 	end
