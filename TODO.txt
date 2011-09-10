@@ -76,11 +76,11 @@ Interface:
 	d   Has a min and max and current value
 	d   Can watch a variable
 	x   Animation?
-	o Info bar [health bar, etc] [subclass Frame]
-	o   optional Text as cur/max or as %
-	o      can position text anywhere
-	o   optional Text as label
-	o      can position anywhere
+	x Info bar [health bar, etc] [subclass Frame]
+	x   optional Text as cur/max or as %
+	x      can position text anywhere
+	x   optional Text as label
+	x      can position anywhere
 	x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
 	+ Pause ability
 	- custom mouse cursor
