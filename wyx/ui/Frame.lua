@@ -36,11 +36,13 @@ function Frame:destroy()
 	if self._registered then UISystem:unregister(self) end
 	self._registered = nil
 
-	for k,v in pairs(self._children) do
-		self._children[k]:destroy()
-		self._children[k] = nil
+	if self._children then
+		for k,v in pairs(self._children) do
+			self._children[k]:destroy()
+			self._children[k] = nil
+		end
+		self._children = nil
 	end
-	self._children = nil
 
 	self._ffb = nil
 	self._bfb = nil
