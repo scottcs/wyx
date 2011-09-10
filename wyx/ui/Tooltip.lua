@@ -3,8 +3,23 @@ local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Bar = getClass 'wyx.ui.Bar'
 
+--[[
+all tooltips have this basic structure:
+
+   -------------------------------
+	 | ICON  TEXT (usually Name)   |    }
+	 |       TEXT or BLANK SPACE   |    }-  This whole header area is optional
+	 | BLANK SPACE                 |    }
+	 | TEXT or BAR                 |
+	 | TEXT or BAR or BLANK SPACE  |
+	 | TEXT or BAR or BLANK SPACE  |
+	 | TEXT or BAR or BLANK SPACE  |
+	 | ...                         |
+	 | TEXT or BAR                 |
+	 -------------------------------
+]]--
+
 -- Tooltip
---
 local Tooltip = Class{name='Tooltip',
 	inherits=Frame,
 	function(self, ...)
@@ -50,22 +65,6 @@ end
 -- Tooltip shouldn't be hovered
 function Tooltip:onHoverIn() end
 function Tooltip:onHoverOut() end
-
---[[
-all tooltips have this basic structure:
-
-   -------------------------------
-	 | ICON  TEXT (usually Name)   |    }
-	 |       TEXT or BLANK SPACE   |    }-  This whole header area is optional
-	 | BLANK SPACE                 |    }
-	 | TEXT or BAR                 |
-	 | TEXT or BAR or BLANK SPACE  |
-	 | TEXT or BAR or BLANK SPACE  |
-	 | TEXT or BAR or BLANK SPACE  |
-	 | ...                         |
-	 | TEXT or BAR                 |
-	 -------------------------------
-]]--
 
 -- set icon
 function Tooltip:setIcon(icon)
