@@ -114,6 +114,8 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
+
+	UISystem:update(dt)
 end
 
 function st:draw()
@@ -121,6 +123,7 @@ function st:draw()
 	self._view:draw()
 	RenderSystem:draw()
 	self._cam:postdraw()
+	UISystem:draw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
 	if Console then Console:draw() end
