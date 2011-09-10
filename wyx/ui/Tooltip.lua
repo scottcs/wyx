@@ -73,7 +73,7 @@ function Tooltip:setIcon(icon)
 	self._icon = icon
 	self:addChild(self._icon, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set header line 1
@@ -87,7 +87,7 @@ function Tooltip:setHeader1(text)
 	self._header1 = text
 	self:addChild(self._header1, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set header line 2
@@ -101,7 +101,7 @@ function Tooltip:setHeader2(text)
 	self._header2 = text
 	self:addChild(self._header2, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- add a Text
@@ -134,7 +134,7 @@ function Tooltip:_addLine(frame)
 	self._lines[#self._lines + 1] = frame
 	self:addChild(frame, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set the margin between the frame edge and the contents
@@ -142,7 +142,7 @@ function Tooltip:setMargin(margin)
 	verify('number', margin)
 	self._margin = margin
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 function Tooltip:_adjustLayout()

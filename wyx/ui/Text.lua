@@ -61,7 +61,7 @@ function Text:setText(text)
 		self._text = text
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- assuming width is constant, wrap lines if they're larger than the width
@@ -187,18 +187,36 @@ end
 function Text:setMargin(margin)
 	verify('number', margin)
 	self._margin = margin
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set the justification
-function Text:setJustifyLeft()   self._justify = 'l'; self:_drawFB() end
-function Text:setJustifyRight()  self._justify = 'r'; self:_drawFB() end
-function Text:setJustifyCenter() self._justify = 'c'; self:_drawFB() end
+function Text:setJustifyLeft()
+	self._justify = 'l'
+	self._needsUpdate = true
+end
+function Text:setJustifyRight()
+	self._justify = 'r'
+	self._needsUpdate = true
+end
+function Text:setJustifyCenter()
+	self._justify = 'c'
+	self._needsUpdate = true
+end
 
 -- set the vertical alignment
-function Text:setAlignTop()    self._align = 't'; self:_drawFB() end
-function Text:setAlignBottom() self._align = 'b'; self:_drawFB() end
-function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
+function Text:setAlignTop()
+	self._align = 't'
+	self._needsUpdate = true
+end
+function Text:setAlignBottom()
+	self._align = 'b'
+	self._needsUpdate = true
+end
+function Text:setAlignCenter()
+	self._align = 'c'
+	self._needsUpdate = true
+end
 
 -- onTick - check watched function
 function Text:onTick(dt, x, y)

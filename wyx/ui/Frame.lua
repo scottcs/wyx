@@ -25,13 +25,15 @@ local Frame = Class{name='Frame',
 		self._depth = 30
 		self._show = true
 
-		self:_drawFB()
+		self._needsUpdate = true
 		self:becomeIndependent()
 	end
 }
 
 -- destructor
 function Frame:destroy()
+	self._needsUpdate = nil
+
 	if self._registered then UISystem:unregister(self) end
 	self._registered = nil
 
@@ -102,7 +104,7 @@ function Frame:handleMousePress(x, y, button, mods)
 		self:switchToNormalStyle()
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -126,7 +128,7 @@ function Frame:handleMouseRelease(x, y, button, mods)
 	end
 
 	self._pressed = false
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -147,7 +149,7 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 		handled = self:onKey(key, unicode, unicodeValue, mods)
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -159,7 +161,7 @@ function Frame:addChild(frame, depth)
 	self._children[num+1] = frame
 	frame:becomeChild(self, depth)
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- remove a child
@@ -181,7 +183,7 @@ function Frame:removeChild(frame)
 
 	self._children = newChildren
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- get all of the children of this frame
@@ -263,6 +265,11 @@ end
 
 -- what to do when update ticks
 function Frame:onTick(dt, x, y, hovered)
+	if self._needsUpdate then
+		self:_drawFB()
+		self._needsUpdate = false
+	end
+
 	if nil == x or nil == y then
 		x, y = getMousePosition()
 	end
@@ -291,7 +298,7 @@ end
 function Frame:onHoverIn(x, y)
 	if not self._mouseDown then
 		self:switchToHoverStyle()
-		self:_drawFB()
+		self._needsUpdate = true
 	end
 end
 
@@ -299,7 +306,7 @@ end
 function Frame:onHoverOut(x, y)
 	if not self._mouseDown then
 		self:switchToNormalStyle()
-		self:_drawFB()
+		self._needsUpdate = true
 	end
 end
 
@@ -319,7 +326,7 @@ function Frame:_setStyle(which, style)
 	verifyClass('wyx.ui.Style', style)
 	self[which] = style
 	self._curStyle = self._curStyle or style
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set/get normal style

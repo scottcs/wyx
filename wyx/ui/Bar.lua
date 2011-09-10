@@ -43,7 +43,7 @@ function Bar:setValue(val)
 	self._max = self._max or val
 	self._val = val
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 function Bar:setMargins(l, t, r, b)
@@ -57,7 +57,7 @@ function Bar:setMargins(l, t, r, b)
 	self._margins[3] = r
 	self._margins[4] = b
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- watch a function. this function will be polled every tick for a return
@@ -98,7 +98,7 @@ function Bar:onTick(dt, x, y)
 	return Frame.onTick(self, dt, x, y)
 end
 
--- override Frame:_drawFB()
+-- override Frame:_drawForeground()
 function Bar:_drawForeground()
 	if self._min and self._max and self._val then
 		if self._curStyle then
