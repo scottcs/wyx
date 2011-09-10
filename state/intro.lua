@@ -11,8 +11,7 @@ local st = RunState.new()
 function st:init() end
 
 function st:enter(prevState)
-	--RunState.switch(State.menu, 'initialize', 'construct')
-	RunState.switch(State.uitest)
+	RunState.switch(State.menu, 'initialize', 'construct')
 end
 
 function st:leave() end
