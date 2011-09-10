@@ -9,7 +9,7 @@ local Bar = getClass 'wyx.ui.Bar'
 local Slot = getClass 'wyx.ui.Slot'
 local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
 
-local colors=colors
+local colors = colors
 
 -- constants
 local BOTTOMPANEL_HEIGHT_MULT = 0.1146
@@ -27,29 +27,29 @@ local InGameUI = Class{name='InGameUI',
 	inherits=Frame,
 	function(self)
 		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
+		self._viewW, self._viewH = WIDTH, HEIGHT
 		self:_makeBottomPanel()
 	end
 }
 
 -- destructor
 function InGameUI:destroy()
-	self._bottomPanel:destroy()
-	self._bottomPanel = nil
+	self._viewW = nil
+	self._viewH = nil
 	Frame.destroy(self)
 end
 
-function InGameUI:getGameSize()
-	return WIDTH, HEIGHT - self._bottomPanel:getHeight()
-end
+function InGameUI:getGameSize() return self._viewW, self._viewH end
 
 function InGameUI:_makeBottomPanel()
 	local height = HEIGHT * BOTTOMPANEL_HEIGHT_MULT
 	local y = HEIGHT - height
+	self._viewH = self._viewH - height
+
 	local f = Frame(0, y, WIDTH, height)
 	f:setNormalStyle(panelStyle)
 
 	self:addChild(f)
-	self._bottomPanel = f
 end
 
 
