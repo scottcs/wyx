@@ -109,14 +109,25 @@ function TooltipFactory:makeEntityTooltip(id)
 	local width = headerW > MINWIDTH and headerW or MINWIDTH
 
 	-- make the health bar
-	local health = entity:query(property('Health'))
-	local maxHealth = entity:query(property('MaxHealth'))
+	local pHealth = property('Health')
+	local pHealthB = property('HealthBonus')
+	local pMaxHealth = property('MaxHealth')
+	local pMaxHealthB = property('MaxHealthBonus')
+	local health = entity:query(pHealth)
+	local maxHealth = entity:query(pMaxHealth)
 	local healthBar
+
 	if health and maxHealth then
-		healthBar = Bar(0, 0, width, margin)
+		healthBar = Bar(0, 0, width, 9)
 		healthBar:setNormalStyle(healthBarStyle)
-		healthBar:setLimits(0, maxHealth)
-		healthBar:setValue(health)
+
+		local func = function()
+			local h = entity:query(pHealth) + entity:query(pHealthB)
+			local max = entity:query(pMaxHealth) + entity:query(pMaxHealthB)
+			return h, 0, max
+		end
+
+		healthBar:watch(func)
 	end
 
 	-- make the family and kind line
@@ -147,7 +158,10 @@ function TooltipFactory:makeEntityTooltip(id)
 	tooltip:setMargin(MARGIN)
 	if icon then tooltip:setIcon(icon) end
 	if header1 then tooltip:setHeader1(header1) end
-	if healthBar then tooltip:addBar(healthBar) end
+	if healthBar then
+		tooltip:addBar(healthBar)
+		tooltip:addSpace()
+	end
 	if famLine then tooltip:addText(famLine) end
 	if stats then
 		for i=1,numStats do
