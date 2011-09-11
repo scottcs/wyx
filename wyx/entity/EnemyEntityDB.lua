@@ -35,8 +35,8 @@ function EnemyEntityDB:_getPropertyWeights()
 		defenseB   = {name = 'DefenseBonus',   weight = 0.6},
 		attack     = {name = 'Attack',         weight = 0.6},
 		attackB    = {name = 'AttackBonus',    weight = 0.6},
-		speed      = {name = 'Speed',          weight = 1.4},
-		speedB     = {name = 'SpeedBonus',     weight = 1.4},
+		speed      = {name = 'Speed',          weight = 0.14},
+		speedB     = {name = 'SpeedBonus',     weight = 0.14},
 		openDoors  = {name = 'CanOpenDoors',   weight = 10},
 		canMove    = {name = 'CanMove',        weight = 10},
 	}
