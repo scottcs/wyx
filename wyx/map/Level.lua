@@ -16,8 +16,10 @@ local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local TimeSystemCycleEvent = getClass 'wyx.event.TimeSystemCycleEvent'
+local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
 local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
+local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local LightingStatusRequest = getClass 'wyx.event.LightingStatusRequest'
 local LightingUpdateRequest = getClass 'wyx.event.LightingUpdateRequest'
 
@@ -368,6 +370,8 @@ function Level:setPlayerControlled()
 	end
 
 	entity:send(message('CONTAINER_RESIZE'), 10)
+
+	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
 end
 
 function Level:EntityPositionEvent(e)
@@ -409,6 +413,7 @@ end
 
 function Level:TimeSystemCycleEvent(e)
 	self._turns = self._turns + 1
+	GameEvents:push(TurnCountEvent(self._turns))
 end
 
 function Level:_updateLighting()
