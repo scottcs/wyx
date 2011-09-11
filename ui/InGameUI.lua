@@ -79,7 +79,7 @@ ui.xpbar = {
 }
 
 ui.weaponslot = {
-	x = 196,
+	x = 200,
 	y = floor(ui.innerpanel.h / 2) - 20,
 	w = 40,
 	h = 40,
