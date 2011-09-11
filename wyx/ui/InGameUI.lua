@@ -429,9 +429,50 @@ function InGameUI:_clearFloorSlots()
 	end
 end
 
+function InGameUI:_findEmptyFloorSlot()
+	local num = #self._floorSlots
+
+	for i=1,num do
+		local slot = self._floorSlots[i]
+		if slot:isEmpty() then return slot end
+	end
+end
+
 -- add an entity to the next available floor slot
 function InGameUI:_addToFloor(item)
-	-- TODO
+	local slot = self:_findEmptyFloorSlot()
+
+	if slot then
+		local tilecoords = item:query(property('TileCoords'))
+		if tilecoords then
+			local coords = tilecoords.item
+
+			if not coords then
+				for k in pairs(tilecoords) do coords = tilecoords[k]; break end
+			end
+
+			if coords then
+				local size = item:query(property('TileSize'))
+				if size then
+					local x, y = (coords[1]-1) * size, (coords[2]-1) * size
+					local normalStyle = ui.itembutton.normalStyle:clone()
+					local hoverStyle = ui.itembutton.hoverStyle:clone()
+
+					normalStyle:setBGQuad(x, y, size, size)
+					hoverStyle:setBGQuad(x, y, size, size)
+
+					local btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
+					btn:setNormalStyle(normalStyle, true)
+					btn:setHoverStyle(hoverStyle, true)
+
+					local tooltip = self._tooltipFactory:makeEntityTooltip(item)
+					btn:attachTooltip(tooltip)
+
+					slot:swap(btn)
+				end -- if size
+			end -- if coords
+		end -- if tilecoords
+	end -- if slot
 end
 
 -- get the width and height of the non-ui view
