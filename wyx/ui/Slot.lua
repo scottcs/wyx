@@ -50,6 +50,12 @@ function Slot:remove()
 	return oldButton
 end
 
+-- return true if the slot is empty
+function Slot:isEmpty() return self._button == nil end
+
+-- return the current button without removing it
+function Slot:getButton() return self._button end
+
 -- override Frame:_drawForeground() to not draw if a button is in the slot
 function Slot:_drawForeground()
 	if not self._button then
