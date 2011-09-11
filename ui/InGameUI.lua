@@ -80,14 +80,14 @@ ui.xpbar = {
 
 ui.weaponslot = {
 	x = 196,
-	y = floor(ui.innerpanel.h / 2) - 20
+	y = floor(ui.innerpanel.h / 2) - 20,
 	w = 40,
 	h = 40,
 	normalStyle = Style({
-		bgimage=Image.interface,
-		bgcolor=colors.WHITE,
-		fgimage=Image.interface,
-		fgcolor=colors.WHITE,
+		bgimage = Image.interface,
+		bgcolor = colors.WHITE,
+		fgimage = Image.interface,
+		fgcolor = colors.WHITE,
 	}),
 }
 ui.weaponslot.normalStyle:setBGQuad(40, 288, ui.weaponslot.w, ui.weaponslot.h)
@@ -121,7 +121,34 @@ ui.invslot = {
 ui.invslot.normalStyle:setBGQuad(0, 288, ui.invslot.w, ui.invslot.h)
 ui.invslot.normalStyle:setFGQuad(80, 292, 32, 32)
 
+ui.floorpanel = {
+	x = ui.innerpanel.w - 200,
+	y = ui.weaponslot.y,
+	w = 200,
+	h = ui.weaponslot.h,
+	normalStyle = Style({
+		bgimage = Image.interface,
+		bgcolor = colors.WHITE,
+	}),
+}
+ui.floorpanel.normalStyle:setBGQuad(240, 288,
+	ui.floorpanel.w, ui.floorpanel.h)
+
+ui.floorslot = {
+	x = 4,
+	y = 4,
+	w = 32,
+	h = 32,
+	normalStyle = Style({
+		bgimage = Image.interface,
+		bgcolor = colors.WHITE,
+	}),
+}
+ui.floorslot.normalStyle:setBGQuad(208, 292, ui.floorslot.w, ui.floorslot.h)
+
 ui.itembutton = {
+	w = 32,
+	h = 32,
 	normalStyle = Style({
 		bgimage = Image.item,
 		bgcolor = colors.GREY90,
