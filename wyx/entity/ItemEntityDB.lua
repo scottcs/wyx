@@ -33,8 +33,8 @@ function ItemEntityDB:_getPropertyWeights()
 		defenseB   = {name = 'DefenseBonus',   weight = 0.9},
 		attack     = {name = 'Attack',         weight = 0.9},
 		attackB    = {name = 'AttackBonus',    weight = 0.9},
-		speed      = {name = 'Speed',          weight = 1.4},
-		speedB     = {name = 'SpeedBonus',     weight = 1.4},
+		speed      = {name = 'Speed',          weight = 0.14},
+		speedB     = {name = 'SpeedBonus',     weight = 0.14},
 	}
 
 	return props
