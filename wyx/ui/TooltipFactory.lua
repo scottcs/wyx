@@ -74,7 +74,16 @@ function TooltipFactory:makeEntityTooltip(entity)
 	local image = entity:query(property('TileSet'))
 	if image then
 		local allcoords = entity:query(property('TileCoords'))
-		local coords = allcoords and allcoords[1]
+		local coords
+		local coords = allcoords.item
+			or allcoords.front
+			or allcoords.right
+			or allcoords.left
+
+		if not coords then
+			for k in pairs(allcoords) do coords = allcoords[k]; break end
+		end
+
 		if coords then
 			local size = entity:query(property('TileSize'))
 			if size then
