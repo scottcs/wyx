@@ -1,5 +1,4 @@
 local Class = require 'lib.hump.class'
-local Style = getClass 'wyx.ui.Style'
 local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Button = getClass 'wyx.ui.Button'
@@ -8,40 +7,18 @@ local TextEntry = getClass 'wyx.ui.TextEntry'
 local Bar = getClass 'wyx.ui.Bar'
 local Slot = getClass 'wyx.ui.Slot'
 local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
+
 local property = require 'wyx.component.property'
+local ui = require 'ui.InGameUI'
+
+local vec2_equal = vec2.equal
+local math_floor = math.floor
+local format = string.format
 
 -- events
 local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
-
-local colors = colors
-local vec2_equal = vec2.equal
-
--- constants
-local BOTTOMPANEL_HEIGHT_MULT = 0.125
-local BOTTOMPANEL_MARGIN = 12
-
--- styles
-local panelStyle = Style({
-	bordersize = 4,
-	borderinset = 4,
-	bordercolor = colors.GREY20,
-	bgcolor = colors.GREY10,
-})
-
-local portraitStyle = Style({
-	bordersize = 4,
-	bordercolor = colors.GREY70,
-	bgcolor = colors.GREY10,
-	fgcolor = colors.WHITE,
-	fgimage = Image.char,
-})
-
-local nameStyle = Style({
-	font = GameFont.verysmall,
-	fontcolor = colors.GREY90,
-})
-
+local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
 
 -- InGameUI
 -- The interface for the main game.
@@ -55,9 +32,8 @@ local InGameUI = Class{name='InGameUI',
 			EntityPositionEvent,
 		})
 
+		self._tooltipFactory = TooltipFactory()
 		self._turns = 0
-		self._viewW, self._viewH = WIDTH, HEIGHT
-		self:_makeBottomPanel()
 	end
 }
 
@@ -69,9 +45,11 @@ function InGameUI:destroy()
 
 	self._primeEntity = nil
 	self._turns = nil
-	self._viewW = nil
-	self._viewH = nil
 	self._bottomPanel = nil
+
+	self._tooltipFactory:destroy()
+	self._tooltipFactory = nil
+
 	Frame.destroy(self)
 end
 
@@ -104,10 +82,7 @@ function InGameUI:_clearBottomPanel()
 			self._floorSlots = nil
 		end
 
-		self._peLevel = nil
-		self._peHealth = nil
-		self._peXP = nil
-
+		self._innerPanel = nil
 		self._bottomPanel:clear()
 	end
 end
@@ -116,12 +91,9 @@ end
 function InGameUI:PrimeEntityChangedEvent(e)
 	self._primeEntity = e:getEntity()
 
-	if self._bottomPanel then
-		self._bottomPanel:clear()
-	else
-		self:_makeBottomPanel()
-	end
+	if self._bottomPanel then self:_clearBottomPanel() end
 
+	self:_makeBottomPanel()
 	self:_makeEntityFrames()
 end
 
@@ -139,15 +111,18 @@ end
 
 -- make the bottom panel
 function InGameUI:_makeBottomPanel()
-	local height = HEIGHT * BOTTOMPANEL_HEIGHT_MULT
-	local y = HEIGHT - height
-	self._viewH = self._viewH - height
 
-	local f = Frame(0, y, WIDTH, height)
-	f:setNormalStyle(panelStyle)
+	local f = Frame(ui.panel.x, ui.panel.y, ui.panel.w, ui.panel.h)
+	f:setNormalStyle(ui.panel.normalStyle)
 
 	self:addChild(f)
 	self._bottomPanel = f
+
+	f = Frame(ui.innerpanel.x, ui.innerpanel.y,
+		ui.innerpanel.w, ui.innerpanel.h)
+
+	self._bottomPanel:addChild(f)
+	self._innerPanel = f
 end
 
 -- make the equip slot frames
@@ -170,27 +145,28 @@ function InGameUI:_makeEntityFrames()
 	local pe = EntityRegistry:get(self._primeEntity)
 
 	if pe then
-		local innermargin = 8
-		local x, y = BOTTOMPANEL_MARGIN, BOTTOMPANEL_MARGIN
+		local hmargin = ui.innerpanel.hmargin
+		local vmargin = ui.innerpanel.vmargin
+		local x, y = 0, 0
 		local f
 
 		-- make portrait
 		f = self:_makePortrait(pe, x, y)
 
 		-- make name and title
-		x = f and x + f:getWidth() + innermargin or x
+		x = f and x + f:getWidth() + hmargin or x
 		f = self:_makeName(pe, x, y)
 
 		-- make health bar
-		y = f and y + f:getHeight() + innermargin or y
+		y = f and y + f:getHeight() + vmargin or y
 		f = self:_makeHealthBar(pe, x, y)
 
 		-- make xp bar
-		y = f and y + f:getHeight() + innermargin or y
+		y = f and y + f:getHeight() + vmargin or y
 		f = self:_makeXPBar(pe, x, y)
 
 		-- make level text
-		x = BOTTOMPANEL_MARGIN
+		x = 0
 		f = self:_makeLevelText(pe, x, y)
 
 		-- TODO: make status effect icon area
@@ -218,12 +194,15 @@ function InGameUI:_makePortrait(pe, x, y)
 			if size then
 				local tileX = ((coords[1] - 1) * size) - 4
 				local tileY = ((coords[2] - 1) * size) - 4
-				local style = portraitStyle:clone()
+				local style = ui.portrait.normalStyle:clone()
 				style:setFGQuad(tileX, tileY, size, size)
 
 				local f = Frame(x, y, size, size)
 				f:setNormalStyle(style, true)
-				self._bottomPanel:addChild(f)
+				self._innerPanel:addChild(f)
+
+				local tooltip = self._tooltipFactory:makeEntityTooltip(pe)
+				f:attachTooltip(tooltip)
 
 				return f
 			end
@@ -235,14 +214,14 @@ end
 function InGameUI:_makeName(pe, x, y)
 	local name = pe:getName()
 	if name then
-		local font = nameStyle:getFont()
+		local font = ui.name.normalStyle:getFont()
 		local fontH = font:getHeight()
 		local fontW = font:getWidth(name)
 		local f = Text(x, y, fontW, fontH)
 
-		f:setNormalStyle(nameStyle)
+		f:setNormalStyle(ui.name.normalStyle)
 		f:setText(name)
-		self._bottomPanel:addChild(f)
+		self._innerPanel:addChild(f)
 
 		return f
 	end
@@ -250,12 +229,115 @@ end
 
 -- make the health bar frame
 function InGameUI:_makeHealthBar(pe, x, y)
-	-- TODO
+	local hp = 'HP'
+	local font = ui.label.normalStyle:getFont()
+	local fontH = font:getHeight()
+	local fontW = font:getWidth(hp)
+
+	local barY = math_floor(fontH/2) - math_floor(ui.healthbar.h/2) - 1
+
+	local bar = Bar(0, barY, ui.healthbar.w, ui.healthbar.h)
+	bar:setNormalStyle(ui.healthbar.normalStyle)
+	bar:setMargins(ui.healthbar.hmargin, ui.healthbar.vmargin)
+
+	local pHealth = property('Health')
+	local pHealthB = property('HealthBonus')
+	local pMaxHealth = property('MaxHealth')
+	local pMaxHealthB = property('MaxHealthBonus')
+	local func = function()
+		local h = pe:query(pHealth) + pe:query(pHealthB)
+		local max = pe:query(pMaxHealth) + pe:query(pMaxHealthB)
+		return h, 0, max
+	end
+
+	bar:watch(func)
+
+	local text = Text(bar:getWidth() + 4, 0, fontW, fontH)
+	text:setNormalStyle(ui.label.normalStyle)
+	text:setText(hp)
+
+	local tipfunc = function()
+		local h = pe:query(pHealth)
+		local hB = pe:query(pHealthB)
+		local max = pe:query(pMaxHealth)
+		local maxB = pe:query(pMaxHealthB)
+
+		return format('%s: %d%s / %d%s', hp,
+			h, hB > 0 and format(' (%+d)', hB) or '',
+			max, maxB > 0 and format(' (%+d)', maxB) or '')
+	end
+
+	local tooltip = self._tooltipFactory:makeVerySimpleTooltip(tipfunc)
+	bar:attachTooltip(tooltip)
+
+	local barH = bar:getHeight() + bar:getY()
+	local textH = text:getHeight() + text:getY()
+	local h = barH > textH and barH or textH
+	local f = Frame(x, y, bar:getWidth() + text:getWidth() + 4, h)
+
+	f:addChild(bar)
+	f:addChild(text)
+
+	self._innerPanel:addChild(f)
+
+	return f
 end
 
 -- make the xp bar frame
 function InGameUI:_makeXPBar(pe, x, y)
-	-- TODO
+	local xp = 'XP'
+	local font = ui.label.normalStyle:getFont()
+	local fontH = font:getHeight()
+	local fontW = font:getWidth(xp)
+
+	local barY = math_floor(fontH/2) - math_floor(ui.xpbar.h/2) - 1
+
+	local bar = Bar(0, barY, ui.xpbar.w, ui.xpbar.h)
+	bar:setNormalStyle(ui.xpbar.normalStyle)
+	bar:setMargins(ui.xpbar.hmargin, ui.xpbar.vmargin)
+
+	bar:setLimits(0, 100) -- XXX
+	bar:setValue(40) -- XXX
+	--[[
+	local pExperience = property('Experience')
+	local pMaxExperience = property('MaxExperience')
+	local func = function()
+		local x = pe:query(pExperience)
+		local max = pe:query(pMaxExperience)
+		return x, 0, max
+	end
+
+	bar:watch(func)
+	--]]
+
+	local text = Text(bar:getWidth() + 4, 0, fontW, fontH)
+	text:setNormalStyle(ui.label.normalStyle)
+	text:setText(xp)
+
+	local tipfunc = function()
+		--[[
+		local x = pe:query(pExperience)
+		local max = pe:query(pMaxExperience)
+		]]--
+		local x, max = 40, 100 -- XXX
+
+		return format('%s: %d / %d', xp, x, max)
+	end
+
+	local tooltip = self._tooltipFactory:makeVerySimpleTooltip(tipfunc)
+	bar:attachTooltip(tooltip)
+
+	local barH = bar:getHeight() + bar:getY()
+	local textH = text:getHeight() + text:getY()
+	local h = barH > textH and barH or textH
+	local f = Frame(x, y, bar:getWidth() + text:getWidth() + 4, h)
+
+	f:addChild(bar)
+	f:addChild(text)
+
+	self._innerPanel:addChild(f)
+
+	return f
 end
 
 -- make the level text frame
@@ -301,7 +383,12 @@ function InGameUI:_addToFloor(item)
 end
 
 -- get the width and height of the non-ui view
-function InGameUI:getGameSize() return self._viewW, self._viewH end
+function InGameUI:getGameSize()
+	local w = WIDTH
+	local h = (ui and ui.panel and ui.panel.h) and HEIGHT - ui.panel.h or HEIGHT
+
+	return w, h
+end
 
 
 -- the class
