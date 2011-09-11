@@ -5,97 +5,97 @@ Interface:
   o   Add a description field to JSON files.
   x   And a Portrait field.
   ?   how to show damage range? [since it's usually a function]
-	o     execute 100 [or 1000] times on load, then cache min/max values
-	o     or, do away with dice rolls, specify min/max instead
-	o Main game interface
-	d   Design what it should look like before coding it
-	o   Inventory/Equipment in a line along bottom
-	o   Show turns
+  o     execute 100 [or 1000] times on load, then cache min/max values
+  o     or, do away with dice rolls, specify min/max instead
+  o Main game interface
+  d   Design what it should look like before coding it
+  o   Inventory/Equipment in a line along bottom
+  o   Show turns
   d UISystem
-	d   ticks registered UI Frames
-	d   draws registered UI Frames [draw after camera translation]
-	d   listens for user input - mouse and keyboard
-	-     sends events [based on configured keybindings eventually] translated from input
+  d   ticks registered UI Frames
+  d   draws registered UI Frames [draw after camera translation]
+  d   listens for user input - mouse and keyboard
+  -     sends events [based on configured keybindings eventually] translated from input
 
-	UI Elements:
-	d Styles
-	d   Has background color
-	d   Has a font
-	d   Has a fontcolor [equals fgcolor if nil]
-	d   Has a background image
-	d     if image, bgcolor = overlay
-	d     if not image, bgcolor = background and rectangle is drawn
-	d   Ability to copy/clone
-	d   Has a foreground image
-	d   Has a foreground color
-	d   Has a border image
-	d   Has a border color
-	d Frames
-	d   Have hover/press checks, call onHover, onPress
-	d   Has Styles
-	d   Can just display an image if needed
-	d   onClick - depth first, and don't pass it on if you handle it
-	d   can attach/detach a Tooltip
-	d Text [subclass Frame]
-	d   Displays text
-	d   Wraps text
-	d   Wraps text correctly based on pixel size
-	d   Can watch a variable
-	d Buttons [subclass Text]
-	d   Can be pressed, hovered
-	d   Has an optional callback when pressed
-	d TextEntry [subclass Text]
-	d   allows multi-line input with backspace and enter
-	d   with cursor
-	d   Has an optional callback when editing stops
-	d Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
-	d   scales well with its content
-	d   contains an Icon [top left]
-	d   contains a Title [top right]
-	d   contains one or more info lines
-	d     can be a Text frame
-	d     can be a Bar frame
-	x     can be an InfoBar frame
-	d     can be a blank vertical space
-	d TooltipFactory
-	d   makeEntityTooltip(entity)
-	o     display stats
-	o     needs to watch entity for value changes [health, stats]
-	d   makeSimpleTooltip(header, text)
-	d StickyButton [subclass Button]
-	o   Can watch a variable [for image it represents] -- is a "view" of an item
-	o     displays image [icon]
-	d   attaches to mouse cursor when clicked
-	d   is placed in nearest overlapping Slot when clicked again
-	d Slots [subclass Frame]
-	d   Can contain a StickyButton
-	d   Draws StickyButton instead of self when containing one.
-	d     actually, needs to draw a background when containing a StickyButton [second Style?]
-	o   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
-	d Bar [subclass Frame]
-	d   Has a min and max and current value
-	d   Can watch a variable
-	x   Animation?
-	x Info bar [health bar, etc] [subclass Frame]
-	x   optional Text as cur/max or as %
-	x      can position text anywhere
-	x   optional Text as label
-	x      can position anywhere
-	x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
-	+ Pause ability
-	- custom mouse cursor
-	- Quick Menu [post 0.1.0 probably... something to allow large inventory]
-	- Minimap
-	- Ability to click on entities/map tiles directly
-	?   Context menu
-	?   Click-to-move?
+  UI Elements:
+  d Styles
+  d   Has background color
+  d   Has a font
+  d   Has a fontcolor [equals fgcolor if nil]
+  d   Has a background image
+  d     if image, bgcolor = overlay
+  d     if not image, bgcolor = background and rectangle is drawn
+  d   Ability to copy/clone
+  d   Has a foreground image
+  d   Has a foreground color
+  d   Has a border image
+  d   Has a border color
+  d Frames
+  d   Have hover/press checks, call onHover, onPress
+  d   Has Styles
+  d   Can just display an image if needed
+  d   onClick - depth first, and don't pass it on if you handle it
+  d   can attach/detach a Tooltip
+  d Text [subclass Frame]
+  d   Displays text
+  d   Wraps text
+  d   Wraps text correctly based on pixel size
+  d   Can watch a variable
+  d Buttons [subclass Text]
+  d   Can be pressed, hovered
+  d   Has an optional callback when pressed
+  d TextEntry [subclass Text]
+  d   allows multi-line input with backspace and enter
+  d   with cursor
+  d   Has an optional callback when editing stops
+  d Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
+  d   scales well with its content
+  d   contains an Icon [top left]
+  d   contains a Title [top right]
+  d   contains one or more info lines
+  d     can be a Text frame
+  d     can be a Bar frame
+  x     can be an InfoBar frame
+  d     can be a blank vertical space
+  d TooltipFactory
+  d   makeEntityTooltip(entity)
+  o     display stats
+  o     needs to watch entity for value changes [health, stats]
+  d   makeSimpleTooltip(header, text)
+  d StickyButton [subclass Button]
+  o   Can watch a variable [for image it represents] -- is a "view" of an item
+  o     displays image [icon]
+  d   attaches to mouse cursor when clicked
+  d   is placed in nearest overlapping Slot when clicked again
+  d Slots [subclass Frame]
+  d   Can contain a StickyButton
+  d   Draws StickyButton instead of self when containing one.
+  d     actually, needs to draw a background when containing a StickyButton [second Style?]
+  o   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
+  d Bar [subclass Frame]
+  d   Has a min and max and current value
+  d   Can watch a variable
+  x   Animation?
+  x Info bar [health bar, etc] [subclass Frame]
+  x   optional Text as cur/max or as %
+  x      can position text anywhere
+  x   optional Text as label
+  x      can position anywhere
+  x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+  + Pause ability
+  - custom mouse cursor
+  - Quick Menu [post 0.1.0 probably... something to allow large inventory]
+  - Minimap
+  - Ability to click on entities/map tiles directly
+  ?   Context menu
+  ?   Click-to-move?
 
-	Options / Config:
-	- key bindings
+  Options / Config:
+  - key bindings
 
 For v0.1.0:
   o interface
-	d rename this game [even if just a working name]
+  d rename this game [even if just a working name]
 
 
 
@@ -103,14 +103,20 @@ BEYOND v0.1.0:
 
 Save/Load:
   Event Queues:
-	+ change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
+  + change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
   ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
 
-Items:
-  o UsableComponent? [this needs scripting in JSON files]
-  o   UseCommand [call onUse(), potentially destroy entity]
+Entities:
+  o Fix ELevel weights
+  o   Include MoveCost, AttackCost, etc
+  o   Give player/hero ELevel
+  o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
+
+  Items:
+    o UsableComponent? [this needs scripting in JSON files]
+    o   UseCommand [call onUse(), potentially destroy entity]
 
 Input/Events/Config:
   o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
@@ -122,7 +128,7 @@ Console/Debug:
   - allow input and create some awesome commands
   o every event and command needs a tostring method that is called when debugEvents is on.
   - wizard mode
-	+ printing to Console while rendertarget is set to something else has strange implications
+  + printing to Console while rendertarget is set to something else has strange implications
 
 Level:
   - change Level representation of enemy to be by position in a table for faster lookup
@@ -130,7 +136,7 @@ Level:
   o Level templates
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
   o make stairs work [generate new map]
-	+ maps should be referenced by ID like entities [with portals, anyway]
+  + maps should be referenced by ID like entities [with portals, anyway]
 
 Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
@@ -148,12 +154,12 @@ Expressions:
 Graphics:
   x make hero movement smoother [tweened... possibly only move camera when near edges?]
   - support sprite batches if framebuffers are unsupported
-	+ fix wrong dungeon colors after load
-	+    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
+  + fix wrong dungeon colors after load
+  +    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
 Sound:
   o add sounds
-	o add music
+  o add music
 
 Map:
   x map as quad-tree [or something?]
@@ -168,7 +174,7 @@ Map:
 
 Other:
   - fix tests
-	+ make EntityRegistry not a global [it's in the World]
+  + make EntityRegistry not a global [it's in the World]
 
 NOTES & IDEAS:
 
