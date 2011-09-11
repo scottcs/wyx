@@ -32,6 +32,9 @@ local InGameUI = Class{name='InGameUI',
 			EntityPositionEvent,
 		})
 
+		self._floorSlots = {}
+		self._inventorySlots = {}
+		self._equipSlots = {}
 		self._tooltipFactory = TooltipFactory()
 		self._turns = 0
 	end
@@ -74,6 +77,7 @@ function InGameUI:_clearBottomPanel()
 			self._inventorySlots = nil
 		end
 
+		self:_clearFloorSlots()
 		if self._floorSlots then
 			local num = #self._floorSlots
 			for i=1,num do
@@ -133,16 +137,19 @@ function InGameUI:_makeEquipSlots()
 	local slot = Slot(ui.weaponslot.x, ui.weaponslot.y,
 		ui.weaponslot.w, ui.weaponslot.h)
 	slot:setNormalStyle(ui.weaponslot.normalStyle)
+	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.armorslot.x, ui.armorslot.y,
 		ui.armorslot.w, ui.armorslot.h)
 	slot:setNormalStyle(ui.armorslot.normalStyle)
+	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.ringslot.x, ui.ringslot.y,
 		ui.ringslot.w, ui.ringslot.h)
 	slot:setNormalStyle(ui.ringslot.normalStyle)
+	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 end
 
@@ -154,6 +161,7 @@ function InGameUI:_makeInventorySlots()
 		local slot = Slot(x, y, ui.invslot.w, ui.invslot.h)
 		slot:setNormalStyle(ui.invslot.normalStyle)
 		self._innerPanel:addChild(slot)
+		self._inventorySlots[#self._inventorySlots + 1] = slot
 		x = x + ui.invslot.w + 4
 	end
 end
@@ -169,6 +177,7 @@ function InGameUI:_makeFloorSlots()
 		local slot = Slot(x, y, ui.floorslot.w, ui.floorslot.h)
 		slot:setNormalStyle(ui.floorslot.normalStyle)
 		f:addChild(slot)
+		self._floorSlots[#self._floorSlots + 1] = slot
 		x = x + ui.floorslot.w
 	end
 
@@ -412,7 +421,12 @@ end
 
 -- clear all the floor slots
 function InGameUI:_clearFloorSlots()
-	-- TODO
+	local num = #self._floorSlots
+	for i=1,num do
+		local slot = self._floorSlots[i]
+		local btn = slot:remove()
+		if btn then btn:destroy() end
+	end
 end
 
 -- add an entity to the next available floor slot
