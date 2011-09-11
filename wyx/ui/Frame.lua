@@ -38,6 +38,7 @@ function Frame:destroy()
 	self._registered = nil
 
 	self:clear()
+	self._children = nil
 
 	self._ffb = nil
 	self._bfb = nil
@@ -82,7 +83,6 @@ function Frame:clear()
 			self._children[k]:destroy()
 			self._children[k] = nil
 		end
-		self._children = nil
 	end
 end
 
