@@ -148,28 +148,28 @@ colors.GREY10 = {p10, p10, p10, p100}
 
 colors.RED = {p100, 0, 0, p100}
 colors.LIGHTRED = {p100, p60, p60, p100}
-colors.DARKRED = {p50, 0, 0, p100}
+colors.DARKRED = {p30, 0, 0, p100}
 
 colors.YELLOW = {p100, p90, 0, p100}
 colors.LIGHTYELLOW = {p100, floor(p100*0.95), p80, p100}
-colors.DARKYELLOW = {p50, p40, 0, p100}
+colors.DARKYELLOW = {p30, p20, 0, p100}
 
 colors.ORANGE = {p100, floor(p100*0.75), p30, p100}
 colors.LIGHTORANGE = {p100, floor(p100*0.88), p70, p100}
-colors.DARKORANGE = {p50, floor(p100*0.45), floor(p100*0.35), p100}
+colors.DARKORANGE = {p30, floor(p100*0.25), floor(p100*0.15), p100}
 colors.BROWN = {p50, p40, p20, p100}
 
 colors.GREEN = {0, p100, 0, p100}
 colors.LIGHTGREEN = {p70, p100, p70, p100}
-colors.DARKGREEN = {0, p50, 0, p100}
+colors.DARKGREEN = {0, p30, 0, p100}
 
 colors.BLUE = {p30, p30, p100, p100}
 colors.LIGHTBLUE = {p70, p70, p100, p100}
-colors.DARKBLUE = {0, 0, p50, p100}
+colors.DARKBLUE = {0, 0, p30, p100}
 
 colors.PURPLE = {p100, p40, p100, p100}
 colors.LIGHTPURPLE = {p100, p80, p100, p100}
-colors.DARKPURPLE = {p50, 0, p50, p100}
+colors.DARKPURPLE = {p30, 0, p30, p100}
 
 function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
 
