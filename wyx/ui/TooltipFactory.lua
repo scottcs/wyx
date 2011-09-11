@@ -26,18 +26,14 @@ local header1Style = Style({
 	fontcolor = colors.WHITE,
 })
 
-local header2Style = header1Style:clone({
-	fontcolor = colors.GREY90,
-})
-
 local textStyle = Style({
 	font = GameFont.verysmall,
-	fontcolor = colors.GREY80,
+	fontcolor = colors.GREY70,
 })
 
 local iconStyle = Style({
-	bordersize = 2,
-	bordercolor = colors.GREY60,
+	bordersize = 4,
+	bordercolor = colors.GREY70,
 	bgcolor = colors.GREY10,
 	fgcolor = colors.WHITE,
 })
@@ -59,8 +55,8 @@ function TooltipFactory:destroy()
 end
 
 -- make a tooltip for an entity
-function TooltipFactory:makeEntityTooltip(entity)
-	local entity = type(id) == 'number' and EntityRegistry:get(id) or id
+function TooltipFactory:makeEntityTooltip(id)
+	local entity = type(id) == 'string' and EntityRegistry:get(id) or id
 	verifyClass('wyx.entity.Entity', entity)
 
 	local name = entity:getName()
@@ -71,8 +67,9 @@ function TooltipFactory:makeEntityTooltip(entity)
 
 	-- make the icon
 	local icon
-	local image = entity:query(property('TileSet'))
-	if image then
+	local tileset = entity:query(property('TileSet'))
+	if tileset then
+		local image = Image[tileset]
 		local allcoords = entity:query(property('TileCoords'))
 		local coords
 		local coords = allcoords.item
@@ -108,18 +105,6 @@ function TooltipFactory:makeEntityTooltip(entity)
 		warning('makeEntityTooltip: bad Name for entity %q', tostring(entity))
 	end
 
-	-- make the second header
-	local header2
-	if family and kind then
-		local string = family..' ('..kind..')'
-		header2 = self:_makeHeader2(string)
-
-		local width = header2:getWidth()
-		headerW = width > headerW and width or headerW
-	else
-		warning('makeEntityTooltip: missing family or kind for entity %q', name)
-	end
-
 	headerW = icon and headerW + icon:getWidth() + MARGIN or headerW
 	local width = headerW > MINWIDTH and headerW or MINWIDTH
 
@@ -132,6 +117,17 @@ function TooltipFactory:makeEntityTooltip(entity)
 		healthBar:setNormalStyle(healthBarStyle)
 		healthBar:setLimits(0, maxHealth)
 		healthBar:setValue(health)
+	end
+
+	-- make the family and kind line
+	local famLine
+	if family and kind then
+		local string = family..' ('..kind..')'
+		famLine = self:_makeText(string)
+
+		local width = famLine:getWidth()
+	else
+		warning('makeEntityTooltip: missing family or kind for entity %q', name)
 	end
 
 	-- make the stats frames
@@ -151,8 +147,8 @@ function TooltipFactory:makeEntityTooltip(entity)
 	tooltip:setMargin(MARGIN)
 	if icon then tooltip:setIcon(icon) end
 	if header1 then tooltip:setHeader1(header1) end
-	if header2 then tooltip:setHeader2(header2) end
 	if healthBar then tooltip:addBar(healthBar) end
+	if famLine then tooltip:addText(famLine) end
 	if stats then
 		for i=1,numStats do
 			local stat = stats[i]
@@ -167,9 +163,24 @@ function TooltipFactory:makeEntityTooltip(entity)
 	return tooltip
 end
 
+-- make a simple generic tooltip with text
+function TooltipFactory:makeVerySimpleTooltip(text)
+	verifyAny(text, 'string', 'function')
+
+	local body = self:_makeText(text)
+
+	local tooltip = Tooltip()
+	tooltip:setNormalStyle(tooltipStyle)
+	tooltip:setMargin(MARGIN)
+	if body then tooltip:addText(body) end
+
+	return tooltip
+end
+
 -- make a simple generic tooltip with a header and text
 function TooltipFactory:makeSimpleTooltip(header, text)
-	verify('string', header, text)
+	verify('string', header)
+	verifyAny(text, 'string', 'function')
 
 	local header1 = self:_makeHeader1(header)
 	local headerW = header1:getWidth()
@@ -224,16 +235,19 @@ end
 
 -- make a generic Text frame
 function TooltipFactory:_makeText(text, width)
+	local isString = type(text) == 'string'
+
 	local font = textStyle:getFont()
 	local fontH = font:getHeight()
-	local fontW = font:getWidth(text)
+	local fontW = isString and font:getWidth(text) or font:getWidth(text())
 	width = width or fontW
 	local numLines = math_ceil(fontW / width)
 
 	local line = Text(0, 0, width, numLines * fontH)
 	line:setMaxLines(numLines)
 	line:setNormalStyle(textStyle)
-	line:setText(text)
+
+	if isString then line:setText(text) else line:watch(text) end
 
 	return line
 end
