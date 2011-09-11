@@ -253,12 +253,13 @@ function TooltipFactory:_makeText(text, width)
 
 	local font = textStyle:getFont()
 	local fontH = font:getHeight()
-	local fontW = isString and font:getWidth(text) or font:getWidth(text())
+	local fontW = isString and font:getWidth(text) or font:getWidth(text())*2
 	width = width or fontW
 	local numLines = math_ceil(fontW / width)
 
 	local line = Text(0, 0, width, numLines * fontH)
 	line:setMaxLines(numLines)
+	if numLines == 1 then line:setJustifyCenter() end
 	line:setNormalStyle(textStyle)
 
 	if isString then line:setText(text) else line:watch(text) end

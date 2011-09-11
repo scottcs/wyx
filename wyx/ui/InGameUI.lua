@@ -297,9 +297,12 @@ function InGameUI:_makeHealthBar(pe, x, y)
 		local max = pe:query(pMaxHealth)
 		local maxB = pe:query(pMaxHealthB)
 
+		h = h + hB
+		max = max + maxB
+
 		return format('%s: %d%s / %d%s', hp,
-			h, hB > 0 and format(' (%+d)', hB) or '',
-			max, maxB > 0 and format(' (%+d)', maxB) or '')
+			h, (hB > 0 and format(' (%+d)', hB) or ''),
+			max, (maxB > 0 and format(' (%+d)', maxB) or ''))
 	end
 
 	local tooltip = self._tooltipFactory:makeVerySimpleTooltip(tipfunc)
