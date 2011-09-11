@@ -2,6 +2,7 @@ local ui = {}
 
 local Style = getClass 'wyx.ui.Style'
 local colors = colors
+local floor = math.floor
 
 local panelHeight = 0.125 * HEIGHT
 
@@ -76,5 +77,58 @@ ui.xpbar = {
 	hmargin = 0,
 	vmargin = 4,
 }
+
+ui.weaponslot = {
+	x = 196,
+	y = floor(ui.innerpanel.h / 2) - 20
+	w = 40,
+	h = 40,
+	normalStyle = Style({
+		bgimage=Image.interface,
+		bgcolor=colors.WHITE,
+		fgimage=Image.interface,
+		fgcolor=colors.WHITE,
+	}),
+}
+ui.weaponslot.normalStyle:setBGQuad(40, 288, ui.weaponslot.w, ui.weaponslot.h)
+ui.weaponslot.normalStyle:setFGQuad(112, 292, 32, 32)
+
+ui.armorslot = {
+	x = ui.weaponslot.x + ui.weaponslot.w + 4,
+	y = ui.weaponslot.y,
+	w = ui.weaponslot.w,
+	h = ui.weaponslot.h,
+	normalStyle = ui.weaponslot.normalStyle:clone(),
+}
+ui.armorslot.normalStyle:setFGQuad(144, 292, 32, 32)
+
+ui.ringslot = {
+	x = ui.armorslot.x + ui.armorslot.w + 4,
+	y = ui.weaponslot.y,
+	w = ui.weaponslot.w,
+	h = ui.weaponslot.h,
+	normalStyle = ui.weaponslot.normalStyle:clone(),
+}
+ui.ringslot.normalStyle:setFGQuad(176, 292, 32, 32)
+
+ui.invslot = {
+	x = ui.ringslot.x + ui.ringslot.w + 18,
+	y = ui.weaponslot.y,
+	w = ui.weaponslot.w,
+	h = ui.weaponslot.h,
+	normalStyle = ui.weaponslot.normalStyle:clone(),
+}
+ui.invslot.normalStyle:setBGQuad(0, 288, ui.invslot.w, ui.invslot.h)
+ui.invslot.normalStyle:setFGQuad(80, 292, 32, 32)
+
+ui.itembutton = {
+	normalStyle = Style({
+		bgimage = Image.item,
+		bgcolor = colors.GREY90,
+	})
+}
+ui.itembutton.hoverStyle = ui.itembutton.normalStyle:clone({
+	bgcolor = colors.WHITE,
+})
 
 return ui
