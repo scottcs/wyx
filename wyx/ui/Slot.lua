@@ -22,14 +22,7 @@ end
 
 -- swap the given StickyButton with the current one
 function Slot:swap(button)
-	local oldButton = self._button
-
-	if self._button then
-		self._button:setDepth(10)
-		self:removeChild(self._button)
-		self._button:attachToMouse()
-		self._button = nil
-	end
+	local oldButton = self:remove()
 
 	if button and oldButton ~= button then
 		verifyClass('wyx.ui.StickyButton', button)
@@ -41,6 +34,20 @@ function Slot:swap(button)
 	end
 
 	if oldButton then oldButton:attachToMouse() end
+end
+
+-- remove the current button
+function Slot:remove()
+	local oldButton
+
+	if self._button then
+		self._button:setDepth(10)
+		self:removeChild(self._button)
+		oldButton = self._button
+		self._button = nil
+	end
+
+	return oldButton
 end
 
 -- override Frame:_drawForeground() to not draw if a button is in the slot
