@@ -55,7 +55,7 @@ Interface:
 	d   contains one or more info lines
 	d     can be a Text frame
 	d     can be a Bar frame
-	o     can be an InfoBar frame
+	x     can be an InfoBar frame
 	d     can be a blank vertical space
 	d TooltipFactory
 	d   makeEntityTooltip(entity)
