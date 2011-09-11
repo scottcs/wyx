@@ -111,7 +111,6 @@ end
 
 -- make the bottom panel
 function InGameUI:_makeBottomPanel()
-
 	local f = Frame(ui.panel.x, ui.panel.y, ui.panel.w, ui.panel.h)
 	f:setNormalStyle(ui.panel.normalStyle)
 
@@ -123,21 +122,57 @@ function InGameUI:_makeBottomPanel()
 
 	self._bottomPanel:addChild(f)
 	self._innerPanel = f
+
+	self:_makeEquipSlots()
+	self:_makeInventorySlots()
+	self:_makeFloorSlots()
 end
 
 -- make the equip slot frames
 function InGameUI:_makeEquipSlots()
-	-- TODO
+	local slot = Slot(ui.weaponslot.x, ui.weaponslot.y,
+		ui.weaponslot.w, ui.weaponslot.h)
+	slot:setNormalStyle(ui.weaponslot.normalStyle)
+	self._innerPanel:addChild(slot)
+
+	slot = Slot(ui.armorslot.x, ui.armorslot.y,
+		ui.armorslot.w, ui.armorslot.h)
+	slot:setNormalStyle(ui.armorslot.normalStyle)
+	self._innerPanel:addChild(slot)
+
+	slot = Slot(ui.ringslot.x, ui.ringslot.y,
+		ui.ringslot.w, ui.ringslot.h)
+	slot:setNormalStyle(ui.ringslot.normalStyle)
+	self._innerPanel:addChild(slot)
 end
 
 -- make the inventory slot frames
 function InGameUI:_makeInventorySlots()
-	-- TODO
+	local x, y = ui.invslot.x, ui.invslot.y
+
+	for i=1,10 do
+		local slot = Slot(x, y, ui.invslot.w, ui.invslot.h)
+		slot:setNormalStyle(ui.invslot.normalStyle)
+		self._innerPanel:addChild(slot)
+		x = x + ui.invslot.w + 4
+	end
 end
 
 -- make the floor slot frames
 function InGameUI:_makeFloorSlots()
-	-- TODO
+	local f = Frame(ui.floorpanel.x, ui.floorpanel.y,
+		ui.floorpanel.w, ui.floorpanel.h)
+	f:setNormalStyle(ui.floorpanel.normalStyle)
+
+	local x, y = ui.floorslot.x, ui.floorslot.y
+	for i=1,6 do
+		local slot = Slot(x, y, ui.floorslot.w, ui.floorslot.h)
+		slot:setNormalStyle(ui.floorslot.normalStyle)
+		f:addChild(slot)
+		x = x + ui.floorslot.w
+	end
+
+	self._innerPanel:addChild(f)
 end
 
 -- make all of the frames that depend on the primary entity
