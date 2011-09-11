@@ -60,8 +60,9 @@ function Bar:setMargins(l, t, r, b)
 	self._needsUpdate = true
 end
 
--- watch a function. this function will be polled every tick for a return
--- value, which will replace the value of this Bar object.
+-- watch a function. this function will be polled every tick for
+-- three return values: val, min, max
+-- if not nil, these will replace the value and limits of this Bar
 function Bar:watch(func, ...)
 	verify('function', func)
 	self:unwatch()
@@ -83,11 +84,17 @@ end
 -- onTick - check watched table
 function Bar:onTick(dt, x, y)
 	if self._watched then
-		local value
+		local value, min, max
 		if self._watchedArgs then
-			value = self._watched(unpack(self._watchedArgs))
+			value, min, max = self._watched(unpack(self._watchedArgs))
 		else
-			value = self._watched()
+			value, min, max = self._watched()
+		end
+
+		if min or max then
+			min = min or self._min
+			max = max or self._max
+			self:setLimits(min, max)
 		end
 
 		if value then
