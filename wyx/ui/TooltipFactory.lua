@@ -62,6 +62,7 @@ function TooltipFactory:makeEntityTooltip(id)
 	local name = entity:getName()
 	local family = entity:getFamily()
 	local kind = entity:getKind()
+	local etype = entity:getEntityType()
 	local description = entity:getDescription()
 	local headerW = 0
 
@@ -117,7 +118,7 @@ function TooltipFactory:makeEntityTooltip(id)
 	local maxHealth = entity:query(pMaxHealth)
 	local healthBar
 
-	if health and maxHealth then
+	if health and maxHealth and etype ~= 'item' then
 		healthBar = Bar(0, 0, width, 9)
 		healthBar:setNormalStyle(healthBarStyle)
 
