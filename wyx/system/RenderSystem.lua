@@ -90,9 +90,13 @@ end
 function RenderSystem:_getObjectDepth(obj)
 	local depth
 
-	if obj and type(obj) == 'table' then
+	if type(obj) == 'string' then obj = EntityRegistry:get(obj) end
+
+	if type(obj) == 'table' then
 		if obj.getDepth and type(obj.getDepth) == 'function' then
 			depth = obj:getDepth()
+		elseif obj.query and type(obj.query) == 'function' then
+			depth = obj:query(pRenderDepth)
 		elseif obj.getProperty and type(obj.getProperty) == 'function' then
 			depth = obj:getProperty(pRenderDepth)
 		end

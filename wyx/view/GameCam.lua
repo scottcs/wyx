@@ -227,7 +227,11 @@ function GameCam:predraw()
 end
 function GameCam:postdraw() pop() end
 
-function GameCam:toWorldCoords(camX, camY, zoom, x, y)
+function GameCam:toWorldCoords(x, y, camX, camY, zoom)
+	camX = camX or self._x
+	camY = camY or self._y
+	zoom = zoom or self._zoom
+
 	local pX, pY = (x-self._worldW/2) / zoom, (y-self._worldH/2) / zoom
 	return pX+camX, pY+camY
 end
@@ -246,13 +250,13 @@ function GameCam:getViewport(zoom, translateX, translateY)
 	zoom = math_max(1, math_min(#_zoomLevels, zoom))
 
 	-- pretend to translate and zoom
-	local x, y = self._x+translateX, self._y+translateY
-	x, y = self:_correctPos(x, y)
+	local camX, camY = self._x+translateX, self._y+translateY
+	camX, camY = self:_correctPos(camX, camY)
 	zoom = _zoomLevels[zoom]
 
 	local x1,y1, x2,y2 = 0,0, self._worldW,self._worldH
-	local vp1X, vp1Y = self:toWorldCoords(x, y, zoom, x1, y1)
-	local vp2X, vp2Y = self:toWorldCoords(x, y, zoom, x2, y2)
+	local vp1X, vp1Y = self:toWorldCoords(x1, y1, camX, camY, zoom)
+	local vp2X, vp2Y = self:toWorldCoords(x2, y2, camX, camY, zoom)
 	local Rect = getClass 'wyx.kit.Rect'
 	return Rect(vp1X, vp1Y, vp2X-vp1X, vp2Y-vp1Y)
 end

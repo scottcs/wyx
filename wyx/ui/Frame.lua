@@ -534,7 +534,10 @@ function Frame:draw()
 end
 
 function Frame:show() self._show = true end
-function Frame:hide() self._show = false end
+function Frame:hide()
+	self._show = false
+	if self._tooltip then self._tooltip:hide() end
+end
 
 
 -- the class

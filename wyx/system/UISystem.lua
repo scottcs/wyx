@@ -3,7 +3,7 @@ local RenderSystem = getClass 'wyx.system.RenderSystem'
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
-local MouseIntersectEvent = getClass 'wyx.event.MouseIntersectEvent'
+local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
 local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
 
 local getMousePos = love.mouse.getPosition
@@ -24,7 +24,7 @@ local UISystem = Class{name='UISystem',
 			MousePressedEvent,
 			MouseReleasedEvent,
 			KeyboardEvent,
-			MouseIntersectEvent,
+			MouseIntersectResponse,
 		})
 	end
 }
@@ -32,8 +32,35 @@ local UISystem = Class{name='UISystem',
 -- destructor
 function UISystem:destroy()
 	InputEvents:unregisterAll(self)
+
 	self._accum = nil
+
+	self:_clearMouseHoverCB()
+	self:_clearMousePressCB()
+
 	RenderSystem.destroy(self)
+end
+
+function UISystem:_clearMouseHoverCB()
+	if self._mouseHoverCBArgs then
+		for k in pairs(self._mouseHoverCBArgs) do
+			self._mouseHoverCBArgs[k] = nil
+		end
+		self._mouseHoverCBArgs = nil
+	end
+	self._mouseHoverObj = nil
+	self._mouseHoverCB = nil
+end
+
+function UISystem:_clearMousePressCB()
+	if self._mousePressCBArgs then
+		for k in pairs(self._mousePressCBArgs) do
+			self._mousePressCBArgs[k] = nil
+		end
+		self._mousePressCBArgs = nil
+	end
+	self._mousePressObj = nil
+	self._mousePressCB = nil
 end
 
 -- MousePressedEvent
@@ -55,7 +82,7 @@ function UISystem:MousePressedEvent(e)
 	end
 
 	-- send a request to find the topmost entity
-	if not handled then
+	if not handled and self._mousePressCB then
 		self:castMouseRay(x, y, '_mouseRayHitOnPress', button, mods)
 	end
 end
@@ -96,17 +123,17 @@ function UISystem:KeyboardEvent(e)
 	end
 end
 
--- MouseIntersectEvent
-function UISystem:MouseIntersectEvent(e)
-	local obj = e:getObject()
+-- MouseIntersectResponse
+function UISystem:MouseIntersectResponse(e)
+	local ids = e:getIDs()
 	local args = e:getArgsTable()
 	if args then
 		local cb = args[1]
 		if cb and self[cb] and type(self[cb]) == 'function' then
 			if #args > 1 then
-				self[cb](obj, select(2, unpack(args)))
+				self[cb](self, ids, select(2, unpack(args)))
 			else
-				self[cb](obj)
+				self[cb](self, ids)
 			end
 		end
 	end
@@ -148,22 +175,86 @@ function UISystem:update(dt)
 			for frame in self._registered[depth]:listeners() do frame:onTick(dt) end
 		end
 
-		self:castMouseRay(nil, nil, '_mouseRayHitOnHover')
+		if self._mouseHoverCB then
+			self:castMouseRay(nil, nil, '_mouseRayHitOnHover')
+		end
 	end
 end
 
 -- send a request to check for entities under mouse cursor
 function UISystem:castMouseRay(x, y, callbackName, ...)
 	if nil == x and nil == y then x, y = getMousePos() end
-	GameEvents:notify(MouseIntersectRequest(x, y, callbackName, ...))
+	InputEvents:notify(MouseIntersectRequest(x, y, callbackName, ...))
 end
 
-function UISystem:_mouseRayHitOnPress(obj, button, mods)
-	print('press!', tostring(obj))
+-- set the callback to call when the mouse hovers over a non-frame entity
+function UISystem:setNonFrameHoverCallback(obj, callback, ...)
+	verify('table', obj)
+	verify('function', callback)
+
+	self:_clearMouseHoverCB()
+	self._mouseHoverObj = obj
+	self._mouseHoverCB = callback
+	if select('#', ...) > 0 then self._mouseHoverCBArgs = {...} end
 end
 
-function UISystem:_mouseRayHitOnHover(obj)
-	print('hover!', tostring(obj))
+-- set the callback to call when the mouse presses over a non-frame entity
+function UISystem:setNonFramePressCallback(obj, callback, ...)
+	verify('table', obj)
+	verify('function', callback)
+
+	self:_clearMousePressCB()
+	self._mousePressObj = obj
+	self._mousePressCB = callback
+	if select('#', ...) > 0 then self._mousePressCBArgs = {...} end
+end
+
+-- call mouse hover callback if it exists
+function UISystem:_mouseRayHitOnHover(ids)
+	local obj = self:_getLowestDepth(ids)
+
+	if self._mouseHoverCBArgs then
+		self._mouseHoverCB(
+			self._mouseHoverObj, obj, unpack(self._mouseHoverCBArgs))
+	else
+		self._mouseHoverCB(self._mouseHoverObj, obj)
+	end
+end
+
+-- call mouse press callback if it exists
+function UISystem:_mouseRayHitOnPress(ids, button, mods)
+	local obj = self:_getLowestDepth(ids)
+
+	if self._mousePressCBArgs then
+		self._mousePressCB(
+			self._mousePressObj, obj, button, mods, unpack(self._mousePressCBArgs))
+	else
+		self._mousePressCB(self._mousePressObj, obj, button, mods)
+	end
+end
+
+-- return the closest (lowest render depth) entity
+function UISystem:_getLowestDepth(t)
+	local lowestObj
+
+	if t then
+		local lowestDepth
+		local num = #t
+
+		for i=1,num do
+			local obj = t[i]
+			local depth = self:_getObjectDepth(obj)
+
+			lowestDepth = lowestDepth or depth
+
+			if depth <= lowestDepth then
+				lowestDepth = depth
+				lowestObj = obj
+			end
+		end
+	end
+
+	return lowestObj
 end
 
 

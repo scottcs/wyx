@@ -14,6 +14,7 @@ local ui = require 'ui.InGameUI'
 local vec2_equal = vec2.equal
 local math_floor = math.floor
 local format = string.format
+local getMousePos = love.mouse.getPosition
 
 -- events
 local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
@@ -37,6 +38,8 @@ local InGameUI = Class{name='InGameUI',
 		self._equipSlots = {}
 		self._tooltipFactory = TooltipFactory()
 		self._turns = 0
+
+		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
 	end
 }
 
@@ -52,6 +55,16 @@ function InGameUI:destroy()
 
 	self._tooltipFactory:destroy()
 	self._tooltipFactory = nil
+
+	if self._hoverTooltips then
+		for k,v in pairs(self._hoverTooltips) do
+			v:destroy()
+			self._hoverTooltips[k] = nil
+		end
+		self._hoverTooltips = nil
+	end
+
+	self._curHoverTooltipID = nil
 
 	Frame.destroy(self)
 end
@@ -111,6 +124,11 @@ function InGameUI:EntityPositionEvent(e)
 	local id = e:getEntity()
 	if id ~= self._primeEntity then return end
 	self:_updateFloorSlots()
+end
+
+-- override Frame:onTick()
+function InGameUI:onTick(dt)
+	Frame.onTick(self, dt)
 end
 
 -- make the bottom panel
@@ -481,6 +499,39 @@ function InGameUI:getGameSize()
 	local h = (ui and ui.panel and ui.panel.h) and HEIGHT - ui.panel.h or HEIGHT
 
 	return w, h
+end
+
+-- show a tooltip when an entity is hovered
+function InGameUI:_hoverTooltip(entityID)
+	self._hoverTooltips = self._hoverTooltips or {}
+
+	if self._curHoverTooltipID then
+		if self._curHoverTooltipID == entityID then return end
+
+		self._hoverTooltips[self._curHoverTooltipID]:hide()
+		self._curHoverTooltipID = nil
+	end
+
+	if entityID then
+		local f = self._hoverTooltips[entityID]
+		if not f then
+			local entity = EntityRegistry:get(entityID)
+			tooltip = self._tooltipFactory:makeEntityTooltip(entity)
+
+			if tooltip then
+				f = Frame(0, 0, 64, 64)
+				f:attachTooltip(tooltip)
+				self._hoverTooltips[entityID] = f
+			end
+		end
+
+		if f then
+			local x, y = getMousePos()
+			f:setPosition(x-32, y-32)
+			f:show()
+			self._curHoverTooltipID = entityID
+		end
+	end
 end
 
 

@@ -174,6 +174,12 @@ function TileMapView:setViewport(rect)
 	self:_drawFB()
 end
 
+function TileMapView:toMapCoords(x, y)
+	local mapX = math_floor(x / self._tileW) + 1
+	local mapY = math_floor(y / self._tileH) + 1
+	return mapX, mapY
+end
+
 -- return current tile size
 function TileMapView:getTileSize()
 	return self._tileW, self._tileH
