@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local EntityFactory = getClass 'wyx.entity.EntityFactory'
+local property = require 'wyx.component.property'
 
 -- HeroEntityFactory
 -- creates entities based on data files
@@ -7,13 +8,12 @@ local HeroEntityFactory = Class{name='HeroEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'hero')
-		self._renderLevel = 5
+		self._renderDepth = 5
 		-- required components (can be parent classes)
 		self._requiredComponents = {
 			getClass 'wyx.component.HealthComponent',
 			getClass 'wyx.component.TimeComponent',
 			getClass 'wyx.component.GraphicsComponent',
-			--getClass 'wyx.component.InfoPanelComponent',
 			getClass 'wyx.component.CombatComponent',
 			getClass 'wyx.component.CollisionComponent',
 			getClass 'wyx.component.MotionComponent',
@@ -30,19 +30,6 @@ local HeroEntityFactory = Class{name='HeroEntityFactory',
 function HeroEntityFactory:destroy()
 	EntityFactory.destroy(self)
 end
-
---[[
--- add a required component with default values
-function HeroEntityFactory:_addDefaultComponent(entity, componentClass)
-	-- check if the componentClass is InputComponent (or a subclass)
-	if isClass('wyx.component.InputComponent', componentClass) then
-		-- add an AI component
-		entity:addComponent(AIInputComponent())
-	else
-		EntityFactory._addDefaultComponent(self, entity, componentClass)
-	end
-end
-]]--
 
 -- set input component explicitly
 function HeroEntityFactory:setInputComponent(id, component)

@@ -28,6 +28,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'TileSet',
 			'TileSize',
 			'TileCoords',
+			'RenderDepth',
 			'Visibility',
 			'VisibilityBonus',
 		})
@@ -76,7 +77,8 @@ function GraphicsComponent:_setProperty(prop, data)
 			assert(#v == 2, 'Invalid TileCoords: %s', tostring(v))
 			verify('number', v[1], v[2])
 		end
-	elseif prop == property('TileSize') then
+	elseif prop == property('TileSize')
+		or prop == property('RenderDepth') then
 		verify('number', data)
 	elseif prop == property('Visibility')
 		or prop == property('VisibilityBonus')
