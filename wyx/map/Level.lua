@@ -236,7 +236,7 @@ function Level:isMap(map) return map == self._map end
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
 -- return the entities at the given location
-function Level:getEntitiesAtLocation(x, y)
+function Level:getEntitiesAtLocation(x, y, visibleOnly)
 	local ents = {}
 	local positionProp = property('Position')
 	local entCount = 0
@@ -245,8 +245,18 @@ function Level:getEntitiesAtLocation(x, y)
 		local entity = EntityRegistry:get(entityID)
 		local ePos = entity:query(positionProp)
 		if ePos[1] == x and ePos[2] == y then
-			entCount = entCount + 1
-			ents[entCount] = entityID
+			local ok = true
+
+			if visibleOnly then
+				local status = self._lightmap 
+					and self._lightmap[x] and self._lightmap[x][y]
+				ok = status == 'lit'
+			end
+
+			if ok then
+				entCount = entCount + 1
+				ents[entCount] = entityID
+			end
 		end
 	end
 

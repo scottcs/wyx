@@ -83,7 +83,7 @@ function st:MouseIntersectRequest(e)
 	-- translate world x and y to map x and y
 	local x, y = self._view:toMapCoords(worldX, worldY)
 
-	local entityIDs = self._level:getEntitiesAtLocation(x, y)
+	local entityIDs = self._level:getEntitiesAtLocation(x, y, true)
 	InputEvents:notify(MouseIntersectResponse(entityIDs, e:getArgs()))
 end
 
