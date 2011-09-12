@@ -161,6 +161,7 @@ function Text:watch(func, ...)
 	if select('#', ...) > 0 then
 		self._watchedArgs = {...}
 	end
+	self._needsUpdate = true
 end
 
 -- stop watching a function.

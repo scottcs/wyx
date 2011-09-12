@@ -231,13 +231,14 @@ function InGameUI:_makeEntityFrames()
 		x = 0
 		f = self:_makeLevelText(pe, x, y)
 
+		-- make turns text
+		f = self:_makeTurnsText()
+
 		-- TODO: make status effect icon area
 
 		-- fill equip slots
 
 		-- fill inventory slots
-
-		-- make tooltips
 
 	end
 end
@@ -409,6 +410,23 @@ end
 function InGameUI:_makeLevelText(pe, x, y)
 	-- TODO
 end
+
+-- make the turns text frame
+function InGameUI:_makeTurnsText()
+	local font = ui.label.normalStyle:getFont()
+	local fontH = font:getHeight()
+	local string = format('Turn: %09d', self._turns)
+	local fontW = font:getWidth(string)
+	local x = 0
+	local y = ui.innerpanel.h - ui.innerpanel.vmargin - fontH
+	local func = function() return format('Turn: %09d', self._turns) end
+	local f = Text(x, y, fontW, fontH)
+
+	f:setNormalStyle(ui.label.normalStyle)
+	f:watch(func)
+	self._innerPanel:addChild(f)
+end
+
 
 -- check for items at the primeEntity's feet and load them into floor slots
 function InGameUI:_updateFloorSlots()
