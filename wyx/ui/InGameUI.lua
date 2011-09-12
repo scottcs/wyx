@@ -247,11 +247,6 @@ function InGameUI:_makeEntityFrames()
 		f = self:_makeTurnsText()
 
 		-- TODO: make status effect icon area
-
-		-- fill equip slots
-
-		-- fill inventory slots
-
 	end
 end
 
@@ -420,7 +415,22 @@ end
 
 -- make the level text frame
 function InGameUI:_makeLevelText(pe, x, y)
-	-- TODO
+	--[[
+	local lvl = pe:query(pLevel)
+	]]--
+	local lvl = 1 -- XXX
+
+	local font = ui.label.normalStyle:getFont()
+	local fontH = font:getHeight()
+	local string = format('LV %-2d', lvl)
+	local fontW = font:getWidth(string)
+	local f = Text(x, y, fontW, fontH)
+
+	f:setNormalStyle(ui.label.normalStyle)
+	f:setText(string)
+	self._innerPanel:addChild(f)
+
+	return f
 end
 
 -- make the turns text frame
