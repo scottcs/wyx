@@ -161,7 +161,7 @@ function Tooltip:_adjustLayout()
 			self._header1:setPosition(x, y)
 
 			headerW = self._header1:getWidth()
-			headerH = self._header1:getHeight()
+			headerH = self._header1:getHeight() + math.floor(self._margin/2)
 			y = y + headerH
 		end
 

@@ -24,7 +24,7 @@ local tooltipStyle = Style({
 })
 
 local header1Style = Style({
-	font = GameFont.small,
+	font = GameFont.bigsmall,
 	fontcolor = colors.WHITE,
 })
 
@@ -113,6 +113,17 @@ function TooltipFactory:makeEntityTooltip(id)
 		warning('makeEntityTooltip: bad Name for entity %q', tostring(entity))
 	end
 
+	-- make the family and kind line
+	local famLine
+	if family and kind then
+		local string = family..' ('..kind..')'
+		famLine = self:_makeText(string)
+		local w = famLine:getWidth()
+		headerW = w > headerW and w or headerW
+	else
+		warning('makeEntityTooltip: missing family or kind for entity %q', name)
+	end
+
 	headerW = icon and headerW + icon:getWidth() + MARGIN or headerW
 	local width = headerW > MINWIDTH and headerW or MINWIDTH
 
@@ -136,15 +147,6 @@ function TooltipFactory:makeEntityTooltip(id)
 		end
 
 		healthBar:watch(func)
-	end
-
-	-- make the family and kind line
-	local famLine
-	if family and kind then
-		local string = family..' ('..kind..')'
-		famLine = self:_makeText(string)
-	else
-		warning('makeEntityTooltip: missing family or kind for entity %q', name)
 	end
 
 	-- make the stats frames
@@ -180,11 +182,11 @@ function TooltipFactory:makeEntityTooltip(id)
 
 	if icon then tooltip:setIcon(icon) end
 	if header1 then tooltip:setHeader1(header1) end
+	if famLine then tooltip:setHeader2(famLine) end
 	if healthBar then
 		tooltip:addBar(healthBar)
 		tooltip:addSpace()
 	end
-	if famLine then tooltip:addText(famLine) end
 	if stats then
 		tooltip:addSpace()
 		local numStats = #stats
