@@ -28,7 +28,7 @@ function MouseIntersectRequest:getX() return self._x end
 function MouseIntersectRequest:getY() return self._y end
 function MouseIntersectRequest:getPosition() return self._x, self._y end
 function MouseIntersectRequest:getArgsTable() return self._args end
-function MouseIntersectEvent:getArgs()
+function MouseIntersectRequest:getArgs()
 	return self._args and unpack(self._args) or nil
 end
 
