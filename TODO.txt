@@ -1,8 +1,8 @@
 Interface:
   x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
-  o TooltipComponent... mouseover info panel thingy
-  o   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
-  o   Add a description field to JSON files.
+  x TooltipComponent... mouseover info panel thingy
+  x   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
+  x   Add a description field to JSON files.
   x   And a Portrait field.
   ?   how to show damage range? [since it's usually a function]
   o     execute 100 [or 1000] times on load, then cache min/max values
@@ -10,7 +10,7 @@ Interface:
   o Main game interface
   d   Design what it should look like before coding it
   o   Inventory/Equipment in a line along bottom
-  o   Show turns
+  d   Show turns
   d UISystem
   d   ticks registered UI Frames
   d   draws registered UI Frames [draw after camera translation]
@@ -59,8 +59,8 @@ Interface:
   d     can be a blank vertical space
   d TooltipFactory
   d   makeEntityTooltip(entity)
-  o     display stats
-  o     needs to watch entity for value changes [health, stats]
+  d     display stats
+  d     needs to watch entity for value changes [health, stats]
   d   makeSimpleTooltip(header, text)
   d StickyButton [subclass Button]
   o   Can watch a variable [for image it represents] -- is a "view" of an item
