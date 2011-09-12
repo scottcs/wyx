@@ -85,7 +85,7 @@ function TooltipFactory:makeEntityTooltip(id)
 			local size = entity:query(property('TileSize'))
 			if size then
 				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
-				icon = self:_makeIcon(image, x, y, size, size)
+				icon = self:_makeIcon(image, x, y, size, size, size+8, size+8)
 			else
 				warning('makeEntityTooltip: bad TileSize property in entity %q', name)
 			end
@@ -211,11 +211,14 @@ function TooltipFactory:makeSimpleTooltip(header, text)
 end
 
 -- make an icon frame
-function TooltipFactory:_makeIcon(image, x, y, w, h)
+function TooltipFactory:_makeIcon(image, x, y, w, h, fw, fh)
 	local style = iconStyle:clone({fgimage = image})
 	style:setFGQuad(x, y, w, h)
 
-	local icon = Frame(0, 0, w, h)
+	fw = fw or w
+	fh = fh or h
+
+	local icon = Frame(0, 0, fw, fh)
 	icon:setNormalStyle(style, true)
 
 	return icon
