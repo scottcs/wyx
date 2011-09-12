@@ -39,7 +39,7 @@ local InGameUI = Class{name='InGameUI',
 		self._inventorySlots = {}
 		self._equipSlots = {}
 		self._tooltipFactory = TooltipFactory()
-		self._turns = 0
+		self._turns = 1
 
 		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
 	end
@@ -427,11 +427,11 @@ end
 function InGameUI:_makeTurnsText()
 	local font = ui.label.normalStyle:getFont()
 	local fontH = font:getHeight()
-	local string = format('Turn: %09d', self._turns)
+	local string = format('Turn: %-9d', self._turns)
 	local fontW = font:getWidth(string)
 	local x = 0
-	local y = ui.innerpanel.h - ui.innerpanel.vmargin - fontH
-	local func = function() return format('Turn: %09d', self._turns) end
+	local y = ui.innerpanel.h - fontH + 2
+	local func = function() return format('Turn: %-9d', self._turns) end
 	local f = Text(x, y, fontW, fontH)
 
 	f:setNormalStyle(ui.label.normalStyle)
