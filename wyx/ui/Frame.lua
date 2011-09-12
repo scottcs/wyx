@@ -271,30 +271,34 @@ end
 
 -- what to do when update ticks
 function Frame:onTick(dt, x, y, hovered)
-	if self._needsUpdate then
-		self:_drawFB()
-		self._needsUpdate = false
-	end
+	if self._show then
+		if self._needsUpdate then
+			self:_drawFB()
+			self._needsUpdate = false
+		end
 
-	if nil == x or nil == y then
-		x, y = getMousePosition()
-	end
+		if nil == x or nil == y then
+			x, y = getMousePosition()
+		end
 
-	hovered = hovered or false
-	local num = #self._children
-	for i=1,num do
-		local child = self._children[i]
-		hovered = child:onTick(dt, x, y, hovered) or hovered
-	end
+		hovered = hovered or false
+		local num = #self._children
+		for i=1,num do
+			local child = self._children[i]
+			if child:isVisible() then
+				hovered = child:onTick(dt, x, y, hovered) or hovered
+			end
+		end
 
-	if not hovered and self:containsPoint(x, y) then
-		if not self._hovered then self:onHoverIn(x, y) end
-		self._hovered = true
-		hovered = true
-		self:_setTooltipPosition(x, y)
-	else
-		if self._hovered then self:onHoverOut(x, y) end
-		self._hovered = false
+		if not hovered and self:containsPoint(x, y) then
+			if not self._hovered then self:onHoverIn(x, y) end
+			self._hovered = true
+			hovered = true
+			self:_setTooltipPosition(x, y)
+		else
+			if self._hovered then self:onHoverOut(x, y) end
+			self._hovered = false
+		end
 	end
 
 	return hovered
@@ -538,6 +542,7 @@ function Frame:hide()
 	self._show = false
 	if self._tooltip then self._tooltip:hide() end
 end
+function Frame:isVisible() return self._show == true end
 
 
 -- the class

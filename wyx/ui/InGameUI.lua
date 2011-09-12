@@ -20,6 +20,7 @@ local getMousePos = love.mouse.getPosition
 local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
 local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
+local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
 
 -- InGameUI
 -- The interface for the main game.
@@ -31,6 +32,7 @@ local InGameUI = Class{name='InGameUI',
 			PrimeEntityChangedEvent,
 			TurnCountEvent,
 			EntityPositionEvent,
+			EntityDeathEvent,
 		})
 
 		self._floorSlots = {}
@@ -124,6 +126,16 @@ function InGameUI:EntityPositionEvent(e)
 	local id = e:getEntity()
 	if id ~= self._primeEntity then return end
 	self:_updateFloorSlots()
+end
+
+-- if an entity was destroyed then remove the tooltip
+function InGameUI:EntityDeathEvent(e)
+	local id = e:getEntity()
+	if self._hoverTooltips[id] then
+		self._hoverTooltips[id]:hide()
+		self._hoverTooltips[id]:destroy()
+		self._hoverTooltips[id] = nil
+	end
 end
 
 -- override Frame:onTick()

@@ -171,6 +171,7 @@ function Text:unwatch()
 		for k in pairs(self._watchedArgs) do self._watchedArgs[k] = nil end
 		self._watchedArgs = nil
 	end
+	self._needsUpdate = true
 end
 
 -- clear the current text

@@ -70,6 +70,7 @@ function Bar:watch(func, ...)
 	if select('#', ...) > 0 then
 		self._watchedArgs = {...}
 	end
+	self._needsUpdate = true
 end
 
 -- stop watching a function.
@@ -79,6 +80,7 @@ function Bar:unwatch()
 		for k in pairs(self._watchedArgs) do self._watchedArgs[k] = nil end
 		self._watchedArgs = nil
 	end
+	self._needsUpdate = true
 end
 
 -- onTick - check watched table
