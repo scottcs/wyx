@@ -3,6 +3,8 @@
 	"family": "Armor",
 	"kind": "Robe",
 	"variation": 1,
+	"description": "This is the bloodiest stinkiest robe that all Necromacers
+	covet. Chicks dig it.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
