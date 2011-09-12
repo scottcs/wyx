@@ -6,7 +6,9 @@ local Frame = getClass 'wyx.ui.Frame'
 local Style = getClass 'wyx.ui.Style'
 local property = require 'wyx.component.property'
 
+local format = string.format
 local math_ceil = math.ceil
+local math_floor = math.floor
 local colors = colors
 
 -- some constants
@@ -65,6 +67,11 @@ function TooltipFactory:makeEntityTooltip(id)
 	local etype = entity:getEntityType()
 	local description = entity:getDescription()
 	local headerW = 0
+
+	-- make the tooltip
+	local tooltip = Tooltip()
+	tooltip:setNormalStyle(tooltipStyle)
+	tooltip:setMargin(MARGIN)
 
 	-- make the icon
 	local icon
@@ -136,14 +143,32 @@ function TooltipFactory:makeEntityTooltip(id)
 	if family and kind then
 		local string = family..' ('..kind..')'
 		famLine = self:_makeText(string)
-
-		local width = famLine:getWidth()
 	else
 		warning('makeEntityTooltip: missing family or kind for entity %q', name)
 	end
 
 	-- make the stats frames
-	-- TODO
+	local stats = {}
+	local baseline = etype == 'item' and 0 or nil
+	local spdBaseline = etype == 'item' and 100 or nil
+
+	local f = self:_makeStatText('ATK:', 'Attack', entity, width, baseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('DEF:', 'Defense', entity, width, baseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('VIS:', 'Visibility', entity, width, baseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('SPD:', 'Speed', entity, width, spdBaseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('ATC:', 'AttackCost', entity, width, spdBaseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('MVC:', 'MoveCost', entity, width, spdBaseline)
+	if f then stats[#stats+1] = f end
 
 	-- make the description
 	local body
@@ -153,10 +178,6 @@ function TooltipFactory:makeEntityTooltip(id)
 		warning('makeEntityTooltip: missing description for entity %q', name)
 	end
 
-	-- make the tooltip
-	local tooltip = Tooltip()
-	tooltip:setNormalStyle(tooltipStyle)
-	tooltip:setMargin(MARGIN)
 	if icon then tooltip:setIcon(icon) end
 	if header1 then tooltip:setHeader1(header1) end
 	if healthBar then
@@ -165,6 +186,8 @@ function TooltipFactory:makeEntityTooltip(id)
 	end
 	if famLine then tooltip:addText(famLine) end
 	if stats then
+		tooltip:addSpace()
+		local numStats = #stats
 		for i=1,numStats do
 			local stat = stats[i]
 			tooltip:addText(stat)
@@ -269,6 +292,51 @@ function TooltipFactory:_makeText(text, width)
 	if isString then line:setText(text) else line:watch(text) end
 
 	return line
+end
+
+function TooltipFactory:_makeStatText(abbr, prop, entity, width, baseline)
+	local pStat = property(prop)
+	local pStatB = property(prop..'Bonus')
+	local stat = entity:query(pStat)
+	local statB = entity:query(pStatB)
+	local text
+
+	if (stat and stat ~= baseline) or (statB and statB ~= 0) then
+		local func = function()
+			local s = entity:query(pStat)
+			local sB = entity:query(pStatB)
+
+			s = (s and s ~= baseline) and s or nil
+			sB = (sB and sB ~= 0) and sB or nil
+
+			if s and sB then
+				s = s + sB
+				return format('%d (%+d)', s, sB)
+			elseif sB then
+				return format('%+d', sB)
+			elseif s then
+				return format('%d', s)
+			else
+				return format('huh?')
+			end
+		end
+
+		local halfWidth = math_floor(width * 0.48)
+
+		local abbrText = self:_makeText(abbr, halfWidth)
+		abbrText:setJustifyRight()
+		abbrText:setPosition(0,0)
+
+		local statText = self:_makeText(func, halfWidth)
+		statText:setJustifyLeft()
+		statText:setPosition(abbrText:getWidth()+4,0)
+
+		text = Text(0, 0, width, abbrText:getHeight())
+		text:addChild(abbrText)
+		text:addChild(statText)
+	end
+
+	return text
 end
 
 
