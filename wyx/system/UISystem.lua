@@ -3,8 +3,11 @@ local RenderSystem = getClass 'wyx.system.RenderSystem'
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
+local MouseIntersectEvent = getClass 'wyx.event.MouseIntersectEvent'
+local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
 
 local getMousePos = love.mouse.getPosition
+local select, unpack, type = select, unpack, type
 
 -- how many times per second should we tick?
 local FRAME_UPDATE_TICK = 1/30
@@ -21,6 +24,7 @@ local UISystem = Class{name='UISystem',
 			MousePressedEvent,
 			MouseReleasedEvent,
 			KeyboardEvent,
+			MouseIntersectEvent,
 		})
 	end
 }
@@ -40,12 +44,19 @@ function UISystem:MousePressedEvent(e)
 	local button = e:getButton()
 	local mods = e:getModifiers()
 	local numDepths = #self._depths
+	local handled = false
 
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			frame:handleMousePress(x, y, button, mods)
+			local ok = frame:handleMousePress(x, y, button, mods)
+			if not handled and ok then handled = true end
 		end
+	end
+
+	-- send a request to find the topmost entity
+	if not handled then
+		self:castMouseRay(x, y, '_mouseRayHitOnPress', button, mods)
 	end
 end
 
@@ -85,6 +96,22 @@ function UISystem:KeyboardEvent(e)
 	end
 end
 
+-- MouseIntersectEvent
+function UISystem:MouseIntersectEvent(e)
+	local obj = e:getObject()
+	local args = e:getArgsTable()
+	if args then
+		local cb = args[1]
+		if cb and self[cb] and type(self[cb]) == 'function' then
+			if #args > 1 then
+				self[cb](obj, select(2, unpack(args)))
+			else
+				self[cb](obj)
+			end
+		end
+	end
+end
+
 -- get all frames under the mouse cursor
 function UISystem:getIntersection(x, y)
 	if nil == x and nil == y then
@@ -120,7 +147,23 @@ function UISystem:update(dt)
 			local depth = self._depths[i]
 			for frame in self._registered[depth]:listeners() do frame:onTick(dt) end
 		end
+
+		self:castMouseRay(nil, nil, '_mouseRayHitOnHover')
 	end
+end
+
+-- send a request to check for entities under mouse cursor
+function UISystem:castMouseRay(x, y, callbackName, ...)
+	if nil == x and nil == y then x, y = getMousePos() end
+	GameEvents:notify(MouseIntersectRequest(x, y, callbackName, ...))
+end
+
+function UISystem:_mouseRayHitOnPress(obj, button, mods)
+	print('press!', tostring(obj))
+end
+
+function UISystem:_mouseRayHitOnHover(obj)
+	print('hover!', tostring(obj))
 end
 
 
