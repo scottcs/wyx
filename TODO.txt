@@ -1,7 +1,7 @@
 Interface:
-  ?   how to show damage range? [since it's usually a function]
-  +     execute 100 [or 1000] times on load, then cache min/max values
-  +     or, do away with dice rolls, specify min/max instead
+  d   how to show damage range? [since it's usually a function]
+  d     execute 100 [or 1000] times on load, then cache min/max values
+  x     or, do away with dice rolls, specify min/max instead
   d Main game interface
   d   Design what it should look like before coding it
   d   Inventory/Equipment in a line along bottom
