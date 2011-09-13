@@ -156,8 +156,9 @@ colors.DARKYELLOW = {p30, p20, 0, p100}
 
 colors.ORANGE = {p100, floor(p100*0.75), p30, p100}
 colors.LIGHTORANGE = {p100, floor(p100*0.88), p70, p100}
-colors.DARKORANGE = {p30, floor(p100*0.25), floor(p100*0.15), p100}
+colors.DARKORANGE = {p70, floor(p100*0.52), p20, p100}
 colors.BROWN = {p50, p40, p20, p100}
+colors.DARKBROWN = {p30, floor(p100*0.25), floor(p100*0.15), p100}
 
 colors.GREEN = {0, p100, 0, p100}
 colors.LIGHTGREEN = {p70, p100, p70, p100}

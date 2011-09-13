@@ -30,7 +30,17 @@ local header1Style = Style({
 
 local textStyle = Style({
 	font = GameFont.verysmall,
-	fontcolor = colors.GREY70,
+	fontcolor = colors.GREY60,
+})
+
+local numberStyle = Style({
+	font = GameFont.verysmall,
+	fontcolor = colors.WHITE,
+})
+
+local descriptionStyle = Style({
+	font = GameFont.verysmall,
+	fontcolor = colors.DARKORANGE,
 })
 
 local iconStyle = Style({
@@ -183,7 +193,7 @@ function TooltipFactory:makeEntityTooltip(id)
 	-- make the description
 	local body
 	if description then
-		body = self:_makeText(description, width)
+		body = self:_makeText(description, width, descriptionStyle)
 	else
 		warning('makeEntityTooltip: missing description for entity %q', name)
 	end
@@ -285,7 +295,7 @@ function TooltipFactory:_makeHeader2(text)
 end
 
 -- make a generic Text frame
-function TooltipFactory:_makeText(text, width)
+function TooltipFactory:_makeText(text, width, style)
 	local isString = type(text) == 'string'
 
 	local font = textStyle:getFont()
@@ -297,7 +307,8 @@ function TooltipFactory:_makeText(text, width)
 	local line = Text(0, 0, width, numLines * fontH)
 	line:setMaxLines(numLines)
 	if numLines == 1 then line:setJustifyCenter() end
-	line:setNormalStyle(textStyle)
+	style = style or textStyle
+	line:setNormalStyle(style)
 
 	if isString then line:setText(text) else line:watch(text) end
 
@@ -337,7 +348,7 @@ function TooltipFactory:_makeStatText(prop, entity, width, baseline)
 		nameText:setJustifyRight()
 		nameText:setPosition(0,0)
 
-		local statText = self:_makeText(func, halfWidth)
+		local statText = self:_makeText(func, halfWidth, numberStyle)
 		statText:setJustifyLeft()
 		statText:setPosition(nameText:getWidth()+4,0)
 
