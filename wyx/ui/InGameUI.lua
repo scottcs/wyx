@@ -51,6 +51,9 @@ function InGameUI:destroy()
 
 	self:_clearBottomPanel()
 
+	if self._mouseSlot then self._mouseSlot:destroy() end
+	self._mouseSlot = nil
+
 	self._primeEntity = nil
 	self._turns = nil
 	self._bottomPanel = nil
@@ -141,6 +144,11 @@ end
 
 -- override Frame:onTick()
 function InGameUI:onTick(dt)
+	if self._mouseSlot then
+		local x, y = getMousePos()
+		self._mouseSlot:setCenter(x, y, 'floor')
+	end
+
 	Frame.onTick(self, dt)
 end
 
@@ -158,9 +166,16 @@ function InGameUI:_makeBottomPanel()
 	self._bottomPanel:addChild(f)
 	self._innerPanel = f
 
+	self:_makeMouseSlot()
 	self:_makeEquipSlots()
 	self:_makeInventorySlots()
 	self:_makeFloorSlots()
+end
+
+-- make the invisible slot for containing StickyButtons picked up by the mouse
+function InGameUI:_makeMouseSlot()
+	self._mouseSlot = Slot(0, 0, ui.weaponslot.w, ui.weaponslot.h)
+	self._mouseSlot:hideTooltips()
 end
 
 -- make the equip slot frames
@@ -168,6 +183,12 @@ function InGameUI:_makeEquipSlots()
 	local slot = Slot(ui.weaponslot.x, ui.weaponslot.y,
 		ui.weaponslot.w, ui.weaponslot.h)
 	slot:setNormalStyle(ui.weaponslot.normalStyle)
+	slot:setVerificationCallback(function(btn)
+		local id = btn:getEntityID()
+		local entity = EntityRegistry:get(id)
+		local family = entity:getFamily()
+		return family == 'Weapon'
+	end)
 	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 
@@ -521,11 +542,12 @@ function InGameUI:_addToFloor(item)
 					local btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
 					btn:setNormalStyle(normalStyle, true)
 					btn:setHoverStyle(hoverStyle, true)
+					btn:setEntityID(item:getID())
 
 					local tooltip = self._tooltipFactory:makeEntityTooltip(item)
 					btn:attachTooltip(tooltip)
 
-					slot:swap(btn)
+					slot:insert(btn)
 				end -- if size
 			end -- if coords
 		end -- if tilecoords
