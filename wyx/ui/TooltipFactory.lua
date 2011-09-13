@@ -154,22 +154,30 @@ function TooltipFactory:makeEntityTooltip(id)
 	local baseline = etype == 'item' and 0 or nil
 	local spdBaseline = etype == 'item' and 100 or nil
 
-	local f = self:_makeStatText('ATK:', 'Attack', entity, width, baseline)
+	local f = self:_makeStatText('Attack', entity, width, baseline)
 	if f then stats[#stats+1] = f end
 
-	f = self:_makeStatText('DEF:', 'Defense', entity, width, baseline)
+	f = self:_makeStatText('Defense', entity, width, baseline)
 	if f then stats[#stats+1] = f end
 
-	f = self:_makeStatText('VIS:', 'Visibility', entity, width, baseline)
+	if etype == 'item' then
+		f = self:_makeStatText('Health', entity, width, baseline)
+		if f then stats[#stats+1] = f end
+
+		f = self:_makeStatText('MaxHealth', entity, width, baseline)
+		if f then stats[#stats+1] = f end
+	end
+
+	f = self:_makeStatText('Visibility', entity, width, baseline)
 	if f then stats[#stats+1] = f end
 
-	f = self:_makeStatText('SPD:', 'Speed', entity, width, spdBaseline)
+	f = self:_makeStatText('Speed', entity, width, spdBaseline)
 	if f then stats[#stats+1] = f end
 
-	f = self:_makeStatText('ATC:', 'AttackCost', entity, width, spdBaseline)
+	f = self:_makeStatText('AttackCost', entity, width, spdBaseline)
 	if f then stats[#stats+1] = f end
 
-	f = self:_makeStatText('MVC:', 'MoveCost', entity, width, spdBaseline)
+	f = self:_makeStatText('MoveCost', entity, width, spdBaseline)
 	if f then stats[#stats+1] = f end
 
 	-- make the description
@@ -296,7 +304,7 @@ function TooltipFactory:_makeText(text, width)
 	return line
 end
 
-function TooltipFactory:_makeStatText(abbr, prop, entity, width, baseline)
+function TooltipFactory:_makeStatText(prop, entity, width, baseline)
 	local pStat = property(prop)
 	local pStatB = property(prop..'Bonus')
 	local stat = entity:query(pStat)
@@ -325,16 +333,16 @@ function TooltipFactory:_makeStatText(abbr, prop, entity, width, baseline)
 
 		local halfWidth = math_floor(width * 0.48)
 
-		local abbrText = self:_makeText(abbr, halfWidth)
-		abbrText:setJustifyRight()
-		abbrText:setPosition(0,0)
+		local nameText = self:_makeText(prop..':', halfWidth)
+		nameText:setJustifyRight()
+		nameText:setPosition(0,0)
 
 		local statText = self:_makeText(func, halfWidth)
 		statText:setJustifyLeft()
-		statText:setPosition(abbrText:getWidth()+4,0)
+		statText:setPosition(nameText:getWidth()+4,0)
 
-		text = Text(0, 0, width, abbrText:getHeight())
-		text:addChild(abbrText)
+		text = Text(0, 0, width, nameText:getHeight())
+		text:addChild(nameText)
 		text:addChild(statText)
 	end
 
