@@ -132,6 +132,7 @@ end
 function InGameUI:EntityDeathEvent(e)
 	local id = e:getEntity()
 	if self._hoverTooltips[id] then
+		if self._curHoverTooltipID == id then self._curHoverTooltipID = nil end
 		self._hoverTooltips[id]:hide()
 		self._hoverTooltips[id]:destroy()
 		self._hoverTooltips[id] = nil
