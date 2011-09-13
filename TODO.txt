@@ -72,7 +72,7 @@ Interface:
   d   Can contain a StickyButton
   d   Draws StickyButton instead of self when containing one.
   d     actually, needs to draw a background when containing a StickyButton [second Style?]
-  o   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
+  d   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
   d Bar [subclass Frame]
   d   Has a min and max and current value
   d   Can watch a variable
