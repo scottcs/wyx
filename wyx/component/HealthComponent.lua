@@ -114,10 +114,10 @@ function HealthComponent:receive(sender, msg, ...)
 end
 
 function HealthComponent:getProperty(p, intermediate, ...)
-	if   prop == property('Health')
-		or prop == property('MaxHealth')
-		or prop == property('HealthBonus')
-		or prop == property('MaxHealthBonus')
+	if   p == property('Health')
+		or p == property('MaxHealth')
+		or p == property('HealthBonus')
+		or p == property('MaxHealthBonus')
 	then
 		local prop = self:_evaluate(p)
 		if not intermediate then return prop end

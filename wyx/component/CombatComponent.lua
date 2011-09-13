@@ -47,12 +47,12 @@ function CombatComponent:_setProperty(prop, data)
 end
 
 function CombatComponent:getProperty(p, intermediate, ...)
-	if   prop == property('Attack')
-		or prop == property('Defense')
-		or prop == property('Damage')
-		or prop == property('AttackBonus')
-		or prop == property('DefenseBonus')
-		or prop == property('DamageBonus')
+	if   p == property('Attack')
+		or p == property('Defense')
+		or p == property('Damage')
+		or p == property('AttackBonus')
+		or p == property('DefenseBonus')
+		or p == property('DamageBonus')
 	then
 		local prop = self:_evaluate(p)
 		if not intermediate then return prop end
