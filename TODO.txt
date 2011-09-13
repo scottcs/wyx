@@ -138,6 +138,7 @@ Level:
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
   o make stairs work [generate new map]
   + maps should be referenced by ID like entities [with portals, anyway]
+  + item distribution needs some algorithms [ensure even spread of weapons, armor, etc]
 
 Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
