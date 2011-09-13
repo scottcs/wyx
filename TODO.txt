@@ -62,6 +62,7 @@ Interface:
   d     display stats
   d     needs to watch entity for value changes [health, stats]
   d   makeSimpleTooltip(header, text)
+  +   Why does the numLines calculation sometimes come up short?
   d StickyButton [subclass Button]
   o   Can watch a variable [for image it represents] -- is a "view" of an item
   o     displays image [icon]
