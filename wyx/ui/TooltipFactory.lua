@@ -284,7 +284,7 @@ function TooltipFactory:_makeText(text, width)
 	local fontH = font:getHeight()
 	local fontW = isString and font:getWidth(text) or font:getWidth(text())*2
 	width = width or fontW
-	local numLines = math_ceil(fontW / width)
+	local numLines = math_ceil((fontW / width) + 0.0001)
 
 	local line = Text(0, 0, width, numLines * fontH)
 	line:setMaxLines(numLines)
