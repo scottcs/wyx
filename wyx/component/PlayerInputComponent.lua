@@ -4,8 +4,10 @@ local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local message = require 'wyx.component.message'
 local property = require 'wyx.component.property'
+local command = require 'wyx.ui.command'
 
 local InputEvents = InputEvents
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 
 -- PlayerInputComponent
 --
@@ -14,7 +16,7 @@ local PlayerInputComponent = Class{name='PlayerInputComponent',
 	function(self, properties)
 		InputComponent.construct(self, properties)
 		self:_addMessages('TIME_PRETICK')
-		InputEvents:register(self, KeyboardEvent)
+		InputEvents:register(self, {KeyboardEvent, InputCommandEvent})
 	end
 }
 
@@ -166,6 +168,45 @@ function PlayerInputComponent:KeyboardEvent(e)
 
 		if doTick then self:_setProperty(property('DoTick'), true) end
 	end
+end
+
+-- on InputCommandEvent, call the correlating function
+function PlayerInputComponent:InputCommandEvent(e)
+	local cmd = e:getCommand()
+	local args = e:getCommandArgs()
+	local doTick = false
+
+	if cmd == command('ATTACH_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand ATTACH_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doAttach(id) end
+		doTick = true
+
+	elseif cmd == command('DETACH_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand DETACH_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doDetach(id) end
+		doTick = true
+
+	elseif cmd == command('PICKUP_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand PICKUP_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doPickup(id) end
+		doTick = true
+
+	elseif cmd == command('DROP_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand DROP_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doDrop(id) end
+		doTick = true
+
+	end
+
+	if doTick then self:_setProperty(property('DoTick'), true) end
 end
 
 function PlayerInputComponent:receive(sender, msg, ...)

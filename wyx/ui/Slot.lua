@@ -20,6 +20,7 @@ function Slot:destroy()
 
 	self:_clearVerificationCallback()
 	self:_clearInsertCallback()
+	self:_clearRemoveCallback()
 	self._verificationCallback = nil
 	self._insertCallback = nil
 	self._removeCallback = nil
@@ -106,9 +107,9 @@ function Slot:remove()
 		if self._removeCallback then
 			local args = self._removeCallbackArgs
 			if args then
-				self._removeCallback(button, unpack(args))
+				self._removeCallback(oldButton, unpack(args))
 			else
-				self._removeCallback(button)
+				self._removeCallback(oldButton)
 			end
 		end
 	end
@@ -136,9 +137,9 @@ function Slot:setInsertCallback(func, ...)
 	if numArgs > 0 then self._insertCallbackArgs = {...} end
 end
 
-function Slot:setInsertCallback(func, ...)
+function Slot:setRemoveCallback(func, ...)
 	verify('function', func)
-	self:_clearInsertCallback()
+	self:_clearRemoveCallback()
 
 	self._removeCallback = func
 
@@ -150,7 +151,7 @@ end
 function Slot:_clearVerificationCallback()
 	self._verificationCallback = nil
 	if self._verificationCallbackArgs then
-		for k,v in self._verificationCallbackArgs do
+		for k,v in pairs(self._verificationCallbackArgs) do
 			self._verificationCallbackArgs[k] = nil
 		end
 		self._verificationCallbackArgs = nil
@@ -161,7 +162,7 @@ end
 function Slot:_clearInsertCallback()
 	self._insertCallback = nil
 	if self._insertCallbackArgs then
-		for k,v in self._insertCallbackArgs do
+		for k,v in pairs(self._insertCallbackArgs) do
 			self._insertCallbackArgs[k] = nil
 		end
 		self._insertCallbackArgs = nil
@@ -169,10 +170,10 @@ function Slot:_clearInsertCallback()
 end
 
 -- clear the remove callback
-function Slot:_clearInsertCallback()
+function Slot:_clearRemoveCallback()
 	self._removeCallback = nil
 	if self._removeCallbackArgs then
-		for k,v in self._removeCallbackArgs do
+		for k,v in pairs(self._removeCallbackArgs) do
 			self._removeCallbackArgs[k] = nil
 		end
 		self._removeCallbackArgs = nil

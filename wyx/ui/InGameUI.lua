@@ -9,6 +9,7 @@ local Slot = getClass 'wyx.ui.Slot'
 local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
 
 local property = require 'wyx.component.property'
+local command = require 'wyx.ui.command'
 local ui = require 'ui.InGameUI'
 
 local vec2_equal = vec2.equal
@@ -21,6 +22,7 @@ local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
 local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 
 -- InGameUI
 -- The interface for the main game.
@@ -175,7 +177,40 @@ end
 -- make the invisible slot for containing StickyButtons picked up by the mouse
 function InGameUI:_makeMouseSlot()
 	self._mouseSlot = Slot(0, 0, ui.weaponslot.w, ui.weaponslot.h)
+	self._mouseSlot:setDepth(7)
 	self._mouseSlot:hideTooltips()
+end
+
+-- function to verify equipment is the correct family
+local _equipVerificationFunc = function(btn, which)
+	local id = btn:getEntityID()
+	local entity = EntityRegistry:get(id)
+	local family = entity:getFamily()
+	return family == which
+end
+
+-- function to equip items when inserted into equip slot
+local _equipInsertFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
+end
+
+-- function to equip items when removed from equip slot
+local _equipRemoveFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
+end
+
+-- function to floor items when inserted into floor slot
+local _floorInsertFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
+end
+
+-- function to floor items when removed from floor slot
+local _floorRemoveFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
 end
 
 -- make the equip slot frames
@@ -183,24 +218,27 @@ function InGameUI:_makeEquipSlots()
 	local slot = Slot(ui.weaponslot.x, ui.weaponslot.y,
 		ui.weaponslot.w, ui.weaponslot.h)
 	slot:setNormalStyle(ui.weaponslot.normalStyle)
-	slot:setVerificationCallback(function(btn)
-		local id = btn:getEntityID()
-		local entity = EntityRegistry:get(id)
-		local family = entity:getFamily()
-		return family == 'Weapon'
-	end)
+	slot:setVerificationCallback(_equipVerificationFunc, 'Weapon')
+	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
+	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
 	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.armorslot.x, ui.armorslot.y,
 		ui.armorslot.w, ui.armorslot.h)
 	slot:setNormalStyle(ui.armorslot.normalStyle)
+	slot:setVerificationCallback(_equipVerificationFunc, 'Armor')
+	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
+	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
 	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.ringslot.x, ui.ringslot.y,
 		ui.ringslot.w, ui.ringslot.h)
 	slot:setNormalStyle(ui.ringslot.normalStyle)
+	slot:setVerificationCallback(_equipVerificationFunc, 'Ring')
+	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
+	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
 	self._equipSlots[#self._equipSlots + 1] = slot
 	self._innerPanel:addChild(slot)
 end
@@ -228,6 +266,8 @@ function InGameUI:_makeFloorSlots()
 	for i=1,6 do
 		local slot = Slot(x, y, ui.floorslot.w, ui.floorslot.h)
 		slot:setNormalStyle(ui.floorslot.normalStyle)
+		slot:setInsertCallback(_floorInsertFunc, self._primeEntity)
+		slot:setRemoveCallback(_floorRemoveFunc, self._primeEntity)
 		f:addChild(slot)
 		self._floorSlots[#self._floorSlots + 1] = slot
 		x = x + ui.floorslot.w
