@@ -186,7 +186,7 @@ function Level:_populateMap()
 					local entity = EntityRegistry:get(entityID)
 					entity:send(setPosition, x, y, x, y)
 				else
-					remove[#remove+1] = entity
+					remove[#remove+1] = entityID
 				end
 			end
 		end
