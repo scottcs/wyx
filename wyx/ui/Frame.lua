@@ -70,6 +70,8 @@ function Frame:destroy()
 	self._mouseDown = nil
 	self._accum = nil
 	self._show = nil
+
+	if self._tooltip then self._tooltip:destroy() end
 	self._tooltip = nil
 
 	Rect.destroy(self)
