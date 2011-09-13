@@ -371,22 +371,20 @@ function TooltipFactory:_makeDamageText(entity, width)
 	local max = entity:query(pMax)
 	local text
 
-	if min ~= 0 and max ~= 0 then
+	if min ~= 0 and max ~= 0 or entity:getEntityType() ~= 'item' then
 		local func = function()
 			local min = entity:query(pMin)
 			local max = entity:query(pMax)
 
-			min = (min and min ~= 0) and min or nil
-			max = (max and max ~= 0) and max or nil
+			min = min or 1
+			max = max or 1
+			min = min < 1 and 1 or min
+			max = max > min and max or min
 
-			if min and max then
-				if min == max then
-					return format('%.1f', min)
-				else
-					return format('%.1f - %.1f', min, max)
-				end
+			if min == max then
+				return format('%.1f', min)
 			else
-				return format('huh?')
+				return format('%.1f - %.1f', min, max)
 			end
 		end
 
