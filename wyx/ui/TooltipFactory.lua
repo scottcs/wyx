@@ -164,12 +164,6 @@ function TooltipFactory:makeEntityTooltip(id)
 	local baseline = etype == 'item' and 0 or nil
 	local spdBaseline = etype == 'item' and 100 or nil
 
-	local f = self:_makeStatText('Attack', entity, width, baseline)
-	if f then stats[#stats+1] = f end
-
-	f = self:_makeStatText('Defense', entity, width, baseline)
-	if f then stats[#stats+1] = f end
-
 	if etype == 'item' then
 		f = self:_makeStatText('Health', entity, width, baseline)
 		if f then stats[#stats+1] = f end
@@ -177,6 +171,15 @@ function TooltipFactory:makeEntityTooltip(id)
 		f = self:_makeStatText('MaxHealth', entity, width, baseline)
 		if f then stats[#stats+1] = f end
 	end
+
+	local f = self:_makeStatText('Attack', entity, width, baseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeStatText('Defense', entity, width, baseline)
+	if f then stats[#stats+1] = f end
+
+	f = self:_makeDamageText(entity, width)
+	if f then stats[#stats+1] = f end
 
 	f = self:_makeStatText('Visibility', entity, width, baseline)
 	if f then stats[#stats+1] = f end
@@ -316,16 +319,17 @@ function TooltipFactory:_makeText(text, width, style)
 end
 
 function TooltipFactory:_makeStatText(prop, entity, width, baseline)
-	local pStat = property(prop)
-	local pStatB = property(prop..'Bonus')
-	local stat = entity:query(pStat)
-	local statB = entity:query(pStatB)
+	local pMin = property(prop)
+	local bonus = prop..'Bonus'
+	local pMax = property.isproperty(bonus) and bonus or nil
+	local stat = entity:query(pMin)
+	local statB = pMax and entity:query(pMax) or nil
 	local text
 
 	if (stat and stat ~= baseline) or (statB and statB ~= 0) then
 		local func = function()
-			local s = entity:query(pStat)
-			local sB = entity:query(pStatB)
+			local s = entity:query(pMin)
+			local sB = pMax and entity:query(pMax) or nil
 
 			s = (s and s ~= baseline) and s or nil
 			sB = (sB and sB ~= 0) and sB or nil
@@ -355,6 +359,50 @@ function TooltipFactory:_makeStatText(prop, entity, width, baseline)
 		text = Text(0, 0, width, nameText:getHeight())
 		text:addChild(nameText)
 		text:addChild(statText)
+	end
+
+	return text
+end
+
+function TooltipFactory:_makeDamageText(entity, width)
+	local pMin = property('_DamageMin')
+	local pMax = property('_DamageMax')
+	local min = entity:query(pMin)
+	local max = entity:query(pMax)
+	local text
+
+	if min ~= 0 and max ~= 0 then
+		local func = function()
+			local min = entity:query(pMin)
+			local max = entity:query(pMax)
+
+			min = (min and min ~= 0) and min or nil
+			max = (max and max ~= 0) and max or nil
+
+			if min and max then
+				if min == max then
+					return format('%.1f', min)
+				else
+					return format('%.1f - %.1f', min, max)
+				end
+			else
+				return format('huh?')
+			end
+		end
+
+		local halfWidth = math_floor(width * 0.48)
+
+		local nameText = self:_makeText('Damage:', halfWidth)
+		nameText:setJustifyRight()
+		nameText:setPosition(0,0)
+
+		local damageText = self:_makeText(func, halfWidth, numberStyle)
+		damageText:setJustifyLeft()
+		damageText:setPosition(nameText:getWidth()+4,0)
+
+		text = Text(0, 0, width, nameText:getHeight())
+		text:addChild(nameText)
+		text:addChild(damageText)
 	end
 
 	return text
