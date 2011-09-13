@@ -1,21 +1,16 @@
 Interface:
-  x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
-  x TooltipComponent... mouseover info panel thingy
-  x   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
-  x   Add a description field to JSON files.
-  x   And a Portrait field.
   ?   how to show damage range? [since it's usually a function]
-  o     execute 100 [or 1000] times on load, then cache min/max values
-  o     or, do away with dice rolls, specify min/max instead
-  o Main game interface
+  +     execute 100 [or 1000] times on load, then cache min/max values
+  +     or, do away with dice rolls, specify min/max instead
+  d Main game interface
   d   Design what it should look like before coding it
-  o   Inventory/Equipment in a line along bottom
+  d   Inventory/Equipment in a line along bottom
   d   Show turns
   d UISystem
   d   ticks registered UI Frames
   d   draws registered UI Frames [draw after camera translation]
   d   listens for user input - mouse and keyboard
-  -     sends events [based on configured keybindings eventually] translated from input
+  d     sends events [based on configured keybindings eventually] translated from input
 
   UI Elements:
   d Styles
@@ -55,7 +50,6 @@ Interface:
   d   contains one or more info lines
   d     can be a Text frame
   d     can be a Bar frame
-  x     can be an InfoBar frame
   d     can be a blank vertical space
   d TooltipFactory
   d   makeEntityTooltip(entity)
@@ -64,8 +58,8 @@ Interface:
   d   makeSimpleTooltip(header, text)
   +   Why does the numLines calculation sometimes come up short?
   d StickyButton [subclass Button]
-  o   Can watch a variable [for image it represents] -- is a "view" of an item
-  o     displays image [icon]
+  x   Can watch a variable [for image it represents] -- is a "view" of an item
+  d     displays image [icon]
   d   attaches to mouse cursor when clicked
   d   is placed in nearest overlapping Slot when clicked again
   d Slots [subclass Frame]
@@ -77,19 +71,9 @@ Interface:
   d   Has a min and max and current value
   d   Can watch a variable
   x   Animation?
-  x Info bar [health bar, etc] [subclass Frame]
-  x   optional Text as cur/max or as %
-  x      can position text anywhere
-  x   optional Text as label
-  x      can position anywhere
-  x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
   + Pause ability
-  - custom mouse cursor
-  - Quick Menu [post 0.1.0 probably... something to allow large inventory]
-  - Minimap
-  - Ability to click on entities/map tiles directly
-  ?   Context menu
-  ?   Click-to-move?
+  +   Any zoom level besides lowest forces Pause
+  d Ability to click on entities/map tiles directly
 
   Options / Config:
   - key bindings
@@ -97,6 +81,15 @@ Interface:
 For v0.1.0:
   o interface
   d rename this game [even if just a working name]
+  o music [randomly choose a track]
+  o   key to disable
+  o sounds
+  o   key to disable
+  o   monster hurt
+  o   monster death
+  o   player hurt
+  o   player death
+  o   open door
 
 
 
@@ -152,6 +145,27 @@ Expressions:
       "Let me at em! Let me at em!",
       "Honk if you're horny!",
     },
+
+Interface:
+  ? Minimap  [or is zoom out good enough?]
+  x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
+  x TooltipComponent... mouseover info panel thingy
+  x   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
+  x   Add a description field to JSON files.
+  x   And a Portrait field.
+  x Info bar [health bar, etc] [subclass Frame]
+  x   optional Text as cur/max or as %
+  x      can position text anywhere
+  x   optional Text as label
+  x      can position anywhere
+  x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+  x Tooltip line can be an InfoBar frame
+  x custom mouse cursor
+  x Quick Menu [post 0.1.0 probably... something to allow large inventory]
+
+  Game viewport:
+  ?   Context menu when right-click on entities/objects?
+  ?   Click-to-move?
 
 Graphics:
   x make hero movement smoother [tweened... possibly only move camera when near edges?]
