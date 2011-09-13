@@ -56,6 +56,8 @@ property.Damage            = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
 property.DamageBonus       = 0
+property._DamageMin        = 0
+property._DamageMax        = 0
 
 -- health properties
 property.Health            = '=$MaxHealth'
