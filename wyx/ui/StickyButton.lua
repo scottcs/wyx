@@ -18,6 +18,12 @@ local StickyButton = Class{name='StickyButton',
 function StickyButton:destroy()
 	self._slot = nil
 	self._attached = nil
+
+	self:_clearAttachCallback()
+	self:_clearDetachCallback()
+	self._attachCallback = nil
+	self._detachCallback = nil
+
 	Button.destroy(self)
 end
 
@@ -71,6 +77,15 @@ function StickyButton:attachToMouse()
 	self._attached = true
 	self._hovered = false
 	self:onTick()
+
+	if self._attachCallback then
+		local args = self._attachCallbackArgs
+		if args then
+			self._attachCallback(unpack(args))
+		else
+			self._attachCallback()
+		end
+	end
 end
 
 -- detach from mouse cursor into slot
@@ -80,6 +95,15 @@ function StickyButton:detachFromMouse(slot)
 	self._attached = false
 	self._hovered = true
 	self:onTick()
+
+	if self._detachCallback then
+		local args = self._detachCallbackArgs
+		if args then
+			self._detachCallback(unpack(args))
+		else
+			self._detachCallback()
+		end
+	end
 end
 
 -- override onTick() to change position to mouse position if attached
@@ -91,6 +115,48 @@ function StickyButton:onTick(dt, x, y)
 	end
 
 	return Button.onTick(self, dt, x, y)
+end
+
+function StickyButton:setAttachCallback(func, ...)
+	verify('function', func)
+	self:_clearAttachCallback()
+
+	self._attachCallback = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._attachCallbackArgs = {...} end
+end
+
+function StickyButton:setDetachCallback(func, ...)
+	verify('function', func)
+	self:_clearDetachCallback()
+
+	self._detachCallback = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._detachCallbackArgs = {...} end
+end
+
+-- clear the attach callback
+function StickyButton:_clearAttachCallback()
+	self._attachCallback = nil
+	if self._attachCallbackArgs then
+		for k,v in self._attachCallbackArgs do
+			self._attachCallbackArgs[k] = nil
+		end
+		self._attachCallbackArgs = nil
+	end
+end
+
+-- clear the detach callback
+function StickyButton:_clearDetachCallback()
+	self._detachCallback = nil
+	if self._detachCallbackArgs then
+		for k,v in self._detachCallbackArgs do
+			self._detachCallbackArgs[k] = nil
+		end
+		self._detachCallbackArgs = nil
+	end
 end
 
 
