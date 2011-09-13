@@ -245,8 +245,6 @@ function InGameUI:_makeEntityFrames()
 
 		-- make turns text
 		f = self:_makeTurnsText()
-
-		-- TODO: make status effect icon area
 	end
 end
 

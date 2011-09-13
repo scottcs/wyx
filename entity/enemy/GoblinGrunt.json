@@ -2,6 +2,7 @@
 	"family": "Goblin",
 	"kind": "Grunt",
 	"variation": 1,
+	"description": "Zug Zug! (that's not a copyright violation, I hope!)",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

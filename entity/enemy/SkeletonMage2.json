@@ -2,6 +2,7 @@
 	"family": "Skeleton",
 	"kind": "Mage",
 	"variation": 2,
+	"description": "Whuh-oh! Super Skele-mage!",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

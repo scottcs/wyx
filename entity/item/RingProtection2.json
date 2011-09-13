@@ -2,6 +2,7 @@
 	"family": "Ring",
 	"kind": "of Protection",
 	"variation": 2,
+	"description": "It's a band made from some kind of metal. It looks like it would fit on one of your fingers.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Katana",
 	"variation": 1,
+	"description": "It gleams silvery white in the dim light.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

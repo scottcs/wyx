@@ -1,16 +1,17 @@
 {
 	"family": "Weapon",
 	"kind": "Magic Sword",
-	"variation": 1,
+	"variation": 2,
+	"description": "There is some kind of jewel encrusted in the hilt. The blade glows softly.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
 			"TileCoords": {
-				"item": {5, 1},
+				"item": {6, 1},
 			},
 		},
 		"CombatComponent": {
-			"Attack": "=1d2+5",
+			"Attack": "=1d2+4",
 			"Damage": "!1d3+4",
 		},
 	}

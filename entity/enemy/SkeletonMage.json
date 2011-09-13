@@ -2,6 +2,7 @@
 	"family": "Skeleton",
 	"kind": "Mage",
 	"variation": 1,
+	"description": "It rattles.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
