@@ -22,6 +22,7 @@ function Slot:destroy()
 	self:_clearInsertCallback()
 	self._verificationCallback = nil
 	self._insertCallback = nil
+	self._removeCallback = nil
 	self._hideTooltips = nil
 
 	Frame.destroy(self)
@@ -101,6 +102,15 @@ function Slot:remove()
 		self:removeChild(self._button)
 		oldButton = self._button
 		self._button = nil
+
+		if self._removeCallback then
+			local args = self._removeCallbackArgs
+			if args then
+				self._removeCallback(button, unpack(args))
+			else
+				self._removeCallback(button)
+			end
+		end
 	end
 
 	return oldButton
@@ -126,6 +136,16 @@ function Slot:setInsertCallback(func, ...)
 	if numArgs > 0 then self._insertCallbackArgs = {...} end
 end
 
+function Slot:setInsertCallback(func, ...)
+	verify('function', func)
+	self:_clearInsertCallback()
+
+	self._removeCallback = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._removeCallbackArgs = {...} end
+end
+
 -- clear the verification callback
 function Slot:_clearVerificationCallback()
 	self._verificationCallback = nil
@@ -148,6 +168,16 @@ function Slot:_clearInsertCallback()
 	end
 end
 
+-- clear the remove callback
+function Slot:_clearInsertCallback()
+	self._removeCallback = nil
+	if self._removeCallbackArgs then
+		for k,v in self._removeCallbackArgs do
+			self._removeCallbackArgs[k] = nil
+		end
+		self._removeCallbackArgs = nil
+	end
+end
 
 -- return true if the slot is empty
 function Slot:isEmpty() return self._button == nil end
