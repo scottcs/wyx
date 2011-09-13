@@ -103,21 +103,6 @@ property.ContainedEntities = {}
 -- attachment properties
 property.AttachedEntities  = {}
 
--- weaknesses
-property.CrushWeakness     = 0
-property.SliceWeakness     = 0
-property.StabWeakness      = 0
-property.FireWeakness      = 0
-
--- resistances
-property.CrushResistance   = 0
-property.SliceResistance   = 0
-property.StabResistance    = 0
-property.FireResistance    = 0
-
--- status effects
-property.Combustable       = false
-
 
 -- the structure of valid property
 return setmetatable({isproperty=isproperty, default=default},
