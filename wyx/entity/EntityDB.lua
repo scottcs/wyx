@@ -245,7 +245,6 @@ end
 function EntityDB:_getPropertyWeights() return nil end
 
 -- calculate the elevel of this entity based on relevant properties.
--- TODO: Entity.evaluate(expression) 100 times and take average.
 function EntityDB:_calculateELevel(info)
 	local props = self:_getPropertyWeights()
 	local found = {}
