@@ -18,13 +18,10 @@ local get = function(cmd)
 end
 
 -- Input command table
-command.MOVE                  = 'MOVE'
-command.ATTACK                = 'ATTACK'
 command.PICKUP_ENTITY         = 'PICKUP_ENTITY'
 command.DROP_ENTITY           = 'DROP_ENTITY'
 command.ATTACH_ENTITY         = 'ATTACH_ENTITY'
 command.DETACH_ENTITY         = 'DETACH_ENTITY'
-command.ACTIVATE_ENTITY       = 'ACTIVATE_ENTITY'
 
 -- the structure of valid command
 return setmetatable({iscommand = iscommand},
