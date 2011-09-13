@@ -30,7 +30,7 @@ local MessageHUD = Class{name='MessageHUD',
 		local fbW = imageData:getWidth()
 		local fbH = imageData:getHeight()
 		self._fbX = math_floor(WIDTH/2 - w/2)
-		self._fbY = math_floor(HEIGHT - h*1.5)
+		self._fbY = math_floor(HEIGHT - h*3)
 		self._message = message
 		self._finish = getMicroTime() + seconds + 0.3
 		self._fadeColor = colors.clone(colors.WHITE_A00)
