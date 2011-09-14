@@ -128,18 +128,19 @@ function st:_displayMessage(message, time)
 	end, self)
 end
 
-function st:_doPause(pause)
+function st:_doPause(display, pause)
 	if nil == pause then pause = not PAUSED end
 	PAUSED = pause
 	if pause then
 		GameEvents:flush()
 		CommandEvents:flush()
 		InputEvents:flush()
-		self:_displayMessage('Paused')
+		if display then self:_displayMessage('Paused') end
 	else
 		GameEvents:clear()
 		CommandEvents:clear()
 		InputEvents:clear()
+		if display then self:_displayMessage('Unpaused') end
 	end
 end
 
@@ -202,7 +203,7 @@ function st:keypressed(key, unicode)
 				RunState.switch(State.destroy, 'intro')
 			end,
 
-			p = function() self:_doPause() end,
+			p = function() self:_doPause(true) end,
 
 			-- camera
 			pageup = function()
@@ -210,12 +211,16 @@ function st:keypressed(key, unicode)
 					self._view:setAnimate(false)
 					self._view:setViewport(self._cam:getViewport(1))
 					self._cam:zoomOut(self._view.setAnimate, self._view, true)
+					local zoom = self._cam:getZoom()
+					self:_doPause(false, zoom ~= 1)
 				end
 			end,
 			pagedown = function()
 				if not self._cam:isAnimating() then
 					local vp = self._cam:getViewport(-1)
 					self._cam:zoomIn(self._postZoomIn, self, vp)
+					local zoom = self._cam:getZoom()
+					self:_doPause(false, zoom ~= 1)
 				end
 			end,
 			home = function()
