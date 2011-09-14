@@ -3,59 +3,6 @@ local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Bar = getClass 'wyx.ui.Bar'
 
--- Tooltip
---
-local Tooltip = Class{name='Tooltip',
-	inherits=Frame,
-	function(self, ...)
-		Frame.construct(self, ...)
-		self._margin = 0
-
-		self:setDepth(5)
-		self:hide()
-	end
-}
-
--- destructor
-function Tooltip:destroy()
-	self:clear()
-	self._margin = nil
-	Frame.destroy(self)
-end
-
--- clear the tooltip
-function Tooltip:clear()
-	if self._header1 then
-		self._header1:destroy()
-		self._header1 = nil
-	end
-
-	if self._header2 then
-		self._header2:destroy()
-		self._header2 = nil
-	end
-
-	if self._icon then
-		self._icon:destroy()
-		self._icon = nil
-	end
-
-	if self._lines then
-		local numLines = #self._lines
-		for i=1,numLines do
-			self._lines[i]:destroy()
-			self._lines[i] = nil
-		end
-		self._lines = nil
-	end
-end
-
--- XXX
--- subclass for entities
--- query entity for icon, name, family, kind, and loop through a list of properties
--- then build tooltip based on these
--- so this class need methods for building the tooltip
-
 --[[
 all tooltips have this basic structure:
 
@@ -72,34 +19,85 @@ all tooltips have this basic structure:
 	 -------------------------------
 ]]--
 
+-- Tooltip
+local Tooltip = Class{name='Tooltip',
+	inherits=Frame,
+	function(self, ...)
+		Frame.construct(self, ...)
+		self._margin = 0
+
+		self:setDepth(5)
+		self:hide()
+	end
+}
+
+-- destructor
+function Tooltip:destroy()
+	self._margin = nil
+	Frame.destroy(self)
+end
+
+-- clear the tooltip
+function Tooltip:clear()
+	Frame.clear(self)
+
+	self._icon = nil
+	self._header1 = nil
+	self._header2 = nil
+	if self._lines then
+		local num = #self._lines
+		for i=1,num do
+			self._lines[i] = nil
+		end
+		self._lines = nil
+	end
+end
+
+-- override Frame:onHoverIn() and Frame:onHoverOut()
+-- Tooltip shouldn't be hovered
+function Tooltip:onHoverIn() end
+function Tooltip:onHoverOut() end
+
 -- set icon
 function Tooltip:setIcon(icon)
 	verifyClass('wyx.ui.Frame', icon)
-	if self._icon then self._icon:destroy() end
+	if self._icon then 
+		self:removeChild(self._icon)
+		self._icon:destroy()
+	end
+
 	self._icon = icon
-	self._icon:becomeChild(self, self._depth)
+	self:addChild(self._icon, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set header line 1
 function Tooltip:setHeader1(text)
 	verifyClass('wyx.ui.Text', text)
-	if self._header1 then self._header1:destroy() end
+	if self._header1 then
+		self:removeChild(self._header1)
+		self._header1:destroy()
+	end
+
 	self._header1 = text
-	self._header1:becomeChild(self, self._depth)
+	self:addChild(self._header1, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set header line 2
 function Tooltip:setHeader2(text)
 	verifyClass('wyx.ui.Text', text)
-	if self._header2 then self._header2:destroy() end
+	if self._header2 then
+		self:removeChild(self._header2)
+		self._header2:destroy()
+	end
+
 	self._header2 = text
-	self._header2:becomeChild(self, self._depth)
+	self:addChild(self._header2, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- add a Text
@@ -130,9 +128,9 @@ function Tooltip:_addLine(frame)
 	verifyClass('wyx.ui.Frame', frame)
 	self._lines = self._lines or {}
 	self._lines[#self._lines + 1] = frame
-	frame:becomeChild(self, self._depth)
+	self:addChild(frame, self._depth)
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set the margin between the frame edge and the contents
@@ -140,7 +138,7 @@ function Tooltip:setMargin(margin)
 	verify('number', margin)
 	self._margin = margin
 	self:_adjustLayout()
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 function Tooltip:_adjustLayout()
@@ -163,7 +161,7 @@ function Tooltip:_adjustLayout()
 			self._header1:setPosition(x, y)
 
 			headerW = self._header1:getWidth()
-			headerH = self._header1:getHeight()
+			headerH = self._header1:getHeight() + math.floor(self._margin/2)
 			y = y + headerH
 		end
 
@@ -206,25 +204,6 @@ function Tooltip:_adjustLayout()
 		self:setSize(width, height)
 		self._ffb, self._bfb = nil, nil
 	end -- if self._icon or self._header1 or ...
-end
-
--- draw in the foreground layer
--- draws over any foreground set in the Style. Usually, you just don't want to
--- set a foreground in the Style.
-function Tooltip:_drawForeground()
-	Frame._drawForeground(self)
-
-	if self._icon then self._icon:draw() end
-	if self._header1 then self._header1:draw() end
-	if self._header2 then self._header2:draw() end
-
-	local numLines = self._lines and #self._lines or 0
-	if numLines > 0 then
-		for i=1,numLines do
-			local line = self._lines[i]
-			line:draw()
-		end
-	end
 end
 
 

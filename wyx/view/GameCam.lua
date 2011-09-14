@@ -17,6 +17,8 @@ local GameCam = Class{name='GameCam',
 		self._zoom = _zoomLevels[self._zoomLevel]
 		self._homeX, self._homeY = x, y
 		self._x, self._y = x, y
+		self._worldW = WIDTH
+		self._worldH = HEIGHT
 	end
 }
 
@@ -218,19 +220,26 @@ local translate = love.graphics.translate
 function GameCam:predraw()
 	local z = self._zoom
 	local z2 = z*2
-	local x, y = WIDTH/z2 - self._x, HEIGHT/z2 - self._y
+	local x, y = self._worldW/z2 - self._x, self._worldH/z2 - self._y
 	push()
 	scale(z)
 	translate(x, y)
 end
+function GameCam:postdraw() pop() end
 
-function GameCam:postdraw()
-	pop()
+function GameCam:toWorldCoords(x, y, camX, camY, zoom)
+	camX = camX or self._x
+	camY = camY or self._y
+	zoom = zoom or self._zoom
+
+	local pX, pY = (x-self._worldW/2) / zoom, (y-self._worldH/2) / zoom
+	return pX+camX, pY+camY
 end
 
-function GameCam:toWorldCoords(camX, camY, zoom, x, y)
-	local pX, pY = (x-WIDTH/2) / zoom, (y-HEIGHT/2) / zoom
-	return pX+camX, pY+camY
+function GameCam:setWorldSize(w, h)
+	verify('number', w, h)
+	self._worldW = w
+	self._worldH = h
 end
 
 -- get a rect representing the camera viewport
@@ -241,13 +250,13 @@ function GameCam:getViewport(zoom, translateX, translateY)
 	zoom = math_max(1, math_min(#_zoomLevels, zoom))
 
 	-- pretend to translate and zoom
-	local x, y = self._x+translateX, self._y+translateY
-	x, y = self:_correctPos(x, y)
+	local camX, camY = self._x+translateX, self._y+translateY
+	camX, camY = self:_correctPos(camX, camY)
 	zoom = _zoomLevels[zoom]
 
-	local x1,y1, x2,y2 = 0,0, WIDTH,HEIGHT
-	local vp1X, vp1Y = self:toWorldCoords(x, y, zoom, x1, y1)
-	local vp2X, vp2Y = self:toWorldCoords(x, y, zoom, x2, y2)
+	local x1,y1, x2,y2 = 0,0, self._worldW,self._worldH
+	local vp1X, vp1Y = self:toWorldCoords(x1, y1, camX, camY, zoom)
+	local vp2X, vp2Y = self:toWorldCoords(x2, y2, camX, camY, zoom)
 	local Rect = getClass 'wyx.kit.Rect'
 	return Rect(vp1X, vp1Y, vp2X-vp1X, vp2Y-vp1Y)
 end

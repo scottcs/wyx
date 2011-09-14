@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local ModelComponent = getClass 'wyx.component.ModelComponent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
+local EntityMaxHealthEvent = getClass 'wyx.event.EntityMaxHealthEvent'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
 
@@ -52,6 +53,8 @@ function HealthComponent:_sendDeathMessage(actor)
 	self._mediator:send(message('ENTITY_DEATH'), msg)
 end
 
+-- XXX vvvv THIS CODE IS NEVER CALLED vvvv
+
 function HealthComponent:_modifyHealth(amount, actor)
 	local pHealth = property('Health')
 	local health = self:getProperty(pHealth)
@@ -72,7 +75,11 @@ function HealthComponent:_modifyMaxHealth(amount, actor)
 
 	self:_checkHealth(actor)
 	self._mediator:send(message('HEALTH_UPDATE'))
+
+	GameEvents:push(EntityMaxHealthEvent(self._mediator:getID()))
 end
+
+-- XXX  ^^^^ THIS CODE IS NEVER CALLED ^^^^
 
 function HealthComponent:_checkHealth(...)
 	local pHealth = property('Health')
@@ -107,10 +114,10 @@ function HealthComponent:receive(sender, msg, ...)
 end
 
 function HealthComponent:getProperty(p, intermediate, ...)
-	if   prop == property('Health')
-		or prop == property('MaxHealth')
-		or prop == property('HealthBonus')
-		or prop == property('MaxHealthBonus')
+	if   p == property('Health')
+		or p == property('MaxHealth')
+		or p == property('HealthBonus')
+		or p == property('MaxHealthBonus')
 	then
 		local prop = self:_evaluate(p)
 		if not intermediate then return prop end

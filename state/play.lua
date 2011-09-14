@@ -13,8 +13,11 @@ local MessageHUD = getClass 'wyx.ui.MessageHUD'
 -- events
 local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
+local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
+local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local GameEvents = GameEvents
+local InputEvents = InputEvents
 
 function st:init()
 	if debug then
@@ -35,11 +38,16 @@ function st:enter(prevState, world, view, cam)
 		DisplayPopupMessageEvent,
 		ConsoleEvent,
 	})
+
+	InputEvents:register(self, {
+		MouseIntersectRequest,
+	})
 end
 
 function st:leave()
 	self:_killMessageHUD()
 	GameEvents:unregisterAll(self)
+	InputEvents:unregisterAll(self)
 end
 
 function st:destroy()
@@ -64,6 +72,19 @@ end
 function st:DisplayPopupMessageEvent(e)
 	local message = e:getMessage()
 	if message then self:_displayMessage(message) end
+end
+
+function st:MouseIntersectRequest(e)
+	local mouseX, mouseY = e:getPosition()
+
+	-- translate mouse x and y to world x and y
+	local worldX, worldY = self._cam:toWorldCoords(mouseX, mouseY)
+
+	-- translate world x and y to map x and y
+	local x, y = self._view:toMapCoords(worldX, worldY)
+
+	local entityIDs = self._level:getEntitiesAtLocation(x, y, true)
+	InputEvents:notify(MouseIntersectResponse(entityIDs, e:getArgs()))
 end
 
 function st:ConsoleEvent(e)
@@ -114,6 +135,8 @@ function st:update(dt)
 	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
+
+	UISystem:update(dt)
 end
 
 function st:draw()
@@ -121,6 +144,7 @@ function st:draw()
 	self._view:draw()
 	RenderSystem:draw()
 	self._cam:postdraw()
+	UISystem:draw()
 	if self._messageHUD then self._messageHUD:draw() end
 	if self._debug then self._debugHUD:draw() end
 	if Console then Console:draw() end

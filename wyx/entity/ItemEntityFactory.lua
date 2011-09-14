@@ -7,13 +7,12 @@ local ItemEntityFactory = Class{name='ItemEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'item')
-		self._renderLevel = 10
+		self._renderDepth = 10
 		self._requiredComponents = {
 			getClass 'wyx.component.MotionComponent',
 			getClass 'wyx.component.CollisionComponent',
 			getClass 'wyx.component.GraphicsComponent',
 			getClass 'wyx.component.ControllerComponent',
-			--getClass 'wyx.component.InfoPanelComponent',
 		}
 	end
 }

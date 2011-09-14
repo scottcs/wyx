@@ -3,6 +3,7 @@ local pairs, error, setmetatable = pairs, error, setmetatable
 local format, io_stderr = string.format, io.stderr
 local string_len, string_byte = string.len, string.byte
 local sqrt, tonumber = math.sqrt, tonumber
+local floor = math.floor
 
 
          --[[--
@@ -115,13 +116,13 @@ end
 -------------------
 colors = {}
 local p100 = 255
-local p50 = p100*0.5
-local p90, p80, p70, p60 = p100*0.9, p100*0.8, p100*0.7, p100*0.6
-local p40, p30, p20, p10 = p100*0.4, p100*0.3, p100*0.2, p100*0.1
+local p90, p80, p70 = floor(p100*0.9), floor(p100*0.8), floor(p100*0.7)
+local p60, p50, p40 = floor(p100*0.6), floor(p100*0.5), floor(p100*0.4)
+local p30, p20, p10 = floor(p100*0.3), floor(p100*0.2), floor(p100*0.1)
 
 colors.BLACK = {0, 0, 0, p100}
 colors.BLACK_A90 = {0, 0, 0, p90}
-colors.BLACK_A85 = {0, 0, 0, p100*0.85}
+colors.BLACK_A85 = {0, 0, 0, floor(p100*0.85)}
 colors.BLACK_A80 = {0, 0, 0, p80}
 colors.BLACK_A70 = {0, 0, 0, p70}
 colors.BLACK_A60 = {0, 0, 0, p60}
@@ -147,28 +148,29 @@ colors.GREY10 = {p10, p10, p10, p100}
 
 colors.RED = {p100, 0, 0, p100}
 colors.LIGHTRED = {p100, p60, p60, p100}
-colors.DARKRED = {p50, 0, 0, p100}
+colors.DARKRED = {p30, 0, 0, p100}
 
 colors.YELLOW = {p100, p90, 0, p100}
-colors.LIGHTYELLOW = {p100, p100*0.95, p80, p100}
-colors.DARKYELLOW = {p50, p40, 0, p100}
+colors.LIGHTYELLOW = {p100, floor(p100*0.95), p80, p100}
+colors.DARKYELLOW = {p30, p20, 0, p100}
 
-colors.ORANGE = {p100, p100*0.75, p30, p100}
-colors.LIGHTORANGE = {p100, p100*0.88, p70, p100}
-colors.DARKORANGE = {p50, p100*0.45, p100*0.35, p100}
+colors.ORANGE = {p100, floor(p100*0.75), p30, p100}
+colors.LIGHTORANGE = {p100, floor(p100*0.88), p70, p100}
+colors.DARKORANGE = {p70, floor(p100*0.52), p20, p100}
 colors.BROWN = {p50, p40, p20, p100}
+colors.DARKBROWN = {p30, floor(p100*0.25), floor(p100*0.15), p100}
 
 colors.GREEN = {0, p100, 0, p100}
 colors.LIGHTGREEN = {p70, p100, p70, p100}
-colors.DARKGREEN = {0, p50, 0, p100}
+colors.DARKGREEN = {0, p30, 0, p100}
 
 colors.BLUE = {p30, p30, p100, p100}
 colors.LIGHTBLUE = {p70, p70, p100, p100}
-colors.DARKBLUE = {0, 0, p50, p100}
+colors.DARKBLUE = {0, 0, p30, p100}
 
 colors.PURPLE = {p100, p40, p100, p100}
 colors.LIGHTPURPLE = {p100, p80, p100, p100}
-colors.DARKPURPLE = {p50, 0, p50, p100}
+colors.DARKPURPLE = {p30, 0, p30, p100}
 
 function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
 
@@ -330,25 +332,6 @@ function resizeScreen(width, height)
 
 	-- global screen width/height
 	WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
-end
-
-
--------------------------
--- render target stack --
--------------------------
-local setRenderTarget = love.graphics.setRenderTarget
-local Deque = getClass 'wyx.kit.Deque'
-local rtStack = Deque()
-
-function pushRenderTarget(target)
-	if target then rtStack:push_back(target) end
-	setRenderTarget(target)
-end
-
-function popRenderTarget()
-	rtStack:pop_back()
-	local target = rtStack:back()
-	setRenderTarget(target)
 end
 
 

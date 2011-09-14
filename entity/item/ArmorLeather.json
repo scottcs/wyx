@@ -2,6 +2,7 @@
 	"family": "Armor",
 	"kind": "Leather",
 	"variation": 1,
+	"description": "It restricts your movement a little.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

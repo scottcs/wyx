@@ -7,7 +7,7 @@ local newFramebuffer = love.graphics.newFramebuffer
 local setFont = love.graphics.setFont
 local gprint = love.graphics.print
 local rectangle = love.graphics.rectangle
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local colors = colors
@@ -30,7 +30,7 @@ local MessageHUD = Class{name='MessageHUD',
 		local fbW = imageData:getWidth()
 		local fbH = imageData:getHeight()
 		self._fbX = math_floor(WIDTH/2 - w/2)
-		self._fbY = math_floor(HEIGHT - h*1.5)
+		self._fbY = math_floor(HEIGHT - h*3)
 		self._message = message
 		self._finish = getMicroTime() + seconds + 0.3
 		self._fadeColor = colors.clone(colors.WHITE_A00)
@@ -70,7 +70,7 @@ end
 
 function MessageHUD:_drawFB()
 	self._isDrawing = true
-	pushRenderTarget(self._fb)
+	setRenderTarget(self._fb)
 
 	setFont(self._font)
 
@@ -80,7 +80,7 @@ function MessageHUD:_drawFB()
 	setColor(colors.WHITE)
 	gprint(self._message, MARGIN, MARGIN)
 
-	popRenderTarget()
+	setRenderTarget()
 	self._isDrawing = false
 end
 

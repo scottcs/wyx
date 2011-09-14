@@ -2,6 +2,7 @@
 	"family": "Imp",
 	"kind": "Red",
 	"variation": 1,
+	"description": "It was born of fire and habanero peppers.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

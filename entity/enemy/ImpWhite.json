@@ -2,6 +2,7 @@
 	"family": "Imp",
 	"kind": "White",
 	"variation": 1,
+	"description": "It was born of snow and cold toes.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

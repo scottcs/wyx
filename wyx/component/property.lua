@@ -56,6 +56,8 @@ property.Damage            = 0
 property.AttackBonus       = 0
 property.DefenseBonus      = 0
 property.DamageBonus       = 0
+property._DamageMin        = 0
+property._DamageMax        = 0
 
 -- health properties
 property.Health            = '=$MaxHealth'
@@ -76,6 +78,7 @@ property.BlockedBy         = {Wall='ALL', Door='shut'}
 property.TileSet           = 'dungeon'
 property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
+property.RenderDepth       = 30
 property.Visibility        = 0
 property.VisibilityBonus   = 0
 
@@ -101,21 +104,6 @@ property.ContainedEntities = {}
 
 -- attachment properties
 property.AttachedEntities  = {}
-
--- weaknesses
-property.CrushWeakness     = 0
-property.SliceWeakness     = 0
-property.StabWeakness      = 0
-property.FireWeakness      = 0
-
--- resistances
-property.CrushResistance   = 0
-property.SliceResistance   = 0
-property.StabResistance    = 0
-property.FireResistance    = 0
-
--- status effects
-property.Combustable       = false
 
 
 -- the structure of valid property

@@ -2,6 +2,7 @@
 	"family": "Slime",
 	"kind": "Brown",
 	"variation": 1,
+	"description": "Ewww, what is that?",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

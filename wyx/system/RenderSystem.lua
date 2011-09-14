@@ -1,5 +1,7 @@
 local Class = require 'lib.hump.class'
 local ListenerBag = getClass 'wyx.kit.ListenerBag'
+local property = require 'wyx.component.property'
+local pRenderDepth = property('RenderDepth')
 
 local table_sort = table.sort
 
@@ -59,31 +61,18 @@ end
 
 -- register an object
 function RenderSystem:register(obj, depth)
-	if nil == depth then
-		if obj
-			and type(obj) == 'table'
-			and obj.getDepth
-			and type(obj.getDepth) == 'function'
-		then
-			depth = obj:getDepth()
-		else
-			depth = self._defaultDepth
-		end
-	end
-
+	depth = depth or self:_getObjectDepth(obj)
 	verify('number', depth)
+
 	self:_touchDepth(depth)
 	self._registered[depth]:push(obj)
 end
 
 -- unregister an object
 function RenderSystem:unregister(obj)
-	if obj
-		and type(obj) == 'table'
-		and obj.getDepth
-		and type(obj.getDepth) == 'function'
-	then
-		local depth = obj:getDepth()
+	local depth = self:_getObjectDepth(obj)
+
+	if depth then
 		if self._registered[depth] then
 			self._registered[depth]:pop(obj)
 		end
@@ -96,6 +85,26 @@ function RenderSystem:unregister(obj)
 			end
 		end
 	end
+end
+
+function RenderSystem:_getObjectDepth(obj)
+	local depth
+
+	if type(obj) == 'string' then obj = EntityRegistry:get(obj) end
+
+	if type(obj) == 'table' then
+		if obj.getDepth and type(obj.getDepth) == 'function' then
+			depth = obj:getDepth()
+		elseif obj.query and type(obj.query) == 'function' then
+			depth = obj:query(pRenderDepth)
+		elseif obj.getProperty and type(obj.getProperty) == 'function' then
+			depth = obj:getProperty(pRenderDepth)
+		end
+	else
+		depth = self._defaultDepth
+	end
+
+	return depth
 end
 
 

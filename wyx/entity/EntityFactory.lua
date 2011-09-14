@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local Entity = getClass 'wyx.entity.Entity'
 local message = require 'wyx.component.message'
+local property = require 'wyx.component.property'
 
 local format = string.format
 
@@ -10,7 +11,7 @@ local format = string.format
 local EntityFactory = Class{name='EntityFactory',
 	function(self, etype)
 		self._etype = etype or 'UNKNOWN'
-		self._renderLevel = 30
+		self._renderDepth = 30
 	end
 }
 
@@ -77,7 +78,8 @@ function EntityFactory:_registerWithRenderSystem(entity)
 
 	if comps then
 		for _,comp in pairs(comps) do
-			RenderSystem:register(comp, self._renderLevel)
+			comp:_setProperty(property('RenderDepth'), self._renderDepth)
+			RenderSystem:register(comp)
 		end
 	end
 end

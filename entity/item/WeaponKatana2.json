@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Katana",
 	"variation": 2,
+	"description": "The craftsmanship is like nothing you've ever seen!",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

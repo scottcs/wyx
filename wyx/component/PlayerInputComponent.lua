@@ -4,8 +4,10 @@ local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local message = require 'wyx.component.message'
 local property = require 'wyx.component.property'
+local command = require 'wyx.ui.command'
 
 local InputEvents = InputEvents
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 
 -- PlayerInputComponent
 --
@@ -14,7 +16,7 @@ local PlayerInputComponent = Class{name='PlayerInputComponent',
 	function(self, properties)
 		InputComponent.construct(self, properties)
 		self:_addMessages('TIME_PRETICK')
-		InputEvents:register(self, KeyboardEvent)
+		InputEvents:register(self, {KeyboardEvent, InputCommandEvent})
 	end
 }
 
@@ -35,31 +37,31 @@ function PlayerInputComponent:KeyboardEvent(e)
 		local key = e:getKey()
 		local doTick = false
 
-		if key == '.' or key == 'kp5' then
+		if key == '.' or key == 'kp5' or key == ' ' then
 			self:_wait()
 			doTick = true
-		elseif key == 'up' or key == 'k' or key == 'kp8' then
+		elseif key == 'up' or key == 'k' or key == 'kp8' or key == 'e' then
 			self:_attemptMove( 0, -1)
 			doTick = true
-		elseif key == 'down' or key == 'j' or key == 'kp2' then
+		elseif key == 'down' or key == 'j' or key == 'kp2' or key == 'd' then
 			self:_attemptMove( 0,  1)
 			doTick = true
-		elseif key == 'left' or key == 'h' or key == 'kp4' then
+		elseif key == 'left' or key == 'h' or key == 'kp4' or key == 's' then
 			self:_attemptMove(-1,  0)
 			doTick = true
-		elseif key == 'right' or key == 'l' or key == 'kp6' then
+		elseif key == 'right' or key == 'l' or key == 'kp6' or key == 'f' then
 			self:_attemptMove( 1,  0)
 			doTick = true
-		elseif key == 'y' or key == 'kp7' then
+		elseif key == 'y' or key == 'kp7' or key == 'w' then
 			self:_attemptMove(-1,  -1)
 			doTick = true
-		elseif key == 'u' or key == 'kp9' then
+		elseif key == 'u' or key == 'kp9' or key == 'r' then
 			self:_attemptMove( 1,  -1)
 			doTick = true
-		elseif key == 'b' or key == 'kp1' then
+		elseif key == 'b' or key == 'kp1' or key == 'z' or key == 'x' then
 			self:_attemptMove(-1,   1)
 			doTick = true
-		elseif key == 'n' or key == 'kp3' then
+		elseif key == 'n' or key == 'kp3' or key == 'c' or key == 'v' then
 			self:_attemptMove( 1,   1)
 			doTick = true
 			--[[
@@ -69,7 +71,6 @@ function PlayerInputComponent:KeyboardEvent(e)
 		elseif key == '<' or key == 'kp-' then
 			self:_attemptPortalOut()
 			doTick = true
-			]]--
 		elseif key == 'p' then
 			self:_tryToPickup()
 			doTick = true
@@ -92,7 +93,8 @@ function PlayerInputComponent:KeyboardEvent(e)
 				self:_tryToDetach(attached and attached[i] or 1)
 			end
 			doTick = true
-		elseif key == 'i' then
+			]]--
+		elseif key == '-' then
 			-- XXX
 			local found = false
 
@@ -114,7 +116,7 @@ function PlayerInputComponent:KeyboardEvent(e)
 			if not found then
 				GameEvents:push(ConsoleEvent('You have nothing.'))
 			end
-		elseif key == 's' then
+		elseif key == '=' then
 			-- XXX
 			local attack = self._mediator:query(property('Attack'))
 			local attackBonus = self._mediator:query(property('AttackBonus'))
@@ -166,6 +168,45 @@ function PlayerInputComponent:KeyboardEvent(e)
 
 		if doTick then self:_setProperty(property('DoTick'), true) end
 	end
+end
+
+-- on InputCommandEvent, call the correlating function
+function PlayerInputComponent:InputCommandEvent(e)
+	local cmd = e:getCommand()
+	local args = e:getCommandArgs()
+	local doTick = false
+
+	if cmd == command('ATTACH_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand ATTACH_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doAttach(id) end
+		doTick = true
+
+	elseif cmd == command('DETACH_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand DETACH_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doDetach(id) end
+		doTick = true
+
+	elseif cmd == command('PICKUP_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand PICKUP_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doPickup(id) end
+		doTick = true
+
+	elseif cmd == command('DROP_ENTITY') then
+		assert(args and #args == 2,
+			'Invalid args for InputCommand DROP_ENTITY')
+		local id, to = unpack(args)
+		if to == self._mediator:getID() then self:_doDrop(id) end
+		doTick = true
+
+	end
+
+	if doTick then self:_setProperty(property('DoTick'), true) end
 end
 
 function PlayerInputComponent:receive(sender, msg, ...)

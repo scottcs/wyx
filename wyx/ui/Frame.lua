@@ -9,8 +9,7 @@ local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
 local drawq = love.graphics.drawq
-local pushRenderTarget = pushRenderTarget
-local popRenderTarget = popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local nearestPO2 = nearestPO2
 local colors = colors
 
@@ -26,17 +25,19 @@ local Frame = Class{name='Frame',
 		self._depth = 30
 		self._show = true
 
-		self:_drawFB()
+		self._needsUpdate = true
 		self:becomeIndependent()
 	end
 }
 
 -- destructor
 function Frame:destroy()
-	for k,v in pairs(self._children) do
-		self._children[k]:destroy()
-		self._children[k] = nil
-	end
+	self._needsUpdate = nil
+
+	if self._registered then UISystem:unregister(self) end
+	self._registered = nil
+
+	self:clear()
 	self._children = nil
 
 	self._ffb = nil
@@ -45,28 +46,46 @@ function Frame:destroy()
 	self._curStyle = nil
 
 	if self._normalStyle then
-		self._normalStyle:destroy()
 		self._normalStyle = nil
 	end
 
 	if self._hoverStyle then
-		self._hoverStyle:destroy()
 		self._hoverStyle = nil
 	end
 
 	if self._activeStyle then
-		self._activeStyle:destroy()
 		self._activeStyle = nil
+	end
+
+	if self._destroyStyles then
+		local num = #self._destroyStyles
+		for i=1,num do
+			self._destroyStyles[i]:destroy()
+			self._destroyStyles[i] = nil
+		end
+		self._destroyStyles = nil
 	end
 
 	self._hovered = nil
 	self._mouseDown = nil
 	self._accum = nil
 	self._show = nil
-	self._registered = nil
+
+	if self._tooltip then self._tooltip:destroy() end
 	self._tooltip = nil
 
 	Rect.destroy(self)
+end
+
+-- clear the frame by removing and destroying all children
+function Frame:clear()
+	if self._children then
+		for k,v in pairs(self._children) do
+			self:removeChild(k)
+			self._children[k]:destroy()
+			self._children[k] = nil
+		end
+	end
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
@@ -93,7 +112,7 @@ function Frame:handleMousePress(x, y, button, mods)
 		self:switchToNormalStyle()
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -117,7 +136,7 @@ function Frame:handleMouseRelease(x, y, button, mods)
 	end
 
 	self._pressed = false
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -138,7 +157,7 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 		handled = self:onKey(key, unicode, unicodeValue, mods)
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 	return handled
 end
 
@@ -150,7 +169,7 @@ function Frame:addChild(frame, depth)
 	self._children[num+1] = frame
 	frame:becomeChild(self, depth)
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- remove a child
@@ -172,7 +191,7 @@ function Frame:removeChild(frame)
 
 	self._children = newChildren
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- get all of the children of this frame
@@ -254,25 +273,34 @@ end
 
 -- what to do when update ticks
 function Frame:onTick(dt, x, y, hovered)
-	if nil == x or nil == y then
-		x, y = getMousePosition()
-	end
+	if self._show then
+		if self._needsUpdate then
+			self:_drawFB()
+			self._needsUpdate = false
+		end
 
-	hovered = hovered or false
-	local num = #self._children
-	for i=1,num do
-		local child = self._children[i]
-		hovered = child:onTick(dt, x, y, hovered) or hovered
-	end
+		if nil == x or nil == y then
+			x, y = getMousePosition()
+		end
 
-	if not hovered and self:containsPoint(x, y) then
-		if not self._hovered then self:onHoverIn(x, y) end
-		self._hovered = true
-		hovered = true
-		self:_setTooltipPosition(x, y)
-	else
-		if self._hovered then self:onHoverOut(x, y) end
-		self._hovered = false
+		hovered = hovered or false
+		local num = #self._children
+		for i=1,num do
+			local child = self._children[i]
+			if child:isVisible() then
+				hovered = child:onTick(dt, x, y, hovered) or hovered
+			end
+		end
+
+		if not hovered and self:containsPoint(x, y) then
+			if not self._hovered then self:onHoverIn(x, y) end
+			self._hovered = true
+			hovered = true
+			self:_setTooltipPosition(x, y)
+		else
+			if self._hovered then self:onHoverOut(x, y) end
+			self._hovered = false
+		end
 	end
 
 	return hovered
@@ -282,7 +310,7 @@ end
 function Frame:onHoverIn(x, y)
 	if not self._mouseDown then
 		self:switchToHoverStyle()
-		self:_drawFB()
+		self._needsUpdate = true
 	end
 end
 
@@ -290,7 +318,7 @@ end
 function Frame:onHoverOut(x, y)
 	if not self._mouseDown then
 		self:switchToNormalStyle()
-		self:_drawFB()
+		self._needsUpdate = true
 	end
 end
 
@@ -310,26 +338,38 @@ function Frame:_setStyle(which, style)
 	verifyClass('wyx.ui.Style', style)
 	self[which] = style
 	self._curStyle = self._curStyle or style
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set/get normal style
-function Frame:setNormalStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setNormalStyle(style, destroy)
 	self:_setStyle('_normalStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getNormalStyle() return self._normalStyle end
 
 -- set/get hover style
-function Frame:setHoverStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setHoverStyle(style, destroy)
 	self:_setStyle('_hoverStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getHoverStyle() return self._hoverStyle end
 
 -- set/get active style
-function Frame:setActiveStyle(style)
+-- if destroy is true, Frame will destroy the style when Frame is destroyed
+function Frame:setActiveStyle(style, destroy)
 	self:_setStyle('_activeStyle', style)
+	if destroy then self:_addStyleToDestroy(style) end
 end
 function Frame:getActiveStyle() return self._activeStyle end
+
+-- add a style to be destroyed when this Frame is destroyed
+function Frame:_addStyleToDestroy(style)
+	self._destroyStyles = self._destroyStyles or {}
+	self._destroyStyles[#self._destroyStyles + 1] = style
+end
 
 -- switch between the styles
 function Frame:switchToNormalStyle()
@@ -380,21 +420,24 @@ end
 function Frame:getDepth() return self._depth end
 function Frame:setDepth(depth)
 	verify('number', depth)
-	self._depth = depth
 	if self._registered then
+		-- NOTE: Order of operations here is very important
 		UISystem:unregister(self)
+		self._depth = depth
 		UISystem:register(self)
+	else
+		self._depth = depth
 	end
 end
 
 -- draw the frame to framebuffer
 function Frame:_drawFB()
 	self._bfb = self._bfb or self:_getFramebuffer()
-	pushRenderTarget(self._bfb)
+	setRenderTarget(self._bfb)
 	self:_drawBackground()
 	self:_drawForeground()
 	self:_drawBorder()
-	popRenderTarget()
+	setRenderTarget()
 	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
@@ -422,15 +465,21 @@ end
 function Frame:_drawBorder()
 	if self._curStyle then
 		local bordersize = self._curStyle:getBorderSize()
+		local borderinset = self._curStyle:getBorderInset()
 		local bordercolor = self._curStyle:getBorderColor()
 		local borderimage = self._curStyle:getBorderImage()
 		local borderquad = self._curStyle:getBorderQuad()
-		self:_drawLayer(bordercolor, borderimage, borderquad, bordersize)
+		self:_drawLayer(
+			bordercolor,
+			borderimage,
+			borderquad,
+			bordersize,
+			borderinset)
 	end
 end
 
 -- draw a single layer (foreground or background)
-function Frame:_drawLayer(color, image, quad, bordersize)
+function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 	if color then
 		setColor(color)
 		local w, h = self:getSize()
@@ -451,10 +500,15 @@ function Frame:_drawLayer(color, image, quad, bordersize)
 			end
 		else
 			if bordersize then
-				rectangle('fill', 0, 0, bordersize, h)
-				rectangle('fill', 0, 0, w, bordersize)
-				rectangle('fill', w-bordersize, 0, bordersize, h)
-				rectangle('fill', 0, h-bordersize, w, bordersize)
+				local x = borderinset and borderinset or 0
+				local y = x
+				w = borderinset and w - 2*borderinset or w
+				h = borderinset and h - 2*borderinset or h
+
+				rectangle('fill', x, y, bordersize, h)
+				rectangle('fill', x, y, w, bordersize)
+				rectangle('fill', x+(w-bordersize), y, bordersize, h)
+				rectangle('fill', x, y+(h-bordersize), w, bordersize)
 			else
 				rectangle('fill', 0, 0, w, h)
 			end
@@ -486,7 +540,11 @@ function Frame:draw()
 end
 
 function Frame:show() self._show = true end
-function Frame:hide() self._show = false end
+function Frame:hide()
+	self._show = false
+	if self._tooltip then self._tooltip:hide() end
+end
+function Frame:isVisible() return self._show == true end
 
 
 -- the class

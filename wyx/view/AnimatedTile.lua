@@ -2,7 +2,7 @@ local Class = require 'lib.hump.class'
 local Rect = getClass 'wyx.kit.Rect'
 
 local newFramebuffer = love.graphics.newFramebuffer
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
@@ -70,11 +70,11 @@ end
 function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
 	if self._numFrames > 0 and self._fb[frame] and tileset then
 		self._isDrawing = true
-		pushRenderTarget(self._fb[frame])
+		setRenderTarget(self._fb[frame])
 		setColor(colors.WHITE)
 		if bgquad then drawq(tileset, bgquad, 0, 0) end
 		drawq(tileset, quad, 0, 0)
-		popRenderTarget()
+		setRenderTarget()
 		self._isDrawing = false
 	end
 end

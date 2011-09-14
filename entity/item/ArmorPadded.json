@@ -2,6 +2,7 @@
 	"family": "Armor",
 	"kind": "Padded",
 	"variation": 1,
+	"description": "Fashionable and practical!",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

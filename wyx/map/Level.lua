@@ -16,8 +16,10 @@ local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local TimeSystemCycleEvent = getClass 'wyx.event.TimeSystemCycleEvent'
+local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
 local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
+local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local LightingStatusRequest = getClass 'wyx.event.LightingStatusRequest'
 local LightingUpdateRequest = getClass 'wyx.event.LightingUpdateRequest'
 
@@ -184,7 +186,7 @@ function Level:_populateMap()
 					local entity = EntityRegistry:get(entityID)
 					entity:send(setPosition, x, y, x, y)
 				else
-					remove[#remove+1] = entity
+					remove[#remove+1] = entityID
 				end
 			end
 		end
@@ -234,7 +236,7 @@ function Level:isMap(map) return map == self._map end
 function Level:isPointInMap(...) return self._map:containsPoint(...) end
 
 -- return the entities at the given location
-function Level:getEntitiesAtLocation(x, y)
+function Level:getEntitiesAtLocation(x, y, visibleOnly)
 	local ents = {}
 	local positionProp = property('Position')
 	local entCount = 0
@@ -243,8 +245,18 @@ function Level:getEntitiesAtLocation(x, y)
 		local entity = EntityRegistry:get(entityID)
 		local ePos = entity:query(positionProp)
 		if ePos[1] == x and ePos[2] == y then
-			entCount = entCount + 1
-			ents[entCount] = entityID
+			local ok = true
+
+			if visibleOnly then
+				local status = self._lightmap 
+					and self._lightmap[x] and self._lightmap[x][y]
+				ok = status == 'lit'
+			end
+
+			if ok then
+				entCount = entCount + 1
+				ents[entCount] = entityID
+			end
 		end
 	end
 
@@ -368,6 +380,8 @@ function Level:setPlayerControlled()
 	end
 
 	entity:send(message('CONTAINER_RESIZE'), 10)
+
+	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
 end
 
 function Level:EntityPositionEvent(e)
@@ -409,6 +423,7 @@ end
 
 function Level:TimeSystemCycleEvent(e)
 	self._turns = self._turns + 1
+	GameEvents:push(TurnCountEvent(self._turns))
 end
 
 function Level:_updateLighting()

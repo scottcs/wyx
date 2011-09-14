@@ -2,6 +2,7 @@
 	"family": "Deep Dwarf",
 	"kind": "Monk",
 	"variation": 1,
+	"description": "He really likes beer.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

@@ -1,7 +1,6 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
 
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local setColor = love.graphics.setColor
 local setFont = love.graphics.setFont
 local gprint = love.graphics.print
@@ -30,7 +29,7 @@ local Text = Class{name='Text',
 -- destructor
 function Text:destroy()
 	self:unwatch()
-	self:clear()
+	self:clearText()
 	self._text = nil
 	self._justify = nil
 	self._align = nil
@@ -46,7 +45,7 @@ function Text:setText(text)
 	if type(text) == 'string' then text = {text} end
 	verify('table', text)
 
-	self:clear()
+	self:clearText()
 	text = self:_wrap(text)
 
 	local numLines = #text
@@ -62,7 +61,7 @@ function Text:setText(text)
 		self._text = text
 	end
 
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- assuming width is constant, wrap lines if they're larger than the width
@@ -162,6 +161,7 @@ function Text:watch(func, ...)
 	if select('#', ...) > 0 then
 		self._watchedArgs = {...}
 	end
+	self._needsUpdate = true
 end
 
 -- stop watching a function.
@@ -171,10 +171,11 @@ function Text:unwatch()
 		for k in pairs(self._watchedArgs) do self._watchedArgs[k] = nil end
 		self._watchedArgs = nil
 	end
+	self._needsUpdate = true
 end
 
 -- clear the current text
-function Text:clear()
+function Text:clearText()
 	for k in pairs(self._text) do self._text[k] = nil end
 end
 
@@ -188,18 +189,36 @@ end
 function Text:setMargin(margin)
 	verify('number', margin)
 	self._margin = margin
-	self:_drawFB()
+	self._needsUpdate = true
 end
 
 -- set the justification
-function Text:setJustifyLeft()   self._justify = 'l'; self:_drawFB() end
-function Text:setJustifyRight()  self._justify = 'r'; self:_drawFB() end
-function Text:setJustifyCenter() self._justify = 'c'; self:_drawFB() end
+function Text:setJustifyLeft()
+	self._justify = 'l'
+	self._needsUpdate = true
+end
+function Text:setJustifyRight()
+	self._justify = 'r'
+	self._needsUpdate = true
+end
+function Text:setJustifyCenter()
+	self._justify = 'c'
+	self._needsUpdate = true
+end
 
 -- set the vertical alignment
-function Text:setAlignTop()    self._align = 't'; self:_drawFB() end
-function Text:setAlignBottom() self._align = 'b'; self:_drawFB() end
-function Text:setAlignCenter() self._align = 'c'; self:_drawFB() end
+function Text:setAlignTop()
+	self._align = 't'
+	self._needsUpdate = true
+end
+function Text:setAlignBottom()
+	self._align = 'b'
+	self._needsUpdate = true
+end
+function Text:setAlignCenter()
+	self._align = 'c'
+	self._needsUpdate = true
+end
 
 -- onTick - check watched function
 function Text:onTick(dt, x, y)
@@ -219,13 +238,8 @@ function Text:onTick(dt, x, y)
 	return Frame.onTick(self, dt, x, y)
 end
 
--- override Frame:_drawFB()
-function Text:_drawFB()
-	self._bfb = self._bfb or self:_getFramebuffer()
-	pushRenderTarget(self._bfb)
-	self:_drawBackground()
-
-
+-- override Frame:_drawForeground()
+function Text:_drawForeground()
 	if self._text and #self._text > 0 then
 		if self._curStyle then
 			local font = self._curStyle:getFont()
@@ -305,9 +319,6 @@ function Text:_drawFB()
 			end -- if self._curStyle
 		end -- if self._showCursor
 	end -- if self._text
-
-	popRenderTarget()
-	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
 -- the class

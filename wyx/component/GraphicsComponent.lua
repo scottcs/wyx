@@ -6,7 +6,7 @@ local message = require 'wyx.component.message'
 
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
+local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
 local draw = love.graphics.draw
 local setColor = love.graphics.setColor
@@ -28,6 +28,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'TileSet',
 			'TileSize',
 			'TileCoords',
+			'RenderDepth',
 			'Visibility',
 			'VisibilityBonus',
 		})
@@ -76,7 +77,8 @@ function GraphicsComponent:_setProperty(prop, data)
 			assert(#v == 2, 'Invalid TileCoords: %s', tostring(v))
 			verify('number', v[1], v[2])
 		end
-	elseif prop == property('TileSize') then
+	elseif prop == property('TileSize')
+		or prop == property('RenderDepth') then
 		verify('number', data)
 	elseif prop == property('Visibility')
 		or prop == property('VisibilityBonus')
@@ -215,10 +217,10 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		end
 		self._bfb = self._bfb or newFramebuffer(self._size, self._size)
 
-		pushRenderTarget(self._bfb)
+		setRenderTarget(self._bfb)
 		setColor(colors.WHITE)
 		drawq(self._tileset, frame, 0, 0)
-		popRenderTarget()
+		setRenderTarget()
 
 		self._ffb, self._bfb = self._bfb, self._ffb
 	end

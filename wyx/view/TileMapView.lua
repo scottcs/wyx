@@ -23,8 +23,8 @@ local isClass, verifyClass, verify = isClass, verifyClass, verify
 local GameEvents = GameEvents
 local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local pushRenderTarget, popRenderTarget = pushRenderTarget, popRenderTarget
 local draw = love.graphics.draw
+local setRenderTarget = love.graphics.setRenderTarget
 local setColor = love.graphics.setColor
 local colors = colors
 local nearestPO2 = nearestPO2
@@ -172,6 +172,12 @@ function TileMapView:setViewport(rect)
 	end
 
 	self:_drawFB()
+end
+
+function TileMapView:toMapCoords(x, y)
+	local mapX = math_floor(x / self._tileW) + 1
+	local mapY = math_floor(y / self._tileH) + 1
+	return mapX, mapY
 end
 
 -- return current tile size
@@ -430,7 +436,7 @@ end
 -- draw to the framebuffer
 function TileMapView:_drawFB()
 	if self._backfb and self._set and self._level and self._mapViewport then
-		pushRenderTarget(self._backfb)
+		setRenderTarget(self._backfb)
 
 		local numTiles = #self._drawTiles
 		for i=1,numTiles do
@@ -446,7 +452,7 @@ function TileMapView:_drawFB()
 			t.tile:draw()
 		end
 
-		popRenderTarget()
+		setRenderTarget()
 
 		-- flip back and front frame buffers
 		self._frontfb, self._backfb = self._backfb, self._frontfb

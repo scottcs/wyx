@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Sword",
 	"variation": 2,
+	"description": "It's just another sword.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

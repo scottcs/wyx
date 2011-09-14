@@ -2,6 +2,7 @@
 	"family": "Ring",
 	"kind": "of Protection",
 	"variation": 1,
+	"description": "It's a little grimey. Take it or leave it.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
