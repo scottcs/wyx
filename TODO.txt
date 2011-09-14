@@ -75,9 +75,6 @@ Interface:
   +   Any zoom level besides lowest forces Pause
   d Ability to click on entities/map tiles directly
 
-  Options / Config:
-  - key bindings
-
 For v0.1.0:
   o interface
   d rename this game [even if just a working name]
@@ -166,6 +163,10 @@ Interface:
   Game viewport:
   ?   Context menu when right-click on entities/objects?
   ?   Click-to-move?
+
+  Options / Config:
+  o key bindings
+
 
 Graphics:
   x make hero movement smoother [tweened... possibly only move camera when near edges?]
