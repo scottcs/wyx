@@ -13,9 +13,9 @@ LOAD_DELAY = 0.025
          --]]--
 
 --debug = nil
-debugGameEvents = false
-debugCommandEvents = false
-debugInputEvents = false
+debugGameEvents = debug and false
+debugCommandEvents = debug and false
+debugInputEvents = debug and false
 doProfile = false
 local doGlobalProfile = doProfile and false
 
