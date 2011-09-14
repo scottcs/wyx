@@ -5,7 +5,7 @@ require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
 GAMENAME = 'Wyx'
-LOAD_DELAY = 0.05
+LOAD_DELAY = 0.025
 
 
          --[[--
