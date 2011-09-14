@@ -2,8 +2,10 @@ Interface:
   UI Elements:
   d TooltipFactory
   +   Why does the numLines calculation sometimes come up short?
-  + Pause ability
-  +   Any zoom level besides lowest forces Pause
+  d Pause ability
+  d   Any zoom level besides lowest forces Pause
+	+   When paused, allow movement keys to move camera around map
+	+   When unpaused, camera follows primeEntity again
 
 For v0.1.0:
   o interface
@@ -46,7 +48,7 @@ Console/Debug:
   - log console to file (with an option)
   - maybe different levels of messages [only log certain lines?]
   - allow input and create some awesome commands
-  o every event and command needs a tostring method that is called when debugEvents is on.
+  d every event and command needs a tostring method that is called when debugEvents is on.
   - wizard mode
   + printing to Console while rendertarget is set to something else has strange implications
 
