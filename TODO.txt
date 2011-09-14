@@ -1,83 +1,12 @@
 Interface:
-  d   how to show damage range? [since it's usually a function]
-  d     execute 100 [or 1000] times on load, then cache min/max values
-  x     or, do away with dice rolls, specify min/max instead
-  d Main game interface
-  d   Design what it should look like before coding it
-  d   Inventory/Equipment in a line along bottom
-  d   Show turns
-  d UISystem
-  d   ticks registered UI Frames
-  d   draws registered UI Frames [draw after camera translation]
-  d   listens for user input - mouse and keyboard
-  d     sends events [based on configured keybindings eventually] translated from input
-
   UI Elements:
-  d Styles
-  d   Has background color
-  d   Has a font
-  d   Has a fontcolor [equals fgcolor if nil]
-  d   Has a background image
-  d     if image, bgcolor = overlay
-  d     if not image, bgcolor = background and rectangle is drawn
-  d   Ability to copy/clone
-  d   Has a foreground image
-  d   Has a foreground color
-  d   Has a border image
-  d   Has a border color
-  d Frames
-  d   Have hover/press checks, call onHover, onPress
-  d   Has Styles
-  d   Can just display an image if needed
-  d   onClick - depth first, and don't pass it on if you handle it
-  d   can attach/detach a Tooltip
-  d Text [subclass Frame]
-  d   Displays text
-  d   Wraps text
-  d   Wraps text correctly based on pixel size
-  d   Can watch a variable
-  d Buttons [subclass Text]
-  d   Can be pressed, hovered
-  d   Has an optional callback when pressed
-  d TextEntry [subclass Text]
-  d   allows multi-line input with backspace and enter
-  d   with cursor
-  d   Has an optional callback when editing stops
-  d Tooltip [subclass Frame] [background and color set as normal... if an image, should be a texture, and color should be slightly transparent by default]
-  d   scales well with its content
-  d   contains an Icon [top left]
-  d   contains a Title [top right]
-  d   contains one or more info lines
-  d     can be a Text frame
-  d     can be a Bar frame
-  d     can be a blank vertical space
   d TooltipFactory
-  d   makeEntityTooltip(entity)
-  d     display stats
-  d     needs to watch entity for value changes [health, stats]
-  d   makeSimpleTooltip(header, text)
   +   Why does the numLines calculation sometimes come up short?
-  d StickyButton [subclass Button]
-  x   Can watch a variable [for image it represents] -- is a "view" of an item
-  d     displays image [icon]
-  d   attaches to mouse cursor when clicked
-  d   is placed in nearest overlapping Slot when clicked again
-  d Slots [subclass Frame]
-  d   Can contain a StickyButton
-  d   Draws StickyButton instead of self when containing one.
-  d     actually, needs to draw a background when containing a StickyButton [second Style?]
-  d   Needs a verification callback [won't put button in slot if attachment fails (e.g. weapons only in weapon equip slot)]
-  d Bar [subclass Frame]
-  d   Has a min and max and current value
-  d   Can watch a variable
-  x   Animation?
   + Pause ability
   +   Any zoom level besides lowest forces Pause
-  d Ability to click on entities/map tiles directly
 
 For v0.1.0:
   o interface
-  d rename this game [even if just a working name]
   o music [randomly choose a track]
   o   key to disable
   o sounds
@@ -159,6 +88,8 @@ Interface:
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
+  d StickyButton [subclass Button]
+  x   Can watch a variable [for image it represents] -- is a "view" of an item
 
   Game viewport:
   ?   Context menu when right-click on entities/objects?
