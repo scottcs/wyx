@@ -1,11 +1,12 @@
 Interface:
-  UI Elements:
-  d TooltipFactory
-  +   Why does the numLines calculation sometimes come up short?
-  d Pause ability
-  d   Any zoom level besides lowest forces Pause
-	+   When paused, allow movement keys to move camera around map
-	+   When unpaused, camera follows primeEntity again
+	UI Screens:
+	o Main Menu
+	o Character select or gear select + name entry
+	o Options Menu
+	o Save Menu
+	o Load Menu
+	o Help screen
+
 
 For v0.1.0:
   o interface
@@ -75,6 +76,8 @@ Expressions:
     },
 
 Interface:
+  d TooltipFactory
+  +   Why does the numLines calculation sometimes come up short?
   ? Minimap  [or is zoom out good enough?]
   x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
   x TooltipComponent... mouseover info panel thingy
@@ -87,6 +90,8 @@ Interface:
   x   optional Text as label
   x      can position anywhere
   x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
+	+ When paused, allow movement keys to move camera around map
+	+ When unpaused, camera follows primeEntity again
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
