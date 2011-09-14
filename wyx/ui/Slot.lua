@@ -49,21 +49,20 @@ end
 function Slot:swap(button)
 	verifyClass('wyx.ui.StickyButton', button)
 	local otherSlot = button:getSlot()
-	local otherButton
-	local oldButton = self:remove()
 
-	if not otherSlot:isEmpty() then otherButton = otherSlot:remove() end
+	local myButtonOK = true
+	local yourButtonOK = self:verifyButton(button)
+	
+	if self._button then
+		myButtonOK = otherSlot:verifyButton(self._button)
+	end
 
-	local verified, oldVerified = false, true
-	if oldButton then oldVerified = otherSlot:verifyButton(oldButton) end
-	verified = self:verifyButton(button)
+	if myButtonOK and yourButtonOK then
+		local myButton = self:remove()
+		local yourButton = otherSlot:remove()
 
-	if verified and oldVerified then
-		if oldButton then otherSlot:insert(oldButton, oldVerified) end
-		self:insert(button, verified)
-	else
-		if oldButton then self:insert(oldButton, true) end
-		otherSlot:insert(button, true)
+		if myButton then otherSlot:insert(myButton, true) end
+		self:insert(yourButton, true)
 	end
 end
 
