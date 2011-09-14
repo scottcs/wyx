@@ -42,9 +42,12 @@ function st:enter(prevState, world, view, cam)
 	InputEvents:register(self, {
 		MouseIntersectRequest,
 	})
+
+	PAUSED = false
 end
 
 function st:leave()
+	PAUSED = true
 	self:_killMessageHUD()
 	GameEvents:unregisterAll(self)
 	InputEvents:unregisterAll(self)
@@ -52,6 +55,7 @@ end
 
 function st:destroy()
 	self:_killMessageHUD()
+	PAUSED = nil
 	self._level = nil
 	self._world = nil
 	self._view = nil
@@ -124,18 +128,35 @@ function st:_displayMessage(message, time)
 	end, self)
 end
 
-function st:update(dt)
-	TimeSystem:tick()
+function st:_doPause(pause)
+	if nil == pause then pause = not PAUSED end
+	PAUSED = pause
+	if pause then
+		GameEvents:flush()
+		CommandEvents:flush()
+		InputEvents:flush()
+		self:_displayMessage('Paused')
+	else
+		GameEvents:clear()
+		CommandEvents:clear()
+		InputEvents:clear()
+	end
+end
 
-	if self._level:needViewUpdate() then
-		self._view:setViewport(self._cam:getViewport())
-		self._level:postViewUpdate()
+function st:update(dt)
+	if not PAUSED then
+		TimeSystem:tick()
+
+		if self._level:needViewUpdate() then
+			self._view:setViewport(self._cam:getViewport())
+			self._level:postViewUpdate()
+		end
+
+		if self._view then self._view:update(dt) end
 	end
 
-	if self._view then self._view:update(dt) end
 	if self._messageHUD then self._messageHUD:update(dt) end
 	if self._debug then self._debugHUD:update(dt) end
-
 	UISystem:update(dt)
 end
 
@@ -176,9 +197,12 @@ function st:keypressed(key, unicode)
 				--RunState.switch(State.save, self._world, 'destroy')
 				RunState.switch(State.destroy)
 			end,
+
 			['1'] = function()
 				RunState.switch(State.destroy, 'intro')
 			end,
+
+			p = function() self:_doPause() end,
 
 			-- camera
 			pageup = function()

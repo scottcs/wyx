@@ -33,6 +33,8 @@ end
 
 -- on keyboard input, issue the appropriate command
 function PlayerInputComponent:KeyboardEvent(e)
+	if PAUSED then return end
+
 	if #(e:getModifiers()) == 0 then
 		local key = e:getKey()
 		local doTick = false
