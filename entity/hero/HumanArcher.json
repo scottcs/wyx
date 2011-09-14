@@ -2,7 +2,7 @@
 	"family": "Human",
 	"kind": "Archer",
 	"variation": 1,
-	"description": "Description goes here.",
+	"description": "You are pretty cool.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
