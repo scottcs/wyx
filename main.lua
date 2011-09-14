@@ -1,11 +1,11 @@
 
 -- common utilities used throughout the program
-require 'pud.util'
+require 'wyx.util'
 require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
-GAMENAME = 'Pud'
-LOAD_DELAY = 0.05
+GAMENAME = 'Wyx'
+LOAD_DELAY = 0.025
 
 
          --[[--
@@ -86,12 +86,20 @@ local function _makeSaveDirectories()
 	}) do _makeADir(dir) end
 end
 
+local function _setIcon()
+	local icon = love.graphics.newImage('icon.png')
+	love.graphics.setIcon(icon)
+end
+
 function love.load()
 	-- start the profiler
 	if doGlobalProfile then globalProfiler.start() end
 
 	-- set graphics mode
 	resizeScreen(1024, 768)
+
+	-- set the program icon
+	_setIcon()
 
 	-- set window title
 	love.graphics.setCaption(GAMENAME..' v'..VERSION)
@@ -122,12 +130,16 @@ function love.load()
 
 	-- define game fonts
 	GameFont = {
-		small = love.graphics.newImageFont('font/lofi_small.png',
-			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
-			'abcdefghijklmnopqrstuvwxyz' ..
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 		big = love.graphics.newImageFont('font/lofi_big.png',
 			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		bigsmall = love.graphics.newImageFont('font/lofi_bigsmall.png',
+			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+		small = love.graphics.newImageFont('font/lofi_small.png',
+			'0123456789!@#$%^&*()-=+[]{}:;\'"<>,.?/\\ ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
 			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 		verysmall = love.graphics.newImageFont('font/lofi_verysmall.png',
@@ -144,20 +156,20 @@ function love.load()
 	RunState.registerEvents()
 
 	-- create global event managers (event "channels")
-	local EventManager = getClass 'pud.event.EventManager'
+	local EventManager = getClass 'wyx.event.EventManager'
 	GameEvents = EventManager()
 	InputEvents = EventManager()
 	CommandEvents = EventManager()
 
 	-- create global console
-	Console = getClass('pud.debug.Console')()
+	Console = getClass('wyx.debug.Console')()
 	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
 	-- make sure the save directories are created
 	_makeSaveDirectories()
 
 	-----------------------------------
-	-- "The real Pud starts here..." --
+	-- "The real Wyx starts here..." --
 	-----------------------------------
 	RunState.switch(State.intro)
 end
@@ -203,7 +215,7 @@ local function _getModifiers()
 	return mods
 end
 
-local KeyboardEvent = getClass 'pud.event.KeyboardEvent'
+local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 
 function love.keypressed(key, unicode)
 	local mods = _getModifiers()
@@ -216,12 +228,20 @@ function love.keypressed(key, unicode)
 	end
 end
 
-local MouseEvent = getClass 'pud.event.MouseEvent'
+local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
+local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
-	local btns = _getButtons()
-	InputEvents:push(MouseEvent(x, y, button,
+	InputEvents:push(MousePressedEvent(x, y, button,
+		love.mouse.isGrabbed(),
+		love.mouse.isVisible(),
+		mods))
+end
+
+function love.mousereleased(x, y, button)
+	local mods = _getModifiers()
+	InputEvents:push(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))

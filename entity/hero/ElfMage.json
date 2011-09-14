@@ -2,6 +2,7 @@
 	"family": "Elf",
 	"kind": "Mage",
 	"variation": 1,
+	"description": "You are pretty cool.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

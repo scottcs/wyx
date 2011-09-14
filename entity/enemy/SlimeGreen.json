@@ -2,6 +2,7 @@
 	"family": "Slime",
 	"kind": "Green",
 	"variation": 1,
+	"description": "It kind of makes you hungry.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",

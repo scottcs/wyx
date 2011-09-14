@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Dagger",
 	"variation": 1,
+	"description": "Well, it's sharp, anyway.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

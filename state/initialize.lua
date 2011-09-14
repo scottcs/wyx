@@ -8,18 +8,19 @@
 
 local st = RunState.new()
 
-local World = getClass 'pud.map.World'
+local World = getClass 'wyx.map.World'
 
 function st:init()
 	-- entity databases
-	HeroDB = getClass('pud.entity.HeroEntityDB')()
-	EnemyDB = getClass('pud.entity.EnemyEntityDB')()
-	ItemDB = getClass('pud.entity.ItemEntityDB')()
+	HeroDB = getClass('wyx.entity.HeroEntityDB')()
+	EnemyDB = getClass('wyx.entity.EnemyEntityDB')()
+	ItemDB = getClass('wyx.entity.ItemEntityDB')()
 
 	-- create systems
-	RenderSystem = getClass('pud.system.RenderSystem')()
-	TimeSystem = getClass('pud.system.TimeSystem')()
-	CollisionSystem = getClass('pud.system.CollisionSystem')()
+	RenderSystem = getClass('wyx.system.RenderSystem')()
+	UISystem = getClass('wyx.system.UISystem')()
+	TimeSystem = getClass('wyx.system.TimeSystem')()
+	CollisionSystem = getClass('wyx.system.CollisionSystem')()
 
 	-- instantiate world
 	self._world = World()
@@ -44,9 +45,11 @@ function st:destroy()
 
 	-- destroy systems
 	RenderSystem:destroy()
+	UISystem:destroy()
 	TimeSystem:destroy()
 	CollisionSystem:destroy()
 	RenderSystem = nil
+	UISystem = nil
 	TimeSystem = nil
 	CollisionSystem = nil
 

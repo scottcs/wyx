@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Dagger",
 	"variation": 2,
+	"description": "It's a little rusty.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",

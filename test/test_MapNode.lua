@@ -1,6 +1,6 @@
-local MapNode = require 'pud.map.MapNode'
-local MapType = require 'pud.map.MapType'
-local DoorMapType = require 'pud.map.DoorMapType'
+local MapNode = require 'wyx.map.MapNode'
+local MapType = require 'wyx.map.MapType'
+local DoorMapType = require 'wyx.map.DoorMapType'
 
 context('MapNode', function()
 	context('When instantiated with no arguments', function()

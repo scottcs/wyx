@@ -2,6 +2,7 @@
 	"family": "Weapon",
 	"kind": "Sword",
 	"variation": 1,
+	"description": "You can use this to kill stuff.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
