@@ -15,8 +15,7 @@ function Event:getName() return self._name end
 
 -- private function to construct an informative message
 function Event:_msg(msg, ...)
-	msg = tostring(self)..': '..msg
-	return format(msg, ...)
+	return format('%s: %s', (self._name or 'unknown'), format(msg, ...))
 end
 
 -- make printable

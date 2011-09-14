@@ -28,5 +28,23 @@ function InputEvent:wasModifierDown(mod, ...)
 	return self:wasModifierDown(...)
 end
 
+local concat = table.concat
+function InputEvent:__tostring()
+	local modstr = ''
+
+	if self._modifiers then
+		local mods = {}
+		local count = 0
+		for k in pairs(self._modifiers) do
+			count = count + 1
+			mods[count] = k
+		end
+		modstr = concat(mods, ', ')
+	end
+
+	return self:_msg('%s', modstr)
+end
+
+
 -- the class
 return InputEvent

@@ -6,10 +6,15 @@ local Class = require 'lib.hump.class'
 
 local Event = getClass 'wyx.event.Event'
 local eventsMT = {__mode = 'k'}
+local format = string.format
 
 -- EventManager class
 local EventManager = Class{name='EventManager',
-	function(self)
+	function(self, name)
+		name = name or 'EventManager'
+		verify('string', name)
+		self._name = name
+
 		self._events = {}
 	end
 }
@@ -22,6 +27,7 @@ end
 
 -- destructor
 function EventManager:destroy()
+	self:clear()
 	for k,v in pairs(self._events) do
 		for l,w in pairs(self._events[k]) do
 			self._events[k][l] = nil
@@ -29,6 +35,11 @@ function EventManager:destroy()
 		self._events[k] = nil
 	end
 	self._events = nil
+
+	self._name = nil
+	self._lastDebugMsg = nil
+	self._lastDebugRepeat = nil
+	self._debug = nil
 end
 
 -- register an object to listen for the given events
@@ -108,12 +119,30 @@ function EventManager:notify(event)
 
 	if self._events[key] then
 		for obj in pairs(self._events[key]) do
+			if self._debug then
+				local mgr = tostring(self)
+				local eventstr = tostring(event)
+				local objstr = tostring(obj.__class or obj)
+				local msg = format('[%s@%s] %s', mgr, objstr, eventstr)
+				if self._lastDebugMsg ~= msg then
+					if self._lastDebugRepeat and self._lastDebugRepeat > 0 then
+						local m = format('(Last message repeated %d times.)',
+							self._lastDebugRepeat)
+						if Console then Console:print(m) end
+						print(m)
+					end
+					self._lastDebugMsg = msg
+					self._lastDebugRepeat = 0
+					if Console then Console:print(msg) end
+					print(msg)
+				else
+					self._lastDebugRepeat = self._lastDebugRepeat + 1
+				end
+			end
+
 			if type(obj) == 'function' then                     -- function()
 				obj(event)
 			else
-				if debugEvents then
-					print(event:getName(), tostring(obj))
-				end
 				local keyStr = tostring(event:getEventKey())
 				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
 				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
@@ -150,6 +179,25 @@ function EventManager:flush()
 		end
 	end
 end
+
+-- remove all events in the queue without notifying listeners
+function EventManager:clear()
+	if self._queue then
+		local num = #self._queue
+		for i=1,num do
+			self._queue[i] = nil
+		end
+		self._queue = nil
+	end
+end
+
+function EventManager:debug(on)
+	if nil == on then on = not self._debug end
+	self._debug = on
+end
+
+function EventManager:__tostring() return self._name end
+
 
 -- the module
 return EventManager

@@ -36,5 +36,10 @@ end
 function MoveCommand:getX() return self._x end
 function MoveCommand:getY() return self._y end
 
+function MoveCommand:__tostring()
+	return self:_msg('{%08s} (%d,%d)', self:_getTargetString(), self._x, self._y)
+end
+
+
 -- the class
 return MoveCommand

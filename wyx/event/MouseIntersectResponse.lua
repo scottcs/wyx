@@ -28,6 +28,13 @@ function MouseIntersectResponse:getArgs()
 	return self._args and unpack(self._args) or nil
 end
 
+local concat = table.concat
+function MouseIntersectResponse:__tostring()
+	local idstr, argstr = '', ''
+	if self._ids then idstr = concat(self._ids, ', ') end
+	if self._args then argstr = concat(self._args, ', ') end
+	return self:_msg('%s | %s', idstr, argstr)
+end
 
 -- the class
 return MouseIntersectResponse

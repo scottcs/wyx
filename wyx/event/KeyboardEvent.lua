@@ -36,5 +36,12 @@ function KeyboardEvent:getUnicode()
 	return c
 end
 
+function KeyboardEvent:__tostring()
+	local iestr = InputEvent.__tostring(self)
+	return self:_msg('k: %s, u: %s, m: %s',
+		tostring(self._key), tostring(self._unicode), iestr)
+end
+
+
 -- the class
 return KeyboardEvent

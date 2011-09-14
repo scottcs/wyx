@@ -30,5 +30,11 @@ function ZoneTriggerEvent:getEntity() return self._entityID end
 function ZoneTriggerEvent:getZone() return self._zone end
 function ZoneTriggerEvent:isLeaving() return self._isLeaving end
 
+function ZoneTriggerEvent:__tostring()
+	return self:_msg('{%08s} zone: %s, leaving: %s',
+		self._entityID, self._zone, tostring(self._isLeaving))
+end
+
+
 -- the class
 return ZoneTriggerEvent

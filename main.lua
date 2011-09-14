@@ -13,7 +13,9 @@ LOAD_DELAY = 0.025
          --]]--
 
 --debug = nil
-debugEvents = false
+debugGameEvents = false
+debugCommandEvents = false
+debugInputEvents = false
 doProfile = false
 local doGlobalProfile = doProfile and false
 
@@ -157,9 +159,13 @@ function love.load()
 
 	-- create global event managers (event "channels")
 	local EventManager = getClass 'wyx.event.EventManager'
-	GameEvents = EventManager()
-	InputEvents = EventManager()
-	CommandEvents = EventManager()
+	GameEvents = EventManager('GameEvents')
+	InputEvents = EventManager('InputEvents')
+	CommandEvents = EventManager('CommandEvents')
+
+	GameEvents:debug(debugGameEvents)
+	InputEvents:debug(debugInputEvents)
+	CommandEvents:debug(debugCommandEvents)
 
 	-- create global console
 	Console = getClass('wyx.debug.Console')()

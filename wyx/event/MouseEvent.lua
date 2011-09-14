@@ -42,5 +42,12 @@ function MouseEvent:wasGrabbed() return self._grabbed end
 -- return true if the mouse was visible when the button was pressed
 function MouseEvent:wasVisible() return self._visible end
 
+function MouseEvent:__tostring()
+	return self:_msg('(%d,%d) b: %s, g: %s, v: %s, m: %s',
+		self._x, self._y, tostring(self._button), tostring(self._grabbed),
+		tostring(self._visible), IntpuEvent.__tostring(self))
+end
+
+
 -- the class
 return MouseEvent

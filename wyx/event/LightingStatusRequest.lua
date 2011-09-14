@@ -29,5 +29,10 @@ end
 function LightingStatusRequest:getEntity() return self._entityID end
 function LightingStatusRequest:getPosition() return self._x, self._y end
 
+function LightingStatusRequest:__tostring()
+	return self:_msg('{%08s} (%d,%d)', self._entityID, self._x, self._y)
+end
+
+
 -- the class
 return LightingStatusRequest

@@ -28,5 +28,9 @@ end
 function EntityDeathEvent:getEntity() return self._entityID end
 function EntityDeathEvent:getReason() return self._reason end
 
+function EntityDeathEvent:__tostring()
+	return self:_msg('{%08s} %s', self._entityID, self._reason)
+end
+
 -- the class
 return EntityDeathEvent
