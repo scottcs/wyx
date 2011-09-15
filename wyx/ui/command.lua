@@ -70,10 +70,14 @@ command.PICKUP_ENTITY         = true
 command.DROP_ENTITY           = true
 command.ATTACH_ENTITY         = true
 command.DETACH_ENTITY         = true
-command.ZOOMIN                = false
-command.ZOOMOUT               = false
 --command.PORTAL_IN             = true
 --command.PORTAL_OUT            = true
+
+-- camera commands
+command.CAMERA_ZOOMIN         = false
+command.CAMERA_ZOOMOUT        = false
+command.CAMERA_FOLLOW         = false
+command.CAMERA_UNFOLLOW       = false
 
 -- Console output commands:
 command.PRINT_INVENTORY       = false
@@ -87,8 +91,6 @@ command.NEW_LEVEL             = false
 command.DEBUG_PANEL_TOGGLE    = false
 command.DEBUG_PANEL_RESET     = false
 command.COLLECT_GARBAGE       = false
-command.CAMERA_FOLLOW         = false
-command.CAMERA_UNFOLLOW       = false
 command.DISPLAY_MAPNAME       = false
 command.CONSOLE_TOGGLE        = false
 command.CONSOLE_SHOW          = false

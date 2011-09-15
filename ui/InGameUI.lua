@@ -42,8 +42,8 @@ ui.keys = {
 	['shift-i'] = command('PRINT_INVENTORY'),
 	S = command('PRINT_STATS'),
 	D = command('DUMP_ENTITIES'),
-	pageup = {command('ZOOMOUT'), command('CONSOLE_PAGEUP')},
-	pagedown = {command('ZOOMIN'), command('CONSOLE_PAGEDOWN')},
+	pageup = {command('CAMERA_ZOOMOUT'), command('CONSOLE_PAGEUP')},
+	pagedown = {command('CAMERA_ZOOMIN'), command('CONSOLE_PAGEDOWN')},
 	escape = {command('QUIT_NOSAVE'), command('CONSOLE_HIDE')},
 
 	['ctrl-s'] = command('QUICKSAVE'),
