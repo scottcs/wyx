@@ -10,15 +10,6 @@ Interface:
 
 For v0.1.0:
   o interface
-  o music [randomly choose a track]
-  o   key to disable
-  o sounds
-  o   key to disable
-  o   monster hurt
-  o   monster death
-  o   player hurt
-  o   player death
-  o   open door
 
 
 
@@ -113,8 +104,15 @@ Graphics:
   +    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
 Sound:
-  o add sounds
-  o add music
+  o music [randomly choose a track]
+  o   key to disable
+  o sounds
+  o   key to disable
+  o   monster hurt
+  o   monster death
+  o   player hurt
+  o   player death
+  o   open door
 
 Map:
   x map as quad-tree [or something?]
