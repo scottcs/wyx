@@ -1,10 +1,67 @@
 local ui = {}
 
 local Style = getClass 'wyx.ui.Style'
+local command = require 'wyx.ui.command'
+
 local colors = colors
 local floor = math.floor
 
 local panelHeight = 0.125 * HEIGHT
+
+ui.keys = {
+	e = command('MOVE_N'),
+	s = command('MOVE_W'),
+	d = command('MOVE_S'),
+	f = command('MOVE_E'),
+	w = command('MOVE_NW'),
+	r = command('MOVE_NE'),
+	z = command('MOVE_SW'),
+	x = command('MOVE_SW'),
+	c = command('MOVE_SE'),
+	v = command('MOVE_SE'),
+	h = command('MOVE_W'),
+	j = command('MOVE_S'),
+	k = command('MOVE_N'),
+	l = command('MOVE_E'),
+	y = command('MOVE_NW'),
+	u = command('MOVE_NE'),
+	b = command('MOVE_SW'),
+	n = command('MOVE_SE'),
+	kp8 = command('MOVE_N'),
+	kp4 = command('MOVE_W'),
+	kp2 = command('MOVE_S'),
+	kp6 = command('MOVE_E'),
+	kp7 = command('MOVE_NW'),
+	kp9 = command('MOVE_NE'),
+	kp1 = command('MOVE_SW'),
+	kp3 = command('MOVE_SE'),
+	[' '] = command('WAIT'),
+	['.'] = command('WAIT'),
+	kp5 = command('WAIT'),
+
+	['shift-i'] = command('PRINT_INVENTORY'),
+	S = command('PRINT_STATS'),
+	D = command('DUMP_ENTITIES'),
+	pageup = {command('ZOOMOUT'), command('CONSOLE_PAGEUP')},
+	pagedown = {command('ZOOMIN'), command('CONSOLE_PAGEDOWN')},
+	escape = {command('QUIT_NOSAVE'), command('CONSOLE_HIDE')},
+
+	['ctrl-s'] = command('QUICKSAVE'),
+	['ctrl-l'] = command('QUICKLOAD'),
+	['ctrl-n'] = command('NEW_LEVEL'),
+	f4 = command('CAMERA_FOLLOW'),
+	f5 = command('CAMERA_UNFOLLOW'),
+	backspace = command('DISPLAY_MAPNAME'),
+
+	f3 = command('DEBUG_PANEL_TOGGLE'),
+	f7 = command('DEBUG_PANEL_RESET'),
+	f9 = command('COLLECT_GARBAGE'),
+
+	['`'] = command('CONSOLE_TOGGLE'),
+	f10 = command('CONSOLE_CLEAR'),
+	home = command('CONSOLE_TOP'),
+	['end'] = command('CONSOLE_BOTTOM'),
+}
 
 ui.panel = {
 	x = 0,

@@ -3,11 +3,13 @@ local RenderSystem = getClass 'wyx.system.RenderSystem'
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
 local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
 
 local getMousePos = love.mouse.getPosition
 local select, unpack, type = select, unpack, type
+local format = string.format
 
 -- how many times per second should we tick?
 local FRAME_UPDATE_TICK = 1/30
@@ -34,6 +36,7 @@ function UISystem:destroy()
 	InputEvents:unregisterAll(self)
 
 	self._accum = nil
+	self._keybindings = nil
 
 	self:_clearMouseHoverCB()
 	self:_clearMousePressCB()
@@ -121,6 +124,10 @@ function UISystem:KeyboardEvent(e)
 			steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
 		end
 	end
+
+	if not steal and nil ~= unicode then
+		self:_sendInputCommand(key, unicode, unicodeValue, mods)
+	end
 end
 
 -- MouseIntersectResponse
@@ -137,6 +144,46 @@ function UISystem:MouseIntersectResponse(e)
 			end
 		end
 	end
+end
+
+-- send an InputCommand if a key has been registered
+function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
+	if not self._keybindings then return end
+
+	local cmds
+	unicodeValue = format('%04d', unicodeValue)
+
+	if mods then
+		for mod in pairs(mods) do
+			mod = mod..'-'
+			cmds = self._keybindings[mod..unicode]
+			if cmds then break end
+
+			cmds = self._keybindings[mod..key]
+			if cmds then break end
+		end
+	end
+
+	if not cmds then cmds = self._keybindings[unicodeValue] end
+	if not cmds then cmds = self._keybindings[unicode] end
+	if not cmds then cmds = self._keybindings[key] end
+
+	if cmds then
+		if type(cmds) == 'table' then
+			local num = #cmds
+			for i=1,num do
+				InputEvents:push(InputCommandEvent(cmds[i]))
+			end
+		else
+			InputEvents:push(InputCommandEvent(cmds))
+		end
+	end
+end
+
+-- register keybindings
+function UISystem:registerKeys(keytable)
+	verify('table', keytable)
+	self._keybindings = keytable
 end
 
 -- get all frames under the mouse cursor

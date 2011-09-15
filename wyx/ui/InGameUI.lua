@@ -44,6 +44,7 @@ local InGameUI = Class{name='InGameUI',
 		self._turns = 1
 
 		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
+		if ui and ui.keys then UISystem:registerKeys(ui.keys) end
 	end
 }
 
