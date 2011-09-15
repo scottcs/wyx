@@ -230,7 +230,7 @@ function love.keypressed(key, unicode)
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:push(KeyboardEvent(key, unicode, mods))
+		InputEvents:notify(KeyboardEvent(key, unicode, mods))
 	end
 end
 
@@ -239,7 +239,7 @@ local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
-	InputEvents:push(MousePressedEvent(x, y, button,
+	InputEvents:notify(MousePressedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))
@@ -247,7 +247,7 @@ end
 
 function love.mousereleased(x, y, button)
 	local mods = _getModifiers()
-	InputEvents:push(MouseReleasedEvent(x, y, button,
+	InputEvents:notify(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))

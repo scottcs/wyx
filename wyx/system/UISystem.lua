@@ -172,10 +172,10 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 		if type(cmds) == 'table' then
 			local num = #cmds
 			for i=1,num do
-				InputEvents:push(InputCommandEvent(cmds[i]))
+				InputEvents:notify(InputCommandEvent(cmds[i]))
 			end
 		else
-			InputEvents:push(InputCommandEvent(cmds))
+			InputEvents:notify(InputCommandEvent(cmds))
 		end
 	end
 end
