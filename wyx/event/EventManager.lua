@@ -120,23 +120,26 @@ function EventManager:notify(event)
 	if self._events[key] then
 		for obj in pairs(self._events[key]) do
 			if self._debug then
-				local mgr = tostring(self)
-				local eventstr = tostring(event)
-				local objstr = tostring(obj.__class or obj)
-				local msg = format('[%s@%s] %s', mgr, objstr, eventstr)
-				if self._lastDebugMsg ~= msg then
-					if self._lastDebugRepeat and self._lastDebugRepeat > 0 then
-						local m = format('(Last message repeated %d times.)',
-							self._lastDebugRepeat)
-						if Console then Console:print(m) end
-						print(m)
+				local eventLevel = event:getDebugLevel()
+				if eventLevel <= self._debug then
+					local mgr = tostring(self)
+					local eventstr = tostring(event)
+					local objstr = tostring(obj.__class or obj)
+					local msg = format('[%s@%s] %s', mgr, objstr, eventstr)
+					if self._lastDebugMsg ~= msg then
+						if self._lastDebugRepeat and self._lastDebugRepeat > 0 then
+							local m = format('(Last message repeated %d times.)',
+								self._lastDebugRepeat)
+							if Console then Console:print(m) end
+							print(m)
+						end
+						self._lastDebugMsg = msg
+						self._lastDebugRepeat = 0
+						if Console then Console:print(msg) end
+						print(msg)
+					else
+						self._lastDebugRepeat = self._lastDebugRepeat + 1
 					end
-					self._lastDebugMsg = msg
-					self._lastDebugRepeat = 0
-					if Console then Console:print(msg) end
-					print(msg)
-				else
-					self._lastDebugRepeat = self._lastDebugRepeat + 1
 				end
 			end
 
@@ -191,9 +194,9 @@ function EventManager:clear()
 	end
 end
 
-function EventManager:debug(on)
-	if nil == on then on = not self._debug end
-	self._debug = on
+function EventManager:debug(level)
+	verify('number', level)
+	self._debug = level
 end
 
 function EventManager:__tostring() return self._name end

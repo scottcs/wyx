@@ -13,9 +13,9 @@ LOAD_DELAY = 0.025
          --]]--
 
 --debug = nil
-debugGameEvents = debug and false
-debugCommandEvents = debug and false
-debugInputEvents = debug and false
+debugGameEvents = debug and nil
+debugCommandEvents = debug and nil
+debugInputEvents = debug and 1
 doProfile = false
 local doGlobalProfile = doProfile and false
 
@@ -163,9 +163,9 @@ function love.load()
 	InputEvents = EventManager('InputEvents')
 	CommandEvents = EventManager('CommandEvents')
 
-	GameEvents:debug(debugGameEvents)
-	InputEvents:debug(debugInputEvents)
-	CommandEvents:debug(debugCommandEvents)
+	if debugGameEvents then GameEvents:debug(debugGameEvents) end
+	if debugInputEvents then InputEvents:debug(debugInputEvents) end
+	if debugCommandEvents then CommandEvents:debug(debugCommandEvents) end
 
 	-- create global console
 	Console = getClass('wyx.debug.Console')()

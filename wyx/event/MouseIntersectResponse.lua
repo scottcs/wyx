@@ -9,8 +9,9 @@ local MouseIntersectResponse = Class{name='MouseIntersectResponse',
 	inherits=Event,
 	function(self, ids, ...)
 		if nil ~= ids then verify('table', ids) end
-		Event.construct(self, 'Mouse Intersect Event')
+		Event.construct(self, 'Mouse Intersect Response')
 
+		self._debugLevel = 2
 		self._ids = ids
 		self._args = (select('#', ...) > 0) and {...} or nil
 	end

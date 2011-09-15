@@ -12,6 +12,7 @@ local MouseIntersectRequest = Class{name='MouseIntersectRequest',
 
 		Event.construct(self, 'Mouse Intersect Request')
 
+		self._debugLevel = 2
 		self._x, self._y = x, y
 		self._args = (select('#', ...) > 0) and {...} or nil
 	end
