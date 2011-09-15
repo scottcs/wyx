@@ -1,12 +1,14 @@
 local Class = require 'lib.hump.class'
 local Event = getClass 'wyx.event.Event'
 
+local concat = table.concat
+
 -- InputEvent
 --
 local InputEvent = Class{name='InputEvent',
 	inherits=Event,
 	function(self, modifiers)
-		Event.construct(self)
+		Event.construct(self, 'Input Event')
 		self._modifiers = modifiers
 	end
 }
@@ -28,8 +30,7 @@ function InputEvent:wasModifierDown(mod, ...)
 	return self:wasModifierDown(...)
 end
 
-local concat = table.concat
-function InputEvent:__tostring()
+function InputEvent:_getModString()
 	local modstr = ''
 
 	if self._modifiers then
@@ -42,6 +43,11 @@ function InputEvent:__tostring()
 		modstr = concat(mods, ', ')
 	end
 
+	return modstr
+end
+
+function InputEvent:__tostring()
+	local modstr = self:_getModString()
 	return self:_msg('%s', modstr)
 end
 

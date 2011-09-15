@@ -37,9 +37,9 @@ function KeyboardEvent:getUnicode()
 end
 
 function KeyboardEvent:__tostring()
-	local iestr = InputEvent.__tostring(self)
+	local modstr = self:_getModString()
 	return self:_msg('k: %s, u: %s, m: %s',
-		tostring(self._key), tostring(self._unicode), iestr)
+		tostring(self._key), tostring(self._unicode), modstr)
 end
 
 
