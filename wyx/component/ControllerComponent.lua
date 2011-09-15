@@ -286,6 +286,79 @@ function ControllerComponent:receive(sender, msg, ...)
 	end
 end
 
+function ControllerComponent:_printStats()
+	local attack = self._mediator:query(property('Attack'))
+	local attackBonus = self._mediator:query(property('AttackBonus'))
+	attack = attack + attackBonus
+
+	local defense = self._mediator:query(property('Defense'))
+	local defenseBonus = self._mediator:query(property('DefenseBonus'))
+	defense = defense + defenseBonus
+
+	local speed = self._mediator:query(property('Speed'))
+	local speedBonus = self._mediator:query(property('SpeedBonus'))
+	speed = speed + speedBonus
+
+	local health = self._mediator:query(property('Health'))
+	local healthBonus = self._mediator:query(property('HealthBonus'))
+	health = health + healthBonus
+
+	local maxHealth = self._mediator:query(property('MaxHealth'))
+	local maxHealthBonus = self._mediator:query(property('MaxHealthBonus'))
+	maxHealth = maxHealth + maxHealthBonus
+
+	local visibility = self._mediator:query(property('Visibility'))
+	local visibilityBonus = self._mediator:query(property('VisibilityBonus'))
+	visibility = visibility + visibilityBonus
+
+	local attackCost = self._mediator:query(property('AttackCost'))
+	local attackCostBonus = self._mediator:query(property('AttackCostBonus'))
+	attackCost = attackCost + attackCostBonus
+
+	local moveCost = self._mediator:query(property('MoveCost'))
+	local moveCostBonus = self._mediator:query(property('MoveCostBonus'))
+	moveCost = moveCost + moveCostBonus
+
+	GameEvents:push(ConsoleEvent('Stats (%s):', self._mediator:getName()))
+	GameEvents:push(ConsoleEvent('      HP: %d (%+d) / %d (%+d)',
+		health, healthBonus, maxHealth, maxHealthBonus))
+	GameEvents:push(ConsoleEvent('     Att: %d (%+d)',
+		attack, attackBonus))
+	GameEvents:push(ConsoleEvent('     Def: %d (%+d)',
+		defense, defenseBonus))
+	GameEvents:push(ConsoleEvent(
+		'     Spd: %d (%+d)  AttCost: %d (%+d)  MovCost: %d (%+d)',
+		speed, speedBonus,
+		attackCost, attackCostBonus,
+		moveCost, moveCostBonus))
+	GameEvents:push(ConsoleEvent('     Vis: %d (%+d)',
+		visibility, visibilityBonus))
+end
+
+function ControllerComponent:_printInventory()
+	local found = false
+
+	local name = self._mediator:getName()
+	local contained = self._mediator:query(property('ContainedEntities'))
+	if contained then
+		GameEvents:push(ConsoleEvent('Inventory (%s):', name))
+		found = true
+		for i,e in pairs(contained) do
+			local entity = EntityRegistry:get(e)
+			local equipped = ''
+			if entity:query(property('IsAttached')) then
+				equipped = ' (equipped)'
+			end
+			GameEvents:push(ConsoleEvent('   %d - {%08s} %s%s',
+				i, e, entity:getName(), equipped))
+		end
+	end
+
+	if not found then
+		GameEvents:push(ConsoleEvent('%s has empty bags.', name))
+	end
+end
+
 
 -- the class
 return ControllerComponent
