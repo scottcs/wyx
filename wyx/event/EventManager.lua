@@ -36,6 +36,8 @@ function EventManager:destroy()
 	end
 	self._events = nil
 
+	if self._unregisterQueue then self:_unregisterPending() end
+
 	self._name = nil
 	self._lastDebugMsg = nil
 	self._lastDebugRepeat = nil
@@ -49,42 +51,25 @@ end
 --   an object with an onEvent method
 function EventManager:register(obj, events)
 	_validateObj(obj)
+	verify('table', events)
+	if events.is_a then events = {events} end
 
-	local hasOnEvent = type(obj) == 'function'
-		or obj.onEvent and type(obj.onEvent) == 'function'
+	self._registerQueue = self._registerQueue or {}
+	self._registerQueue[obj] = events
 
-	if events.is_a then
-		events = {events}
-	end
-	for _,event in ipairs(events) do
-		verifyClass(Event, event)
-		local keyStr = tostring(event:getEventKey())
-		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
-			'object "%s" is missing event callback method for event "%s"',
-			tostring(obj), keyStr)
-
-		local key = event:getEventKey()
-		-- event table has weak keys
-		self._events[key] = self._events[key] or setmetatable({}, eventsMT)
-		self._events[key][obj] = true
-	end
+	if not self._notifying then self:_registerPending() end
 end
 
 -- unregister an object from listening for the given events
 function EventManager:unregister(obj, events)
 	_validateObj(obj)
+	verify('table', events)
+	if events.is_a then events = {events} end
 
-	if type(events) ~= 'table' then
-		events = {events}
-	end
-	for _,event in ipairs(events) do
-		verifyClass(Event, event)
-		local key = event:getEventKey()
+	self._unregisterQueue = self._unregisterQueue or {}
+	self._unregisterQueue[obj] = events
 
-		if self._events[key] and self._events[key][obj] then
-			self._events[key][obj] = nil
-		end
-	end
+	if not self._notifying then self:_unregisterPending() end
 end
 
 -- register an object for all events
@@ -112,9 +97,53 @@ function EventManager:getRegisteredEvents(obj)
 	return #events > 0 and events or nil
 end
 
+function EventManager:_registerPending()
+	if self._registerQueue then
+		for obj,events in pairs(self._registerQueue) do
+			local hasOnEvent = type(obj) == 'function'
+				or (type(obj) == 'table'
+					and obj.onEvent
+					and type(obj.onEvent) == 'function')
+
+			for _,event in ipairs(events) do
+				verifyClass(Event, event)
+				local keyStr = tostring(event:getEventKey())
+				assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
+					'object "%s" is missing event callback method for event "%s"',
+					tostring(obj), keyStr)
+
+				local key = event:getEventKey()
+				-- event table has weak keys
+				self._events[key] = self._events[key] or setmetatable({}, eventsMT)
+				self._events[key][obj] = true
+			end
+			self._registerQueue[obj] = nil
+		end
+		self._registerQueue = nil
+	end
+end
+
+function EventManager:_unregisterPending()
+	if self._unregisterQueue then
+		for obj,events in pairs(self._unregisterQueue) do
+			for _,event in ipairs(events) do
+				verifyClass(Event, event)
+				local key = event:getEventKey()
+
+				if self._events[key] and self._events[key][obj] then
+					self._events[key][obj] = nil
+				end
+			end
+			self._unregisterQueue[obj] = nil
+		end
+		self._unregisterQueue = nil
+	end
+end
+
 -- notify a specific event, notifying all listeners of the event.
 function EventManager:notify(event)
 	verifyClass(Event, event)
+	self._notifying = true
 	local key = event:getEventKey()
 
 	if self._events[key] then
@@ -153,6 +182,10 @@ function EventManager:notify(event)
 		end
 	end
 
+	self:_registerPending()
+	self:_unregisterPending()
+	self._notifying = false
+
 	event:destroy()
 end
 
@@ -181,6 +214,7 @@ function EventManager:flush()
 			self:notify(event)
 		end
 	end
+	if not self._notifying then self:_unregisterPending() end
 end
 
 -- remove all events in the queue without notifying listeners
@@ -192,6 +226,7 @@ function EventManager:clear()
 		end
 		self._queue = nil
 	end
+	if not self._notifying then self:_unregisterPending() end
 end
 
 function EventManager:debug(level)
