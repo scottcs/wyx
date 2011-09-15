@@ -125,7 +125,7 @@ function UISystem:KeyboardEvent(e)
 		end
 	end
 
-	if not steal and nil ~= unicode then
+	if not steal then
 		self:_sendInputCommand(key, unicode, unicodeValue, mods)
 	end
 end
@@ -151,22 +151,22 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 	if not self._keybindings then return end
 
 	local cmds
-	unicodeValue = format('%04d', unicodeValue)
+	unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
 
 	if mods then
 		for mod in pairs(mods) do
 			mod = mod..'-'
-			cmds = self._keybindings[mod..unicode]
+			cmds = unicode and self._keybindings[mod..unicode] or nil
 			if cmds then break end
 
-			cmds = self._keybindings[mod..key]
+			cmds = key and self._keybindings[mod..key] or nil
 			if cmds then break end
 		end
 	end
 
 	if not cmds then cmds = self._keybindings[unicodeValue] end
-	if not cmds then cmds = self._keybindings[unicode] end
-	if not cmds then cmds = self._keybindings[key] end
+	if not cmds then cmds = unicode and self._keybindings[unicode] or nil end
+	if not cmds then cmds = key and self._keybindings[key] or nil end
 
 	if cmds then
 		if type(cmds) == 'table' then
