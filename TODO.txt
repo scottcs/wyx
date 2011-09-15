@@ -1,23 +1,53 @@
-Interface:
-	UI Screens:
-	o Main Menu
-	o Character select or gear select + name entry
-	o Options Menu
-	o Save Menu
-	o Load Menu
-	o Help screen
+::::::::::
+:OVERVIEW:
+::::::::::
 
-
-For v0.1.0:
+v0.1.0 Goals:
   o interface
 
+v0.2.0 Goals:
+  + console improvements [logging, levels, commands]
+  + wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
+  o config file
+  o key bindings
+  o fix ELevel weights
+  o better expressions
+  o map objects
+  o stairs/portals work - can go back and forth between levels
+  o level templates
+  o map deformation
+
+v0.3.0 Goals:
+  o music
+  o sounds
+  o more level algorithms
+  o better AI including A*
+  o usable items
+  o skills/scrolls
 
 
-BEYOND v0.1.0:
+:::::::::::::::
+:CURRENT TASKS:
+:::::::::::::::
+
+Interface:
+  UI Screens:
+  o Main Menu
+  o Character select or gear select + name entry
+  o Options Menu
+  o Save Menu
+  o Load Menu
+  o Help screen
+  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
+
+
+:::::::::::::::
+:PENDING TASKS:
+:::::::::::::::
 
 Save/Load:
   Event Queues:
-  + change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
+  x change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
   ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
@@ -33,7 +63,6 @@ Entities:
     o   UseCommand [call onUse(), potentially destroy entity]
 
 Input/Events/Config:
-  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
   o read keybindings from a config file. [make a default config in the data dir]
 
 Console/Debug:
@@ -81,8 +110,8 @@ Interface:
   x   optional Text as label
   x      can position anywhere
   x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
-	+ When paused, allow movement keys to move camera around map
-	+ When unpaused, camera follows primeEntity again
+  + When paused, allow movement keys to move camera around map
+  + When unpaused, camera follows primeEntity again
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
@@ -100,7 +129,7 @@ Interface:
 Graphics:
   x make hero movement smoother [tweened... possibly only move camera when near edges?]
   - support sprite batches if framebuffers are unsupported
-  + fix wrong dungeon colors after load
+  d fix wrong dungeon colors after load
   +    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
 Sound:
@@ -117,7 +146,7 @@ Sound:
 Map:
   x map as quad-tree [or something?]
   ? maptypes as composites?
-  - poisson disk sampling for decoration/item/monster placement [map gen too?]
+  o poisson disk sampling for decoration/item/monster placement [map gen too?]
   + map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
   +   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
   ? How to handle map deformation? Would like ability to mine/dig/etc.
@@ -127,9 +156,12 @@ Map:
 
 Other:
   - fix tests
-  + make EntityRegistry not a global [it's in the World]
+  ? make EntityRegistry not a global [it's in the World]
 
-NOTES & IDEAS:
+
+:::::::::::::::
+:NOTES & IDEAS:
+:::::::::::::::
 
 Interface:
 
