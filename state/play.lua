@@ -154,7 +154,9 @@ function st:InputCommandEvent(e)
 
 			-- run state
 			QUIT_NOSAVE = function() RunState.switch(State.destroy) end,
-			NEW_LEVEL = function() RunState.switch(State.destroy, 'intro') end,
+			NEW_LEVEL = function()
+				RunState.switch(State.destroy, 'initialize', 'construct')
+			end,
 			QUICKSAVE = function()
 				RunState.switch(State.save, self._world, self._view, 'play')
 			end,
@@ -169,7 +171,9 @@ function st:InputCommandEvent(e)
 			DEBUG_PANEL_CLEAR = function()
 				if self._debug then self._debugHUD:clearExtremes() end
 			end,
-			COLLECT_GARBAGE = function() if self._debug then collectgarbage('collect') end end,
+			COLLECT_GARBAGE = function()
+				if self._debug then collectgarbage('collect') end
+			end,
 			DISPLAY_MAPNAME = function()
 				local name = self._level:getMapName()
 				local author = self._level:getMapAuthor()

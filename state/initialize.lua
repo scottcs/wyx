@@ -20,7 +20,6 @@ function st:init()
 
 	-- create systems
 	RenderSystem = getClass('wyx.system.RenderSystem')()
-	UISystem = getClass('wyx.system.UISystem')()
 	TimeSystem = getClass('wyx.system.TimeSystem')()
 	CollisionSystem = getClass('wyx.system.CollisionSystem')()
 
@@ -47,11 +46,9 @@ function st:destroy()
 
 	-- destroy systems
 	RenderSystem:destroy()
-	UISystem:destroy()
 	TimeSystem:destroy()
 	CollisionSystem:destroy()
 	RenderSystem = nil
-	UISystem = nil
 	TimeSystem = nil
 	CollisionSystem = nil
 

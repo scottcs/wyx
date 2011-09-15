@@ -37,22 +37,34 @@ end
 
 -- Input command table. Value is the return result for pause().
 -- Main menu commands:
+--command.MENU_MAIN             = false
 
 -- Character select commands:
+--command.MENU_CHAR_SELECT      = false
 
 -- Options menu commands:
+command.MENU_OPTIONS          = false
 
 -- Load menu commands:
+command.MENU_LOAD_GAME        = false
 
 -- Save menu commands:
+command.MENU_SAVE_GAME        = false
 
 -- Help menu commands:
+command.MENU_HELP             = false
 
 -- In-Game menus:
 --command.PICKUP_MENU           = true
 --command.DROP_MENU             = true
 --command.ATTACH_MENU           = true
 --command.DETACH_MENU           = true
+
+-- Game state commands
+command.QUICKLOAD             = false
+command.QUICKSAVE             = false
+command.NEW_LEVEL             = false
+command.NEW_GAME              = false
 
 -- In-Game commands:
 command.QUIT_NOSAVE           = false
@@ -85,9 +97,6 @@ command.PRINT_STATS           = false
 command.DUMP_ENTITIES         = false
 
 -- Debug commands:
-command.QUICKLOAD             = false
-command.QUICKSAVE             = false
-command.NEW_LEVEL             = false
 command.DEBUG_PANEL_TOGGLE    = false
 command.DEBUG_PANEL_RESET     = false
 command.COLLECT_GARBAGE       = false
