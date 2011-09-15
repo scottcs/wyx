@@ -25,6 +25,9 @@ v0.3.0 Goals:
   o usable items
   o skills/scrolls
 
+Later Goals:
+  o Localization
+
 
 :::::::::::::::
 :CURRENT TASKS:
@@ -38,7 +41,8 @@ Interface:
   o Save Menu
   o Load Menu
   o Help screen
-  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)]. Use keybindings for this.
+  o KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)].
+  o   need some kind of "allow when paused" flag
 
 
 :::::::::::::::
