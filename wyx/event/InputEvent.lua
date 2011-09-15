@@ -7,8 +7,9 @@ local concat = table.concat
 --
 local InputEvent = Class{name='InputEvent',
 	inherits=Event,
-	function(self, modifiers)
-		Event.construct(self, 'Input Event')
+	function(self, name, modifiers)
+		name = name or 'Input Event'
+		Event.construct(self, name)
 		self._modifiers = modifiers
 	end
 }

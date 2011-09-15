@@ -6,7 +6,7 @@ local InputEvent = getClass 'wyx.event.InputEvent'
 local MouseEvent = Class{name='MouseEvent',
 	inherits=InputEvent,
 	function(self, x, y, button, grabbed, visible, modifiers)
-		InputEvent.construct(self, modifiers)
+		InputEvent.construct(self, 'Mouse Event', modifiers)
 		self._x, self._y = x, y
 		self._button = button
 		self._grabbed = grabbed

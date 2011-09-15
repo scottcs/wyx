@@ -8,7 +8,7 @@ local string_char = string.char
 local KeyboardEvent = Class{name='KeyboardEvent',
 	inherits=InputEvent,
 	function(self, key, unicode, modifiers)
-		InputEvent.construct(self, modifiers)
+		InputEvent.construct(self, 'Keyboard Event', modifiers)
 		self._key = key
 		self._unicode = unicode
 	end
