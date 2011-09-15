@@ -10,8 +10,14 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.destroy' end}
+setmetatable(st, mt)
 
 function st:enter(prevState, nextState, ...)
+	InputEvents:clear()
+	GameEvents:clear()
+	CommandEvents:clear()
+
 	-- reset all game states
 	if State.save.destroy then State.save:destroy() end
 	rawset(State, 'save', nil)

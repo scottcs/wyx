@@ -7,6 +7,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.initialize' end}
+setmetatable(st, mt)
 
 local World = getClass 'wyx.map.World'
 

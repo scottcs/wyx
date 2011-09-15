@@ -6,6 +6,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.save' end}
+setmetatable(st, mt)
 
 require 'lib.serialize'
 local warning, tostring = warning, tostring

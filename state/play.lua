@@ -6,6 +6,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.play' end}
+setmetatable(st, mt)
 
 local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
 local MessageHUD = getClass 'wyx.ui.MessageHUD'

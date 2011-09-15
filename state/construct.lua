@@ -7,6 +7,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.construct' end}
+setmetatable(st, mt)
 
 local GameCam = getClass 'wyx.view.GameCam'
 local TileMapView = getClass 'wyx.view.TileMapView'
