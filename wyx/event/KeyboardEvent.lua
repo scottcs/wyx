@@ -38,8 +38,9 @@ end
 
 function KeyboardEvent:__tostring()
 	local modstr = self:_getModString()
-	return self:_msg('k: %s, u: %s, m: %s',
-		tostring(self._key), tostring(self._unicode), modstr)
+	local unicode = tostring(self:getUnicode())
+	return self:_msg('k: %s, u: %s, v: %s, m: {%s}',
+		tostring(self._key), unicode, tostring(self._unicode), modstr)
 end
 
 
