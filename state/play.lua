@@ -9,12 +9,14 @@ local st = RunState.new()
 
 local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
 local MessageHUD = getClass 'wyx.ui.MessageHUD'
+local command = require 'wyx.ui.command'
 
 -- events
 local ZoneTriggerEvent = getClass 'wyx.event.ZoneTriggerEvent'
 local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
 local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
 local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local GameEvents = GameEvents
 local InputEvents = InputEvents
@@ -41,6 +43,7 @@ function st:enter(prevState, world, view, cam)
 
 	InputEvents:register(self, {
 		MouseIntersectRequest,
+		InputCommandEvent,
 	})
 
 	PAUSED = false
@@ -89,6 +92,90 @@ function st:MouseIntersectRequest(e)
 
 	local entityIDs = self._level:getEntitiesAtLocation(x, y, true)
 	InputEvents:notify(MouseIntersectResponse(entityIDs, e:getArgs()))
+end
+
+function st:InputCommandEvent(e)
+	local cmd = e:getCommand()
+	if PAUSED and command.pause(cmd) then return end
+	--local args = e:getCommandArgs()
+
+	local continue = false
+
+	-- commands that work regardless of console visibility
+	switch(cmd) {
+		CONSOLE_TOGGLE = function() Console:toggle() end,
+		DUMP_ENTITIES = function() EntityRegistry:dumpEntities() end,
+		PAUSE = function() self:_doPause(true) end,
+		default = function() continue = true end,
+	}
+
+	if not continue then return end
+
+	-- commands that only work when console is visible
+	if Console:isVisible() then
+		switch(cmd) {
+			CONSOLE_HIDE = function() Console:hide() end,
+			CONSOLE_PAGEUP = function() Console:pageup() end,
+			CONSOLE_PAGEDOWN = function() Console:pagedown() end,
+			CONSOLE_TOP = function() Console:top() end,
+			CONSOLE_BOTTOM = function() Console:bottom() end,
+			CONSOLE_CLEAR = function() Console:clear() end,
+		}
+	else
+		switch(cmd) {
+			-- camera
+			CAMERA_ZOOMOUT = function()
+				if not self._cam:isAnimating() then
+					self._view:setAnimate(false)
+					self._view:setViewport(self._cam:getViewport(1))
+					self._cam:zoomOut(self._view.setAnimate, self._view, true)
+					local zoom = self._cam:getZoom()
+					self:_doPause(false, zoom ~= 1)
+				end
+			end,
+			CAMERA_ZOOMIN = function()
+				if not self._cam:isAnimating() then
+					local vp = self._cam:getViewport(-1)
+					self._cam:zoomIn(self._postZoomIn, self, vp)
+					local zoom = self._cam:getZoom()
+					self:_doPause(false, zoom ~= 1)
+				end
+			end,
+			CAMERA_UNFOLLOW = function()
+				self._cam:unfollowTarget()
+				self._view:setViewport(self._cam:getViewport())
+			end,
+			CAMERA_FOLLOW = function()
+				self._cam:followTarget(self._level:getPrimeEntity())
+				self._view:setViewport(self._cam:getViewport())
+			end,
+
+			-- run state
+			QUIT_NOSAVE = function() RunState.switch(State.destroy) end,
+			NEW_LEVEL = function() RunState.switch(State.destroy, 'intro') end,
+			QUICKSAVE = function()
+				RunState.switch(State.save, self._world, self._view, 'play')
+			end,
+			QUICKLOAD = function()
+				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
+			end,
+
+			-- debug
+			DEBUG_PANEL_TOGGLE = function()
+				if debug then self._debug = not self._debug end
+			end,
+			DEBUG_PANEL_CLEAR = function()
+				if self._debug then self._debugHUD:clearExtremes() end
+			end,
+			COLLECT_GARBAGE = function() if self._debug then collectgarbage('collect') end end,
+			DISPLAY_MAPNAME = function()
+				local name = self._level:getMapName()
+				local author = self._level:getMapAuthor()
+				self:_displayMessage('Map: "'..name..'" by '..author)
+			end,
+			CONSOLE_SHOW = function() Console:show() end,
+		}
+	end
 end
 
 function st:ConsoleEvent(e)
@@ -175,88 +262,6 @@ end
 function st:_postZoomIn(vp)
 	self._view:setViewport(vp)
 	self._view:setAnimate(true)
-end
-
-function st:keypressed(key, unicode)
-	local tileW, tileH = self._view:getTileSize()
-	local _,zoomAmt = self._cam:getZoom()
-
-	if Console:isVisible() then
-		switch(key) {
-			['`'] = function() Console:toggle() end,
-			escape = function() Console:hide() end,
-			pageup = function() Console:pageup() end,
-			pagedown = function() Console:pagedown() end,
-			home = function() Console:top() end,
-			['end'] = function() Console:bottom() end,
-			f10 = function() Console:clear() end,
-			f11 = function() EntityRegistry:dumpEntities() end,
-		}
-	else
-		switch(key) {
-			escape = function()
-				--RunState.switch(State.save, self._world, 'destroy')
-				RunState.switch(State.destroy)
-			end,
-
-			['1'] = function()
-				RunState.switch(State.destroy, 'intro')
-			end,
-
-			p = function() self:_doPause(true) end,
-
-			-- camera
-			pageup = function()
-				if not self._cam:isAnimating() then
-					self._view:setAnimate(false)
-					self._view:setViewport(self._cam:getViewport(1))
-					self._cam:zoomOut(self._view.setAnimate, self._view, true)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			pagedown = function()
-				if not self._cam:isAnimating() then
-					local vp = self._cam:getViewport(-1)
-					self._cam:zoomIn(self._postZoomIn, self, vp)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			home = function()
-				if not self._cam:isAnimating() then
-					self._view:setViewport(self._cam:getViewport())
-					self._cam:home()
-				end
-			end,
-			f1 = function()
-				RunState.switch(State.save, self._world, self._view, 'play')
-			end,
-			f2 = function()
-				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
-			end,
-			f3 = function() if debug then self._debug = not self._debug end end,
-			f4 = function()
-				self._cam:unfollowTarget()
-				self._view:setViewport(self._cam:getViewport())
-			end,
-			f5 = function()
-				self._cam:followTarget(self._level:getPrimeEntity())
-				self._view:setViewport(self._cam:getViewport())
-			end,
-			f7 = function()
-				if self._debug then self._debugHUD:clearExtremes() end
-			end,
-			f9 = function() if self._debug then collectgarbage('collect') end end,
-			f11 = function() EntityRegistry:dumpEntities() end,
-			backspace = function()
-				local name = self._level:getMapName()
-				local author = self._level:getMapAuthor()
-				self:_displayMessage('Map: "'..name..'" by '..author)
-			end,
-			['`'] = function() Console:show() end,
-		}
-	end
 end
 
 
