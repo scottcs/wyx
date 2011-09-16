@@ -27,6 +27,9 @@ end
 
 -- destructor
 function EventManager:destroy()
+	if self._registerQueue then self:_registerPending() end
+	if self._unregisterQueue then self:_unregisterPending() end
+
 	self:clear()
 	for k,v in pairs(self._events) do
 		for l,w in pairs(self._events[k]) do
@@ -35,8 +38,6 @@ function EventManager:destroy()
 		self._events[k] = nil
 	end
 	self._events = nil
-
-	if self._unregisterQueue then self:_unregisterPending() end
 
 	self._name = nil
 	self._lastDebugMsg = nil
@@ -148,13 +149,14 @@ function EventManager:notify(event)
 
 	if self._events[key] then
 		for obj in pairs(self._events[key]) do
+
 			if self._debug then
 				local eventLevel = event:getDebugLevel()
 				if eventLevel <= self._debug then
 					local mgr = tostring(self)
 					local eventstr = tostring(event)
 					local objstr = tostring(obj.__class or obj)
-					local msg = format('[%s@%s] %s', mgr, objstr, eventstr)
+					local msg = format('[%s->%s] %s', mgr, objstr, eventstr)
 					if self._lastDebugMsg ~= msg then
 						if self._lastDebugRepeat and self._lastDebugRepeat > 0 then
 							local m = format('(Last message repeated %d times.)',
@@ -179,8 +181,10 @@ function EventManager:notify(event)
 				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
 				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
 			end
-		end
-	end
+
+			if not self._notifying then break end
+		end -- for obj in pairs(self._events[key])
+	end -- if self._events[key]
 
 	self:_registerPending()
 	self:_unregisterPending()
@@ -214,7 +218,6 @@ function EventManager:flush()
 			self:notify(event)
 		end
 	end
-	if not self._notifying then self:_unregisterPending() end
 end
 
 -- remove all events in the queue without notifying listeners
@@ -226,7 +229,7 @@ function EventManager:clear()
 		end
 		self._queue = nil
 	end
-	if not self._notifying then self:_unregisterPending() end
+	self._notifying = false
 end
 
 function EventManager:debug(level)
