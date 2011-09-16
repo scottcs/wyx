@@ -38,7 +38,7 @@ Interface:
   UI Screens:
   d Main Menu
   d Play Menu
-  o Save Menu
+  x Save Menu
   o Load Menu
   d fill equipment and inventory slots on load
   d fix item being carried in mouse slot
@@ -89,6 +89,7 @@ Console/Debug:
   + printing to Console while rendertarget is set to something else has strange implications
 
 Level:
+  o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
   - change Level representation of enemy to be by position in a table for faster lookup
   o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
   o Level templates
