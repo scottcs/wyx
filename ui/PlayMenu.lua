@@ -14,7 +14,6 @@ ui.keys = {
 	O = command('MENU_OPTIONS'),
 	H = command('MENU_HELP'),
 	S = command('MENU_SAVE_GAME'),
-	Q = command('MENU_SAVE_QUIT'),
 	M = command('MENU_MAIN'),
 	escape = {command('EXIT_MENU'), command('CONSOLE_HIDE')},
 
@@ -81,7 +80,6 @@ ui.buttons = {
 	{'Options', command('MENU_OPTIONS')},
 	{'Help', command('MENU_HELP')},
 	{'Save Game', command('MENU_SAVE_GAME')},
-	{'Save and Quit', command('MENU_SAVE_QUIT')},
 	{'Quit', command('MENU_MAIN')},
 }
 
