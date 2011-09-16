@@ -47,6 +47,12 @@ command.MENU_SAVE_QUIT        = false
 command.MENU_HELP             = false
 command.EXIT_MENU             = false
 
+-- cursor commands
+command.CURSOR_UP             = false
+command.CURSOR_DOWN           = false
+command.CURSOR_LEFT           = false
+command.CURSOR_RIGHT          = false
+
 -- In-Game menus:
 --command.PICKUP_MENU           = true
 --command.DROP_MENU             = true
@@ -56,6 +62,8 @@ command.EXIT_MENU             = false
 -- Game state commands
 command.QUICKLOAD             = false
 command.QUICKSAVE             = false
+command.LOAD_GAME             = false
+command.DELETE_GAME           = false
 command.NEW_LEVEL             = false
 command.NEW_GAME              = false
 
