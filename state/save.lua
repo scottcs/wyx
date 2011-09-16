@@ -11,6 +11,7 @@ setmetatable(st, mt)
 
 require 'lib.serialize'
 local warning, tostring = warning, tostring
+local format = string.format
 
 function st:init() end
 
@@ -34,7 +35,14 @@ end
 function st:destroy() end
 
 function st:_chooseFile()
-	self._filename = 'save/testy.sav'
+	local place = self._world:getCurrentPlace()
+	local level = place:getCurrentLevel()
+	local peID = level:getPrimeEntity()
+	local pe = EntityRegistry:get(peID)
+	local name = pe:getName()
+
+	name = string.gsub(name, '%s+', '_')
+	self._filename = format('save/%s.%d.sav', name, GAMESEED)
 end
 
 function st:_removeFile()
