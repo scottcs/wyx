@@ -48,11 +48,11 @@ function st:enter(prevState, world, view, cam)
 		InputCommandEvent,
 	})
 
-	PAUSED = false
+	self:_doPause(false, false)
 end
 
 function st:leave()
-	PAUSED = true
+	self:_doPause(false, true)
 	self:_killMessageHUD()
 	GameEvents:unregisterAll(self)
 	InputEvents:unregisterAll(self)
@@ -152,19 +152,23 @@ function st:InputCommandEvent(e)
 				self._view:setViewport(self._cam:getViewport())
 			end,
 
-			-- run state
-			QUIT_NOSAVE = function() RunState.switch(State.destroy) end,
-			NEW_LEVEL = function()
-				RunState.switch(State.destroy, 'initialize', 'construct')
-			end,
+			-- save/load
 			QUICKSAVE = function()
 				RunState.switch(State.save, self._world, self._view, 'play')
 			end,
 			QUICKLOAD = function()
-				RunState.switch(State.destroy, 'menu', 'initialize', 'loadgame')
+				RunState.switch(State.destroy, 'initialize', 'loadgame')
+			end,
+
+			-- menu
+			MENU_PLAY = function()
+				RunState.switch(State.playmenu, self._world, self._view)
 			end,
 
 			-- debug
+			NEW_LEVEL = function()
+				RunState.switch(State.destroy, 'initialize', 'construct')
+			end,
 			DEBUG_PANEL_TOGGLE = function()
 				if debug then self._debug = not self._debug end
 			end,

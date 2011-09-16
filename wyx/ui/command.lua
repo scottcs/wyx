@@ -36,23 +36,16 @@ end
 
 
 -- Input command table. Value is the return result for pause().
--- Main menu commands:
---command.MENU_MAIN             = false
-
--- Character select commands:
---command.MENU_CHAR_SELECT      = false
-
--- Options menu commands:
+-- menu commands:
+command.MENU_MAIN             = false
+command.MENU_CHAR_SELECT      = false
 command.MENU_OPTIONS          = false
-
--- Load menu commands:
+command.MENU_PLAY             = false
 command.MENU_LOAD_GAME        = false
-
--- Save menu commands:
 command.MENU_SAVE_GAME        = false
-
--- Help menu commands:
+command.MENU_SAVE_QUIT        = false
 command.MENU_HELP             = false
+command.EXIT_MENU             = false
 
 -- In-Game menus:
 --command.PICKUP_MENU           = true

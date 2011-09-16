@@ -44,7 +44,7 @@ ui.keys = {
 	D = command('DUMP_ENTITIES'),
 	pageup = {command('CAMERA_ZOOMOUT'), command('CONSOLE_PAGEUP')},
 	pagedown = {command('CAMERA_ZOOMIN'), command('CONSOLE_PAGEDOWN')},
-	escape = {command('QUIT_NOSAVE'), command('CONSOLE_HIDE')},
+	escape = {command('MENU_PLAY'), command('CONSOLE_HIDE')},
 
 	['ctrl-s'] = command('QUICKSAVE'),
 	['ctrl-l'] = command('QUICKLOAD'),
