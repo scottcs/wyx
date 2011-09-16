@@ -35,11 +35,13 @@ Later Goals:
 
 Interface:
   UI Screens:
-  o Main Menu
-  o Character select or gear select + name entry
-  o Options Menu
+  d Main Menu
+  d Play Menu
   o Save Menu
   o Load Menu
+  + fill equipment and inventory slots on load
+  o Character select or gear select + name entry
+  o Options Menu
   o Help screen
   d KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)].
   d   need some kind of "allow when paused" flag
@@ -61,6 +63,9 @@ Entities:
   o   Include MoveCost, AttackCost, etc
   o   Give player/hero ELevel
   o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
+
+  Components:
+    o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
 
   Items:
     o UsableComponent? [this needs scripting in JSON files]
