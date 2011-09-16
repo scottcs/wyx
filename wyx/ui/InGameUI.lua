@@ -90,10 +90,7 @@ function InGameUI:_clearBottomPanel()
 		-- at the bottom of this method
 
 		if self._equipSlots then
-			local num = #self._equipSlots
-			for i=1,num do
-				self._equipSlots[i] = nil
-			end
+			for k in pairs(self._equipSlots) do self._equipSlots[k] = nil end
 			self._equipSlots = nil
 		end
 
@@ -178,8 +175,11 @@ function InGameUI:_makeBottomPanel()
 
 	self:_makeMouseSlot()
 	self:_makeEquipSlots()
+	self:_updateEquipSlots()
 	self:_makeInventorySlots()
+	self:_updateInventorySlots()
 	self:_makeFloorSlots()
+	self:_updateFloorSlots()
 end
 
 -- make the invisible slot for containing StickyButtons picked up by the mouse
@@ -229,7 +229,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Weapon')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Weapon'] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.armorslot.x, ui.armorslot.y,
@@ -238,7 +238,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Armor')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Armor'] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.ringslot.x, ui.ringslot.y,
@@ -247,7 +247,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Ring')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Ring'] = slot
 	self._innerPanel:addChild(slot)
 end
 
@@ -517,6 +517,60 @@ function InGameUI:_makeTurnsText()
 	self._innerPanel:addChild(f)
 end
 
+-- create a StickyButton for the item and add it to the slot
+function InGameUI:_addToSlot(item, slot)
+	local btn = self:_makeItemButton(item)
+	if btn then slot:insert(btn) end
+end
+
+-- check for items attached to the primeEntity and load them into equip slots
+function InGameUI:_updateEquipSlots()
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local attached = primeEntity:query(property('AttachedEntities'))
+	if attached then
+		local num = #attached
+		for i=1,num do
+			local entityID = attached[i]
+			local entity = EntityRegistry:get(entityID)
+			local family = entity:getFamily()
+
+			if self._equipSlots
+				and self._equipSlots[family]
+				and self._equipSlots[family]:isEmpty()
+			then
+				self:_addToSlot(entity, self._equipSlots[family])
+			end
+		end
+	end
+end
+
+-- check for items contained by the primeEntity and load them into inventory
+function InGameUI:_updateInventorySlots()
+	local pIsAttached = property('IsAttached')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local contained = primeEntity:query(property('ContainedEntities'))
+	if contained then
+		local num = #contained
+		for i=1,num do
+			local entityID = contained[i]
+			local entity = EntityRegistry:get(entityID)
+			local isAttached = entity:query(pIsAttached)
+			if not isAttached then
+				local slot = self:_findEmptyInventorySlot()
+				if slot then self:_addToSlot(entity, slot) end
+			end
+		end
+	end
+end
+
+function InGameUI:_findEmptyInventorySlot()
+	local num = #self._inventorySlots
+
+	for i=1,num do
+		local slot = self._inventorySlots[i]
+		if slot:isEmpty() then return slot end
+	end
+end
 
 -- check for items at the primeEntity's feet and load them into floor slots
 function InGameUI:_updateFloorSlots()
@@ -538,7 +592,8 @@ function InGameUI:_updateFloorSlots()
 				local epos = primeEntity:query(pPosition)
 
 				if vec2_equal(ipos[1], ipos[2], epos[1], epos[2]) then
-					self:_addToFloor(item)
+					local slot = self:_findEmptyFloorSlot()
+					if slot then self:_addToSlot(item, slot) end
 				end
 			end
 		end
@@ -564,42 +619,39 @@ function InGameUI:_findEmptyFloorSlot()
 	end
 end
 
--- add an entity to the next available floor slot
-function InGameUI:_addToFloor(item)
-	local slot = self:_findEmptyFloorSlot()
+function InGameUI:_makeItemButton(item)
+	local btn
 
-	if slot then
-		local tilecoords = item:query(property('TileCoords'))
-		if tilecoords then
-			local coords = tilecoords.item
+	local tilecoords = item:query(property('TileCoords'))
+	if tilecoords then
+		local coords = tilecoords.item
 
-			if not coords then
-				for k in pairs(tilecoords) do coords = tilecoords[k]; break end
-			end
+		if not coords then
+			for k in pairs(tilecoords) do coords = tilecoords[k]; break end
+		end
 
-			if coords then
-				local size = item:query(property('TileSize'))
-				if size then
-					local x, y = (coords[1]-1) * size, (coords[2]-1) * size
-					local normalStyle = ui.itembutton.normalStyle:clone()
-					local hoverStyle = ui.itembutton.hoverStyle:clone()
+		if coords then
+			local size = item:query(property('TileSize'))
+			if size then
+				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
+				local normalStyle = ui.itembutton.normalStyle:clone()
+				local hoverStyle = ui.itembutton.hoverStyle:clone()
 
-					normalStyle:setBGQuad(x, y, size, size)
-					hoverStyle:setBGQuad(x, y, size, size)
+				normalStyle:setBGQuad(x, y, size, size)
+				hoverStyle:setBGQuad(x, y, size, size)
 
-					local btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
-					btn:setNormalStyle(normalStyle, true)
-					btn:setHoverStyle(hoverStyle, true)
-					btn:setEntityID(item:getID())
+				btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
+				btn:setNormalStyle(normalStyle, true)
+				btn:setHoverStyle(hoverStyle, true)
+				btn:setEntityID(item:getID())
 
-					local tooltip = self._tooltipFactory:makeEntityTooltip(item)
-					btn:attachTooltip(tooltip)
+				local tooltip = self._tooltipFactory:makeEntityTooltip(item)
+				btn:attachTooltip(tooltip)
+			end -- if size
+		end -- if coords
+	end -- if tilecoords
 
-					slot:insert(btn)
-				end -- if size
-			end -- if coords
-		end -- if tilecoords
-	end -- if slot
+	return btn
 end
 
 -- get the width and height of the non-ui view
