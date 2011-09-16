@@ -26,7 +26,7 @@ local Tooltip = Class{name='Tooltip',
 		Frame.construct(self, ...)
 		self._margin = 0
 
-		self:setDepth(5)
+		self:setDepth(15)
 		self:hide()
 	end
 }
