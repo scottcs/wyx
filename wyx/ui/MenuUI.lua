@@ -1,40 +1,40 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
 local Button = getClass 'wyx.ui.Button'
-local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
-
 local command = require 'wyx.ui.command'
-local ui = require 'ui.MainMenu'
 
 local floor = math.floor
 
 -- events
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 
--- MainMenu
+-- MenuUI
 -- The interface for the main game.
-local MainMenu = Class{name='MainMenu',
+local MenuUI = Class{name='MenuUI',
 	inherits=Frame,
-	function(self)
+	function(self, ui)
+		verify('table', ui)
+
 		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
 
-		self._tooltipFactory = TooltipFactory()
-
 		if ui and ui.keys then UISystem:registerKeys(ui.keys) end
+		self._ui = ui
 
+		self:setNormalStyle(ui.screenStyle)
 		self:_makePanel()
 	end
 }
 
 -- destructor
-function MainMenu:destroy()
-	self._tooltipFactory:destroy()
-	self._tooltipFactory = nil
+function MenuUI:destroy()
+	self._ui = nil
 	Frame.destroy(self)
 end
 
 -- make the panel
-function MainMenu:_makePanel()
+function MenuUI:_makePanel()
+	local ui = self._ui
+
 	local f = Frame(ui.panel.x, ui.panel.y, ui.panel.w, ui.panel.h)
 	f:setNormalStyle(ui.panel.normalStyle)
 
@@ -51,10 +51,13 @@ function MainMenu:_makePanel()
 end
 
 -- make the buttons
-function MainMenu:_makeButtons()
+function MenuUI:_makeButtons()
+	local ui = self._ui
+
 	local x, y = 0, 0
 	local num = #ui.buttons
-	local dy = floor(ui.innerpanel.h / num)
+	local dy = floor((ui.innerpanel.h - ui.button.h * num) / (num - 1))
+	dy = dy + ui.button.h
 
 	for i=1,num do
 		local info = ui.buttons[i]
@@ -76,4 +79,4 @@ end
 
 
 -- the class
-return MainMenu
+return MenuUI

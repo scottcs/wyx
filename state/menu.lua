@@ -10,7 +10,7 @@ local mt = {__tostring = function() return 'RunState.menu' end}
 setmetatable(st, mt)
 
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
-local MainMenu = getClass 'wyx.ui.MainMenu'
+local MenuUI = getClass 'wyx.ui.MenuUI'
 
 function st:init()
 	-- create global UI system
@@ -22,7 +22,7 @@ function st:enter(prevState, nextState, ...)
 		RunState.switch(State[nextState], ...)
 	else
 		InputEvents:register(self, InputCommandEvent)
-		self._ui = MainMenu()
+		self._ui = MenuUI(UI.MainMenu)
 	end
 end
 

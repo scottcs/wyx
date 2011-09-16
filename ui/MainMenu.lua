@@ -6,8 +6,9 @@ local command = require 'wyx.ui.command'
 local colors = colors
 local floor = math.floor
 
+local yOffset = 40
 local panelWidth = 0.6 * WIDTH
-local panelHeight = 0.8 * HEIGHT
+local panelHeight = 0.75 * HEIGHT
 
 ui.keys = {
 	N = command('NEW_GAME'),
@@ -24,15 +25,19 @@ ui.keys = {
 	pagedown = command('CONSOLE_PAGEDOWN'),
 }
 
+ui.screenStyle = Style({
+	bgcolor = colors.GREY20,
+})
+
 ui.panel = {
 	x = floor(WIDTH/2) - floor(panelWidth/2),
-	y = floor(HEIGHT/2) - floor(panelHeight/2),
+	y = HEIGHT - (panelHeight + yOffset),
 	w = panelWidth,
 	h = panelHeight,
 	normalStyle = Style({
 		bordersize = 4,
 		borderinset = 4,
-		bordercolor = colors.GREY20,
+		bordercolor = colors.GREY30,
 		bgcolor = colors.GREY10,
 	}),
 }
@@ -57,7 +62,7 @@ ui.button = {
 	normalStyle = Style({
 		bordersize = 4,
 		borderinset = 4,
-		bordercolor = colors.GREY40,
+		bordercolor = colors.GREY50,
 		bgcolor = colors.GREY30,
 		fontcolor = colors.GREY80,
 		font = font,
@@ -65,9 +70,9 @@ ui.button = {
 }
 ui.button.hoverStyle = ui.button.normalStyle:clone({
 	fontcolor = colors.ORANGE,
+	bordercolor = colors.LIGHTORANGE,
 })
-ui.button.activeStyle = ui.button.normalStyle:clone({
-	fontcolor = colors.ORANGE,
+ui.button.activeStyle = ui.button.hoverStyle:clone({
 	bgcolor = colors.DARKORANGE,
 })
 
