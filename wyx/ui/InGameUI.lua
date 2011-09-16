@@ -135,6 +135,7 @@ end
 function InGameUI:EntityPositionEvent(e)
 	local id = e:getEntity()
 	if id ~= self._primeEntity then return end
+	self:_clearMouseSlot()
 	self:_updateFloorSlots()
 end
 
@@ -189,6 +190,14 @@ function InGameUI:_makeMouseSlot()
 	self._mouseSlot:hideTooltips()
 end
 
+-- clear the mouse slot
+function InGameUI:_clearMouseSlot()
+	if self._mouseSlot then
+		local btn = self._mouseSlot:remove()
+		if btn then btn:destroy() end
+	end
+end
+
 -- function to verify equipment is the correct family
 local _equipVerificationFunc = function(btn, which)
 	local id = btn:getEntityID()
@@ -200,6 +209,10 @@ end
 -- function to equip items when inserted into equip slot
 local _equipInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
+	local item = EntityRegistry:get(iID)
+	if not item:query(property('IsContained')) then
+		InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
+	end
 	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
 end
 
@@ -207,18 +220,22 @@ end
 local _equipRemoveFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
+	local item = EntityRegistry:get(iID)
+	if item:query(property('IsContained')) then
+		InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
+	end
 end
 
--- function to floor items when inserted into floor slot
-local _floorInsertFunc = function(btn, eID)
-	local iID = btn:getEntityID()
-	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
-end
-
--- function to floor items when removed from floor slot
-local _floorRemoveFunc = function(btn, eID)
+-- function to pickup items when inserted into inventory slot
+local _inventoryInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
+end
+
+-- function to drop items when removed from inventory slot
+local _inventoryRemoveFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
 end
 
 -- make the equip slot frames
@@ -258,6 +275,8 @@ function InGameUI:_makeInventorySlots()
 	for i=1,10 do
 		local slot = Slot(x, y, ui.invslot.w, ui.invslot.h)
 		slot:setNormalStyle(ui.invslot.normalStyle)
+		slot:setInsertCallback(_inventoryInsertFunc, self._primeEntity)
+		slot:setRemoveCallback(_inventoryRemoveFunc, self._primeEntity)
 		self._innerPanel:addChild(slot)
 		self._inventorySlots[#self._inventorySlots + 1] = slot
 		x = x + ui.invslot.w + 4
@@ -274,8 +293,6 @@ function InGameUI:_makeFloorSlots()
 	for i=1,6 do
 		local slot = Slot(x, y, ui.floorslot.w, ui.floorslot.h)
 		slot:setNormalStyle(ui.floorslot.normalStyle)
-		slot:setInsertCallback(_floorInsertFunc, self._primeEntity)
-		slot:setRemoveCallback(_floorRemoveFunc, self._primeEntity)
 		f:addChild(slot)
 		self._floorSlots[#self._floorSlots + 1] = slot
 		x = x + ui.floorslot.w
