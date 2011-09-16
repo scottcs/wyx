@@ -42,4 +42,8 @@ function st:enter(prevState, nextState, ...)
 	end
 end
 
+function st:draw()
+	if Console then Console:draw() end
+end
+
 return st

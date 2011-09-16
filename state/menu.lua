@@ -45,6 +45,7 @@ end
 
 function st:draw()
 	UISystem:draw()
+	if Console then Console:draw() end
 end
 
 function st:InputCommandEvent(e)
