@@ -80,8 +80,10 @@ function UISystem:MousePressedEvent(e)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			local ok = frame:handleMousePress(x, y, button, mods)
-			if not handled and ok then handled = true end
+			if frame and frame:isRegisteredWithUISystem() then
+				local ok = frame:handleMousePress(x, y, button, mods)
+				if not handled and ok then handled = true end
+			end
 		end
 	end
 
@@ -103,7 +105,9 @@ function UISystem:MouseReleasedEvent(e)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			frame:handleMouseRelease(x, y, button, mods)
+			if frame and frame:isRegisteredWithUISystem() then
+				frame:handleMouseRelease(x, y, button, mods)
+			end
 		end
 	end
 end
@@ -122,7 +126,9 @@ function UISystem:KeyboardEvent(e)
 
 		for frame in self._registered[depth]:listeners() do
 			if steal then break end
-			steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
+			if frame and frame:isRegisteredWithUISystem() then
+				steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
+			end
 		end
 	end
 
@@ -209,10 +215,12 @@ function UISystem:getIntersection(x, y)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			if frame:containsPoint(x, y) then
-				count = count + 1
-				intersection = intersection or {}
-				intersection[count] = frame
+			if frame and frame:isRegisteredWithUISystem() then
+				if frame:containsPoint(x, y) then
+					count = count + 1
+					intersection = intersection or {}
+					intersection[count] = frame
+				end
 			end
 		end
 	end
@@ -229,7 +237,11 @@ function UISystem:update(dt)
 
 		for i=numDepths, 1, -1 do
 			local depth = self._depths[i]
-			for frame in self._registered[depth]:listeners() do frame:onTick(dt) end
+			for frame in self._registered[depth]:listeners() do
+				if frame and frame:isRegisteredWithUISystem() then
+					frame:onTick(dt)
+				end
+			end
 		end
 
 		if self._mouseHoverCB then
