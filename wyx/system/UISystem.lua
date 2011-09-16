@@ -36,6 +36,7 @@ function UISystem:destroy()
 	InputEvents:unregisterAll(self)
 
 	self._accum = nil
+	for k in pairs(self._keybindings) do self._keybindings[k] = nil end
 	self._keybindings = nil
 
 	self:_clearMouseHoverCB()
@@ -149,6 +150,7 @@ end
 -- send an InputCommand if a key has been registered
 function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 	if not self._keybindings then return end
+	local keybindings = self._keybindings[#self._keybindings]
 
 	local cmds
 	unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
@@ -156,17 +158,17 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 	if mods then
 		for mod in pairs(mods) do
 			mod = mod..'-'
-			cmds = unicode and self._keybindings[mod..unicode] or nil
+			cmds = unicode and keybindings[mod..unicode] or nil
 			if cmds then break end
 
-			cmds = key and self._keybindings[mod..key] or nil
+			cmds = key and keybindings[mod..key] or nil
 			if cmds then break end
 		end
 	end
 
-	if not cmds then cmds = self._keybindings[unicodeValue] end
-	if not cmds then cmds = unicode and self._keybindings[unicode] or nil end
-	if not cmds then cmds = key and self._keybindings[key] or nil end
+	if not cmds then cmds = keybindings[unicodeValue] end
+	if not cmds then cmds = unicode and keybindings[unicode] or nil end
+	if not cmds then cmds = key and keybindings[key] or nil end
 
 	if cmds then
 		if type(cmds) == 'table' then
@@ -183,7 +185,15 @@ end
 -- register keybindings
 function UISystem:registerKeys(keytable)
 	verify('table', keytable)
-	self._keybindings = keytable
+	self._keybindings = self._keybindings or {}
+	self._keybindings[#self._keybindings+1] = keytable
+end
+
+-- unregister last registered keybindings
+function UISystem:unregisterKeys()
+	if self._keybindings then
+		self._keybindings[#self._keybindings] = nil
+	end
 end
 
 -- get all frames under the mouse cursor

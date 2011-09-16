@@ -16,8 +16,12 @@ local MenuUI = Class{name='MenuUI',
 		verify('table', ui)
 
 		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
+		self:setDepth(5)
 
-		if ui and ui.keys then UISystem:registerKeys(ui.keys) end
+		if ui and ui.keys then
+			UISystem:registerKeys(ui.keys)
+			self._uikeys = true
+		end
 		self._ui = ui
 
 		self:setNormalStyle(ui.screenStyle)
@@ -27,6 +31,10 @@ local MenuUI = Class{name='MenuUI',
 
 -- destructor
 function MenuUI:destroy()
+	if self._uikeys then
+		UISystem:unregisterKeys()
+		self._uikeys = nil
+	end
 	self._ui = nil
 	Frame.destroy(self)
 end

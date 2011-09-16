@@ -43,13 +43,21 @@ local InGameUI = Class{name='InGameUI',
 		self._turns = 1
 
 		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
-		if ui and ui.keys then UISystem:registerKeys(ui.keys) end
+		if ui and ui.keys then
+			UISystem:registerKeys(ui.keys)
+			self._uikeys = true
+		end
 	end
 }
 
 -- destructor
 function InGameUI:destroy()
 	GameEvents:unregisterAll(self)
+
+	if self._uikeys then
+		UISystem:unregisterKeys()
+		self._uikeys = nil
+	end
 
 	self:_clearBottomPanel()
 
