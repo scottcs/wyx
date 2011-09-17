@@ -8,19 +8,25 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.loadgame' end}
+setmetatable(st, mt)
 
 require 'lib.serialize'
 local warning, tostring = warning, tostring
 
 function st:init() end
 
-function st:enter(prevState, world)
+function st:enter(prevState, world, filename)
 	self._world = world
 	self._loadStep = 0
 
-	if self:_chooseFile() then
+	if filename and love.filesystem.exists(filename) then
+		self._filename = filename
 		self._doLoadStep = true
-		if Console then Console:print('Loading savegame: %q', self._filename) end
+		if Console then
+			Console:show()
+			Console:print('Loading savegame: %q', self._filename)
+		end
 	else
 		RunState.switch(State.menu)
 	end
@@ -37,11 +43,6 @@ function st:leave()
 end
 
 function st:destroy() end
-
-function st:_chooseFile()
-	self._filename = 'save/testy.sav'
-	return love.filesystem.exists(self._filename)
-end
 
 function st:_loadFile()
 	local contents = love.filesystem.read(self._filename)

@@ -8,6 +8,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.shutdown' end}
+setmetatable(st, mt)
 
 function st:init() end
 

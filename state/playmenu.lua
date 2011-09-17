@@ -1,43 +1,37 @@
 
          --[[--
-     MAIN MENU STATE
+     PLAY MENU STATE
           ----
-  Display the main menu.
+  Display the play menu.
          --]]--
 
 local st = RunState.new()
-local mt = {__tostring = function() return 'RunState.menu' end}
+local mt = {__tostring = function() return 'RunState.playmenu' end}
 setmetatable(st, mt)
 
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local MenuUI = getClass 'wyx.ui.MenuUI'
 
-function st:init()
-	-- create global UI system
-	UISystem = UISystem or getClass('wyx.system.UISystem')()
-end
+function st:init() end
 
-function st:enter(prevState, nextState, ...)
-	if nil ~= nextState then
-		RunState.switch(State[nextState], ...)
-	else
-		InputEvents:register(self, InputCommandEvent)
-		self._ui = MenuUI(UI.MainMenu)
-	end
+function st:enter(prevState, world, view)
+	InputEvents:register(self, InputCommandEvent)
+	self._ui = MenuUI(UI.PlayMenu)
+	self._world = world
+	self._view = view
 end
 
 function st:leave()
 	InputEvents:unregisterAll(self)
+	self._world = nil
+	self._view = nil
 	if self._ui then
 		self._ui:destroy()
 		self._ui = nil
 	end
 end
 
-function st:destroy()
-	UISystem:destroy()
-	UISystem = nil
-end
+function st:destroy() end
 
 function st:update(dt)
 	UISystem:update(dt)
@@ -75,12 +69,14 @@ function st:InputCommandEvent(e)
 	else
 		switch(cmd) {
 			-- run state
-			QUIT_NOSAVE = function() RunState.switch(State.shutdown) end,
-			NEW_GAME = function()
-				RunState.switch(State.initialize, 'construct')
+			EXIT_MENU = function()
+				RunState.switch(State.play)
 			end,
-			MENU_LOAD_GAME = function()
-				RunState.switch(State.initialize, 'loadmenu')
+			MENU_MAIN = function()
+				RunState.switch(State.save, self._world, self._view, 'destroy')
+			end,
+			MENU_SAVE_GAME = function()
+				RunState.switch(State.save, self._world, self._view, 'play')
 			end,
 			MENU_OPTIONS = function()
 				--RunState.switch(State.options, 'menu')

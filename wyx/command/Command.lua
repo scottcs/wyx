@@ -1,6 +1,8 @@
 local Class = require 'lib.hump.class'
 local property = require 'wyx.component.property'
 
+local format = string.format
+
 -- default action point cost for executing a command
 -- (used by the TimeSystem for entity commands)
 DEFAULT_COST = 0
@@ -57,6 +59,22 @@ function Command:cost()
 		end
 	end
 	return cost
+end
+
+	-- private function to construct an informative message
+function Command:_msg(msg, ...)
+	return format('<%s: %s>', (tostring(self.__class) or 'unknown'),
+		format(msg, ...))
+end
+
+function Command:_getTargetString()
+	local t = self._target
+	local targstr = type(t) == 'str' and t or t:getID()
+	return targstr
+end
+
+function Command:__tostring()
+	return self:_msg('{%08s}', self:_getTargetString())
 end
 
 

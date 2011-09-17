@@ -39,7 +39,7 @@ function AttackCommand:execute(currAP)
 
 	damage = damage > -1 and -1 or damage
 
-	local name = self._target:getName() or tostring(self._target)
+	local name = self._target:getName() or self:_getTargetString()
 	self._opponent:send(message('COMBAT_DAMAGE'), damage, name)
 	GameEvents:push(ConsoleEvent('Combat: %s -> %s (%.1f)',
 		name, self._opponent:getName(), damage))
@@ -48,6 +48,13 @@ function AttackCommand:execute(currAP)
 end
 
 function AttackCommand:getOpponent() return self._opponent end
+
+function AttackCommand:__tostring()
+	local o = self._opponent
+	local opstr = type(o) == 'string' and o or o:getID()
+	return self:_msg('{%08s} -> {%08s}', self:_getTargetString(), opstr)
+end
+
 
 -- the class
 return AttackCommand

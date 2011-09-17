@@ -32,6 +32,11 @@ function OpenDoorCommand:execute()
 	return Command.execute(self)
 end
 
+function OpenDoorCommand:__tostring()
+	return self:_msg('{%08s}, %s',
+		self:_getTargetString(), tostring(self._node))
+end
+
 
 -- the class
 return OpenDoorCommand

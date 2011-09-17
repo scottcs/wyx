@@ -36,5 +36,10 @@ function EntityPositionEvent:getEntity() return self._entityID end
 function EntityPositionEvent:getDestination() return self._toX, self._toY end
 function EntityPositionEvent:getOrigin() return self._fromX, self._fromY end
 
+function EntityPositionEvent:__tostring()
+	return self:_msg('{%08s} from: (%d,%d) to: (%d,%d)',
+		self._entityID, self._fromX, self._fromY, self._toX, self._toY)
+end
+
 -- the class
 return EntityPositionEvent

@@ -3,7 +3,6 @@ local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Button = getClass 'wyx.ui.Button'
 local StickyButton = getClass 'wyx.ui.StickyButton'
-local TextEntry = getClass 'wyx.ui.TextEntry'
 local Bar = getClass 'wyx.ui.Bar'
 local Slot = getClass 'wyx.ui.Slot'
 local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
@@ -44,12 +43,21 @@ local InGameUI = Class{name='InGameUI',
 		self._turns = 1
 
 		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
+		if ui and ui.keys then
+			UISystem:registerKeys(ui.keys)
+			self._uikeys = true
+		end
 	end
 }
 
 -- destructor
 function InGameUI:destroy()
 	GameEvents:unregisterAll(self)
+
+	if self._uikeys then
+		UISystem:unregisterKeys()
+		self._uikeys = nil
+	end
 
 	self:_clearBottomPanel()
 
@@ -82,10 +90,7 @@ function InGameUI:_clearBottomPanel()
 		-- at the bottom of this method
 
 		if self._equipSlots then
-			local num = #self._equipSlots
-			for i=1,num do
-				self._equipSlots[i] = nil
-			end
+			for k in pairs(self._equipSlots) do self._equipSlots[k] = nil end
 			self._equipSlots = nil
 		end
 
@@ -130,6 +135,7 @@ end
 function InGameUI:EntityPositionEvent(e)
 	local id = e:getEntity()
 	if id ~= self._primeEntity then return end
+	self:_clearMouseSlot()
 	self:_updateFloorSlots()
 end
 
@@ -170,8 +176,11 @@ function InGameUI:_makeBottomPanel()
 
 	self:_makeMouseSlot()
 	self:_makeEquipSlots()
+	self:_updateEquipSlots()
 	self:_makeInventorySlots()
+	self:_updateInventorySlots()
 	self:_makeFloorSlots()
+	self:_updateFloorSlots()
 end
 
 -- make the invisible slot for containing StickyButtons picked up by the mouse
@@ -179,6 +188,14 @@ function InGameUI:_makeMouseSlot()
 	self._mouseSlot = Slot(0, 0, ui.weaponslot.w, ui.weaponslot.h)
 	self._mouseSlot:setDepth(7)
 	self._mouseSlot:hideTooltips()
+end
+
+-- clear the mouse slot
+function InGameUI:_clearMouseSlot()
+	if self._mouseSlot then
+		local btn = self._mouseSlot:remove()
+		if btn then btn:destroy() end
+	end
 end
 
 -- function to verify equipment is the correct family
@@ -192,6 +209,10 @@ end
 -- function to equip items when inserted into equip slot
 local _equipInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
+	local item = EntityRegistry:get(iID)
+	if not item:query(property('IsContained')) then
+		InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
+	end
 	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
 end
 
@@ -199,18 +220,22 @@ end
 local _equipRemoveFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
+	local item = EntityRegistry:get(iID)
+	if item:query(property('IsContained')) then
+		InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
+	end
 end
 
--- function to floor items when inserted into floor slot
-local _floorInsertFunc = function(btn, eID)
-	local iID = btn:getEntityID()
-	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
-end
-
--- function to floor items when removed from floor slot
-local _floorRemoveFunc = function(btn, eID)
+-- function to pickup items when inserted into inventory slot
+local _inventoryInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
+end
+
+-- function to drop items when removed from inventory slot
+local _inventoryRemoveFunc = function(btn, eID)
+	local iID = btn:getEntityID()
+	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
 end
 
 -- make the equip slot frames
@@ -221,7 +246,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Weapon')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Weapon'] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.armorslot.x, ui.armorslot.y,
@@ -230,7 +255,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Armor')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Armor'] = slot
 	self._innerPanel:addChild(slot)
 
 	slot = Slot(ui.ringslot.x, ui.ringslot.y,
@@ -239,7 +264,7 @@ function InGameUI:_makeEquipSlots()
 	slot:setVerificationCallback(_equipVerificationFunc, 'Ring')
 	slot:setInsertCallback(_equipInsertFunc, self._primeEntity)
 	slot:setRemoveCallback(_equipRemoveFunc, self._primeEntity)
-	self._equipSlots[#self._equipSlots + 1] = slot
+	self._equipSlots['Ring'] = slot
 	self._innerPanel:addChild(slot)
 end
 
@@ -250,6 +275,8 @@ function InGameUI:_makeInventorySlots()
 	for i=1,10 do
 		local slot = Slot(x, y, ui.invslot.w, ui.invslot.h)
 		slot:setNormalStyle(ui.invslot.normalStyle)
+		slot:setInsertCallback(_inventoryInsertFunc, self._primeEntity)
+		slot:setRemoveCallback(_inventoryRemoveFunc, self._primeEntity)
 		self._innerPanel:addChild(slot)
 		self._inventorySlots[#self._inventorySlots + 1] = slot
 		x = x + ui.invslot.w + 4
@@ -266,8 +293,6 @@ function InGameUI:_makeFloorSlots()
 	for i=1,6 do
 		local slot = Slot(x, y, ui.floorslot.w, ui.floorslot.h)
 		slot:setNormalStyle(ui.floorslot.normalStyle)
-		slot:setInsertCallback(_floorInsertFunc, self._primeEntity)
-		slot:setRemoveCallback(_floorRemoveFunc, self._primeEntity)
 		f:addChild(slot)
 		self._floorSlots[#self._floorSlots + 1] = slot
 		x = x + ui.floorslot.w
@@ -509,6 +534,60 @@ function InGameUI:_makeTurnsText()
 	self._innerPanel:addChild(f)
 end
 
+-- create a StickyButton for the item and add it to the slot
+function InGameUI:_addToSlot(item, slot)
+	local btn = self:_makeItemButton(item)
+	if btn then slot:insert(btn) end
+end
+
+-- check for items attached to the primeEntity and load them into equip slots
+function InGameUI:_updateEquipSlots()
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local attached = primeEntity:query(property('AttachedEntities'))
+	if attached then
+		local num = #attached
+		for i=1,num do
+			local entityID = attached[i]
+			local entity = EntityRegistry:get(entityID)
+			local family = entity:getFamily()
+
+			if self._equipSlots
+				and self._equipSlots[family]
+				and self._equipSlots[family]:isEmpty()
+			then
+				self:_addToSlot(entity, self._equipSlots[family])
+			end
+		end
+	end
+end
+
+-- check for items contained by the primeEntity and load them into inventory
+function InGameUI:_updateInventorySlots()
+	local pIsAttached = property('IsAttached')
+	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local contained = primeEntity:query(property('ContainedEntities'))
+	if contained then
+		local num = #contained
+		for i=1,num do
+			local entityID = contained[i]
+			local entity = EntityRegistry:get(entityID)
+			local isAttached = entity:query(pIsAttached)
+			if not isAttached then
+				local slot = self:_findEmptyInventorySlot()
+				if slot then self:_addToSlot(entity, slot) end
+			end
+		end
+	end
+end
+
+function InGameUI:_findEmptyInventorySlot()
+	local num = #self._inventorySlots
+
+	for i=1,num do
+		local slot = self._inventorySlots[i]
+		if slot:isEmpty() then return slot end
+	end
+end
 
 -- check for items at the primeEntity's feet and load them into floor slots
 function InGameUI:_updateFloorSlots()
@@ -530,7 +609,8 @@ function InGameUI:_updateFloorSlots()
 				local epos = primeEntity:query(pPosition)
 
 				if vec2_equal(ipos[1], ipos[2], epos[1], epos[2]) then
-					self:_addToFloor(item)
+					local slot = self:_findEmptyFloorSlot()
+					if slot then self:_addToSlot(item, slot) end
 				end
 			end
 		end
@@ -556,42 +636,39 @@ function InGameUI:_findEmptyFloorSlot()
 	end
 end
 
--- add an entity to the next available floor slot
-function InGameUI:_addToFloor(item)
-	local slot = self:_findEmptyFloorSlot()
+function InGameUI:_makeItemButton(item)
+	local btn
 
-	if slot then
-		local tilecoords = item:query(property('TileCoords'))
-		if tilecoords then
-			local coords = tilecoords.item
+	local tilecoords = item:query(property('TileCoords'))
+	if tilecoords then
+		local coords = tilecoords.item
 
-			if not coords then
-				for k in pairs(tilecoords) do coords = tilecoords[k]; break end
-			end
+		if not coords then
+			for k in pairs(tilecoords) do coords = tilecoords[k]; break end
+		end
 
-			if coords then
-				local size = item:query(property('TileSize'))
-				if size then
-					local x, y = (coords[1]-1) * size, (coords[2]-1) * size
-					local normalStyle = ui.itembutton.normalStyle:clone()
-					local hoverStyle = ui.itembutton.hoverStyle:clone()
+		if coords then
+			local size = item:query(property('TileSize'))
+			if size then
+				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
+				local normalStyle = ui.itembutton.normalStyle:clone()
+				local hoverStyle = ui.itembutton.hoverStyle:clone()
 
-					normalStyle:setBGQuad(x, y, size, size)
-					hoverStyle:setBGQuad(x, y, size, size)
+				normalStyle:setBGQuad(x, y, size, size)
+				hoverStyle:setBGQuad(x, y, size, size)
 
-					local btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
-					btn:setNormalStyle(normalStyle, true)
-					btn:setHoverStyle(hoverStyle, true)
-					btn:setEntityID(item:getID())
+				btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
+				btn:setNormalStyle(normalStyle, true)
+				btn:setHoverStyle(hoverStyle, true)
+				btn:setEntityID(item:getID())
 
-					local tooltip = self._tooltipFactory:makeEntityTooltip(item)
-					btn:attachTooltip(tooltip)
+				local tooltip = self._tooltipFactory:makeEntityTooltip(item)
+				btn:attachTooltip(tooltip)
+			end -- if size
+		end -- if coords
+	end -- if tilecoords
 
-					slot:insert(btn)
-				end -- if size
-			end -- if coords
-		end -- if tilecoords
-	end -- if slot
+	return btn
 end
 
 -- get the width and height of the non-ui view

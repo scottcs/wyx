@@ -34,7 +34,7 @@ local Frame = Class{name='Frame',
 function Frame:destroy()
 	self._needsUpdate = nil
 
-	if self._registered then UISystem:unregister(self) end
+	self:_unregisterWithUISystem()
 	self._registered = nil
 
 	self:clear()
@@ -204,6 +204,21 @@ function Frame:_getFramebuffer()
 	return fb
 end
 
+-- register with the UI system
+function Frame:_registerWithUISystem()
+	UISystem:register(self)
+	self._registered = true
+end
+
+-- unregister with the UI system
+function Frame:_unregisterWithUISystem()
+	UISystem:unregister(self)
+	self._registered = false
+end
+
+-- return true if this frame is registered with the UI system
+function Frame:isRegisteredWithUISystem() return self._registered == true end
+
 -- perform necessary tasks to become an independent frame (no parent)
 function Frame:becomeIndependent(parent)
 	if parent then
@@ -211,8 +226,7 @@ function Frame:becomeIndependent(parent)
 		self:setPosition(x, y)
 	end
 
-	UISystem:register(self)
-	self._registered = true
+	self:_registerWithUISystem()
 end
 
 -- perform necessary tasks to become a child frame (with a parent)
@@ -222,8 +236,7 @@ function Frame:becomeChild(parent, depth)
 		self:setPosition(x, y)
 	end
 
-	UISystem:unregister(self)
-	self._registered = false
+	self:_unregisterWithUISystem()
 	if depth then self:setDepth(depth) end
 end
 
@@ -420,11 +433,11 @@ end
 function Frame:getDepth() return self._depth end
 function Frame:setDepth(depth)
 	verify('number', depth)
-	if self._registered then
+	if self:isRegisteredWithUISystem() then
 		-- NOTE: Order of operations here is very important
-		UISystem:unregister(self)
-		self._depth = depth
-		UISystem:register(self)
+		self:_unregisterWithUISystem()
+		self:setDepth(depth)
+		self:_registerWithUISystem()
 	else
 		self._depth = depth
 	end

@@ -29,5 +29,12 @@ end
 function InputCommandEvent:getCommand() return self._command end
 function InputCommandEvent:getCommandArgs() return self._commandArgs end
 
+local concat = table.concat
+function InputCommandEvent:__tostring()
+	local argstr = ''
+	if self._commandArgs then argstr = concat(self._commandArgs, ', ') end
+	return self:_msg('%s(%s)', tostring(self._command), argstr)
+end
+
 -- the class
 return InputCommandEvent
