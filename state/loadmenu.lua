@@ -93,9 +93,11 @@ function st:InputCommandEvent(e)
 			end,
 			LOAD_GAME = function()
 				if self._ui then
-					local file = self._ui:getSelectedFile()
+					local file, wyx = self._ui:getSelectedFile()
 					if file then
-						RunState.switch(State.loadgame, self._world, file)
+						self._world.FILENAME = file
+						self._world.WYXNAME = wyx
+						RunState.switch(State.loadgame, self._world)
 					else
 						warning('Could not load file: %q', file)
 					end

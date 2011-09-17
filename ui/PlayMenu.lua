@@ -30,6 +30,7 @@ ui.title = {
 ui.keys = {
 	O = command('MENU_OPTIONS'),
 	H = command('MENU_HELP'),
+	A = command('DELETE_GAME'),
 	S = command('MENU_SAVE_GAME'),
 	M = command('MENU_MAIN'),
 	escape = {command('EXIT_MENU'), command('CONSOLE_HIDE')},
@@ -96,8 +97,9 @@ ui.button.activeStyle = ui.button.hoverStyle:clone({
 ui.buttons = {
 	{'Options', command('MENU_OPTIONS')},
 	{'Help', command('MENU_HELP')},
-	{'Save Game', command('MENU_SAVE_GAME')},
-	{'Quit', command('MENU_MAIN')},
+	{'Abandon Game', command('DELETE_GAME')},
+	{'Save and Play', command('MENU_SAVE_GAME')},
+	{'Save and Quit', command('MENU_MAIN')},
 }
 
 
