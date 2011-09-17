@@ -55,6 +55,7 @@ end
 function TimeSystem:CommandEvent(e)
 	local command = e:getCommand()
 	local obj = command:getTarget()
+	local immediate = e:isImmediate()
 
 	if obj.getComponentsByClass then
 		local components = obj:getComponentsByClass(TimeComponent)
@@ -66,7 +67,11 @@ function TimeSystem:CommandEvent(e)
 			local comp = components[1]
 
 			if comp and self._commandQueues[comp] then
-				self._commandQueues[comp]:push_back(command)
+				if immediate then
+					self:_execute(command, comp)
+				else
+					self._commandQueues[comp]:push_back(command)
+				end
 			end
 		end
 	end
@@ -80,6 +85,14 @@ function TimeSystem:setFirst(component)
 		self._timeTravelers:rotate_forward()
 		comp = self._timeTravelers:front()
 	end
+end
+
+-- execute a command
+function TimeSystem:_execute(command, comp)
+	local ap = self._actionPoints
+	comp:onPreExecute(ap[comp])
+	ap[comp] = ap[comp] - command:execute(ap[comp])
+	comp:onPostExecute(ap[comp])
 end
 
 -- progresses through deque and update time entity
@@ -115,9 +128,7 @@ function TimeSystem:tick()
 				local nextCommand = self._commandQueues[comp]:front()
 				if nextCommand then
 					self._commandQueues[comp]:pop_front()
-					comp:onPreExecute(ap[comp])
-					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
-					comp:onPostExecute(ap[comp])
+					self:_execute(nextCommand, comp)
 				end
 			until nil == nextCommand or ap[comp] <= 0
 		end
