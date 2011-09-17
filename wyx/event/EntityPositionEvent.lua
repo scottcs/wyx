@@ -14,6 +14,7 @@ local EntityPositionEvent = Class{name='EntityPositionEvent',
 
 		Event.construct(self, 'Entity Position Event')
 
+		self._debugLevel = 2
 		self._entityID = entityID
 		self._toX = toX
 		self._toY = toY
