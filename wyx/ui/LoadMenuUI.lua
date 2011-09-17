@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
+local CheckButton = getClass 'wyx.ui.CheckButton'
 local Button = getClass 'wyx.ui.Button'
 local command = require 'wyx.ui.command'
 
@@ -37,6 +38,14 @@ function LoadMenuUI:destroy()
 		UISystem:unregisterKeys()
 		self._uikeys = nil
 	end
+
+	if self._checkButtons then
+		for i=1,#self._checkButtons do
+			self._checkButtons[i] = nil
+		end
+		self._checkButtons = nil
+	end
+
 	self._fileTable = nil
 	self._ui = nil
 	self._selectedFile = nil
@@ -79,7 +88,7 @@ function LoadMenuUI:_makeLoadButtons()
 			local sav = t.sav
 
 			if info and sav then
-				local btn = Button(x, y, ui.loadbutton.w, ui.loadbutton.h)
+				local btn = CheckButton(x, y, ui.loadbutton.w, ui.loadbutton.h)
 				btn:setNormalStyle(ui.loadbutton.normalStyle)
 				btn:setHoverStyle(ui.loadbutton.hoverStyle)
 				btn:setActiveStyle(ui.loadbutton.activeStyle)
@@ -92,9 +101,16 @@ function LoadMenuUI:_makeLoadButtons()
 				local icon = self:_makeIcon(info)
 				if icon then btn:addChild(icon) end
 
-				btn:setCallback('l', function() self._selectedFile = sav end)
+				btn:setCheckedCallback(function(checked)
+					if checked then
+						self._selectedFile = sav
+						self:_uncheckAllBut(btn)
+					end
+				end)
 
 				self._innerPanel:addChild(btn)
+				self._checkButtons = self._checkButtons or {}
+				self._checkButtons[#self._checkButtons + 1] = btn
 
 				x = x + dx
 				if x + dx > ui.innerpanel.w  then
@@ -102,6 +118,16 @@ function LoadMenuUI:_makeLoadButtons()
 					y = y + dy
 				end
 			end
+		end
+	end
+end
+
+function LoadMenuUI:_uncheckAllBut(btn)
+	if self._checkButtons then
+		local num = #self._checkButtons
+		for i=1,num do
+			local button = self._checkButtons[i]
+			if button ~= btn then button:uncheck() end
 		end
 	end
 end
