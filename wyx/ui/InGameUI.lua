@@ -209,10 +209,7 @@ end
 -- function to equip items when inserted into equip slot
 local _equipInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
-	local item = EntityRegistry:get(iID)
-	if not item:query(property('IsContained')) then
-		InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
-	end
+	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
 	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
 end
 
@@ -220,10 +217,7 @@ end
 local _equipRemoveFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
-	local item = EntityRegistry:get(iID)
-	if item:query(property('IsContained')) then
-		InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
-	end
+	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
 end
 
 -- function to pickup items when inserted into inventory slot
