@@ -42,20 +42,28 @@ end
 
 -- override Button:onRelease()
 function CheckButton:onRelease(button, mods)
+	if button == 'l' then self:_toggleCheck() end
 	Button.onRelease(button, mods)
+end
 
-	if button == 'l' then
-		self._checked = not self._checked
+function CheckButton:check() self:_toggleCheck(true) end
+function CheckButton:uncheck() self:_toggleCheck(false) end
 
-		if self._checkedCallback then
-			local args = self._checkedCallbackArgs
-			if args then
-				self._checkedCallback(self._checked, unpack(args))
-			else
-				self._checkedCallback(self._checked)
-			end
+function CheckButton:_toggleCheck(on)
+	if nil == on then on = not self._checked end
+	self._checked = on
+
+	if self._checkedCallback then
+		local args = self._checkedCallbackArgs
+		if args then
+			self._checkedCallback(self._checked, unpack(args))
+		else
+			self._checkedCallback(self._checked)
 		end
 	end
+
+	if not self._checked then self._hovered = true end
+	self._needsUpdate = true
 end
 
 -- override Frame:onHoverIn()
