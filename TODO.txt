@@ -38,6 +38,9 @@ Later Goals:
 :::::::::::::::
 
   + fix items being duplicated on the ground sometimes
+	o delete game from game-menu
+	o make titles bigger
+	o fix Z in small font
 
 
 :::::::::::::::
