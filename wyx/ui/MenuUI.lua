@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
+local Text = getClass 'wyx.ui.Text'
 local Button = getClass 'wyx.ui.Button'
 local command = require 'wyx.ui.command'
 
@@ -25,6 +26,7 @@ local MenuUI = Class{name='MenuUI',
 		self._ui = ui
 
 		self:setNormalStyle(ui.screenStyle)
+		self:_makeTitle()
 		self:_makePanel()
 	end
 }
@@ -37,6 +39,18 @@ function MenuUI:destroy()
 	end
 	self._ui = nil
 	Frame.destroy(self)
+end
+
+-- make the title
+function MenuUI:_makeTitle()
+	local ui = self._ui
+	local f = Text(ui.title.x, ui.title.y, ui.title.w, ui.title.h)
+	f:setNormalStyle(ui.title.normalStyle)
+	f:setMargin(ui.title.margin)
+	f:setJustifyCenter()
+	f:setAlignCenter()
+	f:setText(ui.title.text)
+	self:addChild(f)
 end
 
 -- make the panel
