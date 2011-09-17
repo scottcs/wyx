@@ -379,7 +379,7 @@ function Level:setPlayerControlled()
 		entity:send(message('TIME_AUTO'), false)
 	end
 
-	entity:send(message('CONTAINER_RESIZE'), 13)
+	entity:send(message('CONTAINER_RESIZE'), 10)
 
 	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
 end

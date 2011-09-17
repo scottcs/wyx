@@ -209,7 +209,6 @@ end
 -- function to equip items when inserted into equip slot
 local _equipInsertFunc = function(btn, eID)
 	local iID = btn:getEntityID()
-	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
 	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
 end
 
@@ -217,7 +216,6 @@ end
 local _equipRemoveFunc = function(btn, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
-	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
 end
 
 -- function to pickup items when inserted into inventory slot
@@ -587,6 +585,7 @@ end
 function InGameUI:_updateFloorSlots()
 	local items = EntityRegistry:getIDsByType('item')
 	local pIsContained = property('IsContained')
+	local pIsAttached = property('IsAttached')
 	local pPosition = property('Position')
 
 	if items then
@@ -598,7 +597,7 @@ function InGameUI:_updateFloorSlots()
 			local id = items[i]
 			local item = EntityRegistry:get(id)
 
-			if not item:query(pIsContained) then
+			if not (item:query(pIsContained) or item:query(pIsAttached)) then
 				local ipos = item:query(pPosition)
 				local epos = primeEntity:query(pPosition)
 

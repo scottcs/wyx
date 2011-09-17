@@ -109,26 +109,13 @@ function ControllerComponent:_attack(isHero, target)
 	end
 end
 
-function ControllerComponent:_tryToPickup()
-	local items = EntityRegistry:getIDsByType('item')
-	local count = 0
-
-	if items then
-		local num = #items
-		for i=1,num do count = count + self:_doPickup(items[i]) end
-	end
-
-	if count == 0 then
-		GameEvents:push(DisplayPopupMessageEvent('Nothing to pick up!'))
-	end
-end
-
 function ControllerComponent:_doPickup(id)
 	local pIsContained = property('IsContained')
+	local pIsAttached = property('IsAttached')
 	local pPosition = property('Position')
 	local item = EntityRegistry:get(id)
 
-	if not item:query(pIsContained) then
+	if not (item:query(pIsContained) or item:query(pIsAttached)) then
 		local ipos = item:query(pPosition)
 		local mpos = self._mediator:query(pPosition)
 		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
@@ -140,92 +127,14 @@ function ControllerComponent:_doPickup(id)
 	return 0
 end
 
-function ControllerComponent:_tryToDrop(id)
-	local contained = self._mediator:query(property('ContainedEntities'))
-	if contained then
-		local found = false
-		local num = #contained
-
-		for i=1,num do
-			if contained[i] == id then
-				found = true
-				break
-			end
-		end
-
-		if found then
-			local item = EntityRegistry:get(id)
-			if item:query(property('IsAttached')) then
-				GameEvents:push(DisplayPopupMessageEvent('Remove it first!'))
-			else
-				self:_doDrop(id)
-			end
-		else
-			GameEvents:push(DisplayPopupMessageEvent('You can\'t drop that!'))
-		end
-	else
-		GameEvents:push(DisplayPopupMessageEvent('Nothing to drop!'))
-	end
-end
-
 function ControllerComponent:_doDrop(id)
 	self:_sendCommand(DropCommand(self._mediator, id))
-end
-
-function ControllerComponent:_tryToAttach(id)
-	local contained = self._mediator:query(property('ContainedEntities'))
-	local found = false
-
-	if contained then
-		local num = #contained
-
-		for i=1,num do
-			if contained[i] == id then
-				found = true
-				break
-			end
-		end
-
-		if found then
-			self:_doAttach(id)
-		else
-			GameEvents:push(DisplayPopupMessageEvent('You can\'t equip that!'))
-		end
-	end
-
-	if not found then
-		GameEvents:push(DisplayPopupMessageEvent('Nothing to equip!'))
-	end
 end
 
 function ControllerComponent:_doAttach(id)
 	local item = EntityRegistry:get(id)
 	if not item:query(property('IsAttached')) then
 		self:_sendCommand(AttachCommand(self._mediator, id))
-	end
-end
-
-function ControllerComponent:_tryToDetach(id)
-	local attached = self._mediator:query(property('AttachedEntities'))
-	if attached then
-		local found = false
-		local num = #attached
-
-		for i=1,num do
-			if attached[i] == id then
-				found = true
-				break
-			end
-		end
-
-		if found then
-			self:_doDetach(id)
-		else
-			GameEvents:push(
-				DisplayPopupMessageEvent('You don\'t have that equipped!'))
-		end
-	else
-		GameEvents:push(DisplayPopupMessageEvent('Nothing to unequip!'))
 	end
 end
 
@@ -332,17 +241,25 @@ function ControllerComponent:_printInventory()
 
 	local name = self._mediator:getName()
 	local contained = self._mediator:query(property('ContainedEntities'))
+	local attached = self._mediator:query(property('AttachedEntities'))
+
+	if attached then
+		GameEvents:push(ConsoleEvent('Equipment (%s):', name))
+		found = true
+		for i,e in pairs(attached) do
+			local entity = EntityRegistry:get(e)
+			GameEvents:push(ConsoleEvent('   %d - {%08s} %s',
+				i, e, entity:getName()))
+		end
+	end
+
 	if contained then
 		GameEvents:push(ConsoleEvent('Inventory (%s):', name))
 		found = true
 		for i,e in pairs(contained) do
 			local entity = EntityRegistry:get(e)
-			local equipped = ''
-			if entity:query(property('IsAttached')) then
-				equipped = ' (equipped)'
-			end
-			GameEvents:push(ConsoleEvent('   %d - {%08s} %s%s',
-				i, e, entity:getName(), equipped))
+			GameEvents:push(ConsoleEvent('   %d - {%08s} %s',
+				i, e, entity:getName()))
 		end
 	end
 
