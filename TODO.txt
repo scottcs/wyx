@@ -39,7 +39,7 @@ Interface:
   d Main Menu
   d Play Menu
   x Save Menu
-  o Load Menu
+  d Load Menu
   d fill equipment and inventory slots on load
   d fix item being carried in mouse slot
   o Character select or gear select + name entry
