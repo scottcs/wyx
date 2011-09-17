@@ -37,7 +37,7 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  + fix items being duplicated on the ground sometimes
+  d fix items being duplicated on the ground sometimes
 	d add debug line to entity tooltips
 	d fix update lighting not updating at the right time on attach/detach
 	d delete game from game-menu
