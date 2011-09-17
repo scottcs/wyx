@@ -152,14 +152,6 @@ function st:InputCommandEvent(e)
 				self._view:setViewport(self._cam:getViewport())
 			end,
 
-			-- save/load
-			QUICKSAVE = function()
-				RunState.switch(State.save, self._world, self._view, 'play')
-			end,
-			QUICKLOAD = function()
-				RunState.switch(State.destroy, 'initialize', 'loadgame')
-			end,
-
 			-- menu
 			MENU_PLAY = function()
 				RunState.switch(State.playmenu, self._world, self._view)

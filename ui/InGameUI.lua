@@ -46,8 +46,6 @@ ui.keys = {
 	pagedown = {command('CAMERA_ZOOMIN'), command('CONSOLE_PAGEDOWN')},
 	escape = {command('MENU_PLAY'), command('CONSOLE_HIDE')},
 
-	['ctrl-s'] = command('QUICKSAVE'),
-	['ctrl-l'] = command('QUICKLOAD'),
 	['ctrl-n'] = command('NEW_LEVEL'),
 	f4 = command('CAMERA_FOLLOW'),
 	f5 = command('CAMERA_UNFOLLOW'),
