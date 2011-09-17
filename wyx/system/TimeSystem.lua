@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Deque = getClass 'wyx.kit.Deque'
 local TimeComponent = getClass 'wyx.component.TimeComponent'
 local CommandEvent = getClass 'wyx.event.CommandEvent'
+local Command = getClass 'wyx.command.Command'
 local TimeSystemCycleEvent = getClass 'wyx.event.TimeSystemCycleEvent'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
@@ -82,6 +83,14 @@ function TimeSystem:setFirst(component)
 	end
 end
 
+-- execute a single command
+function TimeSystem:_executeCommand(command, comp)
+	local ap = self._actionPoints
+	comp:onPreExecute(ap[comp])
+	ap[comp] = ap[comp] - command:execute(ap[comp])
+	comp:onPostExecute(ap[comp])
+end
+
 -- progresses through deque and update time entity
 function TimeSystem:tick()
 	local comp = self._timeTravelers:front()
@@ -111,13 +120,27 @@ function TimeSystem:tick()
 
 		-- spend all action points
 		if self._commandQueues[comp] then
+			local queue = self._commandQueues[comp]
+			local sentinel = Command()
+			queue:push_back(sentinel)
+
+			-- first execute all commands with 0 cost
 			repeat
-				local nextCommand = self._commandQueues[comp]:front()
+				local command = queue:front()
+				if command and command:cost() == 0 then
+					queue:pop_front()
+					self:_executeCommand(command, comp)
+				else
+					queue:rotate_forward()
+				end
+			until nil == command or command == sentinel
+
+			-- now execute remaining commands as long as there are available AP
+			repeat
+				local nextCommand = queue:front()
 				if nextCommand then
-					self._commandQueues[comp]:pop_front()
-					comp:onPreExecute(ap[comp])
-					ap[comp] = ap[comp] - nextCommand:execute(ap[comp])
-					comp:onPostExecute(ap[comp])
+					queue:pop_front()
+					self:_executeCommand(nextCommand, comp)
 				end
 			until nil == nextCommand or ap[comp] <= 0
 		end
