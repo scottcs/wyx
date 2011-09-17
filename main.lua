@@ -118,6 +118,10 @@ function love.load()
 
 	-- define game fonts
 	GameFont = {
+		bighuge = love.graphics.newImageFont('font/lofi_bighuge.png',
+			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
+			'abcdefghijklmnopqrstuvwxyz' ..
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
 		big = love.graphics.newImageFont('font/lofi_big.png',
 			'0123456789!@#$%()-=+,.":;/\\?\' ' ..
 			'abcdefghijklmnopqrstuvwxyz' ..
