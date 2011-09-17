@@ -10,7 +10,7 @@ local yOffset = 40
 local panelWidth = 0.6 * WIDTH
 local panelHeight = 0.75 * HEIGHT
 
-local titleFont = GameFont.big
+local titleFont = GameFont.bighuge
 local titleFontH = titleFont:getHeight()
 local titleMargin = 48
 
@@ -23,13 +23,14 @@ ui.title = {
 	text = '@ Game Menu @',
 	normalStyle = Style({
 		font = titleFont,
-		fontcolor = colors.WHITE,
+		fontcolor = colors.LIGHTORANGE,
 	})
 }
 
 ui.keys = {
 	O = command('MENU_OPTIONS'),
 	H = command('MENU_HELP'),
+	A = command('DELETE_GAME'),
 	S = command('MENU_SAVE_GAME'),
 	M = command('MENU_MAIN'),
 	escape = {command('EXIT_MENU'), command('CONSOLE_HIDE')},
@@ -96,8 +97,10 @@ ui.button.activeStyle = ui.button.hoverStyle:clone({
 ui.buttons = {
 	{'Options', command('MENU_OPTIONS')},
 	{'Help', command('MENU_HELP')},
+	{'Abandon Game', command('DELETE_GAME')},
 	{'Save Game', command('MENU_SAVE_GAME')},
-	{'Quit', command('MENU_MAIN')},
+	{'Quit (No Save)', command('MENU_MAIN')},
+	--{'Save and Quit', command('MENU_MAIN')},
 }
 
 

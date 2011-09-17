@@ -70,6 +70,8 @@ function MotionComponent:_move(posX, posY, oldposX, oldposY)
 end
 
 function MotionComponent:receive(sender, msg, ...)
+	local doSetPosition = false
+
 	if     msg == message('SET_POSITION') then self:_move(...)
 
 	elseif msg == message('CONTAINER_INSERTED')
@@ -79,14 +81,8 @@ function MotionComponent:receive(sender, msg, ...)
 	elseif msg == message('CONTAINER_REMOVED')
 		and sender == self._mediator
 	then
-		local comp = select(1, ...)
-		local mediator = comp:getMediator()
-		local mpos = mediator:query(property('Position'))
-		local pos = self._mediator:query(property('Position'))
-
 		self:_setProperty(property('IsContained'), false)
-		self._mediator:send(message('SET_POSITION'),
-			mpos[1], mpos[2], pos[1], pos[2])
+		doSetPosition = true
 
 	elseif msg == message('ATTACHMENT_ATTACHED')
 		and sender == self._mediator
@@ -94,7 +90,20 @@ function MotionComponent:receive(sender, msg, ...)
 
 	elseif msg == message('ATTACHMENT_DETACHED')
 		and sender == self._mediator
-	then self:_setProperty(property('IsAttached'), false)
+	then
+		self:_setProperty(property('IsAttached'), false)
+		doSetPosition = true
+	end
+
+	if doSetPosition then
+		local comp = select(1, ...)
+		local mediator = comp:getMediator()
+		local pPosition = property('Position')
+		local mpos = mediator:query(pPosition)
+		local pos = self._mediator:query(pPosition)
+
+		self._mediator:send(message('SET_POSITION'),
+			mpos[1], mpos[2], pos[1], pos[2])
 	end
 end
 

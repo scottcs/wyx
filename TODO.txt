@@ -37,7 +37,12 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  + fix items being duplicated on the ground sometimes
+  d fix items being duplicated on the ground sometimes
+	d add debug line to entity tooltips
+	d fix update lighting not updating at the right time on attach/detach
+	d delete game from game-menu
+	d make titles bigger
+	d fix Z in fonts
 
 
 :::::::::::::::
@@ -71,6 +76,7 @@ Entities:
 
 Input/Events/Config:
   o read keybindings from a config file. [make a default config in the data dir]
+	o Close Door command
 
 Console/Debug:
   - log console to file (with an option)
@@ -125,6 +131,9 @@ Interface:
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
+
+	Play Menu:
+	o change Quit to Save and Quit [once we can quit without saving, from the console]
 
   StickyButton:
   x   Can watch a variable [for image it represents] -- is a "view" of an item

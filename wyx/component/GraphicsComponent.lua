@@ -39,6 +39,8 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'SCREEN_STATUS',
 			'CONTAINER_INSERTED',
 			'CONTAINER_REMOVED',
+			'ATTACHMENT_ATTACHED',
+			'ATTACHMENT_DETACHED',
 			'TIME_POSTTICK')
 		self._frames = {}
 		self._curFrame = 'right'
@@ -113,11 +115,13 @@ function GraphicsComponent:receive(sender, msg, ...)
 	elseif msg == message('HAS_MOVED') then
 		self:_updateFB(...)
 
-	elseif msg == message('CONTAINER_INSERTED')
+	elseif (msg == message('CONTAINER_INSERTED')
+		or msg == message('ATTACHMENT_ATTACHED'))
 		and sender == self._mediator
 	then self._doDraw = false
 
-	elseif msg == message('CONTAINER_REMOVED')
+	elseif (msg == message('CONTAINER_REMOVED')
+		or msg == message('ATTACHMENT_DETACHED'))
 		and sender == self._mediator
 	then self._doDraw = true
 	end

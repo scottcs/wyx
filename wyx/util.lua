@@ -384,3 +384,21 @@ do
 		sources[src] = nil
 	end
 end
+
+--[[
+local Deque = getClass 'wyx.kit.Deque'
+local rendercache = Deque()
+local _setRenderTarget = love.graphics.setRenderTarget
+function love.graphics.setRenderTarget(target, ...)
+	if nil == target then
+		rendercache:pop_back()
+	else
+		rendercache:push_back(target)
+	end
+	if rendercache:size() > 1 then
+		warning('setRenderTarget set to new target without unsetting old target')
+	end
+
+	_setRenderTarget(target, ...)
+end
+]]--
