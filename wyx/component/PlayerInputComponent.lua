@@ -43,28 +43,28 @@ function PlayerInputComponent:InputCommandEvent(e)
 			assert(args and #args == 2,
 				'Invalid args for InputCommand ATTACH_ENTITY')
 			local id, to = unpack(args)
-			if to == self._mediator:getID() then self:_doAttach(id, true) end
+			if to == self._mediator:getID() then self:_doAttach(id) end
 		end,
 
 		DETACH_ENTITY = function()
 			assert(args and #args == 2,
 				'Invalid args for InputCommand DETACH_ENTITY')
 			local id, to = unpack(args)
-			if to == self._mediator:getID() then self:_doDetach(id, true) end
+			if to == self._mediator:getID() then self:_doDetach(id) end
 		end,
 
 		PICKUP_ENTITY = function()
 			assert(args and #args == 2,
 				'Invalid args for InputCommand PICKUP_ENTITY')
 			local id, to = unpack(args)
-			if to == self._mediator:getID() then self:_doPickup(id, true) end
+			if to == self._mediator:getID() then self:_doPickup(id) end
 		end,
 
 		DROP_ENTITY = function()
 			assert(args and #args == 2,
 				'Invalid args for InputCommand DROP_ENTITY')
 			local id, to = unpack(args)
-			if to == self._mediator:getID() then self:_doDrop(id, true) end
+			if to == self._mediator:getID() then self:_doDrop(id) end
 		end,
 
 		PRINT_INVENTORY = function() self:_printInventory(); doTick = false end,

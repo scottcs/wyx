@@ -123,7 +123,7 @@ function ControllerComponent:_tryToPickup()
 	end
 end
 
-function ControllerComponent:_doPickup(id, immediate)
+function ControllerComponent:_doPickup(id)
 	local pIsContained = property('IsContained')
 	local pPosition = property('Position')
 	local item = EntityRegistry:get(id)
@@ -132,7 +132,7 @@ function ControllerComponent:_doPickup(id, immediate)
 		local ipos = item:query(pPosition)
 		local mpos = self._mediator:query(pPosition)
 		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
-			self:_sendCommand(PickupCommand(self._mediator, id), immediate)
+			self:_sendCommand(PickupCommand(self._mediator, id))
 			return 1
 		end
 	end
@@ -168,8 +168,8 @@ function ControllerComponent:_tryToDrop(id)
 	end
 end
 
-function ControllerComponent:_doDrop(id, immediate)
-	self:_sendCommand(DropCommand(self._mediator, id), immediate)
+function ControllerComponent:_doDrop(id)
+	self:_sendCommand(DropCommand(self._mediator, id))
 end
 
 function ControllerComponent:_tryToAttach(id)
@@ -198,10 +198,10 @@ function ControllerComponent:_tryToAttach(id)
 	end
 end
 
-function ControllerComponent:_doAttach(id, immediate)
+function ControllerComponent:_doAttach(id)
 	local item = EntityRegistry:get(id)
 	if not item:query(property('IsAttached')) then
-		self:_sendCommand(AttachCommand(self._mediator, id), immediate)
+		self:_sendCommand(AttachCommand(self._mediator, id))
 	end
 end
 
@@ -229,12 +229,12 @@ function ControllerComponent:_tryToDetach(id)
 	end
 end
 
-function ControllerComponent:_doDetach(id, immediate)
-	self:_sendCommand(DetachCommand(self._mediator, id), immediate)
+function ControllerComponent:_doDetach(id)
+	self:_sendCommand(DetachCommand(self._mediator, id))
 end
 
-function ControllerComponent:_sendCommand(command, immediate)
-	CommandEvents:notify(CommandEvent(command, immediate))
+function ControllerComponent:_sendCommand(command)
+	CommandEvents:notify(CommandEvent(command))
 end
 
 function ControllerComponent:getProperty(p, intermediate, ...)
