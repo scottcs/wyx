@@ -43,6 +43,11 @@ local descriptionStyle = Style({
 	fontcolor = colors.DARKORANGE,
 })
 
+local debugStyle = Style({
+	font = GameFont.console,
+	fontcolor = colors.PURPLE,
+})
+
 local iconStyle = Style({
 	bordersize = 4,
 	bordercolor = colors.GREY70,
@@ -68,7 +73,13 @@ end
 
 -- make a tooltip for an entity
 function TooltipFactory:makeEntityTooltip(id)
-	local entity = type(id) == 'string' and EntityRegistry:get(id) or id
+	local entity
+	if type(id) == 'string' then
+		EntityRegistry:get(id)
+	else
+		entity = id
+		id = entity:getID()
+	end
 	verifyClass('wyx.entity.Entity', entity)
 
 	local name = entity:getName()
@@ -136,6 +147,17 @@ function TooltipFactory:makeEntityTooltip(id)
 
 	headerW = icon and headerW + icon:getWidth() + MARGIN or headerW
 	local width = headerW > MINWIDTH and headerW or MINWIDTH
+
+	-- show id and position if debugging
+	local debugLine
+	if debugTooltips then
+		local pos = entity:query(property('Position'))
+		local x, y = -1, -1
+		x = (pos and pos[1]) and pos[1] or x
+		y = (pos and pos[2]) and pos[2] or y
+		local string = format('{%08s} (%d,%d)', id, x, y)
+		debugLine = self:_makeText(string, width, debugStyle)
+	end
 
 	-- make the health bar
 	local pHealth = property('Health')
@@ -219,6 +241,10 @@ function TooltipFactory:makeEntityTooltip(id)
 	if body then
 		if stats then tooltip:addSpace() end
 		tooltip:addText(body)
+	end
+	if debugLine then
+		tooltip:addSpace()
+		tooltip:addText(debugLine)
 	end
 
 	return tooltip
