@@ -10,21 +10,27 @@ v0.2.0 Goals:
   + wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
   o config file
   o key bindings
+  o Character select or gear select + name entry
+  o Options Menu
+  o Help screen
   o fix ELevel weights
-  o better expressions
+  o load menu tooltips
+  o comparison tooltips
+  o colored numbers in tooltips
   o map objects
-  o stairs/portals work - can go back and forth between levels
+  o make stairs/portals work - can go back and forth between levels
   o level templates
-  o map deformation
 
 v0.3.0 Goals:
   o music
   o sounds
-  o more level algorithms
+  o more level building algorithms
   o better AI including A*
   o experience
+  o better expressions
   o usable items
   o skills/scrolls
+  o map deformation
 
 Later Goals:
   o Localization
@@ -42,9 +48,6 @@ Interface:
   d Load Menu
   d fill equipment and inventory slots on load
   d fix item being carried in mouse slot
-  o Character select or gear select + name entry
-  o Options Menu
-  o Help screen
   d KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)].
   d   need some kind of "allow when paused" flag
 
@@ -59,6 +62,7 @@ Save/Load:
   ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
+  o tooltips on load menu buttons with more information
 
 Entities:
   o Fix ELevel weights
@@ -128,6 +132,8 @@ Interface:
   x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
   + When paused, allow movement keys to move camera around map
   + When unpaused, camera follows primeEntity again
+  o comparison tooltips
+  o colored numbers in tooltips
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
@@ -150,9 +156,11 @@ Graphics:
 
 Sound:
   o music [randomly choose a track]
-  o   key to disable
+  o   option to disable
+  o   option for volume
   o sounds
-  o   key to disable
+  o   option to disable
+  o   option for volume
   o   monster hurt
   o   monster death
   o   player hurt
@@ -163,7 +171,7 @@ Map:
   x map as quad-tree [or something?]
   ? maptypes as composites?
   o poisson disk sampling for decoration/item/monster placement [map gen too?]
-  + map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
+  + map objects: map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
   +   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
   ? How to handle map deformation? Would like ability to mine/dig/etc.
   o Create another View that can show simple representation of map nodes for Minimap.
