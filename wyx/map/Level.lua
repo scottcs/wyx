@@ -430,8 +430,9 @@ function Level:_updateLighting()
 	self:_bakeLights()
 	self._needViewUpdate = true
 end
-Level.MapNodeUpdateEvent = Level._updateLighting
-Level.LightingUpdateRequest = Level._updateLighting
+
+function Level:MapNodeUpdateEvent(e) self:_updateLighting() end
+function Level:LightingUpdateRequest(e) self:_updateLighting() end
 
 function Level:getPrimeEntity() return self._primeEntity end
 function Level:getTurns() return self._turns end
