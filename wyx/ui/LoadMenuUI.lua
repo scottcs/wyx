@@ -150,8 +150,8 @@ function LoadMenuUI:_makeIcon(info)
 		local x, y = (which[1] - 1)*size, (which[2] - 1)*size
 
 		local icon = Frame(ui.icon.x, ui.icon.y, ui.icon.w, ui.icon.h)
-		local normalStyle = ui.icon.normalStyle:clone({bgimage = image})
-		normalStyle:setBGQuad(x, y, size, size)
+		local normalStyle = ui.icon.normalStyle:clone({fgimage = image})
+		normalStyle:setFGQuad(x, y, size, size)
 		icon:setNormalStyle(normalStyle)
 
 		return icon

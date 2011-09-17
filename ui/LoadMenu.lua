@@ -92,7 +92,8 @@ ui.icon = {
 	normalStyle = Style({
 		bordersize = 4,
 		bordercolor = colors.GREY10,
-		bgcolor = colors.WHITE,
+		bgcolor = colors.BLACK,
+		fgcolor = colors.WHITE,
 	}),
 }
 
