@@ -2,9 +2,6 @@
 :OVERVIEW:
 ::::::::::
 
-v0.1.0 Goals:
-  o interface
-
 v0.2.0 Goals:
   + console improvements [logging, levels, commands]
   + wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
@@ -39,17 +36,6 @@ Later Goals:
 :::::::::::::::
 :CURRENT TASKS:
 :::::::::::::::
-
-Interface:
-  UI Screens:
-  d Main Menu
-  d Play Menu
-  x Save Menu
-  d Load Menu
-  d fill equipment and inventory slots on load
-  d fix item being carried in mouse slot
-  d KeyEvents and MouseEvents should interpret the input into game events and send those rather than the raw input. [e.g. pressing Ctrl-S should send a SAVE_EVENT, not a KEY_EVENT(ctrl, s)].
-  d   need some kind of "allow when paused" flag
 
 
 :::::::::::::::
@@ -88,7 +74,6 @@ Console/Debug:
   - log console to file (with an option)
   - maybe different levels of messages [only log certain lines?]
   - allow input and create some awesome commands
-  d every event and command needs a tostring method that is called when debugEvents is on.
   - wizard mode
   + printing to Console while rendertarget is set to something else has strange implications
 
@@ -116,8 +101,9 @@ Expressions:
     },
 
 Interface:
-  d TooltipFactory
+  TooltipFactory:
   +   Why does the numLines calculation sometimes come up short?
+
   ? Minimap  [or is zoom out good enough?]
   x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
   x TooltipComponent... mouseover info panel thingy
@@ -137,7 +123,8 @@ Interface:
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
-  d StickyButton [subclass Button]
+
+  StickyButton:
   x   Can watch a variable [for image it represents] -- is a "view" of an item
 
   Game viewport:
@@ -151,7 +138,8 @@ Interface:
 Graphics:
   x make hero movement smoother [tweened... possibly only move camera when near edges?]
   - support sprite batches if framebuffers are unsupported
-  d fix wrong dungeon colors after load
+
+  fix wrong dungeon colors after load:
   +    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
 
 Sound:
