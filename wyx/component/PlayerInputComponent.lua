@@ -71,14 +71,14 @@ function PlayerInputComponent:InputCommandEvent(e)
 		PRINT_STATS = function() self:_printStats(); doTick = false end,
 
 		WAIT = function() self:_wait() end,
-		MOVE_N = function() self:_attemptMove( 0, -1) end,
-		MOVE_S = function() self:_attemptMove( 0,  1) end,
-		MOVE_W = function() self:_attemptMove(-1,  0) end,
-		MOVE_E = function() self:_attemptMove( 1,  0) end,
-		MOVE_NW = function() self:_attemptMove(-1,  -1) end,
-		MOVE_NE = function() self:_attemptMove( 1,  -1) end,
-		MOVE_SW = function() self:_attemptMove(-1,   1) end,
-		MOVE_SE = function() self:_attemptMove( 1,   1) end,
+		MOVE_N  = function() self:_attemptMove( 0, -1) end,
+		MOVE_S  = function() self:_attemptMove( 0,  1) end,
+		MOVE_W  = function() self:_attemptMove(-1,  0) end,
+		MOVE_E  = function() self:_attemptMove( 1,  0) end,
+		MOVE_NW = function() self:_attemptMove(-1, -1) end,
+		MOVE_NE = function() self:_attemptMove( 1, -1) end,
+		MOVE_SW = function() self:_attemptMove(-1,  1) end,
+		MOVE_SE = function() self:_attemptMove( 1,  1) end,
 
 		default = function() doTick = false end,
 	}
