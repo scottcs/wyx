@@ -3,6 +3,7 @@ local ModelComponent = getClass 'wyx.component.ModelComponent'
 local EntityArray = getClass 'wyx.entity.EntityArray'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
+local LightingUpdateRequest = getClass 'wyx.event.LightingUpdateRequest'
 
 -- AttachmentComponent
 --
@@ -100,6 +101,9 @@ function AttachmentComponent:_attach(...)
 			end
 		end
 	end
+
+	-- might need to update the map
+	GameEvents:notify(LightingUpdateRequest())
 end
 
 function AttachmentComponent:_detach(...)
@@ -115,6 +119,10 @@ function AttachmentComponent:_detach(...)
 			end
 		end
 	end
+
+
+	-- might need to update the map
+	GameEvents:notify(LightingUpdateRequest())
 end
 
 -- XXX I hate this.

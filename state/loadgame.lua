@@ -16,9 +16,11 @@ local warning, tostring = warning, tostring
 
 function st:init() end
 
-function st:enter(prevState, world, filename)
+function st:enter(prevState, world)
 	self._world = world
 	self._loadStep = 0
+
+	local filename = world.FILENAME
 
 	if filename and love.filesystem.exists(filename) then
 		self._filename = filename

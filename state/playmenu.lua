@@ -72,8 +72,27 @@ function st:InputCommandEvent(e)
 			EXIT_MENU = function()
 				RunState.switch(State.play)
 			end,
+			DELETE_GAME = function()
+				local file = self._world.FILENAME
+				local wyx = self._world.WYXNAME
+
+				if file then
+					if not love.filesystem.remove(file) then
+						warning('Could not remove file: %q', file)
+					end
+				end
+
+				if wyx then
+					if not love.filesystem.remove(wyx) then
+						warning('Could not remove file: %q', wyx)
+					end
+				end
+
+				RunState.switch(State.destroy)
+			end,
 			MENU_MAIN = function()
-				RunState.switch(State.save, self._world, self._view, 'destroy')
+				--RunState.switch(State.save, self._world, self._view, 'destroy')
+				RunState.switch(State.destroy)
 			end,
 			MENU_SAVE_GAME = function()
 				RunState.switch(State.save, self._world, self._view, 'play')

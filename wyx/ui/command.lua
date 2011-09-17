@@ -60,8 +60,6 @@ command.CURSOR_RIGHT          = false
 --command.DETACH_MENU           = true
 
 -- Game state commands
-command.QUICKLOAD             = false
-command.QUICKSAVE             = false
 command.LOAD_GAME             = false
 command.DELETE_GAME           = false
 command.NEW_LEVEL             = false
