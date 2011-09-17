@@ -8,7 +8,6 @@ local property = require 'wyx.component.property'
 local CommandEvent = getClass 'wyx.event.CommandEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local DisplayPopupMessageEvent = getClass 'wyx.event.DisplayPopupMessageEvent'
-local LightingUpdateRequest = getClass 'wyx.event.LightingUpdateRequest'
 
 -- commands
 local WaitCommand = getClass 'wyx.command.WaitCommand'
@@ -65,7 +64,6 @@ function ControllerComponent:_attemptMove(x, y)
 end
 
 function ControllerComponent:_attemptPortalIn()
-	print('in')
 	local pos = self._mediator:query(property('Position'))
 	CollisionSystem:checkPortal(self._mediator, pos[1], pos[2])
 end
@@ -204,9 +202,6 @@ function ControllerComponent:_doAttach(id)
 	local item = EntityRegistry:get(id)
 	if not item:query(property('IsAttached')) then
 		self:_sendCommand(AttachCommand(self._mediator, id))
-
-		-- might need to update the map
-		GameEvents:push(LightingUpdateRequest())
 	end
 end
 
@@ -236,9 +231,6 @@ end
 
 function ControllerComponent:_doDetach(id)
 	self:_sendCommand(DetachCommand(self._mediator, id))
-
-	-- might need to update the map
-	GameEvents:push(LightingUpdateRequest())
 end
 
 function ControllerComponent:_sendCommand(command)
