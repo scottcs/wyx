@@ -98,8 +98,6 @@ function st:InputCommandEvent(e)
 						self._world.FILENAME = file
 						self._world.WYXNAME = wyx
 						RunState.switch(State.loadgame, self._world)
-					else
-						warning('Could not load file: %q', file)
 					end
 				end
 			end,
