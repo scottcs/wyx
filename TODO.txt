@@ -37,6 +37,8 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
+  + fix items being duplicated on the ground sometimes
+
 
 :::::::::::::::
 :PENDING TASKS:
