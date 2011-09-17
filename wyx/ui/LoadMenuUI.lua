@@ -228,6 +228,18 @@ function LoadMenuUI:_makeButtons()
 	end
 end
 
+-- return the currently selected file
+function LoadMenuUI:getSelectedFile()
+	local file, wyx
+
+	if self._selectedFile then
+		file = format('save/%s', self._selectedFile)
+		wyx = gsub(file, '%.sav$', '.wyx')
+	end
+
+	return file, wyx
+end
+
 
 -- the class
 return LoadMenuUI

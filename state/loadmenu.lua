@@ -71,8 +71,35 @@ function st:InputCommandEvent(e)
 			EXIT_MENU = function()
 				RunState.switch(State.menu)
 			end,
+			DELETE_GAME = function()
+				if self._ui then
+					local file, wyx = self._ui:getSelectedFile()
+
+					if file then
+						if not love.filesystem.remove(file) then
+							warning('Could not remove file: %q', file)
+						end
+					end
+
+					if wyx then
+						if love.filesystem.remove(wyx) then
+							self._ui:destroy()
+							self._ui = LoadMenuUI(UI.LoadMenu)
+						else
+							warning('Could not remove file: %q', wyx)
+						end
+					end
+				end
+			end,
 			LOAD_GAME = function()
-				RunState.switch(State.loadgame, self._world, self._filename)
+				if self._ui then
+					local file = self._ui:getSelectedFile()
+					if file then
+						RunState.switch(State.loadgame, self._world, file)
+					else
+						warning('Could not load file: %q', file)
+					end
+				end
 			end,
 		}
 	end
