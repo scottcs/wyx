@@ -10,6 +10,23 @@ local yOffset = 40
 local panelWidth = 0.6 * WIDTH
 local panelHeight = 0.75 * HEIGHT
 
+local titleFont = GameFont.big
+local titleFontH = titleFont:getHeight()
+local titleMargin = 48
+
+ui.title = {
+	x = 0,
+	y = 0,
+	w = WIDTH,
+	h = titleFontH + titleMargin*2,
+	margin = titleMargin,
+	text = '@ Game Menu @',
+	normalStyle = Style({
+		font = titleFont,
+		fontcolor = colors.WHITE,
+	})
+}
+
 ui.keys = {
 	O = command('MENU_OPTIONS'),
 	H = command('MENU_HELP'),
