@@ -34,6 +34,10 @@ end
 
 function PickupCommand:getItemID() return self._itemID end
 
+function PickupCommand:__tostring()
+	return self:_msg('{%08s} {%08s}', self:_getTargetString(), self._itemID)
+end
+
 
 -- the class
 return PickupCommand

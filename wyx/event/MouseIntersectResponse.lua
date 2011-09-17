@@ -9,8 +9,9 @@ local MouseIntersectResponse = Class{name='MouseIntersectResponse',
 	inherits=Event,
 	function(self, ids, ...)
 		if nil ~= ids then verify('table', ids) end
-		Event.construct(self, 'Mouse Intersect Event')
+		Event.construct(self, 'Mouse Intersect Response')
 
+		self._debugLevel = 2
 		self._ids = ids
 		self._args = (select('#', ...) > 0) and {...} or nil
 	end
@@ -28,6 +29,13 @@ function MouseIntersectResponse:getArgs()
 	return self._args and unpack(self._args) or nil
 end
 
+local concat = table.concat
+function MouseIntersectResponse:__tostring()
+	local idstr, argstr = '', ''
+	if self._ids then idstr = concat(self._ids, ', ') end
+	if self._args then argstr = concat(self._args, ', ') end
+	return self:_msg('%s | %s', idstr, argstr)
+end
 
 -- the class
 return MouseIntersectResponse

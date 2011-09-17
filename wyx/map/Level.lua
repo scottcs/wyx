@@ -335,7 +335,7 @@ function Level:createEntities()
 		local itemEntities = ItemDB:getByELevel(1,1000)
 		if itemEntities then
 			local numItemEntities = #itemEntities
-			for i=1,10 do
+			for i=1,20 do
 				local which = itemEntities[Random(numItemEntities)]
 				local entityID = self._itemFactory:createEntity(which)
 				self._itemFactory:registerEntity(entityID)
@@ -379,7 +379,7 @@ function Level:setPlayerControlled()
 		entity:send(message('TIME_AUTO'), false)
 	end
 
-	entity:send(message('CONTAINER_RESIZE'), 10)
+	entity:send(message('CONTAINER_RESIZE'), 13)
 
 	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
 end

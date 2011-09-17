@@ -20,5 +20,10 @@ end
 
 function MapUpdateFinishedEvent:getMap() return self._map end
 
+function MapUpdateFinishedEvent:__tostring()
+	return self:_msg('%s', tostring(self._map))
+end
+
+
 -- the class
 return MapUpdateFinishedEvent

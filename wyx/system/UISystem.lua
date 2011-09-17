@@ -3,11 +3,13 @@ local RenderSystem = getClass 'wyx.system.RenderSystem'
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
 local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
 
 local getMousePos = love.mouse.getPosition
 local select, unpack, type = select, unpack, type
+local format = string.format
 
 -- how many times per second should we tick?
 local FRAME_UPDATE_TICK = 1/30
@@ -34,6 +36,8 @@ function UISystem:destroy()
 	InputEvents:unregisterAll(self)
 
 	self._accum = nil
+	for k in pairs(self._keybindings) do self._keybindings[k] = nil end
+	self._keybindings = nil
 
 	self:_clearMouseHoverCB()
 	self:_clearMousePressCB()
@@ -76,8 +80,10 @@ function UISystem:MousePressedEvent(e)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			local ok = frame:handleMousePress(x, y, button, mods)
-			if not handled and ok then handled = true end
+			if frame and frame:isRegisteredWithUISystem() then
+				local ok = frame:handleMousePress(x, y, button, mods)
+				if not handled and ok then handled = true end
+			end
 		end
 	end
 
@@ -99,7 +105,9 @@ function UISystem:MouseReleasedEvent(e)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			frame:handleMouseRelease(x, y, button, mods)
+			if frame and frame:isRegisteredWithUISystem() then
+				frame:handleMouseRelease(x, y, button, mods)
+			end
 		end
 	end
 end
@@ -118,8 +126,14 @@ function UISystem:KeyboardEvent(e)
 
 		for frame in self._registered[depth]:listeners() do
 			if steal then break end
-			steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
+			if frame and frame:isRegisteredWithUISystem() then
+				steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
+			end
 		end
+	end
+
+	if not steal then
+		self:_sendInputCommand(key, unicode, unicodeValue, mods)
 	end
 end
 
@@ -139,6 +153,55 @@ function UISystem:MouseIntersectResponse(e)
 	end
 end
 
+-- send an InputCommand if a key has been registered
+function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
+	if not self._keybindings then return end
+	local keybindings = self._keybindings[#self._keybindings]
+
+	local cmds
+	unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
+
+	if mods then
+		for mod in pairs(mods) do
+			mod = mod..'-'
+			cmds = unicode and keybindings[mod..unicode] or nil
+			if cmds then break end
+
+			cmds = key and keybindings[mod..key] or nil
+			if cmds then break end
+		end
+	end
+
+	if not cmds then cmds = keybindings[unicodeValue] end
+	if not cmds then cmds = unicode and keybindings[unicode] or nil end
+	if not cmds then cmds = key and keybindings[key] or nil end
+
+	if cmds then
+		if type(cmds) == 'table' then
+			local num = #cmds
+			for i=1,num do
+				InputEvents:notify(InputCommandEvent(cmds[i]))
+			end
+		else
+			InputEvents:notify(InputCommandEvent(cmds))
+		end
+	end
+end
+
+-- register keybindings
+function UISystem:registerKeys(keytable)
+	verify('table', keytable)
+	self._keybindings = self._keybindings or {}
+	self._keybindings[#self._keybindings+1] = keytable
+end
+
+-- unregister last registered keybindings
+function UISystem:unregisterKeys()
+	if self._keybindings then
+		self._keybindings[#self._keybindings] = nil
+	end
+end
+
 -- get all frames under the mouse cursor
 function UISystem:getIntersection(x, y)
 	if nil == x and nil == y then
@@ -152,10 +215,12 @@ function UISystem:getIntersection(x, y)
 	for i=numDepths, 1, -1 do
 		local depth = self._depths[i]
 		for frame in self._registered[depth]:listeners() do
-			if frame:containsPoint(x, y) then
-				count = count + 1
-				intersection = intersection or {}
-				intersection[count] = frame
+			if frame and frame:isRegisteredWithUISystem() then
+				if frame:containsPoint(x, y) then
+					count = count + 1
+					intersection = intersection or {}
+					intersection[count] = frame
+				end
 			end
 		end
 	end
@@ -172,7 +237,11 @@ function UISystem:update(dt)
 
 		for i=numDepths, 1, -1 do
 			local depth = self._depths[i]
-			for frame in self._registered[depth]:listeners() do frame:onTick(dt) end
+			for frame in self._registered[depth]:listeners() do
+				if frame and frame:isRegisteredWithUISystem() then
+					frame:onTick(dt)
+				end
+			end
 		end
 
 		if self._mouseHoverCB then

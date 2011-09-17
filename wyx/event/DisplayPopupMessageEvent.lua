@@ -22,5 +22,10 @@ end
 
 function DisplayPopupMessageEvent:getMessage() return self._message end
 
+function DisplayPopupMessageEvent:__tostring()
+	return self:_msg('%s', self._message)
+end
+
+
 -- the class
 return DisplayPopupMessageEvent

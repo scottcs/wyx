@@ -20,5 +20,10 @@ end
 
 function TurnCountEvent:getTurnCount() return self._turnCount end
 
+function TurnCountEvent:__tostring()
+	return self:_msg('%d', self._turnCount)
+end
+
+
 -- the class
 return TurnCountEvent

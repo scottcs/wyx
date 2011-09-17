@@ -7,26 +7,27 @@ local Event = Class{name='Event',
 	function(self, name)
 		name = name or 'Generic Event'
 		self._name = name
+		self._debugLevel = 1
 	end
 }
+
+-- destructor
+function Event:destroy()
+	self._name = nil
+	self._debugLevel = nil
+end
 
 -- return the name of the event
 function Event:getName() return self._name end
 
 -- private function to construct an informative message
 function Event:_msg(msg, ...)
-	msg = tostring(self)..': '..msg
-	return format(msg, ...)
+	return format('%s: %s', (self._name or 'unknown'), format(msg, ...))
 end
 
 -- make printable
 function Event:__tostring()
 	return format('%s', self._name or 'unknown')
-end
-
--- destructor
-function Event:destroy()
-	self._name = nil
 end
 
 -- return a unique key for the Event
@@ -48,6 +49,9 @@ function Event:getAllEvents()
 	end
 	return t
 end
+
+function Event:getDebugLevel() return self._debugLevel end
+
 
 -- the class
 return Event

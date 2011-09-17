@@ -27,5 +27,10 @@ end
 
 function GameOverEvent:getReason() return self._reason end
 
+function GameOverEvent:__tostring()
+	return self:_msg('%s', self._reason)
+end
+
+
 -- the class
 return GameOverEvent

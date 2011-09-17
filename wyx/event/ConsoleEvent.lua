@@ -26,5 +26,6 @@ end
 
 function ConsoleEvent:getMessage() return self._message end
 
+
 -- the class
 return ConsoleEvent

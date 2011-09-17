@@ -7,11 +7,13 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.intro' end}
+setmetatable(st, mt)
 
 function st:init() end
 
 function st:enter(prevState)
-	RunState.switch(State.menu, 'initialize', 'construct')
+	RunState.switch(State.menu)
 end
 
 function st:leave() end

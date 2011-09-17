@@ -6,6 +6,8 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.uitest' end}
+setmetatable(st, mt)
 
 local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'

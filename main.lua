@@ -13,7 +13,9 @@ LOAD_DELAY = 0.025
          --]]--
 
 --debug = nil
-debugEvents = false
+debugGameEvents = debug and nil
+debugCommandEvents = debug and nil
+debugInputEvents = debug and nil
 doProfile = false
 local doGlobalProfile = doProfile and false
 
@@ -114,20 +116,6 @@ function love.load()
 	-- global tile width and height
 	TILEW, TILEH = 32, 32
 
-	-- make a ridiculous seed for the PRNG
-	local time = os.time()
-	local ltime = math.floor(love.timer.getTime() * 10000000)
-	local mtime = math.floor(love.timer.getMicroTime() * 1000)
-	local mx = love.mouse.getX()
-	local my = love.mouse.getY()
-	GAMESEED = (time - ltime) + mtime + mx + my
-	math.randomseed(GAMESEED) math.random() math.random() math.random()
-	local rand = math.floor(math.random() * 10000000)
-	GAMESEED = GAMESEED + rand
-
-	-- create the real global PRNG instance with this ridiculous seed
-	Random = random.new(GAMESEED)
-
 	-- define game fonts
 	GameFont = {
 		big = love.graphics.newImageFont('font/lofi_big.png',
@@ -157,9 +145,13 @@ function love.load()
 
 	-- create global event managers (event "channels")
 	local EventManager = getClass 'wyx.event.EventManager'
-	GameEvents = EventManager()
-	InputEvents = EventManager()
-	CommandEvents = EventManager()
+	GameEvents = EventManager('GameEvents')
+	InputEvents = EventManager('InputEvents')
+	CommandEvents = EventManager('CommandEvents')
+
+	if debugGameEvents then GameEvents:debug(debugGameEvents) end
+	if debugInputEvents then InputEvents:debug(debugInputEvents) end
+	if debugCommandEvents then CommandEvents:debug(debugCommandEvents) end
 
 	-- create global console
 	Console = getClass('wyx.debug.Console')()
@@ -224,7 +216,7 @@ function love.keypressed(key, unicode)
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:push(KeyboardEvent(key, unicode, mods))
+		InputEvents:notify(KeyboardEvent(key, unicode, mods))
 	end
 end
 
@@ -233,7 +225,7 @@ local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
 function love.mousepressed(x, y, button)
 	local mods = _getModifiers()
-	InputEvents:push(MousePressedEvent(x, y, button,
+	InputEvents:notify(MousePressedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))
@@ -241,7 +233,7 @@ end
 
 function love.mousereleased(x, y, button)
 	local mods = _getModifiers()
-	InputEvents:push(MouseReleasedEvent(x, y, button,
+	InputEvents:notify(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
 		mods))

@@ -6,10 +6,15 @@ local Class = require 'lib.hump.class'
 
 local Event = getClass 'wyx.event.Event'
 local eventsMT = {__mode = 'k'}
+local format = string.format
 
 -- EventManager class
 local EventManager = Class{name='EventManager',
-	function(self)
+	function(self, name)
+		name = name or 'EventManager'
+		verify('string', name)
+		self._name = name
+
 		self._events = {}
 	end
 }
@@ -22,6 +27,10 @@ end
 
 -- destructor
 function EventManager:destroy()
+	if self._registerQueue then self:_registerPending() end
+	if self._unregisterQueue then self:_unregisterPending() end
+
+	self:clear()
 	for k,v in pairs(self._events) do
 		for l,w in pairs(self._events[k]) do
 			self._events[k][l] = nil
@@ -29,6 +38,11 @@ function EventManager:destroy()
 		self._events[k] = nil
 	end
 	self._events = nil
+
+	self._name = nil
+	self._lastDebugMsg = nil
+	self._lastDebugRepeat = nil
+	self._debug = nil
 end
 
 -- register an object to listen for the given events
@@ -38,42 +52,25 @@ end
 --   an object with an onEvent method
 function EventManager:register(obj, events)
 	_validateObj(obj)
+	verify('table', events)
+	if events.is_a then events = {events} end
 
-	local hasOnEvent = type(obj) == 'function'
-		or obj.onEvent and type(obj.onEvent) == 'function'
+	self._registerQueue = self._registerQueue or {}
+	self._registerQueue[obj] = events
 
-	if events.is_a then
-		events = {events}
-	end
-	for _,event in ipairs(events) do
-		verifyClass(Event, event)
-		local keyStr = tostring(event:getEventKey())
-		assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
-			'object "%s" is missing event callback method for event "%s"',
-			tostring(obj), keyStr)
-
-		local key = event:getEventKey()
-		-- event table has weak keys
-		self._events[key] = self._events[key] or setmetatable({}, eventsMT)
-		self._events[key][obj] = true
-	end
+	if not self._notifying then self:_registerPending() end
 end
 
 -- unregister an object from listening for the given events
 function EventManager:unregister(obj, events)
 	_validateObj(obj)
+	verify('table', events)
+	if events.is_a then events = {events} end
 
-	if type(events) ~= 'table' then
-		events = {events}
-	end
-	for _,event in ipairs(events) do
-		verifyClass(Event, event)
-		local key = event:getEventKey()
+	self._unregisterQueue = self._unregisterQueue or {}
+	self._unregisterQueue[obj] = events
 
-		if self._events[key] and self._events[key][obj] then
-			self._events[key][obj] = nil
-		end
-	end
+	if not self._notifying then self:_unregisterPending() end
 end
 
 -- register an object for all events
@@ -101,25 +98,97 @@ function EventManager:getRegisteredEvents(obj)
 	return #events > 0 and events or nil
 end
 
+function EventManager:_registerPending()
+	if self._registerQueue then
+		for obj,events in pairs(self._registerQueue) do
+			local hasOnEvent = type(obj) == 'function'
+				or (type(obj) == 'table'
+					and obj.onEvent
+					and type(obj.onEvent) == 'function')
+
+			for _,event in ipairs(events) do
+				verifyClass(Event, event)
+				local keyStr = tostring(event:getEventKey())
+				assert(hasOnEvent or (obj[keyStr] and type(obj[keyStr]) == 'function'),
+					'object "%s" is missing event callback method for event "%s"',
+					tostring(obj), keyStr)
+
+				local key = event:getEventKey()
+				-- event table has weak keys
+				self._events[key] = self._events[key] or setmetatable({}, eventsMT)
+				self._events[key][obj] = true
+			end
+			self._registerQueue[obj] = nil
+		end
+		self._registerQueue = nil
+	end
+end
+
+function EventManager:_unregisterPending()
+	if self._unregisterQueue then
+		for obj,events in pairs(self._unregisterQueue) do
+			for _,event in ipairs(events) do
+				verifyClass(Event, event)
+				local key = event:getEventKey()
+
+				if self._events[key] and self._events[key][obj] then
+					self._events[key][obj] = nil
+				end
+			end
+			self._unregisterQueue[obj] = nil
+		end
+		self._unregisterQueue = nil
+	end
+end
+
 -- notify a specific event, notifying all listeners of the event.
 function EventManager:notify(event)
 	verifyClass(Event, event)
+	self._notifying = true
 	local key = event:getEventKey()
 
 	if self._events[key] then
 		for obj in pairs(self._events[key]) do
+
+			if self._debug then
+				local eventLevel = event:getDebugLevel()
+				if eventLevel <= self._debug then
+					local mgr = tostring(self)
+					local eventstr = tostring(event)
+					local objstr = tostring(obj.__class or obj)
+					local msg = format('[%s->%s] %s', mgr, objstr, eventstr)
+					if self._lastDebugMsg ~= msg then
+						if self._lastDebugRepeat and self._lastDebugRepeat > 0 then
+							local m = format('(Last message repeated %d times.)',
+								self._lastDebugRepeat)
+							if Console then Console:print(m) end
+							print(m)
+						end
+						self._lastDebugMsg = msg
+						self._lastDebugRepeat = 0
+						if Console then Console:print(msg) end
+						print(msg)
+					else
+						self._lastDebugRepeat = self._lastDebugRepeat + 1
+					end
+				end
+			end
+
 			if type(obj) == 'function' then                     -- function()
 				obj(event)
 			else
-				if debugEvents then
-					print(event:getName(), tostring(obj))
-				end
 				local keyStr = tostring(event:getEventKey())
 				if obj[keyStr] then obj[keyStr](obj, event) end   -- obj:NamedEvent()
 				if obj.onEvent then obj:onEvent(event) end        -- obj:onEvent()
 			end
-		end
-	end
+
+			if not self._notifying then break end
+		end -- for obj in pairs(self._events[key])
+	end -- if self._events[key]
+
+	self:_registerPending()
+	self:_unregisterPending()
+	self._notifying = false
 
 	event:destroy()
 end
@@ -150,6 +219,26 @@ function EventManager:flush()
 		end
 	end
 end
+
+-- remove all events in the queue without notifying listeners
+function EventManager:clear()
+	if self._queue then
+		local num = #self._queue
+		for i=1,num do
+			self._queue[i] = nil
+		end
+		self._queue = nil
+	end
+	self._notifying = false
+end
+
+function EventManager:debug(level)
+	verify('number', level)
+	self._debug = level
+end
+
+function EventManager:__tostring() return self._name end
+
 
 -- the module
 return EventManager

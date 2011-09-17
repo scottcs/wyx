@@ -6,7 +6,7 @@ local InputEvent = getClass 'wyx.event.InputEvent'
 local MouseEvent = Class{name='MouseEvent',
 	inherits=InputEvent,
 	function(self, x, y, button, grabbed, visible, modifiers)
-		InputEvent.construct(self, modifiers)
+		InputEvent.construct(self, 'Mouse Event', modifiers)
 		self._x, self._y = x, y
 		self._button = button
 		self._grabbed = grabbed
@@ -41,6 +41,13 @@ function MouseEvent:wasGrabbed() return self._grabbed end
 
 -- return true if the mouse was visible when the button was pressed
 function MouseEvent:wasVisible() return self._visible end
+
+function MouseEvent:__tostring()
+	return self:_msg('(%d,%d) b: %s, g: %s, v: %s, m: %s',
+		self._x, self._y, tostring(self._button), tostring(self._grabbed),
+		tostring(self._visible), IntpuEvent.__tostring(self))
+end
+
 
 -- the class
 return MouseEvent

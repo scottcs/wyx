@@ -10,8 +10,14 @@
          --]]--
 
 local st = RunState.new()
+local mt = {__tostring = function() return 'RunState.destroy' end}
+setmetatable(st, mt)
 
 function st:enter(prevState, nextState, ...)
+	InputEvents:clear()
+	GameEvents:clear()
+	CommandEvents:clear()
+
 	-- reset all game states
 	if State.save.destroy then State.save:destroy() end
 	rawset(State, 'save', nil)
@@ -34,6 +40,10 @@ function st:enter(prevState, nextState, ...)
 		-- switch to the main menu
 		RunState.switch(State.menu)
 	end
+end
+
+function st:draw()
+	if Console then Console:draw() end
 end
 
 return st

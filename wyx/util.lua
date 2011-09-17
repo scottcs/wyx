@@ -307,6 +307,9 @@ Image = Proxy(function(k)
 	img:setFilter('nearest', 'nearest')
 	return img
 end)
+UI = Proxy(function(k)
+	return assert(love.filesystem.load('ui/'..k..'.lua'))()
+end)
 Sound = Proxy(function(k)
 	return love.audio.newSource(
 		love.sound.newSoundData('sound/'..k..'.ogg'),

@@ -25,5 +25,10 @@ end
 
 function EntityMaxHealthEvent:getEntity() return self._entityID end
 
+function EntityMaxHealthEvent:__tostring()
+	return self:_msg('{%08s}', self._entityID)
+end
+
+
 -- the class
 return EntityMaxHealthEvent

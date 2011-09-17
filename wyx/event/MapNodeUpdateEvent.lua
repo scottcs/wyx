@@ -20,5 +20,10 @@ end
 
 function MapNodeUpdateEvent:getNode() return self._node end
 
+function MapNodeUpdateEvent:__tostring()
+	return self:_msg('%s', tostring(self._node))
+end
+
+
 -- the class
 return MapNodeUpdateEvent
