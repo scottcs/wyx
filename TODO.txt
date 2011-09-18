@@ -37,9 +37,9 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  o rewrite DebugHUD using ui classes
-  o rewrite MessageHUD using ui classes
-	o   rename to PopupMessage or something
+  d rewrite DebugHUD using ui classes
+  d rewrite MessageHUD using ui classes
+	x   rename to PopupMessage or something
   o rewrite Console using ui classes
 	o   add command line
 	o   add commands
