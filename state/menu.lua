@@ -12,10 +12,7 @@ setmetatable(st, mt)
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local MenuUI = getClass 'wyx.ui.MenuUI'
 
-function st:init()
-	-- create global UI system
-	UISystem = UISystem or getClass('wyx.system.UISystem')()
-end
+function st:init() end
 
 function st:enter(prevState, nextState, ...)
 	if nil ~= nextState then
@@ -34,19 +31,11 @@ function st:leave()
 	end
 end
 
-function st:destroy()
-	UISystem:destroy()
-	UISystem = nil
-end
+function st:destroy() end
 
-function st:update(dt)
-	UISystem:update(dt)
-end
+function st:update(dt) end
 
-function st:draw()
-	UISystem:draw()
-	if Console then Console:draw() end
-end
+function st:draw() end
 
 function st:InputCommandEvent(e)
 	local cmd = e:getCommand()
@@ -63,7 +52,7 @@ function st:InputCommandEvent(e)
 	if not continue then return end
 
 	-- commands that only work when console is visible
-	if Console:isVisible() then
+	if Console and Console:isVisible() then
 		switch(cmd) {
 			CONSOLE_HIDE = function() Console:hide() end,
 			CONSOLE_PAGEUP = function() Console:pageup() end,

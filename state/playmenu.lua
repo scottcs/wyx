@@ -33,14 +33,9 @@ end
 
 function st:destroy() end
 
-function st:update(dt)
-	UISystem:update(dt)
-end
+function st:update(dt) end
 
-function st:draw()
-	UISystem:draw()
-	if Console then Console:draw() end
-end
+function st:draw() end
 
 function st:InputCommandEvent(e)
 	local cmd = e:getCommand()
@@ -57,7 +52,7 @@ function st:InputCommandEvent(e)
 	if not continue then return end
 
 	-- commands that only work when console is visible
-	if Console:isVisible() then
+	if Console and Console:isVisible() then
 		switch(cmd) {
 			CONSOLE_HIDE = function() Console:hide() end,
 			CONSOLE_PAGEUP = function() Console:pageup() end,

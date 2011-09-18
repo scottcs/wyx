@@ -9,7 +9,7 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.play' end}
 setmetatable(st, mt)
 
-local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
+local DebugHUD = debug and getClass 'wyx.ui.DebugHUD'
 local MessageHUD = getClass 'wyx.ui.MessageHUD'
 local command = require 'wyx.ui.command'
 
@@ -25,7 +25,7 @@ local InputEvents = InputEvents
 
 function st:init()
 	if debug then
-		self:_createDebugHUD()
+		self._debugHUD = DebugHUD()
 		self._debug = true
 	end
 end
@@ -191,10 +191,6 @@ function st:ConsoleEvent(e)
 	end
 end
 
-function st:_createDebugHUD()
-	self._debugHUD = DebugHUD()
-end
-
 function st:_killMessageHUD()
 	if self._messageHUD then
 		if self._messageID then cron.cancel(self._messageID) end
@@ -244,10 +240,6 @@ function st:update(dt)
 
 		if self._view then self._view:update(dt) end
 	end
-
-	if self._messageHUD then self._messageHUD:update(dt) end
-	if self._debug then self._debugHUD:update(dt) end
-	UISystem:update(dt)
 end
 
 function st:draw()
@@ -255,10 +247,6 @@ function st:draw()
 	self._view:draw()
 	RenderSystem:draw()
 	self._cam:postdraw()
-	UISystem:draw()
-	if self._messageHUD then self._messageHUD:draw() end
-	if self._debug then self._debugHUD:draw() end
-	if Console then Console:draw() end
 end
 
 function st:_postZoomIn(vp)
