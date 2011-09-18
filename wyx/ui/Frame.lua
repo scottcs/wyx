@@ -25,6 +25,7 @@ local Frame = Class{name='Frame',
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
+		self._color = colors.clone(colors.WHITE)
 
 		self._needsUpdate = true
 		self:becomeIndependent()
@@ -34,6 +35,13 @@ local Frame = Class{name='Frame',
 -- destructor
 function Frame:destroy()
 	self._needsUpdate = nil
+
+	if self._fadeInID then tween.stop(self._fadeInID) end
+	if self._fadeOutID then tween.stop(self._fadeOutID) end
+
+	self._fadeInID = nil
+	self._fadeOutID = nil
+	self._color = nil
 
 	self:_unregisterWithUISystem()
 	self._registered = nil
@@ -87,6 +95,36 @@ function Frame:clear()
 			self._children[k] = nil
 		end
 	end
+end
+
+-- set the frame alpha
+function Frame:setAlpha(alpha)
+	self._color[4] = alpha or 255
+end
+function Frame:getAlpha() return self._color[4] or 255 end
+
+-- fade the frame to full alpha
+function Frame:fadeIn(time)
+	time = time or 0.3
+	self:show()
+	self._fadeInID = tween(time, self._color, colors.WHITE, 'inSine',
+		self._postFadeIn, self)
+end
+
+function Frame:_postFadeIn()
+	self._fadeInID = nil
+end
+
+-- fade the frame to zero alpha
+function Frame:fadeOut(time)
+	time = time or 0.3
+	self._fadeOutID = tween(time, self._color, colors.WHITE_A00, 'outQuint',
+		self._postFadeOut, self)
+end
+
+function Frame:_postFadeOut()
+	self:hide()
+	self._fadeOutID = nil
 end
 
 -- depth-first search of children, lowest child that contains the mouse click
@@ -539,7 +577,7 @@ end
 function Frame:draw()
 	if self._ffb and self._show then
 
-		setColor(colors.WHITE)
+		setColor(self._color)
 		draw(self._ffb, self._x, self._y)
 
 		local num = #self._children
