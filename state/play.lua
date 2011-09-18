@@ -161,15 +161,6 @@ function st:InputCommandEvent(e)
 			NEW_LEVEL = function()
 				RunState.switch(State.destroy, 'initialize', 'construct')
 			end,
-			DEBUG_PANEL_TOGGLE = function()
-				if debug then self._debug = not self._debug end
-			end,
-			DEBUG_PANEL_CLEAR = function()
-				if self._debug then self._debugHUD:clearExtremes() end
-			end,
-			COLLECT_GARBAGE = function()
-				if self._debug then collectgarbage('collect') end
-			end,
 			DISPLAY_MAPNAME = function()
 				local name = self._level:getMapName()
 				local author = self._level:getMapAuthor()
@@ -239,6 +230,7 @@ function st:update(dt)
 		end
 
 		if self._view then self._view:update(dt) end
+		if self._debugHUD then self._debugHUD:update(dt) end
 	end
 end
 

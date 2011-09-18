@@ -1,41 +1,29 @@
 local Class = require 'lib.hump.class'
+local Frame = getClass 'wyx.ui.Frame'
+local Text = getClass 'wyx.ui.Text'
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
+local ui = require 'ui.DebugHUD'
+local depths = require 'wyx.system.renderDepths'
+local command = require 'wyx.ui.command'
 
 local math_floor = math.floor
 local math_max = math.max
 local pairs, tostring, collectgarbage = pairs, tostring, collectgarbage
 local getTime = love.timer.getTime
-local newFramebuffer = love.graphics.newFramebuffer
-local setColor = love.graphics.setColor
-local gprint = love.graphics.print
-local draw = love.graphics.draw
-local setRenderTarget = love.graphics.setRenderTarget
-local setFont = love.graphics.setFont
-local rectangle = love.graphics.rectangle
-local nearestPO2 = nearestPO2
-local colors = colors
 
-local MARGIN = 8
-local LABEL = 50
 local CLEAR_DELAY = 4
 
 -- target time between frames for 60Hz and 30Hz
 local TARGET_FRAME_TIME_60 = 1/60
 local TARGET_FRAME_TIME_30 = 1/30
 
-local WARN1 = colors.YELLOW
-local WARN2 = colors.RED
-local GOOD = colors.GREEN
-local NORMAL = colors.GREY90
-local BG = {255*0.1, 255*0.1, 255*0.9, 255*0.7}
-
 -- DebugHUD
 --
 local DebugHUD = Class{name='DebugHUD',
+	inherits=Frame,
 	function(self)
-		self._font = GameFont.console
-		self._fontH = self._font:getHeight()
-		local size = nearestPO2(math_max(WIDTH, HEIGHT))
-		self._fb = newFramebuffer(size, size)
+		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
+		self:setDepth(depths.debug)
 		self._info = {}
 		self._start = getTime() + 0.2
 
@@ -67,41 +55,117 @@ local DebugHUD = Class{name='DebugHUD',
 			collect = function(dt) return TARGET_FRAME_TIME_60 - dt end,
 		})
 
-		local infoSize = 1
-		for k in pairs(self._info) do infoSize = infoSize + 1 end
-		local bgWidth = WIDTH - MARGIN*2
-		local bgHeight = MARGIN*2 + self._fontH * infoSize
-		self._bg = {x=MARGIN, y=MARGIN, w=bgWidth, h=bgHeight}
+		if ui and ui.keys then
+			UISystem:registerKeys(ui.keys)
+			self._uikeys = true
+		end
 
-		local x, y = self:_getPos(1, 1)
-		self._topRow = {{name='current', x=x, y=y}}
-		x, y = self:_getPos(2, 1)
-		self._topRow[#self._topRow+1] = {name='warning', x=x, y=y}
-		x, y = self:_getPos(3, 1)
-		self._topRow[#self._topRow+1] = {name='best', x=x, y=y}
-		x, y = self:_getPos(4, 1)
-		self._topRow[#self._topRow+1] = {name='worst', x=x, y=y}
-
+		self:_makePanel()
 		self:_drawFB()
+
+		InputEvents:register(self, {
+			InputCommandEvent,
+		})
 	end
 }
 
 -- destructor
 function DebugHUD:destroy()
-	self._font = nil
-	self._fontH = nil
-	self._fb = nil
+	InputEvents:unregisterAll(self)
+
+	if self._uikeys then
+		UISystem:unregisterKeys()
+		self._uikeys = nil
+	end
+
 	for k in pairs(self._info) do
 		for j in pairs(self._info[k]) do self._info[k][j] = nil end
 		self._info[k] = nil
+	end
+	Frame.destroy(self)
+end
+
+local function _getInfoLine(info, key, which, frame)
+	info = info[key]
+	local ret = ''
+
+	if not info then warning('Bad info key %q', key) end
+
+	local ret = info[which] and tostring(info[which]) or nil
+	if ret then
+		local style = info[which..'Style'] or info.style
+		if style then
+			frame:setNormalStyle(style)
+		else
+			warning('Bad style for key %q: %q', key, which)
+		end
+	else
+		ret = ''
+	end
+
+	return ret
+end
+
+function DebugHUD:_makePanel()
+	local panel = Frame(ui.panel.x, ui.panel.y, ui.panel.w, ui.panel.h)
+	panel:setNormalStyle(ui.panel.normalStyle)
+
+	self:addChild(panel)
+
+	local inner = Frame(ui.innerpanel.x, ui.innerpanel.y,
+		ui.innerpanel.w, ui.innerpanel.h)
+	panel:addChild(inner)
+
+	-- headers
+	local gridX, gridY = 1, 1
+	local num = #ui.headers
+	
+	for i=1,num do
+		local x, y = self:_getPos(gridX, gridY)
+		local f = Text(x, y, ui.text.w, ui.text.h)
+		f:setNormalStyle(ui.text.headerStyle)
+		f:setText(ui.headers[i])
+		inner:addChild(f)
+		gridX = gridX + 1
+	end
+
+	-- info rows
+	for key,info in pairs(self._info) do
+		local f = Text(ui.sideheader.x, ui.sideheader.y + info.y,
+			ui.sideheader.w, ui.sideheader.h)
+		f:setNormalStyle(ui.text.headerStyle)
+		f:setText(key)
+		f:setJustifyRight()
+		panel:addChild(f)
+		
+		f = Text(info.x, info.y, ui.text.w, ui.text.h)
+		f:setNormalStyle(ui.text.normalStyle)
+		f:watch(_getInfoLine, self._info, key, 'cur', f)
+		inner:addChild(f)
+
+		f = Text(info.warnX, info.warnY, ui.text.w, ui.text.h)
+		f:setNormalStyle(ui.text.normalStyle)
+		f:watch(_getInfoLine, self._info, key, 'warn', f)
+		inner:addChild(f)
+
+		f = Text(info.bestX, info.bestY, ui.text.w, ui.text.h)
+		f:setNormalStyle(ui.text.normalStyle)
+		f:watch(_getInfoLine, self._info, key, 'best', f)
+		inner:addChild(f)
+
+		f = Text(info.worstX, info.worstY, ui.text.w, ui.text.h)
+		f:setNormalStyle(ui.text.normalStyle)
+		f:watch(_getInfoLine, self._info, key, 'worst', f)
+		inner:addChild(f)
 	end
 end
 
 -- get the screen position from a grid position
 function DebugHUD:_getPos(gridX, gridY)
-	local quarter = math_floor((WIDTH-(MARGIN*4 + LABEL))/4)
-	local x = MARGIN*2 + LABEL + (gridX-1) * quarter
-	local y = MARGIN*2 + (gridY-1) * self._fontH
+	local x = (gridX - 1) * ui.text.w
+	x = gridX > 1 and x + ui.innerpanel.hmargin or x
+	local y = (gridY - 1) * ui.text.h
+	y = gridY > 1 and y + ui.innerpanel.vmargin or y
 	return x, y
 end
 
@@ -136,15 +200,15 @@ local function _compare(gt, a, b, reverse)
 	return a < b
 end
 
-local function _getCompareColor(info, val)
+local function _getCompareStyle(info, val)
 	if _compare(false, val, info.good, info.reverse) then
-		return GOOD
+		return ui.text.goodStyle
 	elseif _compare(true, val, info.warn2, info.reverse) then
-		return WARN2
+		return ui.text.warn2Style
 	elseif _compare(true, val, info.warn1, info.reverse) then
-		return WARN1
+		return ui.text.warn1Style
 	end
-	return NORMAL
+	return ui.text.normalStyle
 end
 
 local _accum = {}
@@ -158,21 +222,21 @@ function DebugHUD:_updateInfo(key, dt)
 	local data = info.collect(dt)
 
 	if info.warnTime and info.warnTime < time then
-		info.warning = nil
+		info.warn = nil
 	end
 
 	if not info.best
 		or _compare(false, data, info.best, info.reverse)
 	then
 		info.best = data
-		info.bestColor = _getCompareColor(info, info.best)
+		info.bestStyle = _getCompareStyle(info, info.best)
 	end
 
 	if not info.worst
 		or _compare(true, data, info.worst, info.reverse)
 	then
 		info.worst = data
-		info.worstColor = _getCompareColor(info, info.worst)
+		info.worstStyle = _getCompareStyle(info, info.worst)
 	end
 
 	if _accum[key] > info.tick then
@@ -180,81 +244,42 @@ function DebugHUD:_updateInfo(key, dt)
 		local warn = false
 
 		info.cur = data
-		info.color = _getCompareColor(info, info.cur)
+		info.style = _getCompareStyle(info, info.cur)
 
 		if _compare(true, data, info.warn2, info.reverse) then
 			warn = true
-			info.warnColor = WARN2
+			info.warnStyle = ui.text.warn2Style
 		elseif _compare(true, data, info.warn1, info.reverse) then
 			warn = true
-			info.warnColor = WARN1
+			info.warnStyle = ui.text.warn1Style
 		end
 
 		if warn then
-			info.warning = data
+			info.warn = data
 			info.warnTime = time + CLEAR_DELAY
 		end
 	end
-
 end
 
 local _lastTime = getTime()
 function DebugHUD:update(dt)
 	local realDT = getTime() - _lastTime
 	for k in pairs(self._info) do self:_updateInfo(k, realDT) end
-	self:_drawFB()
 	_lastTime = getTime()
 end
 
-function DebugHUD:_drawFB()
-	setRenderTarget(self._fb)
+function DebugHUD:InputCommandEvent(e)
+	local cmd = e:getCommand()
+	if PAUSED and command.pause(cmd) then return end
 
-	setFont(self._font)
-
-	setColor(BG)
-	rectangle('fill',
-		self._bg.x, self._bg.y, self._bg.w, self._bg.h)
-
-	setColor(NORMAL)
-	for i=1,#self._topRow do
-		gprint(self._topRow[i].name,
-			self._topRow[i].x, self._topRow[i].y)
-	end
-
-	for k in pairs(self._info) do
-		local info = self._info[k]
-
-		if info.cur then
-			setColor(NORMAL)
-			gprint(k..': ', MARGIN*2, info.y)
-			setColor(info.color)
-			gprint(tostring(info.cur), info.x, info.y)
-		end
-
-		if info.warning then
-			setColor(info.warnColor)
-			gprint(tostring(info.warning), info.warnX, info.warnY)
-		end
-
-		if info.best then
-			setColor(info.bestColor)
-			gprint(tostring(info.best), info.bestX, info.bestY)
-		end
-
-		if info.worst then
-			setColor(info.worstColor)
-			gprint(tostring(info.worst), info.worstX, info.worstY)
-		end
-	end
-
-	setRenderTarget()
+	switch(cmd) {
+		DEBUG_PANEL_TOGGLE = function()
+			if self:isVisible() then self:hide() else self:show() end
+		end,
+		DEBUG_PANEL_RESET = function() self:clearExtremes() end,
+		COLLECT_GARBAGE = function() collectgarbage('collect') end,
+	}
 end
-
-function DebugHUD:draw()
-	setColor(colors.WHITE)
-	draw(self._fb)
-end
-
 
 -- the class
 return DebugHUD

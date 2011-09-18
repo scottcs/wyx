@@ -51,10 +51,6 @@ ui.keys = {
 	f5 = command('CAMERA_UNFOLLOW'),
 	backspace = command('DISPLAY_MAPNAME'),
 
-	f3 = command('DEBUG_PANEL_TOGGLE'),
-	f7 = command('DEBUG_PANEL_RESET'),
-	f9 = command('COLLECT_GARBAGE'),
-
 	['`'] = command('CONSOLE_TOGGLE'),
 	f10 = command('CONSOLE_CLEAR'),
 	home = command('CONSOLE_TOP'),

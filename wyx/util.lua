@@ -167,6 +167,7 @@ colors.DARKGREEN = {0, p30, 0, p100}
 colors.BLUE = {p30, p30, p100, p100}
 colors.LIGHTBLUE = {p70, p70, p100, p100}
 colors.DARKBLUE = {0, 0, p30, p100}
+colors.BLUE_A70 = {p10, p10, p100, p70}
 
 colors.PURPLE = {p100, p40, p100, p100}
 colors.LIGHTPURPLE = {p100, p80, p100, p100}
