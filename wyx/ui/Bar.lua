@@ -110,7 +110,8 @@ end
 -- override Frame:_drawForeground()
 function Bar:_drawForeground()
 	if self._min and self._max and self._val then
-		if self._curStyle then
+		local style = self:getCurrentStyle()
+		if style then
 			local x = self._margins[1]
 			local y = self._margins[2]
 			local w = self:getWidth() - (x + self._margins[3])
@@ -118,7 +119,7 @@ function Bar:_drawForeground()
 			local percent = (self._val - self._min) / (self._max - self._min)
 			w = w * percent
 
-			local color = self._curStyle:getFGColor()
+			local color = style:getFGColor()
 			setColor(color)
 			rectangle('fill', x, y, w, h)
 		end

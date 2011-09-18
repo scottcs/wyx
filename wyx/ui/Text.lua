@@ -67,7 +67,10 @@ end
 -- assuming width is constant, wrap lines if they're larger than the width
 -- of this frame.
 function Text:_wrap(text)
-	local font = self._curStyle:getFont()
+	local style = self:getCurrentStyle()
+	if not style then return end
+	local font = style:getFont()
+
 	if font then
 		local space = font:getWidth(' ')
 		local margin = self._margin or 0
@@ -240,9 +243,10 @@ end
 
 -- override Frame:_drawForeground()
 function Text:_drawForeground()
+	local style = self:getCurrentStyle()
 	if self._text and #self._text > 0 then
-		if self._curStyle then
-			local font = self._curStyle:getFont()
+		if style then
+			local font = style:getFont()
 			if font then
 				local height = font:getHeight()
 				local margin = self._margin or 0
@@ -252,7 +256,7 @@ function Text:_drawForeground()
 				local numLines = textLines > maxLines and maxLines or textLines
 				local totalHeight = height * numLines
 				local halfHeight = totalHeight/2
-				local fontcolor = self._curStyle:getFontColor()
+				local fontcolor = style:getFontColor()
 
 				setFont(font)
 				setColor(fontcolor)
@@ -302,21 +306,21 @@ function Text:_drawForeground()
 					rectangle('fill', x, y, 4, height)
 				end -- if self._showCursor
 			end -- if font
-		end -- if self._curStyle
+		end -- if style
 	else
 		-- print cursor when no text
 		if self._showCursor then
-			if self._curStyle then
-				local font = self._curStyle:getFont()
+			if style then
+				local font = style:getFont()
 				if font then
-					local fontcolor = self._curStyle:getFontColor()
+					local fontcolor = style:getFontColor()
 					local height = font:getHeight()
 					local margin = self._margin or 0
 
 					setColor(fontcolor)
 					rectangle('fill', margin, margin, 4, height)
 				end -- if font
-			end -- if self._curStyle
+			end -- if style
 		end -- if self._showCursor
 	end -- if self._text
 end

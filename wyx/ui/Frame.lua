@@ -351,7 +351,7 @@ function Frame:onKey(key, unicode, unicodeValue, mods) end
 function Frame:_setStyle(which, style)
 	verifyClass('wyx.ui.Style', style)
 	self[which] = style
-	self._curStyle = self._curStyle or style
+	self._curStyle = self._curStyle or which
 	self._needsUpdate = true
 end
 
@@ -387,12 +387,12 @@ end
 
 -- switch between the styles
 function Frame:switchToNormalStyle()
-	self._curStyle = self._normalStyle
+	self._curStyle = '_normalStyle'
 end
 
 function Frame:switchToHoverStyle()
 	if self._hoverStyle then
-		self._curStyle = self._hoverStyle
+		self._curStyle = '_hoverStyle'
 	else
 		self:switchToNormalStyle()
 	end
@@ -400,11 +400,13 @@ end
 
 function Frame:switchToActiveStyle()
 	if self._activeStyle then
-		self._curStyle = self._activeStyle
+		self._curStyle = '_activeStyle'
 	else
 		self:switchToHoverStyle()
 	end
 end
+
+function Frame:getCurrentStyle() return self[self._curStyle] end
 
 -- attach a tooltip to this frame that will be drawn on mouseover
 function Frame:attachTooltip(tooltip)
@@ -457,32 +459,35 @@ end
 
 -- draw the background
 function Frame:_drawBackground()
-	if self._curStyle then
-		local bgcolor = self._curStyle:getBGColor()
-		local bgimage = self._curStyle:getBGImage()
-		local bgquad = self._curStyle:getBGQuad()
+	local style = self:getCurrentStyle()
+	if style then
+		local bgcolor = style:getBGColor()
+		local bgimage = style:getBGImage()
+		local bgquad = style:getBGQuad()
 		self:_drawLayer(bgcolor, bgimage, bgquad)
 	end
 end
 
 -- draw the foreground
 function Frame:_drawForeground()
-	if self._curStyle then
-		local fgcolor = self._curStyle:getFGColor()
-		local fgimage = self._curStyle:getFGImage()
-		local fgquad = self._curStyle:getFGQuad()
+	local style = self:getCurrentStyle()
+	if style then
+		local fgcolor = style:getFGColor()
+		local fgimage = style:getFGImage()
+		local fgquad = style:getFGQuad()
 		self:_drawLayer(fgcolor, fgimage, fgquad)
 	end
 end
 
 -- draw the border
 function Frame:_drawBorder()
-	if self._curStyle then
-		local bordersize = self._curStyle:getBorderSize()
-		local borderinset = self._curStyle:getBorderInset()
-		local bordercolor = self._curStyle:getBorderColor()
-		local borderimage = self._curStyle:getBorderImage()
-		local borderquad = self._curStyle:getBorderQuad()
+	local style = self:getCurrentStyle()
+	if style then
+		local bordersize = style:getBorderSize()
+		local borderinset = style:getBorderInset()
+		local bordercolor = style:getBorderColor()
+		local borderimage = style:getBorderImage()
+		local borderquad = style:getBorderQuad()
 		self:_drawLayer(
 			bordercolor,
 			borderimage,
