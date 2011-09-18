@@ -1,5 +1,6 @@
 local Class = require 'lib.hump.class'
 local Rect = getClass 'wyx.kit.Rect'
+local depths = require 'wyx.system.renderDepths'
 
 local math_max = math.max
 local math_floor = math.floor
@@ -22,7 +23,7 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 		self._accum = 0
-		self._depth = 30
+		self._depth = depths.uidefault
 		self._show = true
 
 		self._needsUpdate = true

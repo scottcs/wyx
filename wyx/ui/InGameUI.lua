@@ -6,6 +6,7 @@ local StickyButton = getClass 'wyx.ui.StickyButton'
 local Bar = getClass 'wyx.ui.Bar'
 local Slot = getClass 'wyx.ui.Slot'
 local TooltipFactory = getClass 'wyx.ui.TooltipFactory'
+local depths = require 'wyx.system.renderDepths'
 
 local property = require 'wyx.component.property'
 local command = require 'wyx.ui.command'
@@ -39,7 +40,7 @@ local InGameUI = Class{name='InGameUI',
 		self._floorSlots = {}
 		self._inventorySlots = {}
 		self._equipSlots = {}
-		self._tooltipFactory = TooltipFactory()
+		self._tooltipFactory = TooltipFactory(depths.uigame)
 		self._turns = 1
 
 		UISystem:setNonFrameHoverCallback(self, self._hoverTooltip)
@@ -186,7 +187,7 @@ end
 -- make the invisible slot for containing StickyButtons picked up by the mouse
 function InGameUI:_makeMouseSlot()
 	self._mouseSlot = Slot(0, 0, ui.weaponslot.w, ui.weaponslot.h)
-	self._mouseSlot:setDepth(7)
+	self._mouseSlot:setDepth(depths.uigame - 1)
 	self._mouseSlot:hideTooltips()
 end
 
@@ -687,7 +688,8 @@ function InGameUI:_hoverTooltip(entityID)
 		local f = self._hoverTooltips[entityID]
 		if not f then
 			local entity = EntityRegistry:get(entityID)
-			tooltip = self._tooltipFactory:makeEntityTooltip(entity)
+			tooltip = self._tooltipFactory:makeEntityTooltip(entity,
+				depths.uitooltip)
 
 			if tooltip then
 				f = Frame(0, 0, 64, 64)

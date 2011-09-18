@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Bar = getClass 'wyx.ui.Bar'
+local depths = require 'wyx.system.renderDepths'
 
 --[[
 all tooltips have this basic structure:
@@ -26,7 +27,7 @@ local Tooltip = Class{name='Tooltip',
 		Frame.construct(self, ...)
 		self._margin = 0
 
-		self:setDepth(15)
+		self:setDepth(depths.uitooltip)
 		self:hide()
 	end
 }

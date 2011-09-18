@@ -6,6 +6,7 @@ local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local MouseIntersectResponse = getClass 'wyx.event.MouseIntersectResponse'
 local MouseIntersectRequest = getClass 'wyx.event.MouseIntersectRequest'
+local depths = require 'wyx.system.renderDepths'
 
 local getMousePos = love.mouse.getPosition
 local select, unpack, type = select, unpack, type
@@ -20,7 +21,7 @@ local UISystem = Class{name='UISystem',
 	inherits=RenderSystem,
 	function(self)
 		RenderSystem.construct(self)
-		self._defaultDepth = 30
+		self._defaultDepth = depths.uidefault
 		self._accum = 0
 		InputEvents:register(self, {
 			MousePressedEvent,

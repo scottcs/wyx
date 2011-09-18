@@ -5,6 +5,7 @@ local Bar = getClass 'wyx.ui.Bar'
 local Frame = getClass 'wyx.ui.Frame'
 local Style = getClass 'wyx.ui.Style'
 local property = require 'wyx.component.property'
+local depths = require 'wyx.system.renderDepths'
 
 local format = string.format
 local math_ceil = math.ceil
@@ -63,16 +64,18 @@ local healthBarStyle = Style({
 -- TooltipFactory
 --
 local TooltipFactory = Class{name='TooltipFactory',
-	function(self)
+	function(self, defaultDepth)
+		self._defaultDepth = defaultDepth or depths.uitooltip
 	end
 }
 
 -- destructor
 function TooltipFactory:destroy()
+	self._defaultDepth = nil
 end
 
 -- make a tooltip for an entity
-function TooltipFactory:makeEntityTooltip(id)
+function TooltipFactory:makeEntityTooltip(id, depth)
 	local entity
 	if type(id) == 'string' then
 		EntityRegistry:get(id)
@@ -91,6 +94,7 @@ function TooltipFactory:makeEntityTooltip(id)
 
 	-- make the tooltip
 	local tooltip = Tooltip()
+	tooltip:setDepth(depth or self._defaultDepth)
 	tooltip:setNormalStyle(tooltipStyle)
 	tooltip:setMargin(MARGIN)
 
@@ -251,12 +255,13 @@ function TooltipFactory:makeEntityTooltip(id)
 end
 
 -- make a simple generic tooltip with text
-function TooltipFactory:makeVerySimpleTooltip(text)
+function TooltipFactory:makeVerySimpleTooltip(text, depth)
 	verifyAny(text, 'string', 'function')
 
 	local body = self:_makeText(text)
 
 	local tooltip = Tooltip()
+	tooltip:setDepth(depth or self._defaultDepth)
 	tooltip:setNormalStyle(tooltipStyle)
 	tooltip:setMargin(MARGIN)
 	if body then tooltip:addText(body) end
@@ -265,7 +270,7 @@ function TooltipFactory:makeVerySimpleTooltip(text)
 end
 
 -- make a simple generic tooltip with a header and text
-function TooltipFactory:makeSimpleTooltip(header, text)
+function TooltipFactory:makeSimpleTooltip(header, text, depth)
 	verify('string', header)
 	verifyAny(text, 'string', 'function')
 
@@ -275,6 +280,7 @@ function TooltipFactory:makeSimpleTooltip(header, text)
 	local body = self:_makeText(text, width)
 
 	local tooltip = Tooltip()
+	tooltip:setDepth(depth or self._defaultDepth)
 	tooltip:setNormalStyle(tooltipStyle)
 	tooltip:setMargin(MARGIN)
 	if header1 then tooltip:setHeader1(header1) end
