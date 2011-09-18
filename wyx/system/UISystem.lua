@@ -200,15 +200,15 @@ function UISystem:registerKeys(keytable)
 	verify('table', keytable)
 	self._keybindings = self._keybindings or {}
 	local num = #self._keybindings
+	local newBindings = {}
 
 	if num > 0 then
-		local newBindings = {}
 		for k,v in pairs(self._keybindings[num]) do newBindings[k] = v end
-		for k,v in pairs(keytable) do newBindings[k] = v end
-		keytable = newBindings
 	end
 
-	self._keybindings[num+1] = keytable
+	for k,v in pairs(keytable) do newBindings[k] = v end
+
+	self._keybindings[num+1] = newBindings
 end
 
 -- unregister last registered keybindings
