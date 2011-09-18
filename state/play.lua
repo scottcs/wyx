@@ -10,7 +10,8 @@ local mt = {__tostring = function() return 'RunState.play' end}
 setmetatable(st, mt)
 
 local DebugHUD = debug and getClass 'wyx.ui.DebugHUD'
-local MessageHUD = getClass 'wyx.ui.MessageHUD'
+local Text = getClass 'wyx.ui.Text'
+local Style = getClass 'wyx.ui.Style'
 local command = require 'wyx.ui.command'
 
 -- events
@@ -22,6 +23,30 @@ local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
 local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local GameEvents = GameEvents
 local InputEvents = InputEvents
+
+local colors = colors
+local floor = math.floor
+
+-- set up popup message style
+local popup
+do
+	local font = GameFont.big
+	local fontH = font:getHeight()
+	local w = floor(WIDTH * 0.9)
+	local h = floor(fontH * 1.8)
+
+	popup = {
+		x = floor(WIDTH/2 - w/2),
+		y = HEIGHT - (h + 100),
+		w = w,
+		h = h,
+		normalStyle = Style({
+			bgcolor = colors.BLACK_A70,
+			font = GameFont.big,
+			fontcolor = colors.WHITE,
+		})
+	}
+end
 
 function st:init()
 	if debug then
@@ -53,13 +78,18 @@ end
 
 function st:leave()
 	self:_doPause(false, true)
-	self:_killMessageHUD()
+	self:_killPopupMessage()
 	GameEvents:unregisterAll(self)
 	InputEvents:unregisterAll(self)
 end
 
 function st:destroy()
-	self:_killMessageHUD()
+	self:_killPopupMessage()
+	if self._popupMessage then
+		self._popupMessage:destroy()
+		self._popupMessage = nil
+	end
+
 	PAUSED = nil
 	self._level = nil
 	self._world = nil
@@ -182,25 +212,34 @@ function st:ConsoleEvent(e)
 	end
 end
 
-function st:_killMessageHUD()
-	if self._messageHUD then
+function st:_killPopupMessage()
+	if self._popupMessage then
 		if self._messageID then cron.cancel(self._messageID) end
 		self._messageID = nil
-		self._messageHUD:destroy()
-		self._messageHUD = nil
+		self._popupMessage:hide()
 	end
 end
 
 function st:_displayMessage(message, time)
 	GameEvents:push(ConsoleEvent(message))
 
-	self:_killMessageHUD()
+	self:_killPopupMessage()
 
 	time = time or 2
-	self._messageHUD = MessageHUD(message, time)
+	if not self._popupMessage then
+		self._popupMessage = Text(popup.x, popup.y, popup.w, popup.h)
+		self._popupMessage:setNormalStyle(popup.normalStyle)
+		self._popupMessage:setJustifyCenter()
+		self._popupMessage:setAlignCenter()
+		self._popupMessage:setAlpha(0)
+		self._popupMessage:hide()
+	end
+
+	self._popupMessage:setText(message)
+	self._popupMessage:fadeIn()
+
 	self._messageID = cron.after(time+1, function(self)
-		self._messageHUD:destroy()
-		self._messageHUD = nil
+		self._popupMessage:fadeOut()
 	end, self)
 end
 
