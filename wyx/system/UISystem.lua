@@ -37,7 +37,12 @@ function UISystem:destroy()
 	InputEvents:unregisterAll(self)
 
 	self._accum = nil
-	for k in pairs(self._keybindings) do self._keybindings[k] = nil end
+	for k in pairs(self._keybindings) do
+		for j in pairs(self._keybindings[k]) do
+			self._keybindings[k][j] = nil
+		end
+		self._keybindings[k] = nil
+	end
 	self._keybindings = nil
 
 	self:_clearMouseHoverCB()
@@ -190,16 +195,30 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 end
 
 -- register keybindings
+-- if there are current keybindings, copy them and then set new ones
 function UISystem:registerKeys(keytable)
 	verify('table', keytable)
 	self._keybindings = self._keybindings or {}
-	self._keybindings[#self._keybindings+1] = keytable
+	local num = #self._keybindings
+
+	if num > 0 then
+		local newBindings = {}
+		for k,v in pairs(self._keybindings[num]) do newBindings[k] = v end
+		for k,v in pairs(keytable) do newBindings[k] = v end
+		keytable = newBindings
+	end
+
+	self._keybindings[num+1] = keytable
 end
 
 -- unregister last registered keybindings
 function UISystem:unregisterKeys()
 	if self._keybindings then
-		self._keybindings[#self._keybindings] = nil
+		local num = #self._keybindings
+		for k in pairs(self._keybindings[num]) do
+			self._keybindings[num][k] = nil
+		end
+		self._keybindings[num] = nil
 	end
 end
 
