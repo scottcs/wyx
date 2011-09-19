@@ -131,74 +131,51 @@ function st:InputCommandEvent(e)
 	if PAUSED and command.pause(cmd) then return end
 	--local args = e:getCommandArgs()
 
-	local continue = false
-
-	-- commands that work regardless of console visibility
 	switch(cmd) {
-		CONSOLE_TOGGLE = function() Console:toggle() end,
 		DUMP_ENTITIES = function() EntityRegistry:dumpEntities() end,
 		PAUSE = function() self:_doPause(true) end,
-		default = function() continue = true end,
+		-- camera
+		CAMERA_ZOOMOUT = function()
+			if not self._cam:isAnimating() then
+				self._view:setAnimate(false)
+				self._view:setViewport(self._cam:getViewport(1))
+				self._cam:zoomOut(self._view.setAnimate, self._view, true)
+				local zoom = self._cam:getZoom()
+				self:_doPause(false, zoom ~= 1)
+			end
+		end,
+		CAMERA_ZOOMIN = function()
+			if not self._cam:isAnimating() then
+				local vp = self._cam:getViewport(-1)
+				self._cam:zoomIn(self._postZoomIn, self, vp)
+				local zoom = self._cam:getZoom()
+				self:_doPause(false, zoom ~= 1)
+			end
+		end,
+		CAMERA_UNFOLLOW = function()
+			self._cam:unfollowTarget()
+			self._view:setViewport(self._cam:getViewport())
+		end,
+		CAMERA_FOLLOW = function()
+			self._cam:followTarget(self._level:getPrimeEntity())
+			self._view:setViewport(self._cam:getViewport())
+		end,
+
+		-- menu
+		MENU_PLAY = function()
+			RunState.switch(State.playmenu, self._world, self._view)
+		end,
+
+		-- debug
+		NEW_LEVEL = function()
+			RunState.switch(State.destroy, 'initialize', 'construct')
+		end,
+		DISPLAY_MAPNAME = function()
+			local name = self._level:getMapName()
+			local author = self._level:getMapAuthor()
+			self:_displayMessage('Map: "'..name..'" by '..author)
+		end,
 	}
-
-	if not continue then return end
-
-	-- commands that only work when console is visible
-	if Console:isVisible() then
-		switch(cmd) {
-			CONSOLE_HIDE = function() Console:hide() end,
-			CONSOLE_PAGEUP = function() Console:pageup() end,
-			CONSOLE_PAGEDOWN = function() Console:pagedown() end,
-			CONSOLE_TOP = function() Console:top() end,
-			CONSOLE_BOTTOM = function() Console:bottom() end,
-			CONSOLE_CLEAR = function() Console:clear() end,
-		}
-	else
-		switch(cmd) {
-			-- camera
-			CAMERA_ZOOMOUT = function()
-				if not self._cam:isAnimating() then
-					self._view:setAnimate(false)
-					self._view:setViewport(self._cam:getViewport(1))
-					self._cam:zoomOut(self._view.setAnimate, self._view, true)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			CAMERA_ZOOMIN = function()
-				if not self._cam:isAnimating() then
-					local vp = self._cam:getViewport(-1)
-					self._cam:zoomIn(self._postZoomIn, self, vp)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			CAMERA_UNFOLLOW = function()
-				self._cam:unfollowTarget()
-				self._view:setViewport(self._cam:getViewport())
-			end,
-			CAMERA_FOLLOW = function()
-				self._cam:followTarget(self._level:getPrimeEntity())
-				self._view:setViewport(self._cam:getViewport())
-			end,
-
-			-- menu
-			MENU_PLAY = function()
-				RunState.switch(State.playmenu, self._world, self._view)
-			end,
-
-			-- debug
-			NEW_LEVEL = function()
-				RunState.switch(State.destroy, 'initialize', 'construct')
-			end,
-			DISPLAY_MAPNAME = function()
-				local name = self._level:getMapName()
-				local author = self._level:getMapAuthor()
-				self:_displayMessage('Map: "'..name..'" by '..author)
-			end,
-			CONSOLE_SHOW = function() Console:show() end,
-		}
-	end
 end
 
 function st:ConsoleEvent(e)
