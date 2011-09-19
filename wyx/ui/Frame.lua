@@ -584,16 +584,17 @@ function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 end
 
 -- draw the framebuffer and all child framebuffers
-function Frame:draw()
+function Frame:draw(color)
 	if self._ffb and self._show then
+		color = color or self._color
 
-		setColor(self._color)
+		setColor(color)
 		draw(self._ffb, self._x, self._y)
 
 		local num = #self._children
 		for i=1,num do
 			local child = self._children[i]
-			child:draw()
+			child:draw(self._color)
 		end
 
 		if self._tooltip then
