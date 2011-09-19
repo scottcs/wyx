@@ -254,8 +254,8 @@ end
 function love.quit()
 	tween.stopAll()
 
-	UISystem:destroy()
 	Console:destroy()
+	UISystem:destroy()
 
 	GameEvents:destroy()
 	InputEvents:destroy()
