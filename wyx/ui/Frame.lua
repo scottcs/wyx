@@ -41,6 +41,7 @@ function Frame:destroy()
 
 	self._fadeInID = nil
 	self._fadeOutID = nil
+	self._fadeInColor = nil
 	self._color = nil
 
 	self:_unregisterWithUISystem()
@@ -97,6 +98,12 @@ function Frame:clear()
 	end
 end
 
+-- set the frame color
+function Frame:setColor(r, g, b, a)
+	self._color = type(r) == 'table' and colors.clone(r) or {r, g, b, a}
+end
+function Frame:getColor() return self._color end
+
 -- set the frame alpha
 function Frame:setAlpha(alpha)
 	self._color[4] = alpha or 255
@@ -107,17 +114,20 @@ function Frame:getAlpha() return self._color[4] or 255 end
 function Frame:fadeIn(time)
 	time = time or 0.3
 	self:show()
-	self._fadeInID = tween(time, self._color, colors.WHITE, 'inSine',
+	local fadeInColor = self._fadeInColor or colors.WHITE
+	self._fadeInID = tween(time, self._color, fadeInColor, 'inSine',
 		self._postFadeIn, self)
 end
 
 function Frame:_postFadeIn()
 	self._fadeInID = nil
+	self._fadeInColor = nil
 end
 
 -- fade the frame to zero alpha
 function Frame:fadeOut(time)
 	time = time or 0.3
+	self._fadeInColor = colors.clone(self._color)
 	self._fadeOutID = tween(time, self._color, colors.WHITE_A00, 'outQuint',
 		self._postFadeOut, self)
 end
@@ -602,6 +612,9 @@ function Frame:hide()
 	if self._tooltip then self._tooltip:hide() end
 end
 function Frame:isVisible() return self._show == true end
+function Frame:toggle()
+	if self:isVisible() then self:hide() else self:show() end
+end
 
 
 -- the class
