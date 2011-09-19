@@ -21,7 +21,7 @@ local MenuUI = Class{name='MenuUI',
 		self:setDepth(depths.menu)
 
 		if ui and ui.keys then
-			UISystem:registerKeys(ui.keys)
+			UISystem:registerKeys(ui.keysID, ui.keys)
 			self._uikeys = true
 		end
 		self._ui = ui
@@ -35,7 +35,7 @@ local MenuUI = Class{name='MenuUI',
 -- destructor
 function MenuUI:destroy()
 	if self._uikeys then
-		UISystem:unregisterKeys()
+		UISystem:unregisterKeys(self._ui.keysID)
 		self._uikeys = nil
 	end
 	self._ui = nil

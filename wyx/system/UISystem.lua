@@ -21,8 +21,10 @@ local UISystem = Class{name='UISystem',
 	inherits=RenderSystem,
 	function(self)
 		RenderSystem.construct(self)
+
 		self._defaultDepth = depths.uidefault
 		self._accum = 0
+
 		InputEvents:register(self, {
 			MousePressedEvent,
 			MouseReleasedEvent,
@@ -37,13 +39,11 @@ function UISystem:destroy()
 	InputEvents:unregisterAll(self)
 
 	self._accum = nil
-	for k in pairs(self._keybindings) do
-		for j in pairs(self._keybindings[k]) do
-			self._keybindings[k][j] = nil
-		end
-		self._keybindings[k] = nil
+
+	if self._keybindings then
+		for k in pairs(self._keybindings) do self._keybindings[k] = nil end
+		self._keybindings = nil
 	end
-	self._keybindings = nil
 
 	self:_clearMouseHoverCB()
 	self:_clearMousePressCB()
@@ -161,64 +161,71 @@ end
 
 -- send an InputCommand if a key has been registered
 function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
-	if not self._keybindings then return end
-	local keybindings = self._keybindings[#self._keybindings]
+	if self._keybindings then
+		local found
+		unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
+		local num = #self._keybindings
 
-	local cmds
-	unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
+		for i=num,1,-1 do
+			if found then break end
 
-	if mods then
-		for mod in pairs(mods) do
-			mod = mod..'-'
-			cmds = unicode and keybindings[mod..unicode] or nil
-			if cmds then break end
+			local keybindings = self._keybindings[i][2]
+			local cmd
 
-			cmds = key and keybindings[mod..key] or nil
-			if cmds then break end
-		end
-	end
+			if mods then
+				for mod in pairs(mods) do
+					mod = mod..'-'
+					cmd = unicode and keybindings[mod..unicode] or nil
+					if cmd then break end
 
-	if not cmds then cmds = keybindings[unicodeValue] end
-	if not cmds then cmds = unicode and keybindings[unicode] or nil end
-	if not cmds then cmds = key and keybindings[key] or nil end
-
-	if cmds then
-		if type(cmds) == 'table' then
-			local num = #cmds
-			for i=1,num do
-				InputEvents:notify(InputCommandEvent(cmds[i]))
+					cmd = key and keybindings[mod..key] or nil
+					if cmd then break end
+				end
 			end
-		else
-			InputEvents:notify(InputCommandEvent(cmds))
-		end
-	end
+
+			if not cmd then cmd = keybindings[unicodeValue] end
+			if not cmd then cmd = unicode and keybindings[unicode] or nil end
+			if not cmd then cmd = key and keybindings[key] or nil end
+
+			if cmd then
+				found = true
+				InputEvents:notify(InputCommandEvent(cmd))
+			end
+		end -- for i=num,1,-1 do
+	end -- if self._keybindings
 end
 
 -- register keybindings
 -- if there are current keybindings, copy them and then set new ones
-function UISystem:registerKeys(keytable)
+function UISystem:registerKeys(id, keytable)
+	verify('string', id)
 	verify('table', keytable)
+	
 	self._keybindings = self._keybindings or {}
 	local num = #self._keybindings
-	local newBindings = {}
 
-	if num > 0 then
-		for k,v in pairs(self._keybindings[num]) do newBindings[k] = v end
-	end
-
-	for k,v in pairs(keytable) do newBindings[k] = v end
-
-	self._keybindings[num+1] = newBindings
+	self._keybindings[num+1] = {id, keytable}
 end
 
 -- unregister last registered keybindings
-function UISystem:unregisterKeys()
+function UISystem:unregisterKeys(id)
+	verify('string', id)
+
 	if self._keybindings then
 		local num = #self._keybindings
-		for k in pairs(self._keybindings[num]) do
-			self._keybindings[num][k] = nil
+		local newBindings = {}
+		local count = 0
+
+		for i=1,num do
+			local t = self._keybindings[i]
+			if t[1] ~= id then
+				count = count + 1
+				newBindings[count] = t
+			end
+			self._keybindings[i] = nil
 		end
-		self._keybindings[num] = nil
+
+		self._keybindings = newBindings
 	end
 end
 

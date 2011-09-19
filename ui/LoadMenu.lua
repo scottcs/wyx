@@ -9,19 +9,13 @@ local floor = math.floor
 local panelWidth = WIDTH
 local panelHeight = HEIGHT
 
+ui.keysID = 'LoadMenu'
 ui.keys = {
 	up = command('CURSOR_UP'),
 	down = command('CURSOR_DOWN'),
 	left = command('CURSOR_LEFT'),
 	right = command('CURSOR_RIGHT'),
-	escape = {command('EXIT_MENU'), command('CONSOLE_HIDE')},
-
-	['`'] = command('CONSOLE_TOGGLE'),
-	f10 = command('CONSOLE_CLEAR'),
-	home = command('CONSOLE_TOP'),
-	['end'] = command('CONSOLE_BOTTOM'),
-	pageup = command('CONSOLE_PAGEUP'),
-	pagedown = command('CONSOLE_PAGEDOWN'),
+	escape = command('EXIT_MENU'),
 }
 
 ui.panel = {

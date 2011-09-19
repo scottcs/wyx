@@ -19,7 +19,7 @@ local TARGET_FRAME_TIME_30 = 1/30
 
 -- DebugHUD
 --
-local DebugHUD = Class{name='DebugHUD',
+local DebugHUD = Class{name=ui.keysID,
 	inherits=Frame,
 	function(self)
 		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
@@ -56,7 +56,7 @@ local DebugHUD = Class{name='DebugHUD',
 		})
 
 		if ui and ui.keys then
-			UISystem:registerKeys(ui.keys)
+			UISystem:registerKeys(ui.keysID, ui.keys)
 			self._uikeys = true
 		end
 
@@ -74,7 +74,7 @@ function DebugHUD:destroy()
 	InputEvents:unregisterAll(self)
 
 	if self._uikeys then
-		UISystem:unregisterKeys()
+		UISystem:unregisterKeys(ui.keysID)
 		self._uikeys = nil
 	end
 

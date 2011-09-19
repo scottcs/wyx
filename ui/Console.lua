@@ -14,17 +14,15 @@ local panelWidth = WIDTH
 local panelHeight = HEIGHT - (entryH + margin)
 local lines = floor(panelHeight / fontH) - 2
 local startY = floor(panelHeight - (margin + fontH*2))
+local bufferSize = 1000
 
+ui.keysID = 'Console'
 ui.keys = {
 	['`'] = command('CONSOLE_TOGGLE'),
 }
 
+ui.keysOnShowID = 'ConsoleShow'
 ui.keysOnShow = {
-	up = command('CURSOR_UP'),
-	down = command('CURSOR_DOWN'),
-	left = command('CURSOR_LEFT'),
-	right = command('CURSOR_RIGHT'),
-
 	escape = command('CONSOLE_HIDE'),
 	f10 = command('CONSOLE_CLEAR'),
 	home = command('CONSOLE_TOP'),
@@ -33,7 +31,7 @@ ui.keysOnShow = {
 	pagedown = command('CONSOLE_PAGEDOWN'),
 }
 
-ui.screen = {
+ui.main = {
 	x = 0,
 	y = 0,
 	w = WIDTH,
@@ -50,8 +48,14 @@ ui.scrollback = {
 	h = panelHeight,
 	startY = startY,
 	lines = lines,
+	bufferSize = bufferSize,
 	normalcolor = colors.WHITE,
 	scrollcolor = colors.LIGHTORANGE,
+}
+
+ui.line = {
+	w = ui.scrollback.w,
+	h = fontH,
 	normalStyle = Style({
 		font = font,
 		fontcolor = colors.GREY80,
@@ -60,10 +64,10 @@ ui.scrollback = {
 
 ui.entry = {
 	x = 0,
-	y = ui.scollback.h + margin,
+	y = ui.scrollback.h + margin,
 	w = ui.scrollback.w,
 	h = entryH,
-	normalStyle = ui.scrollback.normalStyle:clone({fontcolor = colors.WHITE}),
+	normalStyle = ui.line.normalStyle:clone({fontcolor = colors.WHITE}),
 }
 ui.entry.activeStyle = ui.entry.normalStyle:clone({bgcolor = colors.GREY20})
 

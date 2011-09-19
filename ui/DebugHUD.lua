@@ -11,6 +11,7 @@ local FONTH = FONT:getHeight()
 local MARGIN = 8
 local INNERMARGIN = 6
 
+ui.keysID = 'DebugHUD'
 ui.keys = {
 	['shift-f3'] = command('DEBUG_PANEL_TOGGLE'),
 	['shift-f4'] = command('DEBUG_PANEL_RESET'),

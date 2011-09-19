@@ -8,6 +8,7 @@ local floor = math.floor
 
 local panelHeight = 0.125 * HEIGHT
 
+ui.keysID = 'InGameUI'
 ui.keys = {
 	e = command('MOVE_N'),
 	s = command('MOVE_W'),
@@ -42,19 +43,14 @@ ui.keys = {
 	['shift-i'] = command('PRINT_INVENTORY'),
 	S = command('PRINT_STATS'),
 	D = command('DUMP_ENTITIES'),
-	pageup = {command('CAMERA_ZOOMOUT'), command('CONSOLE_PAGEUP')},
-	pagedown = {command('CAMERA_ZOOMIN'), command('CONSOLE_PAGEDOWN')},
-	escape = {command('MENU_PLAY'), command('CONSOLE_HIDE')},
+	pageup = command('CAMERA_ZOOMOUT'),
+	pagedown = command('CAMERA_ZOOMIN'),
+	escape = command('MENU_PLAY'),
 
 	['ctrl-n'] = command('NEW_LEVEL'),
 	f4 = command('CAMERA_FOLLOW'),
 	f5 = command('CAMERA_UNFOLLOW'),
 	backspace = command('DISPLAY_MAPNAME'),
-
-	['`'] = command('CONSOLE_TOGGLE'),
-	f10 = command('CONSOLE_CLEAR'),
-	home = command('CONSOLE_TOP'),
-	['end'] = command('CONSOLE_BOTTOM'),
 }
 
 ui.panel = {
