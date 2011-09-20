@@ -136,8 +136,11 @@ end
 
 -- iterate through the queue
 function Deque:iterate()
-	local which = {right = self._front}
-	return function() which = which.right; return which and which.obj or nil end
+	local which = self._front
+	return function()
+		local ret = which
+		if ret then which = which.right end
+		return ret and ret.obj or nil end
 end
 
 -- removes all the objects in the Deque.
