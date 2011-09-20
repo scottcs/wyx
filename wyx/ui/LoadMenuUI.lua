@@ -36,7 +36,7 @@ local LoadMenuUI = Class{name='LoadMenuUI',
 -- destructor
 function LoadMenuUI:destroy()
 	if self._uikeys then
-		UISystem:unregisterKeys(ui.keysID)
+		UISystem:unregisterKeys(self._ui.keysID)
 		self._uikeys = nil
 	end
 
