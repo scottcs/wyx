@@ -21,6 +21,7 @@ local Frame = Class{name='Frame',
 		Rect.construct(self, ...)
 
 		self._children = {}
+		self._layers = {}
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
@@ -47,6 +48,7 @@ function Frame:destroy()
 	self._registered = nil
 
 	self:clear()
+	self._layers = nil
 	self._children = nil
 
 	self._curStyle = nil
@@ -85,6 +87,10 @@ end
 
 -- clear the frame by removing and destroying all children
 function Frame:clear()
+	self:_clearLayer('bg')
+	self:_clearLayer('fg')
+	self:_clearLayer('border')
+
 	if self._children then
 		for k,v in pairs(self._children) do
 			self:removeChild(k)
@@ -292,6 +298,7 @@ function Frame:setX(x)
 			local child = self._children[i]
 			child:_adjustX(diff)
 		end
+		self._needsUpdate = true
 	end
 end
 
@@ -309,6 +316,7 @@ function Frame:setY(y)
 			local child = self._children[i]
 			child:_adjustY(diff)
 		end
+		self._needsUpdate = true
 	end
 end
 
@@ -325,6 +333,11 @@ end
 -- what to do when update ticks
 function Frame:onTick(dt, x, y, hovered)
 	if self._show then
+		if self._needsUpdate then
+			self:_calculateDrawing()
+			self._needsUpdate = false
+		end
+
 		if nil == x or nil == y then
 			x, y = getMousePosition()
 		end
@@ -478,6 +491,41 @@ function Frame:setDepth(depth)
 	end
 end
 
+-- calculate draw positions and size
+function Frame:_calculateDrawing()
+	self:_updateBackground()
+	self:_updateForeground()
+	self:_updateBorder()
+end
+
+-- update the background
+function Frame:_updateBackground()
+	local style = self:getCurrentStyle()
+	if style then
+		self:_makeLayer('bg',
+			style:getBGColor(), style:getBGImage(), style:getBGQuad())
+	end
+end
+
+-- update the foreground
+function Frame:_updateForeground()
+	local style = self:getCurrentStyle()
+	if style then
+		self:_makeLayer('fg',
+			style:getFGColor(), style:getFGImage(), style:getFGQuad())
+	end
+end
+
+-- update the border
+function Frame:_updateBorder()
+	local style = self:getCurrentStyle()
+	if style then
+		self:_makeLayer('border',
+			style:getBorderColor(), style:getBorderImage(), style:getBorderQuad(),
+			style:getBorderSize(), style:getBorderInset())
+	end
+end
+
 -- draw the frame
 function Frame:_draw()
 	self:_drawBackground()
@@ -485,66 +533,49 @@ function Frame:_draw()
 	self:_drawBorder()
 end
 
--- draw the background
-function Frame:_drawBackground()
-	local style = self:getCurrentStyle()
-	if style then
-		local bgcolor = style:getBGColor()
-		local bgimage = style:getBGImage()
-		local bgquad = style:getBGQuad()
-		self:_drawLayer(bgcolor, bgimage, bgquad)
+-- draw the background, foreground, and border
+function Frame:_drawBackground() self:_drawLayer('bg') end
+function Frame:_drawForeground() self:_drawLayer('fg') end
+function Frame:_drawBorder() self:_drawLayer('border') end
+
+-- clear a draw layer
+function Frame:_clearLayer(layer)
+	if self._layers[layer] then
+		for k,v in pairs(self._layers[layer]) do
+			if type(k) == 'table' and k ~= 'color' then
+				for j in pairs(v) do v[j] = nil end
+			end
+			self._layers[layer][k] = nil
+		end
+		self._layers[layer] = nil
 	end
 end
 
--- draw the foreground
-function Frame:_drawForeground()
-	local style = self:getCurrentStyle()
-	if style then
-		local fgcolor = style:getFGColor()
-		local fgimage = style:getFGImage()
-		local fgquad = style:getFGQuad()
-		self:_drawLayer(fgcolor, fgimage, fgquad)
-	end
-end
+-- make a new draw layer
+function Frame:_makeLayer(layer, color, image, quad, bordersize, borderinset)
+	self:_clearLayer(layer)
 
--- draw the border
-function Frame:_drawBorder()
-	local style = self:getCurrentStyle()
-	if style then
-		local bordersize = style:getBorderSize()
-		local borderinset = style:getBorderInset()
-		local bordercolor = style:getBorderColor()
-		local borderimage = style:getBorderImage()
-		local borderquad = style:getBorderQuad()
-		self:_drawLayer(
-			bordercolor,
-			borderimage,
-			borderquad,
-			bordersize,
-			borderinset)
-	end
-end
+	local l = {
+		color = color,
+		image = image,
+		quad = quad,
+		bordersize = bordersize,
+		borderinset = borderinset,
+	}
 
--- draw a single layer (foreground or background)
-function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 	if color then
-		setColor(color)
 		local x, y = self:getPosition()
 		local w, h = self:getSize()
 
 		if image then
 			if quad then
 				local _,_, qw, qh = quad:getViewport()
-				local cx = math_floor((w-qw) * 0.5)
-				local cy = math_floor((h-qh) * 0.5)
-
-				drawq(image, quad, x + cx, y + cy)
+				l.x = x + math_floor((w-qw) * 0.5)
+				l.y = y + math_floor((h-qh) * 0.5)
 			else
 				local iw, ih = image:getWidth(), image:getHeight()
-				local cx = math_floor((w-iw) * 0.5)
-				local cy = math_floor((h-ih) * 0.5)
-
-				draw(image, x + cx, y + cy)
+				l.x = x + math_floor((w-iw) * 0.5)
+				l.y = y + math_floor((h-ih) * 0.5)
 			end
 		else
 			if bordersize then
@@ -555,12 +586,49 @@ function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 				w = borderinset and w - 2*borderinset or w
 				h = borderinset and h - 2*borderinset or h
 
-				rectangle('fill', x, y, bordersize, h)
-				rectangle('fill', x, y, w, bordersize)
-				rectangle('fill', x+(w-bordersize), y, bordersize, h)
-				rectangle('fill', x, y+(h-bordersize), w, bordersize)
+				l.rectangles = {
+					{x, y, bordersize, h},
+					{x, y, w, bordersize},
+					{x+(w-bordersize), y, bordersize, h},
+					{x, y+(h-bordersize), w, bordersize},
+				}
 			else
-				rectangle('fill', x, y, w, h)
+				l.rectangle = {x, y, w, h}
+			end
+		end
+	end
+
+	self._layers[layer] = l
+end
+
+
+-- draw a single layer
+function Frame:_drawLayer(layer)
+	local l = self._layers[layer]
+	if not l then return end
+
+	if l.color then
+		setColor(l.color)
+
+		if l.image then
+			if l.quad then
+				drawq(l.image, l.quad, l.x, l.y)
+			else
+				draw(l.image, l.x, l.y)
+			end
+		else
+			if l.bordersize then
+				if l.rectangles then
+					for i=1,#l.rectangles do
+						local r = l.rectangles[i]
+						rectangle('fill', r[1], r[2], r[3], r[4])
+					end
+				end
+			else
+				if l.rectangle then
+					local r = l.rectangle
+					rectangle('fill', r[1], r[2], r[3], r[4])
+				end
 			end
 		end
 	end
