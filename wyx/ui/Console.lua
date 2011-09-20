@@ -61,7 +61,7 @@ end
 
 function Console:_setDrawColor()
 	local sb = ui.scrollback
-	local color = self._firstLine == 0 and sb.normalcolor or sb.scrollcolor
+	local color = (self._firstLine == 0) and sb.normalcolor or sb.scrollcolor
 	self:setColor(color)
 	self._needsUpdate = true
 end
@@ -95,14 +95,20 @@ function Console:top()
 	self:_setDrawColor()
 end
 
+local colorStyles = {}
 function Console:print(color, message, ...)
 	local style = ui.line.normalStyle
 
 	if type(color) == 'string' and colors[color] then
-		style = style:clone({fontcolor = colors[color]})
-		self:_print(style, message, ...)
-	elseif type(color) == 'table' then
-		style = style:clone({fontcolor = color})
+		color = colors[color]
+	end
+
+	if type(color) == 'table' then
+		style = colorStyles[color]
+		if not style then
+			style = ui.line.normalStyle:clone({fontcolor = color})
+			colorStyles[color] = style
+		end
 		self:_print(style, message, ...)
 	else
 		self:_print(style, color, message, ...)
@@ -126,7 +132,7 @@ function Console:_print(style, msg, ...)
 	end
 end
 
-function Console:_drawForeground()
+function Console:_updateForeground()
 	local count = ui.scrollback.lines
 	local drawY = ui.scrollback.startY
 	local skip = 1
@@ -149,6 +155,7 @@ function Console:_makeText(style, text)
 	local f = Text(0, 0, ui.line.w, ui.line.h)
 	f:setNormalStyle(style)
 	f:setText(text)
+	f:hide()
 
 	return f
 end

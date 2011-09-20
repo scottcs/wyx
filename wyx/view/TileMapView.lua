@@ -41,8 +41,6 @@ local TileMapView = Class{name='TileMapView',
 		self._level = level
 		local mapW, mapH = self._level:getMapSize()
 
-		TileMapNodeView.resetCache()
-
 		self._tileW, self._tileH = TILEW, TILEH
 		self._set = Image.dungeon
 

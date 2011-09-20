@@ -5,7 +5,6 @@ local depths = require 'wyx.system.renderDepths'
 local math_max = math.max
 local math_floor = math.floor
 local getMousePosition = love.mouse.getPosition
-local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
@@ -22,6 +21,7 @@ local Frame = Class{name='Frame',
 		Rect.construct(self, ...)
 
 		self._children = {}
+		self._layers = {}
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
@@ -48,10 +48,8 @@ function Frame:destroy()
 	self._registered = nil
 
 	self:clear()
+	self._layers = nil
 	self._children = nil
-
-	self._ffb = nil
-	self._bfb = nil
 
 	self._curStyle = nil
 
@@ -89,6 +87,10 @@ end
 
 -- clear the frame by removing and destroying all children
 function Frame:clear()
+	self:_clearLayer('bg')
+	self:_clearLayer('fg')
+	self:_clearLayer('border')
+
 	if self._children then
 		for k,v in pairs(self._children) do
 			self:removeChild(k)
@@ -100,9 +102,29 @@ end
 
 -- set the frame color
 function Frame:setColor(r, g, b, a)
-	self._color = type(r) == 'table' and colors.clone(r) or {r, g, b, a}
+	self._color = type(r) == 'table' and r or {r, g, b, a}
 end
-function Frame:getColor() return self._color end
+function Frame:getColor(color) return self._color end
+
+function Frame:_multColors(...)
+	local r, g, b, a = unpack(self._color)
+	a = a or 255
+	local num = select('#', ...)
+
+	for i=1,num do
+		local c = select(i, ...)
+		if c then
+			r = math_floor((r * c[1]) / 255)
+			g = math_floor((g * c[2]) / 255)
+			b = math_floor((b * c[3]) / 255)
+			if c[4] then
+				a = math_floor((a * c[4]) / 255)
+			end
+		end
+	end
+
+	return r, g, b, a
+end
 
 -- set the frame alpha
 function Frame:setAlpha(alpha)
@@ -246,13 +268,6 @@ end
 -- get all of the children of this frame
 function Frame:getChildren() return self._children end
 
--- get an appropriately sized PO2 framebuffer
-function Frame:_getFramebuffer()
-	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
-	local fb = newFramebuffer(size, size)
-	return fb
-end
-
 -- register with the UI system
 function Frame:_registerWithUISystem()
 	UISystem:register(self)
@@ -303,6 +318,7 @@ function Frame:setX(x)
 			local child = self._children[i]
 			child:_adjustX(diff)
 		end
+		self._needsUpdate = true
 	end
 end
 
@@ -320,6 +336,7 @@ function Frame:setY(y)
 			local child = self._children[i]
 			child:_adjustY(diff)
 		end
+		self._needsUpdate = true
 	end
 end
 
@@ -337,7 +354,7 @@ end
 function Frame:onTick(dt, x, y, hovered)
 	if self._show then
 		if self._needsUpdate then
-			self:_drawFB()
+			self:_calculateDrawing()
 			self._needsUpdate = false
 		end
 
@@ -494,102 +511,161 @@ function Frame:setDepth(depth)
 	end
 end
 
--- draw the frame to framebuffer
-function Frame:_drawFB()
-	self._bfb = self._bfb or self:_getFramebuffer()
-	setRenderTarget(self._bfb)
-	self:_drawBackground()
-	self:_drawForeground()
-	self:_drawBorder()
-	setRenderTarget()
-	self._ffb, self._bfb = self._bfb, self._ffb
+-- calculate draw positions and size
+function Frame:_calculateDrawing()
+	self:_updateBackground()
+	self:_updateForeground()
+	self:_updateBorder()
 end
 
--- draw the background
-function Frame:_drawBackground()
+-- update the background
+function Frame:_updateBackground()
 	local style = self:getCurrentStyle()
 	if style then
-		local bgcolor = style:getBGColor()
-		local bgimage = style:getBGImage()
-		local bgquad = style:getBGQuad()
-		self:_drawLayer(bgcolor, bgimage, bgquad)
+		self:_makeLayer('bg',
+			style:getBGColor(), style:getBGImage(), style:getBGQuad())
 	end
 end
 
--- draw the foreground
-function Frame:_drawForeground()
+-- update the foreground
+function Frame:_updateForeground()
 	local style = self:getCurrentStyle()
 	if style then
-		local fgcolor = style:getFGColor()
-		local fgimage = style:getFGImage()
-		local fgquad = style:getFGQuad()
-		self:_drawLayer(fgcolor, fgimage, fgquad)
+		self:_makeLayer('fg',
+			style:getFGColor(), style:getFGImage(), style:getFGQuad())
 	end
 end
 
--- draw the border
-function Frame:_drawBorder()
+-- update the border
+function Frame:_updateBorder()
 	local style = self:getCurrentStyle()
 	if style then
-		local bordersize = style:getBorderSize()
-		local borderinset = style:getBorderInset()
-		local bordercolor = style:getBorderColor()
-		local borderimage = style:getBorderImage()
-		local borderquad = style:getBorderQuad()
-		self:_drawLayer(
-			bordercolor,
-			borderimage,
-			borderquad,
-			bordersize,
-			borderinset)
+		self:_makeLayer('border',
+			style:getBorderColor(), style:getBorderImage(), style:getBorderQuad(),
+			style:getBorderSize(), style:getBorderInset())
 	end
 end
 
--- draw a single layer (foreground or background)
-function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
+-- draw the frame
+function Frame:_draw(color)
+	self:_drawBackground(color)
+	self:_drawForeground(color)
+	self:_drawBorder(color)
+end
+
+-- draw the background, foreground, and border
+function Frame:_drawBackground(color) self:_drawLayer('bg', color) end
+function Frame:_drawForeground(color) self:_drawLayer('fg', color) end
+function Frame:_drawBorder(color) self:_drawLayer('border', color) end
+
+-- clear a draw layer
+function Frame:_clearLayer(layer)
+	if self._layers[layer] then
+		for k,v in pairs(self._layers[layer]) do
+			if type(v) == 'table' and k ~= 'color' then
+				for j,w in pairs(v) do
+					if type(w) == 'table' then
+						for i in pairs(w) do w[i] = nil end
+					end
+					v[j] = nil
+				end
+			end
+			self._layers[layer][k] = nil
+		end
+		self._layers[layer] = nil
+	end
+end
+
+-- make a new draw layer
+function Frame:_makeLayer(layer, color, image, quad, bordersize, borderinset)
+	self:_clearLayer(layer)
+
+	local l = {
+		color = color,
+		image = image,
+		quad = quad,
+		bordersize = bordersize,
+		borderinset = borderinset,
+	}
+
 	if color then
-		setColor(color)
+		local x, y = self:getPosition()
 		local w, h = self:getSize()
 
 		if image then
 			if quad then
 				local _,_, qw, qh = quad:getViewport()
-				local x = math_floor((w-qw) * 0.5)
-				local y = math_floor((h-qh) * 0.5)
-
-				drawq(image, quad, x, y)
+				l.x = x + math_floor((w-qw) * 0.5)
+				l.y = y + math_floor((h-qh) * 0.5)
 			else
 				local iw, ih = image:getWidth(), image:getHeight()
-				local x = math_floor((w-iw) * 0.5)
-				local y = math_floor((h-ih) * 0.5)
-
-				draw(image, x, y)
+				l.x = x + math_floor((w-iw) * 0.5)
+				l.y = y + math_floor((h-ih) * 0.5)
 			end
 		else
 			if bordersize then
-				local x = borderinset and borderinset or 0
-				local y = x
+				local bx = borderinset and borderinset or 0
+				local by = bx
+				x = x + bx
+				y = y + by
 				w = borderinset and w - 2*borderinset or w
 				h = borderinset and h - 2*borderinset or h
 
-				rectangle('fill', x, y, bordersize, h)
-				rectangle('fill', x, y, w, bordersize)
-				rectangle('fill', x+(w-bordersize), y, bordersize, h)
-				rectangle('fill', x, y+(h-bordersize), w, bordersize)
+				l.rectangles = {
+					{x, y, bordersize, h},
+					{x, y, w, bordersize},
+					{x+(w-bordersize), y, bordersize, h},
+					{x, y+(h-bordersize), w, bordersize},
+				}
 			else
-				rectangle('fill', 0, 0, w, h)
+				l.rectangle = {x, y, w, h}
+			end
+		end
+	end
+
+	self._layers[layer] = l
+end
+
+
+-- draw a single layer
+function Frame:_drawLayer(layer, color)
+	local l = self._layers[layer]
+	if not l then return end
+
+	if l.color then
+		setColor(self:_multColors(color, l.color))
+
+		if l.image then
+			if l.quad then
+				drawq(l.image, l.quad, l.x, l.y)
+			else
+				draw(l.image, l.x, l.y)
+			end
+		else
+			if l.bordersize then
+				if l.rectangles then
+					for i=1,#l.rectangles do
+						local r = l.rectangles[i]
+						rectangle('fill', r[1], r[2], r[3], r[4])
+					end
+				end
+			else
+				if l.rectangle then
+					local r = l.rectangle
+					rectangle('fill', r[1], r[2], r[3], r[4])
+				end
 			end
 		end
 	end
 end
 
--- draw the framebuffer and all child framebuffers
+-- draw the frame and all child frames
 function Frame:draw(color)
-	if self._ffb and self._show then
+	if self._show then
 		color = color or self._color
 
 		setColor(color)
-		draw(self._ffb, self._x, self._y)
+		self:_draw(color)
 
 		local num = #self._children
 		for i=1,num do

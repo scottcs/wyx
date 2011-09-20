@@ -1,12 +1,7 @@
 local Class = require 'lib.hump.class'
 local Rect = getClass 'wyx.kit.Rect'
 
-local newFramebuffer = love.graphics.newFramebuffer
-local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
-local draw = love.graphics.draw
-local setColor = love.graphics.setColor
-local nearestPO2 = nearestPO2
 local colors = colors
 
 local error, assert, pairs, type, unpack = error, assert, pairs, type, unpack
@@ -20,21 +15,20 @@ local AnimatedTile = Class{name='AnimatedTile',
 		height = height or TILEH
 		Rect.construct(self, 0, 0, width, height)
 		self._constructed = true
-		self._fb = {}
+		self._frames = {}
 		self._numFrames = 0
-		self._frame = 1
+		self._curFrame = 1
 	end
 }
 
 -- destructor
 function AnimatedTile:destroy()
 	self:clearFrames()
-	self._isDrawing = nil
+	self._frames = nil
 	self._numFrames = nil
 	self._drawX = nil
 	self._drawY = nil
-	self._frame = nil
-	self._fb = nil
+	self._curFrame = nil
 	self._constructed = nil
 	if self._updateCB then
 		for k in pairs(self._updateCB) do self._updateCB[k] = nil end
@@ -66,19 +60,6 @@ function AnimatedTile:setHeight(...)
 	end
 end
 
--- draw to the framebuffer
-function AnimatedTile:_drawToFB(frame, tileset, quad, bgquad)
-	if self._numFrames > 0 and self._fb[frame] and tileset then
-		self._isDrawing = true
-		setRenderTarget(self._fb[frame])
-		setColor(colors.WHITE)
-		if bgquad then drawq(tileset, bgquad, 0, 0) end
-		drawq(tileset, quad, 0, 0)
-		setRenderTarget()
-		self._isDrawing = false
-	end
-end
-
 function AnimatedTile:setPosition(x, y)
 	Rect.setPosition(self, x, y)
 	x, y = self:getPosition()
@@ -86,19 +67,21 @@ function AnimatedTile:setPosition(x, y)
 	self._drawY = (y-1)*self:getHeight()
 end
 
--- draw the framebuffer
+-- draw the current frame
 function AnimatedTile:draw()
-	if self._numFrames > 0 and self._isDrawing == false then
-		draw(self._fb[self._frame], self._drawX, self._drawY)
+	local f = self._frames[self._curFrame]
+	if self._numFrames > 0 and f and f.tileset then
+		if f.bgquad then drawq(f.tileset, f.bgquad, self._drawX, self._drawY) end
+		drawq(f.tileset, f.quad, self._drawX, self._drawY)
 	end
 end
 
 -- advance the current frame to the next frame
 function AnimatedTile:advance()
-	if self._frame >= self._numFrames then
-		self._frame = 1
+	if self._curFrame >= self._numFrames then
+		self._curFrame = 1
 	else
-		self._frame = self._frame + 1
+		self._curFrame = self._curFrame + 1
 	end
 end
 
@@ -119,16 +102,20 @@ end
 -- set the next available frame to the given tileset and quad
 function AnimatedTile:setNextFrame(tileset, quad, bgquad)
 	self._numFrames = self._numFrames and self._numFrames + 1 or 1
-
-	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
-	self._fb[self._numFrames] = newFramebuffer(size, size)
-	self:_drawToFB(self._numFrames, tileset, quad, bgquad)
+	self._frames[self._numFrames] = {
+		tileset = tileset,
+		quad = quad,
+		bgquad = bgquad,
+	}
 end
 
 -- clear all frames
 function AnimatedTile:clearFrames()
-	self._frame = 1
-	for i=1,self._numFrames do self._fb[i] = nil end
+	self._curFrame = 1
+	for i=1,self._numFrames do
+		for j in pairs(self._frames[i]) do self._frames[i][j] = nil end
+		self._frames[i] = nil
+	end
 	self._numFrames = 0
 end
 
