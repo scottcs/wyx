@@ -61,7 +61,6 @@ local DebugHUD = Class{name=ui.keysID,
 		end
 
 		self:_makePanel()
-		self:_drawFB()
 
 		InputEvents:register(self, {
 			InputCommandEvent,

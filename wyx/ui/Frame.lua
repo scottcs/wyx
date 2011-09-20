@@ -5,7 +5,6 @@ local depths = require 'wyx.system.renderDepths'
 local math_max = math.max
 local math_floor = math.floor
 local getMousePosition = love.mouse.getPosition
-local newFramebuffer = love.graphics.newFramebuffer
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
@@ -49,9 +48,6 @@ function Frame:destroy()
 
 	self:clear()
 	self._children = nil
-
-	self._ffb = nil
-	self._bfb = nil
 
 	self._curStyle = nil
 
@@ -246,13 +242,6 @@ end
 -- get all of the children of this frame
 function Frame:getChildren() return self._children end
 
--- get an appropriately sized PO2 framebuffer
-function Frame:_getFramebuffer()
-	local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
-	local fb = newFramebuffer(size, size)
-	return fb
-end
-
 -- register with the UI system
 function Frame:_registerWithUISystem()
 	UISystem:register(self)
@@ -336,11 +325,6 @@ end
 -- what to do when update ticks
 function Frame:onTick(dt, x, y, hovered)
 	if self._show then
-		if self._needsUpdate then
-			self:_drawFB()
-			self._needsUpdate = false
-		end
-
 		if nil == x or nil == y then
 			x, y = getMousePosition()
 		end
@@ -494,15 +478,11 @@ function Frame:setDepth(depth)
 	end
 end
 
--- draw the frame to framebuffer
-function Frame:_drawFB()
-	self._bfb = self._bfb or self:_getFramebuffer()
-	setRenderTarget(self._bfb)
+-- draw the frame
+function Frame:_draw()
 	self:_drawBackground()
 	self:_drawForeground()
 	self:_drawBorder()
-	setRenderTarget()
-	self._ffb, self._bfb = self._bfb, self._ffb
 end
 
 -- draw the background
@@ -549,26 +529,29 @@ end
 function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 	if color then
 		setColor(color)
+		local x, y = self:getPosition()
 		local w, h = self:getSize()
 
 		if image then
 			if quad then
 				local _,_, qw, qh = quad:getViewport()
-				local x = math_floor((w-qw) * 0.5)
-				local y = math_floor((h-qh) * 0.5)
+				local cx = math_floor((w-qw) * 0.5)
+				local cy = math_floor((h-qh) * 0.5)
 
-				drawq(image, quad, x, y)
+				drawq(image, quad, x + cx, y + cy)
 			else
 				local iw, ih = image:getWidth(), image:getHeight()
-				local x = math_floor((w-iw) * 0.5)
-				local y = math_floor((h-ih) * 0.5)
+				local cx = math_floor((w-iw) * 0.5)
+				local cy = math_floor((h-ih) * 0.5)
 
-				draw(image, x, y)
+				draw(image, x + cx, y + cy)
 			end
 		else
 			if bordersize then
-				local x = borderinset and borderinset or 0
-				local y = x
+				local bx = borderinset and borderinset or 0
+				local by = bx
+				x = x + bx
+				y = y + by
 				w = borderinset and w - 2*borderinset or w
 				h = borderinset and h - 2*borderinset or h
 
@@ -577,7 +560,7 @@ function Frame:_drawLayer(color, image, quad, bordersize, borderinset)
 				rectangle('fill', x+(w-bordersize), y, bordersize, h)
 				rectangle('fill', x, y+(h-bordersize), w, bordersize)
 			else
-				rectangle('fill', 0, 0, w, h)
+				rectangle('fill', x, y, w, h)
 			end
 		end
 	end
@@ -585,11 +568,11 @@ end
 
 -- draw the framebuffer and all child framebuffers
 function Frame:draw(color)
-	if self._ffb and self._show then
+	if self._show then
 		color = color or self._color
 
 		setColor(color)
-		draw(self._ffb, self._x, self._y)
+		self:_draw()
 
 		local num = #self._children
 		for i=1,num do

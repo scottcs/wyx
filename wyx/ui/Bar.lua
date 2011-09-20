@@ -112,10 +112,11 @@ function Bar:_drawForeground()
 	if self._min and self._max and self._val then
 		local style = self:getCurrentStyle()
 		if style then
-			local x = self._margins[1]
-			local y = self._margins[2]
-			local w = self:getWidth() - (x + self._margins[3])
-			local h = self:getHeight() - (y + self._margins[4])
+			local x, y = self:getPosition()
+			x = x + self._margins[1]
+			y = y + self._margins[2]
+			local w = self:getWidth() - (self._margins[1] + self._margins[3])
+			local h = self:getHeight() - (self._margins[2] + self._margins[4])
 			local percent = (self._val - self._min) / (self._max - self._min)
 			w = w * percent
 
