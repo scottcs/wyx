@@ -334,13 +334,14 @@ function Text:_updateForeground()
 end
 
 -- override Frame:_drawForeground()
-function Text:_drawForeground()
+function Text:_drawForeground(color)
 	local l = self._layers['fg']
 
 	if l then
 		if l.font then
 			setFont(l.font)
-			setColor(l.color)
+			setColor(self:_multColors(color, l.color))
+
 			local num = #l.lines
 			for i=1,num do
 				local line = l.lines[i]

@@ -102,9 +102,29 @@ end
 
 -- set the frame color
 function Frame:setColor(r, g, b, a)
-	self._color = type(r) == 'table' and colors.clone(r) or {r, g, b, a}
+	self._color = type(r) == 'table' and r or {r, g, b, a}
 end
-function Frame:getColor() return self._color end
+function Frame:getColor(color) return self._color end
+
+function Frame:_multColors(...)
+	local r, g, b, a = unpack(self._color)
+	a = a or 255
+	local num = select('#', ...)
+
+	for i=1,num do
+		local c = select(i, ...)
+		if c then
+			r = math_floor((r * c[1]) / 255)
+			g = math_floor((g * c[2]) / 255)
+			b = math_floor((b * c[3]) / 255)
+			if c[4] then
+				a = math_floor((a * c[4]) / 255)
+			end
+		end
+	end
+
+	return r, g, b, a
+end
 
 -- set the frame alpha
 function Frame:setAlpha(alpha)
@@ -527,23 +547,28 @@ function Frame:_updateBorder()
 end
 
 -- draw the frame
-function Frame:_draw()
-	self:_drawBackground()
-	self:_drawForeground()
-	self:_drawBorder()
+function Frame:_draw(color)
+	self:_drawBackground(color)
+	self:_drawForeground(color)
+	self:_drawBorder(color)
 end
 
 -- draw the background, foreground, and border
-function Frame:_drawBackground() self:_drawLayer('bg') end
-function Frame:_drawForeground() self:_drawLayer('fg') end
-function Frame:_drawBorder() self:_drawLayer('border') end
+function Frame:_drawBackground(color) self:_drawLayer('bg', color) end
+function Frame:_drawForeground(color) self:_drawLayer('fg', color) end
+function Frame:_drawBorder(color) self:_drawLayer('border', color) end
 
 -- clear a draw layer
 function Frame:_clearLayer(layer)
 	if self._layers[layer] then
 		for k,v in pairs(self._layers[layer]) do
-			if type(k) == 'table' and k ~= 'color' then
-				for j in pairs(v) do v[j] = nil end
+			if type(v) == 'table' and k ~= 'color' then
+				for j,w in pairs(v) do
+					if type(w) == 'table' then
+						for i in pairs(w) do w[i] = nil end
+					end
+					v[j] = nil
+				end
 			end
 			self._layers[layer][k] = nil
 		end
@@ -603,12 +628,12 @@ end
 
 
 -- draw a single layer
-function Frame:_drawLayer(layer)
+function Frame:_drawLayer(layer, color)
 	local l = self._layers[layer]
 	if not l then return end
 
 	if l.color then
-		setColor(l.color)
+		setColor(self:_multColors(color, l.color))
 
 		if l.image then
 			if l.quad then
@@ -634,13 +659,13 @@ function Frame:_drawLayer(layer)
 	end
 end
 
--- draw the framebuffer and all child framebuffers
+-- draw the frame and all child frames
 function Frame:draw(color)
 	if self._show then
 		color = color or self._color
 
 		setColor(color)
-		self:_draw()
+		self:_draw(color)
 
 		local num = #self._children
 		for i=1,num do
