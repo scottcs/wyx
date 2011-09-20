@@ -167,6 +167,7 @@ colors.DARKGREEN = {0, p30, 0, p100}
 colors.BLUE = {p30, p30, p100, p100}
 colors.LIGHTBLUE = {p70, p70, p100, p100}
 colors.DARKBLUE = {0, 0, p30, p100}
+colors.BLUE_A70 = {p10, p10, p100, p70}
 
 colors.PURPLE = {p100, p40, p100, p100}
 colors.LIGHTPURPLE = {p100, p80, p100, p100}
@@ -385,7 +386,7 @@ do
 	end
 end
 
---[[
+--[[--
 local Deque = getClass 'wyx.kit.Deque'
 local rendercache = Deque()
 local _setRenderTarget = love.graphics.setRenderTarget
@@ -401,4 +402,14 @@ function love.graphics.setRenderTarget(target, ...)
 
 	_setRenderTarget(target, ...)
 end
-]]--
+--]]--
+
+--[[--
+local numFramebuffers = 0
+local _newFramebuffer = love.graphics.newFramebuffer
+love.graphics.newFramebuffer = function(...)
+	numFramebuffers = numFramebuffers + 1
+	print(format('framebuffer count: %d', numFramebuffers))
+	return _newFramebuffer(...)
+end
+--]]--

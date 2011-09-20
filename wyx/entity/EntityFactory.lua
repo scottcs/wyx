@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local Entity = getClass 'wyx.entity.Entity'
 local message = require 'wyx.component.message'
 local property = require 'wyx.component.property'
+local depths = require 'wyx.system.renderDepths'
 
 local format = string.format
 
@@ -11,7 +12,7 @@ local format = string.format
 local EntityFactory = Class{name='EntityFactory',
 	function(self, etype)
 		self._etype = etype or 'UNKNOWN'
-		self._renderDepth = 30
+		self._renderDepth = depths.gameobject - 1
 	end
 }
 

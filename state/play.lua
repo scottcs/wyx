@@ -9,8 +9,9 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.play' end}
 setmetatable(st, mt)
 
-local DebugHUD = debug and getClass 'wyx.debug.DebugHUD'
-local MessageHUD = getClass 'wyx.ui.MessageHUD'
+local DebugHUD = debug and getClass 'wyx.ui.DebugHUD'
+local Text = getClass 'wyx.ui.Text'
+local Style = getClass 'wyx.ui.Style'
 local command = require 'wyx.ui.command'
 
 -- events
@@ -23,9 +24,33 @@ local ConsoleEvent = getClass 'wyx.event.ConsoleEvent'
 local GameEvents = GameEvents
 local InputEvents = InputEvents
 
+local colors = colors
+local floor = math.floor
+
+-- set up popup message style
+local popup
+do
+	local font = GameFont.big
+	local fontH = font:getHeight()
+	local w = floor(WIDTH * 0.9)
+	local h = floor(fontH * 1.8)
+
+	popup = {
+		x = floor(WIDTH/2 - w/2),
+		y = HEIGHT - (h + 100),
+		w = w,
+		h = h,
+		normalStyle = Style({
+			bgcolor = colors.BLACK_A70,
+			font = GameFont.big,
+			fontcolor = colors.WHITE,
+		})
+	}
+end
+
 function st:init()
 	if debug then
-		self:_createDebugHUD()
+		self._debugHUD = DebugHUD()
 		self._debug = true
 	end
 end
@@ -53,13 +78,18 @@ end
 
 function st:leave()
 	self:_doPause(false, true)
-	self:_killMessageHUD()
+	self:_killPopupMessage()
 	GameEvents:unregisterAll(self)
 	InputEvents:unregisterAll(self)
 end
 
 function st:destroy()
-	self:_killMessageHUD()
+	self:_killPopupMessage()
+	if self._popupMessage then
+		self._popupMessage:destroy()
+		self._popupMessage = nil
+	end
+
 	PAUSED = nil
 	self._level = nil
 	self._world = nil
@@ -101,83 +131,51 @@ function st:InputCommandEvent(e)
 	if PAUSED and command.pause(cmd) then return end
 	--local args = e:getCommandArgs()
 
-	local continue = false
-
-	-- commands that work regardless of console visibility
 	switch(cmd) {
-		CONSOLE_TOGGLE = function() Console:toggle() end,
 		DUMP_ENTITIES = function() EntityRegistry:dumpEntities() end,
 		PAUSE = function() self:_doPause(true) end,
-		default = function() continue = true end,
+		-- camera
+		CAMERA_ZOOMOUT = function()
+			if not self._cam:isAnimating() then
+				self._view:setAnimate(false)
+				self._view:setViewport(self._cam:getViewport(1))
+				self._cam:zoomOut(self._view.setAnimate, self._view, true)
+				local zoom = self._cam:getZoom()
+				self:_doPause(false, zoom ~= 1)
+			end
+		end,
+		CAMERA_ZOOMIN = function()
+			if not self._cam:isAnimating() then
+				local vp = self._cam:getViewport(-1)
+				self._cam:zoomIn(self._postZoomIn, self, vp)
+				local zoom = self._cam:getZoom()
+				self:_doPause(false, zoom ~= 1)
+			end
+		end,
+		CAMERA_UNFOLLOW = function()
+			self._cam:unfollowTarget()
+			self._view:setViewport(self._cam:getViewport())
+		end,
+		CAMERA_FOLLOW = function()
+			self._cam:followTarget(self._level:getPrimeEntity())
+			self._view:setViewport(self._cam:getViewport())
+		end,
+
+		-- menu
+		MENU_PLAY = function()
+			RunState.switch(State.playmenu, self._world, self._view)
+		end,
+
+		-- debug
+		NEW_LEVEL = function()
+			RunState.switch(State.destroy, 'initialize', 'construct')
+		end,
+		DISPLAY_MAPNAME = function()
+			local name = self._level:getMapName()
+			local author = self._level:getMapAuthor()
+			self:_displayMessage('Map: "'..name..'" by '..author)
+		end,
 	}
-
-	if not continue then return end
-
-	-- commands that only work when console is visible
-	if Console:isVisible() then
-		switch(cmd) {
-			CONSOLE_HIDE = function() Console:hide() end,
-			CONSOLE_PAGEUP = function() Console:pageup() end,
-			CONSOLE_PAGEDOWN = function() Console:pagedown() end,
-			CONSOLE_TOP = function() Console:top() end,
-			CONSOLE_BOTTOM = function() Console:bottom() end,
-			CONSOLE_CLEAR = function() Console:clear() end,
-		}
-	else
-		switch(cmd) {
-			-- camera
-			CAMERA_ZOOMOUT = function()
-				if not self._cam:isAnimating() then
-					self._view:setAnimate(false)
-					self._view:setViewport(self._cam:getViewport(1))
-					self._cam:zoomOut(self._view.setAnimate, self._view, true)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			CAMERA_ZOOMIN = function()
-				if not self._cam:isAnimating() then
-					local vp = self._cam:getViewport(-1)
-					self._cam:zoomIn(self._postZoomIn, self, vp)
-					local zoom = self._cam:getZoom()
-					self:_doPause(false, zoom ~= 1)
-				end
-			end,
-			CAMERA_UNFOLLOW = function()
-				self._cam:unfollowTarget()
-				self._view:setViewport(self._cam:getViewport())
-			end,
-			CAMERA_FOLLOW = function()
-				self._cam:followTarget(self._level:getPrimeEntity())
-				self._view:setViewport(self._cam:getViewport())
-			end,
-
-			-- menu
-			MENU_PLAY = function()
-				RunState.switch(State.playmenu, self._world, self._view)
-			end,
-
-			-- debug
-			NEW_LEVEL = function()
-				RunState.switch(State.destroy, 'initialize', 'construct')
-			end,
-			DEBUG_PANEL_TOGGLE = function()
-				if debug then self._debug = not self._debug end
-			end,
-			DEBUG_PANEL_CLEAR = function()
-				if self._debug then self._debugHUD:clearExtremes() end
-			end,
-			COLLECT_GARBAGE = function()
-				if self._debug then collectgarbage('collect') end
-			end,
-			DISPLAY_MAPNAME = function()
-				local name = self._level:getMapName()
-				local author = self._level:getMapAuthor()
-				self:_displayMessage('Map: "'..name..'" by '..author)
-			end,
-			CONSOLE_SHOW = function() Console:show() end,
-		}
-	end
 end
 
 function st:ConsoleEvent(e)
@@ -191,29 +189,34 @@ function st:ConsoleEvent(e)
 	end
 end
 
-function st:_createDebugHUD()
-	self._debugHUD = DebugHUD()
-end
-
-function st:_killMessageHUD()
-	if self._messageHUD then
+function st:_killPopupMessage()
+	if self._popupMessage then
 		if self._messageID then cron.cancel(self._messageID) end
 		self._messageID = nil
-		self._messageHUD:destroy()
-		self._messageHUD = nil
+		self._popupMessage:hide()
 	end
 end
 
 function st:_displayMessage(message, time)
 	GameEvents:push(ConsoleEvent(message))
 
-	self:_killMessageHUD()
+	self:_killPopupMessage()
 
 	time = time or 2
-	self._messageHUD = MessageHUD(message, time)
+	if not self._popupMessage then
+		self._popupMessage = Text(popup.x, popup.y, popup.w, popup.h)
+		self._popupMessage:setNormalStyle(popup.normalStyle)
+		self._popupMessage:setJustifyCenter()
+		self._popupMessage:setAlignCenter()
+		self._popupMessage:setAlpha(0)
+		self._popupMessage:hide()
+	end
+
+	self._popupMessage:setText(message)
+	self._popupMessage:fadeIn()
+
 	self._messageID = cron.after(time+1, function(self)
-		self._messageHUD:destroy()
-		self._messageHUD = nil
+		self._popupMessage:fadeOut()
 	end, self)
 end
 
@@ -243,11 +246,8 @@ function st:update(dt)
 		end
 
 		if self._view then self._view:update(dt) end
+		if self._debugHUD then self._debugHUD:update(dt) end
 	end
-
-	if self._messageHUD then self._messageHUD:update(dt) end
-	if self._debug then self._debugHUD:update(dt) end
-	UISystem:update(dt)
 end
 
 function st:draw()
@@ -255,10 +255,6 @@ function st:draw()
 	self._view:draw()
 	RenderSystem:draw()
 	self._cam:postdraw()
-	UISystem:draw()
-	if self._messageHUD then self._messageHUD:draw() end
-	if self._debug then self._debugHUD:draw() end
-	if Console then Console:draw() end
 end
 
 function st:_postZoomIn(vp)

@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 local EntityFactory = getClass 'wyx.entity.EntityFactory'
 local property = require 'wyx.component.property'
+local depths = require 'wyx.system.renderDepths'
 
 -- HeroEntityFactory
 -- creates entities based on data files
@@ -8,7 +9,7 @@ local HeroEntityFactory = Class{name='HeroEntityFactory',
 	inherits=EntityFactory,
 	function(self)
 		EntityFactory.construct(self, 'hero')
-		self._renderDepth = 5
+		self._renderDepth = depths.gamehero
 		-- required components (can be parent classes)
 		self._requiredComponents = {
 			getClass 'wyx.component.HealthComponent',

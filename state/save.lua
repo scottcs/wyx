@@ -117,9 +117,7 @@ end
 
 function st:update(dt) end
 
-function st:draw()
-	if Console then Console:draw() end
-end
+function st:draw() end
 
 function st:keypressed(key, unicode) end
 

@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local ListenerBag = getClass 'wyx.kit.ListenerBag'
 local property = require 'wyx.component.property'
 local pRenderDepth = property('RenderDepth')
+local depths = require 'wyx.system.renderDepths'
 
 local table_sort = table.sort
 
@@ -11,7 +12,7 @@ local RenderSystem = Class{name='RenderSystem',
 	function(self)
 		self._registered = {}
 		self._depths = {}
-		self._defaultDepth = 1
+		self._defaultDepth = depths.default
 	end
 }
 

@@ -37,6 +37,16 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
+  d rewrite DebugHUD using ui classes
+  d rewrite MessageHUD using ui classes
+	x   rename to PopupMessage or something
+  o rewrite Console using ui classes
+	+   Need a way to only use one frame for all text instead of one frame per line
+	x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
+	o   add command line
+	o   add commands
+	o   add logging to file
+	o   add message levels [info, warn, debug, error, all]
 
 :::::::::::::::
 :PENDING TASKS:

@@ -158,8 +158,11 @@ function love.load()
 	if debugInputEvents then InputEvents:debug(debugInputEvents) end
 	if debugCommandEvents then CommandEvents:debug(debugCommandEvents) end
 
+	-- create global ui system
+	UISystem = getClass('wyx.system.UISystem')()
+
 	-- create global console
-	Console = getClass('wyx.debug.Console')()
+	Console = getClass('wyx.ui.Console')()
 	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
 
 	-- make sure the save directories are created
@@ -180,7 +183,11 @@ function love.update(dt)
 	CommandEvents:flush()
 
 	love.audio.update()
+
+	UISystem:update(dt)
 end
+
+local _postdraw = function() UISystem:draw() end
 
 -- table for quick lookup of specific modifiers to generic modifiers
 local _modLookup = {
@@ -248,6 +255,7 @@ function love.quit()
 	tween.stopAll()
 
 	Console:destroy()
+	UISystem:destroy()
 
 	GameEvents:destroy()
 	InputEvents:destroy()
@@ -334,7 +342,10 @@ function love.run()
 		end
 
 		clear()
-		if love.draw then love.draw() end
+		if love.draw then
+			love.draw()
+			_postdraw()
+		end
 		present()
 	end
 end
