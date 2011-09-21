@@ -25,6 +25,7 @@ ui.keys = {
 ui.keysOnShowID = 'ConsoleShow'
 ui.keysOnShow = {
 	escape = command('CONSOLE_HIDE'),
+	['return'] = command('CONSOLE_ENTRY'),
 	f10 = command('CONSOLE_CLEAR'),
 	home = command('CONSOLE_TOP'),
 	['end'] = command('CONSOLE_BOTTOM'),

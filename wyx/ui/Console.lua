@@ -9,6 +9,7 @@ local ui = require 'ui.Console'
 local depths = require 'wyx.system.renderDepths'
 
 local format, match = string.format, string.match
+local concat = table.concat
 local unpack = unpack
 local colors = colors
 
@@ -27,6 +28,8 @@ local Console = Class{name='Console',
 		self._buffer = Deque()
 		self._firstLine = 0
 
+		self:_makeEntry()
+
 		UISystem:registerKeys(ui.keysID, ui.keys)
 		InputEvents:register(self, InputCommandEvent)
 	end
@@ -39,6 +42,8 @@ function Console:destroy()
 	UISystem:unregisterKeys(ui.keysID)
 	self._buffer:destroy()
 	self._buffer = nil
+	self._prompt = nil
+	self._entry = nil
 	self._firstLine = nil
 	Frame.destroy(self)
 end
@@ -55,6 +60,7 @@ function Console:InputCommandEvent(e)
 		CONSOLE_TOP = function() self:top() end,
 		CONSOLE_BOTTOM = function() self:bottom() end,
 		CONSOLE_CLEAR = function() self:clearBuffer() end,
+		CONSOLE_ENTRY = function() self._commandline:toggleEnterMode(true) end,
 	}
 end
 
@@ -160,12 +166,51 @@ function Console:_makeText(style, text)
 	return f
 end
 
+-- callback called when command line is entered
+local _commandCB = function(self)
+	local cl = self._commandline
+	local command = concat(cl:getText(), ' ')
+	cl:clearText()
+	cl:toggleEnterMode(true)
+
+	if self:_validateCommand(command) then self:_runCommand(command) end
+end
+
+-- make the entry line
+function Console:_makeEntry()
+	self._prompt = Text(ui.prompt.x, ui.prompt.y, ui.prompt.w, ui.prompt.h)
+	self._prompt:setNormalStyle(ui.entry.normalStyle)
+	self._prompt:setJustifyRight()
+	self._prompt:setAlignCenter()
+	self._prompt:setMargin(ui.entry.margin)
+	self._prompt:setText('>')
+	self:addChild(self._prompt)
+
+	self._commandline = TextEntry(ui.entry.x, ui.entry.y, ui.entry.w, ui.entry.h)
+	self._commandline:setNormalStyle(ui.entry.normalStyle)
+	self._commandline:setAlignCenter()
+	self._commandline:setMargin(ui.entry.margin)
+	self._commandline:setCallback(_commandCB, self)
+	self:addChild(self._commandline)
+end
+
+-- validate a command
+function Console:_validateCommand(command)
+	return true
+end
+
+-- run a command
+function Console:_runCommand(command)
+	self:print('%s %s','run',command)
+end
+
 -- override Frame:show and hide to register/unregister keys
 function Console:show()
 	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
 	Frame.show(self)
 end
 function Console:hide()
+	self._commandline:toggleEnterMode(false)
 	Frame.hide(self)
 	UISystem:unregisterKeys(ui.keysOnShowID)
 end

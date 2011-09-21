@@ -108,6 +108,7 @@ command.CONSOLE_PAGEUP        = false
 command.CONSOLE_PAGEDOWN      = false
 command.CONSOLE_TOP           = false
 command.CONSOLE_BOTTOM        = false
+command.CONSOLE_ENTRY         = false
 
 -- the structure of valid command
 return setmetatable({iscommand = iscommand, pause = pause},
