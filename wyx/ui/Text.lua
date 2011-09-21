@@ -180,6 +180,7 @@ end
 -- clear the current text
 function Text:clearText()
 	for k in pairs(self._text) do self._text[k] = nil end
+	self._needsUpdate = true
 end
 
 -- set the maximum number of lines
@@ -244,13 +245,13 @@ end
 -- override Frame:_updateForeground()
 function Text:_updateForeground()
 	local style = self:getCurrentStyle()
+	self:_clearLayer('fg')
 	local l
 
 	if self._text and #self._text > 0 then
 		if style then
 			local font = style:getFont()
 			if font then
-				self:_clearLayer('fg')
 				l = {}
 
 				local height = font:getHeight()
@@ -302,10 +303,9 @@ function Text:_updateForeground()
 
 				-- print cursor
 				if self._showCursor then
-					local lastLine = text[numLines]
-					local x, y = self:getPosition()
-					local y = y + (totalHeight - height) + margin
-					local x = x + font:getWidth(lastLine) + 4
+					local lastLine = l.lines[numLines]
+					local x, y = lastLine[2], lastLine[3]
+					x = x + font:getWidth(lastLine[1])
 
 					l.rectangle = {x, y, 4, height}
 				end -- if self._showCursor
@@ -317,14 +317,33 @@ function Text:_updateForeground()
 			if style then
 				local font = style:getFont()
 				if font then
-					self:_clearLayer('fg')
+					l = {}
 					local x, y = self:getPosition()
 					local fontcolor = style:getFontColor()
-					local height = font:getHeight()
+					local w = 4
+					local h = font:getHeight()
 					local margin = self._margin or 0
 
+					if     'l' == self._justify then
+						x = x + margin
+					elseif 'c' == self._justify then
+						local cx = self:getWidth() / 2
+						x = x + math_floor(cx - (w/2))
+					elseif 'r' == self._justify then
+						x = x + self:getWidth() - (margin + w)
+					end
+
+					if     't' == self._align then
+						y = y + margin
+					elseif 'c' == self._align then
+						local cy = self:getHeight() / 2
+						y = y + math_floor(cy - h/2)
+					elseif 'b' == self._align then
+						y = y + self:getHeight() - (margin + h)
+					end
+
 					l.color = fontcolor
-					l.rectangle = {x + margin, y + margin, 4, height}
+					l.rectangle = {x, y, w, h}
 				end -- if font
 			end -- if style
 		end -- if self._showCursor

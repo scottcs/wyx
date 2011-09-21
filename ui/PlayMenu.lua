@@ -92,9 +92,8 @@ ui.buttons = {
 	{'Options', command('MENU_OPTIONS')},
 	{'Help', command('MENU_HELP')},
 	{'Abandon Game', command('DELETE_GAME')},
-	{'Save Game', command('MENU_SAVE_GAME')},
-	{'Quit (No Save)', command('MENU_MAIN')},
-	--{'Save and Quit', command('MENU_MAIN')},
+	{'Save and Continue', command('MENU_SAVE_GAME')},
+	{'Save and Quit', command('MENU_MAIN')},
 }
 
 

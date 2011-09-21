@@ -178,8 +178,7 @@ end
 
 -- override the default getState to deal with contained entities
 function AttachmentComponent:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
+	local state = {}
 
 	for k,v in pairs(self._properties) do
 		state[k] = v

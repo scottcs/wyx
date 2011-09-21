@@ -9,7 +9,10 @@ local ui = require 'ui.Console'
 local depths = require 'wyx.system.renderDepths'
 
 local format, match = string.format, string.match
+local gmatch = string.gmatch
+local concat = table.concat
 local unpack = unpack
+local tostring = tostring
 local colors = colors
 
 -- Console
@@ -27,6 +30,18 @@ local Console = Class{name='Console',
 		self._buffer = Deque()
 		self._firstLine = 0
 
+		self:_makeEntry()
+
+		self._filename = 'console.log'
+		if love.filesystem.exists(self._filename) then
+			love.filesystem.remove(self._filename)
+		end
+		self._file = love.filesystem.newFile(self._filename)
+		if not self._file:open('a') then
+			warning('Could not open console log')
+			self._file = nil
+		end
+
 		UISystem:registerKeys(ui.keysID, ui.keys)
 		InputEvents:register(self, InputCommandEvent)
 	end
@@ -34,11 +49,14 @@ local Console = Class{name='Console',
 
 -- destructor
 function Console:destroy()
+	self:_closeLog()
 	InputEvents:unregisterAll(self)
 	UISystem:unregisterKeys(ui.keysOnShowID)
 	UISystem:unregisterKeys(ui.keysID)
 	self._buffer:destroy()
 	self._buffer = nil
+	self._prompt = nil
+	self._entry = nil
 	self._firstLine = nil
 	Frame.destroy(self)
 end
@@ -55,6 +73,7 @@ function Console:InputCommandEvent(e)
 		CONSOLE_TOP = function() self:top() end,
 		CONSOLE_BOTTOM = function() self:bottom() end,
 		CONSOLE_CLEAR = function() self:clearBuffer() end,
+		CONSOLE_ENTRY = function() self._commandline:toggleEnterMode(true) end,
 	}
 end
 
@@ -130,6 +149,25 @@ function Console:_print(style, msg, ...)
 	if self._firstLine == 0 then
 		self._needsUpdate = true
 	end
+
+	if self._file then self:log(msg) end
+end
+
+function Console:_closeLog()
+	if self._file then
+		if not self._file:close() then
+			warning('Could not close console log')
+		end
+		self._file = nil
+	end
+end
+
+-- print to an output file
+function Console:log(msg)
+	if not self._file:write(format('%s\n', msg)) then
+		warning('Could not write to console log')
+		self:_closeLog()
+	end
 end
 
 function Console:_updateForeground()
@@ -150,6 +188,17 @@ function Console:_updateForeground()
 	end
 end
 
+-- override Frame:show and hide to register/unregister keys
+function Console:show()
+	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
+	Frame.show(self)
+end
+function Console:hide()
+	self._commandline:toggleEnterMode(false)
+	Frame.hide(self)
+	UISystem:unregisterKeys(ui.keysOnShowID)
+end
+
 -- make a text line
 function Console:_makeText(style, text)
 	local f = Text(0, 0, ui.line.w, ui.line.h)
@@ -160,14 +209,146 @@ function Console:_makeText(style, text)
 	return f
 end
 
--- override Frame:show and hide to register/unregister keys
-function Console:show()
-	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
-	Frame.show(self)
+-- callback called when command line is entered
+local _commandCB = function(self)
+	local cl = self._commandline
+	local command, args = self:_parse(concat(cl:getText(), ' '))
+	if not command then return end
+
+	cl:clearText()
+	cl:toggleEnterMode(true)
+
+	if self:_validateCommand(command) then self:_runCommand(command, args) end
 end
-function Console:hide()
-	Frame.hide(self)
-	UISystem:unregisterKeys(ui.keysOnShowID)
+
+-- make the entry line
+function Console:_makeEntry()
+	self._prompt = Text(ui.prompt.x, ui.prompt.y, ui.prompt.w, ui.prompt.h)
+	self._prompt:setNormalStyle(ui.entry.normalStyle)
+	self._prompt:setJustifyRight()
+	self._prompt:setAlignCenter()
+	self._prompt:setMargin(ui.entry.margin)
+	self._prompt:setText('>')
+	self:addChild(self._prompt)
+
+	self._commandline = TextEntry(ui.entry.x, ui.entry.y, ui.entry.w, ui.entry.h)
+	self._commandline:setNormalStyle(ui.entry.normalStyle)
+	self._commandline:setAlignCenter()
+	self._commandline:setMargin(ui.entry.margin)
+	self._commandline:setCallback(_commandCB, self)
+	self:addChild(self._commandline)
+end
+
+function Console:_parse(command)
+	local cmd, args
+
+	for word in gmatch(command, '%s*(%S+)') do
+		if cmd then
+			args = args or {}
+			args[#args+1] = word
+		else
+			cmd = word
+		end
+	end
+
+	return cmd, args
+end
+
+local sortedCmds = {}
+local cmds
+cmds = {
+	test = {
+		run = function(self, ...) self:print('This is a test') end,
+	},
+	dump = {
+		help = 'Dump all entities to console',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('DUMP_ENTITIES')))
+		end,
+	},
+	stats = {
+		help = 'Print stats for an entity (player if no entity given)',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('PRINT_STATS')))
+		end,
+	},
+	inv = {
+		help = 'Print inventory for an entity (player if no entity given)',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('PRINT_INVENTORY')))
+		end,
+	},
+	quit = {
+		help = 'Quit the current game (without saving) and go to the Main Menu',
+		run = function(self, ...)
+			self:hide()
+			InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_QUIT')))
+		end,
+	},
+	--[[
+	['load'] = {
+		help = 'Quit the current game (without saving) and load the given file or go to the Load Menu',
+		run = function(self, ...)
+			self:hide()
+			if select('#', ...) > 0 then
+				InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_LOAD'), ...))
+			else
+				InputEvents:notify(InputCommandEvent(command('MENU_LOAD_GAME')))
+			end
+		end,
+	},
+	save = {
+		help = 'Save the current game to the given filename, or default filename if none is given',
+		run = function(self, ...)
+			if select('#', ...) > 0 then
+				InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_SAVE'), ...))
+			else
+				InputEvents:notify(InputCommandEvent(command('MENU_SAVE_GAME')))
+			end
+		end,
+	},
+	]]--
+	help = {
+		help = 'Show available commands (this list)',
+		run = function(self, ...)
+			self:print('Commands:')
+			local num = #sortedCmds
+			for i=1,num do
+				local name = sortedCmds[i]
+				if name ~= 'help' then self:_printCommandHelp(name) end
+			end
+			self:_printCommandHelp('help')
+		end,
+	},
+}
+
+for k in pairs(cmds) do
+	sortedCmds[#sortedCmds+1] = k
+end
+table.sort(sortedCmds)
+
+
+-- print a line of command help
+function Console:_printCommandHelp(cmd)
+	local help = cmds[cmd].help or ''
+	self:print('  %-14s %s', cmd, help)
+end
+
+-- validate a command
+function Console:_validateCommand(command)
+	if command and cmds[command] then return true end
+	self:print(colors.RED, 'Unknown command: %s', tostring(command))
+end
+
+-- run a command
+function Console:_runCommand(command, args)
+	local a = args and concat(args, ', ') or 'no args'
+	local run = cmds[command].run
+	if run then
+		run(self, args and unpack(args))
+	else
+		self:print(colors.RED, 'Command %q has no run method defined!', command)
+	end
 end
 
 

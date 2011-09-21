@@ -104,6 +104,8 @@ function st:_saveGame()
 			tostring(self._wyxfilename))
 	end
 
+	for k in pairs(state) do state[k] = nil end
+
 	if Console then Console:print('Game saved to %q', self._filename) end
 end
 

@@ -62,9 +62,8 @@ end
 
 -- get the state of this place
 function Place:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
-	state.levels = setmetatable({}, mt)
+	local state = {}
+	state.levels = {}
 
 	state.curLevel = self._curLevel
 	state.name = self._name

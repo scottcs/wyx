@@ -564,8 +564,7 @@ end
 
 -- get the state of this level
 function Level:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
+	local state = {}
 
 	state.primeEntity = self._primeEntity
 	state.lightColor = self._lightColor

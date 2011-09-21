@@ -9,9 +9,8 @@ local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
 local drawq = love.graphics.drawq
-local setRenderTarget = love.graphics.setRenderTarget
-local nearestPO2 = nearestPO2
 local colors = colors
+local unpack = unpack
 
 -- Frame
 -- Basic UI Element
@@ -102,7 +101,12 @@ end
 
 -- set the frame color
 function Frame:setColor(r, g, b, a)
-	self._color = type(r) == 'table' and r or {r, g, b, a}
+	self._color = self._color or {}
+	if type(r) == 'table' then
+		self._color[1], self._color[2], self._color[3], self._color[4] = unpack(r)
+	else
+		self._color[1], self._color[2], self._color[3], self._color[4] = r,g,b,a
+	end
 end
 function Frame:getColor(color) return self._color end
 

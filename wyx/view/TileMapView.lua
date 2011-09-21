@@ -467,7 +467,7 @@ end
 
 -- save the state of the view
 function TileMapView:getState()
-	local state = setmetatable({}, {__mode = 'kv'})
+	local state = {}
 
 	state.wallStyle = self._wallStyle
 	state.floorStyle = self._floorStyle

@@ -4,6 +4,7 @@ local format, io_stderr = string.format, io.stderr
 local string_len, string_byte = string.len, string.byte
 local sqrt, tonumber = math.sqrt, tonumber
 local floor = math.floor
+local collectgarbage = collectgarbage
 
 
          --[[--
@@ -338,6 +339,23 @@ function resizeScreen(width, height)
 	WIDTH, HEIGHT = love.graphics.getWidth(), love.graphics.getHeight()
 end
 
+
+--------------------------------------------------
+-- reduce memory leaking in love.graphics.print --
+--------------------------------------------------
+-- the love.graphics.print functions, when used many times on the screen, have
+-- a very noticable effect on rising memeory. This just adds a collectgarbage
+-- call to these functions to help.
+local _lgprint = love.graphics.print
+local _lgprintf = love.graphics.printf
+function love.graphics.print(...)
+	_lgprint(...)
+	collectgarbage('step', 0)
+end
+function love.graphics.printf(...)
+	_lgprintf(...)
+	collectgarbage('step', 0)
+end
 
 
          --[[--

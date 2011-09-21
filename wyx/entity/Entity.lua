@@ -142,8 +142,7 @@ end
 -- functions to save and restore state
 -- getState returns a table with key/value pairs representing state data
 function Entity:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
+	local state = {}
 
 	state.name = self._name
 	state.etype = self._etype
@@ -152,7 +151,7 @@ function Entity:getState()
 	state.variation = self._variation
 	state.elevel = self._elevel
 	state.description = self._description
-	state.components = setmetatable({}, mt)
+	state.components = {}
 
 	if self._components then
 		for name,comp in pairs(self._components) do

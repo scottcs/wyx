@@ -165,6 +165,9 @@ function st:InputCommandEvent(e)
 		MENU_PLAY = function()
 			RunState.switch(State.playmenu, self._world, self._view)
 		end,
+		CONSOLE_CMD_QUIT = function()
+			RunState.switch(State.destroy)
+		end,
 
 		-- debug
 		NEW_LEVEL = function()
