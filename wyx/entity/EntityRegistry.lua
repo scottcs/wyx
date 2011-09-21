@@ -227,7 +227,7 @@ end
 
 -- get the state of the registry for serialization
 function EntityRegistry:getState()
-	local state = setmetatable({}, {__mode = 'kv'})
+	local state = {}
 
 	for id,entity in self:iterate() do
 		state[id] = entity:getState()

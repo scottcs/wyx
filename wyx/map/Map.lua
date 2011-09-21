@@ -169,11 +169,10 @@ end
 
 -- get the state of this map
 function Map:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
-	state.layout = setmetatable({}, mt)
-	state.zones = setmetatable({}, mt)
-	state.portals = setmetatable({}, mt)
+	local state = {}
+	state.layout = {}
+	state.zones = {}
+	state.portals = {}
 
 	state.x, state.y = self:getPosition()
 	state.w, state.h = self:getSize()
@@ -183,7 +182,7 @@ function Map:getState()
 
 	for y=1,state.h do
 		if self._layout[y] then
-			state.layout[y] = state.layout[y] or setmetatable({}, mt)
+			state.layout[y] = state.layout[y] or {}
 
 			for x=1,state.w do
 				if self._layout[y][x] then
@@ -195,7 +194,7 @@ function Map:getState()
 	end
 
 	for k,z in pairs(self._zones) do
-		state.zones[k] = setmetatable({}, mt)
+		state.zones[k] = {}
 		state.zones[k].x, state.zones[k].y = z:getPosition()
 		state.zones[k].w, state.zones[k].h = z:getSize()
 	end

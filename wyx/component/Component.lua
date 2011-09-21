@@ -125,8 +125,7 @@ end
 
 -- get the current state of the component
 function Component:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
+	local state = {}
 
 	for k,v in pairs(self._properties) do
 		state[k] = v
