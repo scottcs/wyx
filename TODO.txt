@@ -37,23 +37,6 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  d rewrite DebugHUD using ui classes
-  d rewrite MessageHUD using ui classes
-  x   rename to PopupMessage or something
-  d remove framebuffers from ui classes
-  d remove framebuffers from other classes unless absolutely necessary
-  d   GraphicsComponent [just image and quad probably]
-  d   AnimatedTile [just image and quad list probably]
-  d   TileMapNodeView [just image and quad probably... like GraphicsComponent]
-  x   TileMapView [SpriteBatch probably... except for animated tiles]
-  d rewrite Console using ui classes
-	d   fix memory leak when Console is visible
-  x   Need a way to only use one frame for all text instead of one frame per line
-  x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
-  d   add command line
-  d   add commands
-  d   add logging to file
-  d   add message levels [print&log, log]
 
 :::::::::::::::
 :PENDING TASKS:
