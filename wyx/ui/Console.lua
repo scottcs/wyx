@@ -224,9 +224,55 @@ function Console:_parse(command)
 	return cmd, args
 end
 
-local cmds = {
-	test = function(self, args) self:print('This is a test') end,
+local sortedCmds = {}
+local cmds
+cmds = {
+	test = {
+		run = function(self, ...) self:print('This is a test') end,
+	},
+	dump = {
+		help = 'Dump all entities to console',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('DUMP_ENTITIES')))
+		end,
+	},
+	stats = {
+		help = 'Print stats for an entity (player if no entity given)',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('PRINT_STATS')))
+		end,
+	},
+	inv = {
+		help = 'Print inventory for an entity (player if no entity given)',
+		run = function(self, ...)
+			InputEvents:notify(InputCommandEvent(command('PRINT_INVENTORY')))
+		end,
+	},
+	help = {
+		help = 'Show available commands (this list)',
+		run = function(self, ...)
+			self:print('Commands:')
+			local num = #sortedCmds
+			for i=1,num do
+				local name = sortedCmds[i]
+				if name ~= 'help' then self:_printCommandHelp(name) end
+			end
+			self:_printCommandHelp('help')
+		end,
+	},
 }
+
+for k in pairs(cmds) do
+	sortedCmds[#sortedCmds+1] = k
+end
+table.sort(sortedCmds)
+
+
+-- print a line of command help
+function Console:_printCommandHelp(cmd)
+	local help = cmds[cmd].help or ''
+	self:print('  %-14s %s', cmd, help)
+end
 
 -- validate a command
 function Console:_validateCommand(command)
@@ -237,8 +283,12 @@ end
 -- run a command
 function Console:_runCommand(command, args)
 	local a = args and concat(args, ', ') or 'no args'
-	self:print('run: %s (%s)', command, a)
-	cmds[command](self, args and unpack(args))
+	local run = cmds[command].run
+	if run then
+		run(self, args and unpack(args))
+	else
+		self:print(colors.RED, 'Command %q has no run method defined!', command)
+	end
 end
 
 
