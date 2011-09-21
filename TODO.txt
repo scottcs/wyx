@@ -52,8 +52,8 @@ Later Goals:
   x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
   d   add command line
   d   add commands
-  o   add logging to file
-  o   add message levels [info, warn, debug, error, all]
+  d   add logging to file
+  d   add message levels [print&log, log]
 
 :::::::::::::::
 :PENDING TASKS:

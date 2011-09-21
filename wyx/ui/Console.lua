@@ -32,6 +32,16 @@ local Console = Class{name='Console',
 
 		self:_makeEntry()
 
+		self._filename = 'console.log'
+		if love.filesystem.exists(self._filename) then
+			love.filesystem.remove(self._filename)
+		end
+		self._file = love.filesystem.newFile(self._filename)
+		if not self._file:open('a') then
+			warning('Could not open console log')
+			self._file = nil
+		end
+
 		UISystem:registerKeys(ui.keysID, ui.keys)
 		InputEvents:register(self, InputCommandEvent)
 	end
@@ -39,6 +49,7 @@ local Console = Class{name='Console',
 
 -- destructor
 function Console:destroy()
+	self:_closeLog()
 	InputEvents:unregisterAll(self)
 	UISystem:unregisterKeys(ui.keysOnShowID)
 	UISystem:unregisterKeys(ui.keysID)
@@ -137,6 +148,25 @@ function Console:_print(style, msg, ...)
 
 	if self._firstLine == 0 then
 		self._needsUpdate = true
+	end
+
+	if self._file then self:log(msg) end
+end
+
+function Console:_closeLog()
+	if self._file then
+		if not self._file:close() then
+			warning('Could not close console log')
+		end
+		self._file = nil
+	end
+end
+
+-- print to an output file
+function Console:log(msg)
+	if not self._file:write(format('%s\n', msg)) then
+		warning('Could not write to console log')
+		self:_closeLog()
 	end
 end
 
