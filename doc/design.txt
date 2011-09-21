@@ -1,3 +1,19 @@
+2011.09.20
+----------
+  o Tactical combat - burn/destroy obstacles, build new obstacles, permanent
+    or temporary walls, baricade doors, etc.
+  o Group AI - if a flock of enemies is thinned, maybe some run away, some
+    plead to be spared, maybe offer gold/item.
+  o Monsters should have goals. Don't just wander aimlessly or stand around
+    waiting for the player. They should have wants and fears... maybe goblins
+    are afraid of an ogre and they run off. Maybe the lich is searching for
+    corpses. Etc.
+  o Merchants sell mundane items in the beginning, and not for cheap. As the
+    player levels up and gets more reknown, or if the merchant is afraid due to
+    enemies nearby, prices change or items become free, etc. Magic items found
+    through exploration and rewarded from tough challenges.
+
+
 2011.09.04
 ----------
 Essences

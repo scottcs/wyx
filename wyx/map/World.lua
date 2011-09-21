@@ -76,9 +76,8 @@ function World:getEntityRegistry() return self._eregistry end
 
 -- save the world (forget the cheerleader)
 function World:getState()
-	local mt = {__mode = 'kv'}
-	local state = setmetatable({}, mt)
-	state.places = setmetatable({}, mt)
+	local state = {}
+	state.places = {}
 
 	state.curPlace = self._curPlace
 	state.lastPlace = self._lastPlace

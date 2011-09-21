@@ -65,8 +65,7 @@ function st:InputCommandEvent(e)
 			RunState.switch(State.destroy)
 		end,
 		MENU_MAIN = function()
-			--RunState.switch(State.save, self._world, self._view, 'destroy')
-			RunState.switch(State.destroy)
+			RunState.switch(State.save, self._world, self._view, 'destroy')
 		end,
 		MENU_SAVE_GAME = function()
 			RunState.switch(State.save, self._world, self._view, 'play')
