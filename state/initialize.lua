@@ -73,6 +73,7 @@ function st:_makeGameSeed()
 	local mtime = math.floor(love.timer.getMicroTime() * 1000)
 	local mx = love.mouse.getX()
 	local my = love.mouse.getY()
+	if time < ltime then time, ltime = ltime, time end
 	GAMESEED = (time - ltime) + mtime + mx + my
 	math.randomseed(GAMESEED) math.random() math.random() math.random()
 	local rand = math.floor(math.random() * 10000000)
@@ -108,9 +109,7 @@ function st:update(dt)
 	if self._doLoadStep then self:_load() end
 end
 
-function st:draw()
-	if Console then Console:draw() end
-end
+function st:draw() end
 
 function st:keypressed(key, unicode) end
 

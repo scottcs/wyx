@@ -3,6 +3,7 @@ local Frame = getClass 'wyx.ui.Frame'
 local Text = getClass 'wyx.ui.Text'
 local Button = getClass 'wyx.ui.Button'
 local command = require 'wyx.ui.command'
+local depths = require 'wyx.system.renderDepths'
 
 local floor = math.floor
 
@@ -17,10 +18,10 @@ local MenuUI = Class{name='MenuUI',
 		verify('table', ui)
 
 		Frame.construct(self, 0, 0, WIDTH, HEIGHT)
-		self:setDepth(5)
+		self:setDepth(depths.menu)
 
 		if ui and ui.keys then
-			UISystem:registerKeys(ui.keys)
+			UISystem:registerKeys(ui.keysID, ui.keys)
 			self._uikeys = true
 		end
 		self._ui = ui
@@ -34,7 +35,7 @@ local MenuUI = Class{name='MenuUI',
 -- destructor
 function MenuUI:destroy()
 	if self._uikeys then
-		UISystem:unregisterKeys()
+		UISystem:unregisterKeys(self._ui.keysID)
 		self._uikeys = nil
 	end
 	self._ui = nil

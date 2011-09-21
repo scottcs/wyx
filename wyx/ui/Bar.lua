@@ -107,20 +107,25 @@ function Bar:onTick(dt, x, y)
 	return Frame.onTick(self, dt, x, y)
 end
 
--- override Frame:_drawForeground()
-function Bar:_drawForeground()
+-- override Frame:_updateForeground()
+function Bar:_updateForeground()
 	if self._min and self._max and self._val then
-		if self._curStyle then
-			local x = self._margins[1]
-			local y = self._margins[2]
-			local w = self:getWidth() - (x + self._margins[3])
-			local h = self:getHeight() - (y + self._margins[4])
+		local style = self:getCurrentStyle()
+		if style then
+			local x, y = self:getPosition()
+			x = x + self._margins[1]
+			y = y + self._margins[2]
+			local w = self:getWidth() - (self._margins[1] + self._margins[3])
+			local h = self:getHeight() - (self._margins[2] + self._margins[4])
 			local percent = (self._val - self._min) / (self._max - self._min)
 			w = w * percent
 
-			local color = self._curStyle:getFGColor()
-			setColor(color)
-			rectangle('fill', x, y, w, h)
+			local color = style:getFGColor()
+			self:_clearLayer('fg')
+			self._layers.fg = {
+				color = color,
+				rectangle = {x, y, w, h},
+			}
 		end
 	end
 end

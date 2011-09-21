@@ -2,14 +2,10 @@ local Class = require 'lib.hump.class'
 local MapNodeView = getClass 'wyx.view.MapNodeView'
 local math_max = math.max
 
-local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
-local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local colors = colors
-local nearestPO2 = nearestPO2
 
 local verifyClass, setmetatable, pairs = verifyClass, setmetatable, pairs
 
@@ -29,34 +25,14 @@ local TileMapNodeView = Class{name='TileMapNodeView',
 
 -- destructor
 function TileMapNodeView:destroy()
-	self._fb = nil
+	self._set = nil
+	self._quad = nil
+	self._bgquad = nil
 	self._drawX = nil
 	self._drawY = nil
 	self._isDrawing = nil
 	self._node = nil
 	MapNodeView.destroy(self)
-end
-
-local _fbcache = setmetatable({}, {__mode = 'kv'})
-function TileMapNodeView:_getfb(tileset, quad, bgquad)
-	local fb = _fbcache[self._key]
-
-	if nil == fb then
-		local size = nearestPO2(math_max(self:getWidth(), self:getHeight()))
-		fb = newFramebuffer(size, size)
-
-		setRenderTarget(fb)
-
-		setColor(colors.WHITE)
-		if bgquad then drawq(tileset, bgquad, 0, 0) end
-		drawq(tileset, quad, 0, 0)
-
-		setRenderTarget()
-
-		_fbcache[self._key] = fb
-	end
-
-	return fb
 end
 
 function TileMapNodeView:_resetKey()
@@ -75,9 +51,9 @@ function TileMapNodeView:getNode() return self._node end
 -- set the tile for this node
 function TileMapNodeView:setTile(tileset, quad, bgquad)
 	if tileset and quad then
-		self._isDrawing = true
-		self._fb = self:_getfb(tileset, quad, bgquad)
-		self._isDrawing = false
+		self._set = tileset
+		self._quad = quad
+		self._bgquad = bgquad
 	end
 end
 
@@ -88,16 +64,14 @@ function TileMapNodeView:setPosition(x, y)
 	self._drawY = (y-1)*self:getHeight()
 end
 
--- draw the frame buffer
+-- draw the tile
 function TileMapNodeView:draw()
-	if self._fb and self._isDrawing == false then
-		draw(self._fb, self._drawX, self._drawY)
+	if self._set and self._quad then
+		if self._bgquad then
+			drawq(self._set, self._bgquad, self._drawX, self._drawY)
+		end
+		drawq(self._set, self._quad, self._drawX, self._drawY)
 	end
-end
-
--- class function to reset the framebuffer cache
-function TileMapNodeView.resetCache()
-	for k in pairs(_fbcache) do _fbcache[k] = nil end
 end
 
 

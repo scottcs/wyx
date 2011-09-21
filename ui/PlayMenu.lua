@@ -27,20 +27,14 @@ ui.title = {
 	})
 }
 
+ui.keysID = 'PlayMenu'
 ui.keys = {
 	O = command('MENU_OPTIONS'),
 	H = command('MENU_HELP'),
 	A = command('DELETE_GAME'),
 	S = command('MENU_SAVE_GAME'),
 	M = command('MENU_MAIN'),
-	escape = {command('EXIT_MENU'), command('CONSOLE_HIDE')},
-
-	['`'] = command('CONSOLE_TOGGLE'),
-	f10 = command('CONSOLE_CLEAR'),
-	home = command('CONSOLE_TOP'),
-	['end'] = command('CONSOLE_BOTTOM'),
-	pageup = command('CONSOLE_PAGEUP'),
-	pagedown = command('CONSOLE_PAGEDOWN'),
+	escape = command('EXIT_MENU'),
 }
 
 ui.screenStyle = Style({

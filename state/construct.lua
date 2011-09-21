@@ -109,9 +109,7 @@ function st:update(dt)
 	if self._doLoadStep then self:_load() end
 end
 
-function st:draw()
-	if Console then Console:draw() end
-end
+function st:draw() end
 
 
 return st

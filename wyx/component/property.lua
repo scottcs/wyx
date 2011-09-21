@@ -1,6 +1,7 @@
 local property = {}
 
 local warning = warning
+local depths = require 'wyx.system.renderDepths'
 
 -- check if a given property is valid
 local isproperty = function(prop) return property[prop] ~= nil end
@@ -78,7 +79,7 @@ property.BlockedBy         = {Wall='ALL', Door='shut'}
 property.TileSet           = 'dungeon'
 property.TileCoords        = {front = {1, 1}}
 property.TileSize          = 32
-property.RenderDepth       = 30
+property.RenderDepth       = depths.game
 property.Visibility        = 0
 property.VisibilityBonus   = 0
 

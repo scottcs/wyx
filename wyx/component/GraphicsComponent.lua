@@ -4,13 +4,9 @@ local LightingStatusRequest = getClass 'wyx.event.LightingStatusRequest'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
 
-local newFramebuffer = love.graphics.newFramebuffer
 local newQuad = love.graphics.newQuad
-local setRenderTarget = love.graphics.setRenderTarget
 local drawq = love.graphics.drawq
-local draw = love.graphics.draw
 local setColor = love.graphics.setColor
-local nearestPO2 = nearestPO2
 local colors = colors
 
 local verify, assert, tostring = verify, assert, tostring
@@ -57,8 +53,6 @@ function GraphicsComponent:destroy()
 	self._curFrame = nil
 	self._topFrame = nil
 	self._tileset = nil
-	self._ffb = nil
-	self._bfb = nil
 	self._size = nil
 	ViewComponent.destroy(self)
 end
@@ -100,7 +94,7 @@ function GraphicsComponent:_setScreenStatus(status)
 	else
 		self._color = COLOR_NORMAL
 	end
-	self:_updateFB()
+	self:_calculateDraw()
 end
 
 function GraphicsComponent:receive(sender, msg, ...)
@@ -113,7 +107,7 @@ function GraphicsComponent:receive(sender, msg, ...)
 	then self:_setScreenStatus(...)
 
 	elseif msg == message('HAS_MOVED') then
-		self:_updateFB(...)
+		self:_calculateDraw(...)
 
 	elseif (msg == message('CONTAINER_INSERTED')
 		or msg == message('ATTACHMENT_ATTACHED'))
@@ -188,7 +182,7 @@ function GraphicsComponent:_makeQuads()
 	end
 end
 
-function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
+function GraphicsComponent:_calculateDraw(newX, newY, oldX, oldY)
 	if self._mediator then
 		local newFrame
 
@@ -214,26 +208,18 @@ function GraphicsComponent:_updateFB(newX, newY, oldX, oldY)
 		end
 
 		self._curFrame = newFrame or self._curFrame
-		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 
 		if newX and newY then
 			self._drawX, self._drawY = (newX-1)*self._size, (newY-1)*self._size
 		end
-		self._bfb = self._bfb or newFramebuffer(self._size, self._size)
-
-		setRenderTarget(self._bfb)
-		setColor(colors.WHITE)
-		drawq(self._tileset, frame, 0, 0)
-		setRenderTarget()
-
-		self._ffb, self._bfb = self._bfb, self._ffb
 	end
 end
 
 function GraphicsComponent:draw()
-	if self._lit == 'lit' and self._ffb and self._doDraw then
+	if self._mediator and self._lit == 'lit' and self._doDraw then
+		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
 		setColor(self._color)
-		draw(self._ffb, self._drawX, self._drawY)
+		drawq(self._tileset, frame, self._drawX, self._drawY)
 	end
 end
 

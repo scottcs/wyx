@@ -37,13 +37,22 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  d fix items being duplicated on the ground sometimes
-	d add debug line to entity tooltips
-	d fix update lighting not updating at the right time on attach/detach
-	d delete game from game-menu
-	d make titles bigger
-	d fix Z in fonts
-
+  d rewrite DebugHUD using ui classes
+  d rewrite MessageHUD using ui classes
+  x   rename to PopupMessage or something
+  d remove framebuffers from ui classes
+  d remove framebuffers from other classes unless absolutely necessary
+  d   GraphicsComponent [just image and quad probably]
+  d   AnimatedTile [just image and quad list probably]
+  d   TileMapNodeView [just image and quad probably... like GraphicsComponent]
+  x   TileMapView [SpriteBatch probably... except for animated tiles]
+  o rewrite Console using ui classes
+  x   Need a way to only use one frame for all text instead of one frame per line
+  x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
+  o   add command line
+  o   add commands
+  o   add logging to file
+  o   add message levels [info, warn, debug, error, all]
 
 :::::::::::::::
 :PENDING TASKS:
@@ -76,7 +85,7 @@ Entities:
 
 Input/Events/Config:
   o read keybindings from a config file. [make a default config in the data dir]
-	o Close Door command
+  o Close Door command
 
 Console/Debug:
   - log console to file (with an option)
@@ -132,8 +141,8 @@ Interface:
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
 
-	Play Menu:
-	o change Quit to Save and Quit [once we can quit without saving, from the console]
+  Play Menu:
+  o change Quit to Save and Quit [once we can quit without saving, from the console]
 
   StickyButton:
   x   Can watch a variable [for image it represents] -- is a "view" of an item

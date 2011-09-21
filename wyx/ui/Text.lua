@@ -67,7 +67,10 @@ end
 -- assuming width is constant, wrap lines if they're larger than the width
 -- of this frame.
 function Text:_wrap(text)
-	local font = self._curStyle:getFont()
+	local style = self:getCurrentStyle()
+	if not style then return end
+	local font = style:getFont()
+
 	if font then
 		local space = font:getWidth(' ')
 		local margin = self._margin or 0
@@ -238,12 +241,18 @@ function Text:onTick(dt, x, y)
 	return Frame.onTick(self, dt, x, y)
 end
 
--- override Frame:_drawForeground()
-function Text:_drawForeground()
+-- override Frame:_updateForeground()
+function Text:_updateForeground()
+	local style = self:getCurrentStyle()
+	local l
+
 	if self._text and #self._text > 0 then
-		if self._curStyle then
-			local font = self._curStyle:getFont()
+		if style then
+			local font = style:getFont()
 			if font then
+				self:_clearLayer('fg')
+				l = {}
+
 				local height = font:getHeight()
 				local margin = self._margin or 0
 				local text = self._text
@@ -252,73 +261,96 @@ function Text:_drawForeground()
 				local numLines = textLines > maxLines and maxLines or textLines
 				local totalHeight = height * numLines
 				local halfHeight = totalHeight/2
-				local fontcolor = self._curStyle:getFontColor()
+				local fontcolor = style:getFontColor()
 
-				setFont(font)
-				setColor(fontcolor)
+				l.font = font
+				l.color = fontcolor
+				l.lines = {}
 
 				for i=1,numLines do
 					local line = text[i]
 					local h = (i-1) * height
 					local w = font:getWidth(line)
-					local x, y
+					local x, y = self:getPosition()
 
 					if     'l' == self._justify then
-						x = margin
+						x = x + margin
 					elseif 'c' == self._justify then
 						local cx = self:getWidth() / 2
-						x = math_floor(cx - (w/2))
+						x = x + math_floor(cx - (w/2))
 					elseif 'r' == self._justify then
-						x = self:getWidth() - (margin + w)
+						x = x + self:getWidth() - (margin + w)
 					else
-						x = 0
 						warning('Unjustified (justify is set to %q)',
 							tostring(self._justify))
 					end
 
 					if     't' == self._align then
-						y = margin + h
+						y = y + margin + h
 					elseif 'c' == self._align then
 						local cy = self:getHeight() / 2
-						y = math_floor(cy - halfHeight) + h
+						y = y + math_floor(cy - halfHeight) + h
 					elseif 'b' == self._align then
-						y = self:getHeight() - (margin + totalHeight) + h
+						y = y + self:getHeight() - (margin + totalHeight) + h
 					else
-						y = 0
 						warning('Unaligned (align is set to %q)',
 							tostring(self._align))
 					end
 
-					gprint(line, x, y)
+					l.lines[i] = {line, x, y}
 				end -- for i=1,numLines
 
 				-- print cursor
 				if self._showCursor then
 					local lastLine = text[numLines]
-					local y = (totalHeight - height) + margin
-					local x = font:getWidth(lastLine) + 4
+					local x, y = self:getPosition()
+					local y = y + (totalHeight - height) + margin
+					local x = x + font:getWidth(lastLine) + 4
 
-					setColor(fontcolor)
-					rectangle('fill', x, y, 4, height)
+					l.rectangle = {x, y, 4, height}
 				end -- if self._showCursor
 			end -- if font
-		end -- if self._curStyle
+		end -- if style
 	else
 		-- print cursor when no text
 		if self._showCursor then
-			if self._curStyle then
-				local font = self._curStyle:getFont()
+			if style then
+				local font = style:getFont()
 				if font then
-					local fontcolor = self._curStyle:getFontColor()
+					self:_clearLayer('fg')
+					local x, y = self:getPosition()
+					local fontcolor = style:getFontColor()
 					local height = font:getHeight()
 					local margin = self._margin or 0
 
-					setColor(fontcolor)
-					rectangle('fill', margin, margin, 4, height)
+					l.color = fontcolor
+					l.rectangle = {x + margin, y + margin, 4, height}
 				end -- if font
-			end -- if self._curStyle
+			end -- if style
 		end -- if self._showCursor
 	end -- if self._text
+
+	if l then self._layers.fg = l end
+end
+
+-- override Frame:_drawForeground()
+function Text:_drawForeground(color)
+	local l = self._layers['fg']
+
+	if l then
+		if l.font then
+			setFont(l.font)
+			setColor(self:_multColors(color, l.color))
+
+			local num = #l.lines
+			for i=1,num do
+				local line = l.lines[i]
+				gprint(line[1], line[2], line[3])
+			end
+		end
+
+		Frame._drawForeground(self)
+	end
 end
 
 -- the class
