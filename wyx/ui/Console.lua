@@ -9,8 +9,10 @@ local ui = require 'ui.Console'
 local depths = require 'wyx.system.renderDepths'
 
 local format, match = string.format, string.match
+local gmatch = string.gmatch
 local concat = table.concat
 local unpack = unpack
+local tostring = tostring
 local colors = colors
 
 -- Console
@@ -156,6 +158,17 @@ function Console:_updateForeground()
 	end
 end
 
+-- override Frame:show and hide to register/unregister keys
+function Console:show()
+	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
+	Frame.show(self)
+end
+function Console:hide()
+	self._commandline:toggleEnterMode(false)
+	Frame.hide(self)
+	UISystem:unregisterKeys(ui.keysOnShowID)
+end
+
 -- make a text line
 function Console:_makeText(style, text)
 	local f = Text(0, 0, ui.line.w, ui.line.h)
@@ -169,11 +182,13 @@ end
 -- callback called when command line is entered
 local _commandCB = function(self)
 	local cl = self._commandline
-	local command = concat(cl:getText(), ' ')
+	local command, args = self:_parse(concat(cl:getText(), ' '))
+	if not command then return end
+
 	cl:clearText()
 	cl:toggleEnterMode(true)
 
-	if self:_validateCommand(command) then self:_runCommand(command) end
+	if self:_validateCommand(command) then self:_runCommand(command, args) end
 end
 
 -- make the entry line
@@ -194,25 +209,36 @@ function Console:_makeEntry()
 	self:addChild(self._commandline)
 end
 
+function Console:_parse(command)
+	local cmd, args
+
+	for word in gmatch(command, '%s*(%S+)') do
+		if cmd then
+			args = args or {}
+			args[#args+1] = word
+		else
+			cmd = word
+		end
+	end
+
+	return cmd, args
+end
+
+local cmds = {
+	test = function(self, args) self:print('This is a test') end,
+}
+
 -- validate a command
 function Console:_validateCommand(command)
-	return true
+	if command and cmds[command] then return true end
+	self:print(colors.RED, 'Unknown command: %s', tostring(command))
 end
 
 -- run a command
-function Console:_runCommand(command)
-	self:print('%s %s','run',command)
-end
-
--- override Frame:show and hide to register/unregister keys
-function Console:show()
-	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
-	Frame.show(self)
-end
-function Console:hide()
-	self._commandline:toggleEnterMode(false)
-	Frame.hide(self)
-	UISystem:unregisterKeys(ui.keysOnShowID)
+function Console:_runCommand(command, args)
+	local a = args and concat(args, ', ') or 'no args'
+	self:print('run: %s (%s)', command, a)
+	cmds[command](self, args and unpack(args))
 end
 
 
