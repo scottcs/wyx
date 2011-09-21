@@ -252,9 +252,32 @@ cmds = {
 		help = 'Quit the current game (without saving) and go to the Main Menu',
 		run = function(self, ...)
 			self:hide()
-			InputEvents:notify(InputCommandEvent(command('MENU_MAIN')))
+			InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_QUIT')))
 		end,
 	},
+	--[[
+	['load'] = {
+		help = 'Quit the current game (without saving) and load the given file or go to the Load Menu',
+		run = function(self, ...)
+			self:hide()
+			if select('#', ...) > 0 then
+				InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_LOAD'), ...))
+			else
+				InputEvents:notify(InputCommandEvent(command('MENU_LOAD_GAME')))
+			end
+		end,
+	},
+	save = {
+		help = 'Save the current game to the given filename, or default filename if none is given',
+		run = function(self, ...)
+			if select('#', ...) > 0 then
+				InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_SAVE'), ...))
+			else
+				InputEvents:notify(InputCommandEvent(command('MENU_SAVE_GAME')))
+			end
+		end,
+	},
+	]]--
 	help = {
 		help = 'Show available commands (this list)',
 		run = function(self, ...)

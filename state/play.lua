@@ -165,7 +165,7 @@ function st:InputCommandEvent(e)
 		MENU_PLAY = function()
 			RunState.switch(State.playmenu, self._world, self._view)
 		end,
-		MENU_MAIN = function()
+		CONSOLE_CMD_QUIT = function()
 			RunState.switch(State.destroy)
 		end,
 
