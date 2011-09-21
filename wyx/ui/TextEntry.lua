@@ -25,7 +25,7 @@ end
 function TextEntry:_clearCallback()
 	self._callback = nil
 	if self._callbackArgs then
-		for k,v in self._callbackArgs do self._callbackArgs[k] = nil end
+		for k,v in pairs(self._callbackArgs) do self._callbackArgs[k] = nil end
 		self._callbackArgs = nil
 	end
 end
