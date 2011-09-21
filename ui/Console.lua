@@ -8,12 +8,13 @@ local floor = math.floor
 
 local font = GameFont.console
 local fontH = font:getHeight()
-local margin = 8
+local margin = 4
 local entryH = fontH + 2*margin
+local promptW = font:getWidth('>') + 2*margin
 local panelWidth = WIDTH - 2*margin
-local panelHeight = HEIGHT - (entryH + margin)
+local panelHeight = HEIGHT - (entryH + 2*margin)
 local lines = floor(panelHeight / fontH) - 2
-local startY = floor(panelHeight - (margin + fontH*2))
+local startY = panelHeight - fontH
 local bufferSize = 1000
 
 ui.keysID = 'Console'
@@ -63,13 +64,24 @@ ui.line = {
 }
 
 ui.entry = {
-	x = 0,
+	x = promptW + margin,
 	y = ui.scrollback.h + margin,
-	w = ui.scrollback.w,
+	w = ui.scrollback.w - promptW,
 	h = entryH,
-	normalStyle = ui.line.normalStyle:clone({fontcolor = colors.WHITE}),
+	margin = margin,
+	normalStyle = Style({
+		fontcolor = colors.WHITE,
+		font = font,
+		bgcolor = colors.GREY20,
+	}),
 }
-ui.entry.activeStyle = ui.entry.normalStyle:clone({bgcolor = colors.GREY20})
+
+ui.prompt = {
+	x = margin,
+	y = ui.entry.y,
+	w = promptW,
+	h = ui.entry.h,
+}
 
 
 return ui
