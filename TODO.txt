@@ -46,11 +46,11 @@ Later Goals:
   d   AnimatedTile [just image and quad list probably]
   d   TileMapNodeView [just image and quad probably... like GraphicsComponent]
   x   TileMapView [SpriteBatch probably... except for animated tiles]
-  o rewrite Console using ui classes
-	o   fix memory leak when Console is visible
-  o   Need a way to only use one frame for all text instead of one frame per line
+  d rewrite Console using ui classes
+	d   fix memory leak when Console is visible
+  x   Need a way to only use one frame for all text instead of one frame per line
   x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
-  o   add command line
+  d   add command line
   o   add commands
   o   add logging to file
   o   add message levels [info, warn, debug, error, all]
