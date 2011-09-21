@@ -248,6 +248,13 @@ cmds = {
 			InputEvents:notify(InputCommandEvent(command('PRINT_INVENTORY')))
 		end,
 	},
+	quit = {
+		help = 'Quit the current game (without saving) and go to the Main Menu',
+		run = function(self, ...)
+			self:hide()
+			InputEvents:notify(InputCommandEvent(command('MENU_MAIN')))
+		end,
+	},
 	help = {
 		help = 'Show available commands (this list)',
 		run = function(self, ...)
