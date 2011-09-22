@@ -119,6 +119,8 @@ function GraphicsComponent:receive(sender, msg, ...)
 		and sender == self._mediator
 	then self._doDraw = true
 	end
+
+	ViewComponent.receive(self, sender, msg, ...)
 end
 
 function GraphicsComponent:getProperty(p, intermediate, ...)

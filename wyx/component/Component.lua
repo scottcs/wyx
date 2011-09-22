@@ -11,7 +11,9 @@ local Component = Class{name='Component',
 	function(self, newProperties)
 		self._properties = {}
 		self._messages = {}
+		self._elevel = 0
 		self:_createProperties(newProperties)
+		self:_addMessages('ENTITY_CREATED')
 	end
 }
 
@@ -28,6 +30,9 @@ function Component:destroy()
 		for k in pairs(self._accessAverages) do self._accessAverages[k] = nil end
 		self._accessAverages = nil
 	end
+
+	self._elevel = nil
+	self._entityCreated = nil
 
 	self._mediator = nil
 end
@@ -91,11 +96,17 @@ end
 function Component:_setProperty(prop, data)
 	if data == nil then data = property.default(prop) end
 	self._properties[property(prop)] = data
+	if self._entityCreated then self:_calculateELevel() end
 end
 
 -- receive a message
 -- precondition: msg is a valid component message
-function Component:receive(sender, msg, ...) end
+function Component:receive(sender, msg, ...)
+	if msg == message('ENTITY_CREATED') and sender == self._mediator then
+		self:_calculateELevel()
+		self._entityCreated = true
+	end
+end
 
 -- evaluate a property and return its value
 function Component:_evaluate(p)
@@ -131,9 +142,9 @@ function Component:getProperty(p, intermediate, ...)
 	end
 end
 
--- return the ELevel calculation for this component
-function Component:getELevel()
-	local elevel = 0
+-- calculate the ELevel for this component
+function Component:_calculateELevel()
+	self._elevel = 0
 
 	if self._properties then
 		for name,prop in pairs(self._properties) do
@@ -150,7 +161,7 @@ function Component:getELevel()
 
 					if nil == value then
 						local sum = 0
-						local tries = 20
+						local tries = 30
 						for i=1,tries do sum = sum + prop.onAccess(self._mediator) end
 						value = sum/tries
 						self._accessAverages[name] = value
@@ -162,14 +173,15 @@ function Component:getELevel()
 				end
 			end
 
-			elevel = elevel + (property.weight(name) * value)
+			self._elevel = self._elevel + (property.weight(name) * value)
 		end
 
-		elevel = floor(elevel*10 + 0.5)
+		self._elevel = floor(self._elevel + 0.5)
 	end
-
-	return elevel
 end
+
+-- return the ELevel calculation for this component
+function Component:getELevel() return self._elevel end
 
 -- get the current state of the component
 function Component:getState()

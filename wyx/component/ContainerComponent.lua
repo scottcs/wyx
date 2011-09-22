@@ -76,6 +76,8 @@ function ContainerComponent:receive(sender, msg, ...)
 			end
 		end
 	end
+
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function ContainerComponent:_insert(...)

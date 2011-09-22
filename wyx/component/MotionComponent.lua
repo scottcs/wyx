@@ -105,6 +105,8 @@ function MotionComponent:receive(sender, msg, ...)
 		self._mediator:send(message('SET_POSITION'),
 			mpos[1], mpos[2], pos[1], pos[2])
 	end
+
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function MotionComponent:getProperty(p, intermediate, ...)

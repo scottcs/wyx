@@ -46,7 +46,7 @@ function AttachmentComponent:_setProperty(prop, data)
 end
 
 function AttachmentComponent:receive(sender, msg, ...)
-	local continue = false
+	local continue = true
 
 	if     msg == message('ENTITIES_LOADED') then
 		local attachedProp = property('AttachedEntities')
@@ -75,6 +75,8 @@ function AttachmentComponent:receive(sender, msg, ...)
 			end
 		end
 	end
+
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function AttachmentComponent:_attach(...)

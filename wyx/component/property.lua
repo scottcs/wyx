@@ -72,15 +72,15 @@ end
 property.Attack            = {default = 0,
                                weight = 0.6}
 property.Defense           = {default = 0,
-                               weight = 0.6}
+                               weight = 1.2}
 property.Damage            = {default = 0,
                                weight = 0.6}
 property.AttackBonus       = {default = 0,
-                               weight = 0.9}
+                               weight = 0.6}
 property.DefenseBonus      = {default = 0,
-                               weight = 0.9}
+                               weight = 1.2}
 property.DamageBonus       = {default = 0,
-                               weight = 0.9}
+                               weight = 0.6}
 property._DamageMin        = {default = 0,
                                weight = 0.0}
 property._DamageMax        = {default = 0,
@@ -88,13 +88,13 @@ property._DamageMax        = {default = 0,
 
 -- health properties
 property.Health            = {default = '=$MaxHealth',
-                               weight = 0.2}
+                               weight = 0.0}
 property.MaxHealth         = {default = 0,
-                               weight = 0.2}
+                               weight = 1.0}
 property.HealthBonus       = {default = 0,
-                               weight = 1.1}
+                               weight = 0.5}
 property.MaxHealthBonus    = {default = 0,
-                               weight = 1.1}
+                               weight = 1.0}
 
 -- motion properties
 property.Position          = {default = {1, 1},
@@ -120,9 +120,9 @@ property.TileSize          = {default = 32,
 property.RenderDepth       = {default = depths.game,
                                weight = 0.0}
 property.Visibility        = {default = 0,
-                               weight = 1.3}
+                               weight = 1.0}
 property.VisibilityBonus   = {default = 0,
-                               weight = 1.3}
+                               weight = 1.0}
 
 -- controller properties
 property.CanOpenDoors      = {default = false,
@@ -130,23 +130,23 @@ property.CanOpenDoors      = {default = false,
 
 -- time properties
 property.DefaultCost       = {default = 0,
-                               weight = 0.01}
+                               weight = 0.0}
 property.AttackCost        = {default = 100,
                                weight = 0.01}
 property.AttackCostBonus   = {default = 0,
-                               weight = 0.01}
+                               weight = -0.01}
 property.MoveCost          = {default = 100,
                                weight = 0.01}
 property.MoveCostBonus     = {default = 0,
-                               weight = 0.01}
+                               weight = -0.01}
 property.WaitCost          = {default = '!$Speed',
-                               weight = 0.01}
+                               weight = 0.0}
 property.WaitCostBonus     = {default = 0,
-                               weight = 0.01}
+                               weight = -0.0}
 property.Speed             = {default = 100,
                                weight = 0.01}
 property.SpeedBonus        = {default = 0,
-                               weight = 0.01}
+                               weight = -0.01}
 property.IsExhausted       = {default = false,
                                weight = 0.0}
 property.DoTick            = {default = true,
@@ -160,7 +160,7 @@ property.ContainedEntities = {default = {},
 
 -- attachment properties
 property.AttachedEntities  = {default = {},
-                               weight = 0.0}
+                               weight = 1.0}
 
 
 -- the structure of valid property
