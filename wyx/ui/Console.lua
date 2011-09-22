@@ -19,7 +19,7 @@ local colors = colors
 -- Provides a feedback and command console for debugging and cheating.
 local Console = Class{name='Console',
 	inherits=Frame,
-	function(self)
+	function(self, firstOutput)
 		Frame.construct(self, ui.main.x, ui.main.y, ui.main.w, ui.main.h)
 		self:setNormalStyle(ui.main.normalStyle)
 		self:setDepth(depths.console)
@@ -44,6 +44,24 @@ local Console = Class{name='Console',
 
 		UISystem:registerKeys(ui.keysID, ui.keys)
 		InputEvents:register(self, InputCommandEvent)
+
+		-- if lines to print or to log were passed in, handle them now
+		if firstOutput then
+			verify('table', firstOutput)
+			local num = #firstOutput
+			for i=1,num do
+				local toOutput = firstOutput[i]
+				for kind,output in pairs(toOutput) do
+					if kind == 'print' then
+						self:print(unpack(output))
+					elseif kind == 'log' then
+						self:print(unpack(output))
+					else
+						warning('Incorrect Console output type: %s', tostring(kind))
+					end
+				end
+			end
+		end
 	end
 }
 

@@ -95,6 +95,21 @@ local function _setIcon()
 end
 
 function love.load()
+	-- create fake Console to store Console:print and :log lines until actual
+	-- console is created
+	Console = {
+		print = function(self, ...)
+			self._output = self._output or {}
+			self._output[#self._output+1] = {print = {...}}
+		end,
+		log = function(self, ...)
+			self._output = self._output or {}
+			self._output[#self._output+1] = {log = {...}}
+		end,
+	}
+
+	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
+
 	-- start the profiler
 	if doGlobalProfile then globalProfiler.start() end
 
@@ -162,8 +177,7 @@ function love.load()
 	UISystem = getClass('wyx.system.UISystem')()
 
 	-- create global console
-	Console = getClass('wyx.ui.Console')()
-	Console:print(colors.GREEN, '%s v%s', GAMENAME, VERSION)
+	Console = getClass('wyx.ui.Console')(Console._output)
 
 	-- make sure the save directories are created
 	_makeSaveDirectories()
