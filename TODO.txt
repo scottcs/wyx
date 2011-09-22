@@ -41,6 +41,7 @@ Later Goals:
 :::::::::::::::
 
   o Fix ELevel weights
+	d   add ELevel to entity debug tooltip
   o   Include MoveCost, AttackCost, etc
   o   Give player/hero ELevel
   o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]

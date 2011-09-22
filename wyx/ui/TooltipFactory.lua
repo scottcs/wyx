@@ -156,10 +156,11 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 	local debugLine
 	if debugTooltips then
 		local pos = entity:query(property('Position'))
+		local elevel = entity:getELevel() or -1
 		local x, y = -1, -1
 		x = (pos and pos[1]) and pos[1] or x
 		y = (pos and pos[2]) and pos[2] or y
-		local string = format('{%08s} (%d,%d)', id, x, y)
+		local string = format('{%08s} p:(%d,%d) e:%d', id, x, y, elevel)
 		debugLine = self:_makeText(string, width, debugStyle)
 	end
 
