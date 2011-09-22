@@ -48,6 +48,7 @@ Later Goals:
   o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
 	o add some more items and enemies
   o Character select or gear select + name entry
+	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
 
 :::::::::::::::
 :PENDING TASKS:
