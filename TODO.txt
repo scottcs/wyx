@@ -44,7 +44,7 @@ Later Goals:
 	d   add ELevel to entity debug tooltip
   d   Include MoveCost, AttackCost, etc
   d   Give player/hero ELevel
-  o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
+  d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
   o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
 	o add some more items and enemies
   o Character select or gear select + name entry
