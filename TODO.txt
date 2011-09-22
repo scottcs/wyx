@@ -40,10 +40,10 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  o Fix ELevel weights
+  d Fix ELevel weights
 	d   add ELevel to entity debug tooltip
-  o   Include MoveCost, AttackCost, etc
-  o   Give player/hero ELevel
+  d   Include MoveCost, AttackCost, etc
+  d   Give player/hero ELevel
   o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
   o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
 	o add some more items and enemies
