@@ -1,6 +1,9 @@
 local Class = require 'lib.hump.class'
+local Expression = getClass 'wyx.component.Expression'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
+
+local floor = math.floor
 
 -- Component
 --
@@ -20,6 +23,11 @@ function Component:destroy()
 	self:detachMessages()
 	for k in pairs(self._messages) do self._messages[k] = nil end
 	self._messages = nil
+
+	if self._accessAverages then
+		for k in pairs(self._accessAverages) do self._accessAverages[k] = nil end
+		self._accessAverages = nil
+	end
 
 	self._mediator = nil
 end
@@ -94,7 +102,7 @@ function Component:_evaluate(p)
 	local prop = self._properties[p]
 
 	if prop then
-		if type(prop) == 'table' then
+		if Expression.isCreatedExpression(prop) then
 			if prop.onAccess then
 				prop = prop.onAccess(self._mediator)
 			elseif prop.onCreate then
@@ -121,6 +129,46 @@ function Component:getProperty(p, intermediate, ...)
 	else
 		error('Please implement getProperty() for: '..tostring(self.__class))
 	end
+end
+
+-- return the ELevel calculation for this component
+function Component:getELevel()
+	local elevel = 0
+
+	if self._properties then
+		for name,prop in pairs(self._properties) do
+			local value = 0
+
+			if type(prop) == 'boolean' then
+				value = prop and 1 or 0
+			elseif type(prop) == 'number' then
+				value = prop
+			elseif Expression.isCreatedExpression(prop) then
+				if prop.onAccess then
+					self._accessAverages = self._accessAverages or {}
+					value = self._accessAverages[name]
+
+					if nil == value then
+						local sum = 0
+						local tries = 20
+						for i=1,tries do sum = sum + prop.onAccess(self._mediator) end
+						value = sum/tries
+						self._accessAverages[name] = value
+					end
+				elseif prop.onCreate then
+					value = self:_evaluate(name)
+				else
+					warning('getELevel: bad expression %q', tostring(prop))
+				end
+			end
+
+			elevel = elevel + (property.weight(name) * value)
+		end
+
+		elevel = floor(elevel*10 + 0.5)
+	end
+
+	return elevel
 end
 
 -- get the current state of the component

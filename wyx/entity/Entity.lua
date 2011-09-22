@@ -20,7 +20,6 @@ local Entity = Class{name = 'Entity',
 		self._family = info.family
 		self._kind = info.kind
 		self._variation = info.variation
-		self._elevel = info.elevel
 		self._description = info.description
 		self._components = {}
 		self._componentCache = setmetatable({}, {__mode = 'kv'})
@@ -30,6 +29,8 @@ local Entity = Class{name = 'Entity',
 				self:addComponent(comp)
 			end
 		end
+
+		self:_calculateELevel()
 	end
 }
 
@@ -101,6 +102,7 @@ function Entity:addComponent(component)
 	self._components[name] = component
 
 	self:_clearComponentCache()
+	self:_calculateELevel()
 end
 
 -- remove a component from the entity
@@ -124,6 +126,23 @@ function Entity:removeComponent(component)
 	end
 
 	self:_clearComponentCache()
+	self:_calculateELevel()
+end
+
+-- calculate this entity's EntityLevel
+function Entity:_calculateELevel()
+	self._elevel = 0
+
+	for k,comp in pairs(self._components) do
+		self._elevel = self._elevel + comp:getELevel()
+	end
+end
+
+-- override some ComponentMediator methods to ensure ELevel is always up to
+-- date.
+function Entity:rawsend(...)
+	ComponentMediator.rawsend(self, ...)
+	self:_calculateELevel()
 end
 
 -- query all components for a property, passing the intermediate result each
@@ -133,8 +152,8 @@ function Entity:query(prop, ...)
 end
 
 function Entity:rawquery(prop, intermediate, ...)
-	for k in pairs(self._components) do
-		intermediate = self._components[k]:getProperty(prop, intermediate, ...)
+	for k,comp in pairs(self._components) do
+		intermediate = comp:getProperty(prop, intermediate, ...)
 	end
 	return intermediate
 end

@@ -246,47 +246,17 @@ function EntityDB:_getPropertyWeights() return nil end
 
 -- calculate the elevel of this entity based on relevant properties.
 function EntityDB:_calculateELevel(info)
-	local props = self:_getPropertyWeights()
-	local found = {}
+	local elevel = 0
 
-	if info.components and props then
-		for comp,cprops in pairs(info.components) do
-			for p,t in pairs(props) do
-				local prop = t.name
-				if cprops[prop] then
-					found[p] = {weight = t.weight, value = cprops[prop]}
-				end
-			end
-		end
-	end
-
-	local elevel = 0.1
-	local tempEntity
 	if self._factory then
 		local id = self._factory:createEntity(info)
-		tempEntity = EntityRegistry:get(id)
+		local tempEntity = EntityRegistry:get(id)
+		elevel = tempEntity:getELevel()
+		EntityRegistry:unregister(tempEntity:getID())
+		tempEntity:destroy()
 	end
 
-	for p,t in pairs(found) do
-		local weight, value = t.weight, t.value
-		if type(value) == 'boolean' then value = value and 1 or 0 end
-		if Expression.isCreatedExpression(value) then
-			if tempEntity then
-				local func = value.onCreate or value.onAccess
-				local sum = 0
-				for i=1,100 do sum = sum + func(tempEntity) end
-				value = sum/100
-			else
-				value = 0
-			end
-		end
-		elevel = elevel + (weight * value)
-	end
-
-	EntityRegistry:unregister(tempEntity:getID())
-	tempEntity:destroy()
-
-	return _round(elevel*10)
+	return elevel
 end
 
 -- get by filename
