@@ -4,18 +4,20 @@
 
 v0.2.0 Goals:
   d console improvements [logging, levels, commands]
+  o fix ELevel weights
+	o add some more items and enemies
+  o Character select or gear select + name entry
+  o comparison tooltips
+  o level templates
+  o map objects
+	o poisson disk sampling
+  o make stairs/portals work - can go back and forth between levels
   o config file
   o key bindings
-  o Character select or gear select + name entry
   o Options Menu
-  o Help screen
-  o fix ELevel weights
   o load menu tooltips
-  o comparison tooltips
+	o better load menu information
   o colored numbers in tooltips
-  o map objects
-  o make stairs/portals work - can go back and forth between levels
-  o level templates
 
 v0.3.0 Goals:
   o music
@@ -30,6 +32,7 @@ v0.3.0 Goals:
   o map deformation
 
 Later Goals:
+  o Help screen
   o Localization
 
 
@@ -37,23 +40,13 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  d rewrite DebugHUD using ui classes
-  d rewrite MessageHUD using ui classes
-  x   rename to PopupMessage or something
-  d remove framebuffers from ui classes
-  d remove framebuffers from other classes unless absolutely necessary
-  d   GraphicsComponent [just image and quad probably]
-  d   AnimatedTile [just image and quad list probably]
-  d   TileMapNodeView [just image and quad probably... like GraphicsComponent]
-  x   TileMapView [SpriteBatch probably... except for animated tiles]
-  d rewrite Console using ui classes
-	d   fix memory leak when Console is visible
-  x   Need a way to only use one frame for all text instead of one frame per line
-  x   scrollback lines don't change color when scrolling back, instead, add ellipsis to top or bottom row to signify "more text in this direction".
-  d   add command line
-  d   add commands
-  d   add logging to file
-  d   add message levels [print&log, log]
+  o Fix ELevel weights
+  o   Include MoveCost, AttackCost, etc
+  o   Give player/hero ELevel
+  o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
+  o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
+	o add some more items and enemies
+  o Character select or gear select + name entry
 
 :::::::::::::::
 :PENDING TASKS:
@@ -68,13 +61,7 @@ Save/Load:
   o tooltips on load menu buttons with more information
 
 Entities:
-  o Fix ELevel weights
-  o   Include MoveCost, AttackCost, etc
-  o   Give player/hero ELevel
-  o   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
-
   Components:
-    o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
     o ExperienceComponent
     o   Level
     o   Total XP
@@ -89,11 +76,11 @@ Input/Events/Config:
   o Close Door command
 
 Console/Debug:
-  - log console to file (with an option)
-  - maybe different levels of messages [only log certain lines?]
-  - allow input and create some awesome commands
+  d log console to file
+  d maybe different levels of messages [only log certain lines?]
+  d allow input and create some awesome commands
   - wizard mode
-  + printing to Console while rendertarget is set to something else has strange implications
+  x printing to Console while rendertarget is set to something else has strange implications
 
 Level:
   o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
@@ -134,8 +121,8 @@ Interface:
   x   optional Text as label
   x      can position anywhere
   x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
-  + When paused, allow movement keys to move camera around map
-  + When unpaused, camera follows primeEntity again
+  x When paused, allow movement keys to move camera around map
+  x When unpaused, camera follows primeEntity again
   o comparison tooltips
   o colored numbers in tooltips
   x Tooltip line can be an InfoBar frame
@@ -143,7 +130,7 @@ Interface:
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
 
   Play Menu:
-  o change Quit to Save and Quit [once we can quit without saving, from the console]
+  d change Quit to Save and Quit [once we can quit without saving, from the console]
 
   StickyButton:
   x   Can watch a variable [for image it represents] -- is a "view" of an item

@@ -323,16 +323,24 @@ end)
 -- resize screen --
 -------------------
 function resizeScreen(width, height)
-	local modes = love.graphics.getModes()
-	local w, h
-	for i=1,#modes do
-		w = modes[i].width
-		h = modes[i].height
-		if w <= width and h <= height then break end
-	end
+	local curW, curH = love.graphics.getWidth(), love.graphics.getHeight()
 
-	if w ~= love.graphics.getWidth() and h ~= love.graphics.getHeight() then
-		assert(love.graphics.setMode(w, h))
+	if width ~= curW or height ~= curH then
+		local modes = love.graphics.getModes()
+
+		local w, h
+		for i=1,#modes do
+			w = modes[i].width
+			h = modes[i].height
+			if w <= width and h <= height then break end
+		end
+
+		if w ~= curW or h ~= curH then
+			assert(love.graphics.setMode(w, h))
+			if Console then
+				Console:print('Graphics mode changed to %dx%d', w, h)
+			end
+		end
 	end
 
 	-- global screen width/height
