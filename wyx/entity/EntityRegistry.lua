@@ -188,7 +188,7 @@ function EntityRegistry:dumpEntities()
 
 	if heroes or enemies or items then
 		Console:print('Registered Entities:')
-		Console:print('  %-11s %4s  %s', 'ID', 'ELVL', 'NAME')
+		Console:print('  %-11s %4s  %s', 'ID', 'ELVL', 'REGKEY')
 		if heroes then self:_printEntitiesToConsole(heroes, 'WHITE') end
 		if enemies then self:_printEntitiesToConsole(enemies, 'LIGHTRED') end
 		if items then self:_printEntitiesToConsole(items, 'BLUE') end
@@ -221,8 +221,8 @@ function EntityRegistry:_printEntitiesToConsole(ents, color)
 		local e = ents[i]
 		local id = e:getID() or '?'
 		local elevel = e:getELevel() or -1
-		local name = e:getName() or '?'
-		Console:print(color, '  {%08s} %4d  %s', id, elevel, name)
+		local regkey = e:getRegKey() or '?'
+		Console:print(color, '  {%08s} %4d  %s', id, elevel, regkey)
 	end
 end
 
