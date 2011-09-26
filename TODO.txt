@@ -50,6 +50,7 @@ Later Goals:
 	d spread out entity creation by family
 	d allow unique entities
 	d add entity Tint
+	d dump regkey instead of name
 	o add some more items and enemies
   o Character select or gear select + name entry
 	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
