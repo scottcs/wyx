@@ -16,6 +16,7 @@ local Entity = Class{name = 'Entity',
 		verify('table', info)
 
 		self._regkey = info.regkey
+		self._unique = info.unique
 		self._name = info.name
 		self._etype = etype
 		self._family = info.family
@@ -64,6 +65,7 @@ function Entity:getKind() return self._kind end
 function Entity:getVariation() return self._variation end
 function Entity:getELevel() return self._elevel end
 function Entity:getDescription() return self._description end
+function Entity:isUnique() return self._unique == true end
 
 function Entity:_clearComponentCache()
 	for k in pairs(self._componentCache) do self._componentCache[k] = nil end
@@ -168,6 +170,7 @@ function Entity:getState()
 	state.name = self._name
 	state.regkey = self._regkey
 	state.etype = self._etype
+	state.unique = self._unique
 	state.family = self._family
 	state.kind = self._kind
 	state.variation = self._variation

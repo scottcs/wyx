@@ -2,6 +2,7 @@
 	"family": "Ring",
 	"kind": "Far Sight",
 	"variation": 1,
+	"unique": true,
 	"description": "It sparkles like the horizon.",
 	"components": {
 		"GraphicsComponent": {
