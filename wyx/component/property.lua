@@ -157,6 +157,8 @@ property.MaxContainerSize  = {default = 0,
                                weight = 0.0}
 property.ContainedEntities = {default = {},
                                weight = 0.0}
+property.ContainedEntitiesHash = {default = {},
+                               weight = 0.0}
 
 -- attachment properties
 property.AttachedEntities  = {default = {},

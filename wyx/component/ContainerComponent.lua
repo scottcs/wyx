@@ -12,6 +12,7 @@ local ContainerComponent = Class{name='ContainerComponent',
 		ModelComponent._addRequiredProperties(self, {
 			'MaxContainerSize',
 			'ContainedEntities',
+			'ContainedEntitiesHash',
 		})
 		ModelComponent.construct(self, properties)
 		self:_addMessages(message('ALL'))
@@ -34,7 +35,8 @@ function ContainerComponent:_setProperty(prop, data)
 
 	if prop == property('MaxContainerSize') then
 		verifyAny(data, 'number', 'expression')
-	elseif prop == property('ContainedEntities') then
+	elseif prop == property('ContainedEntities')
+		or prop == property('ContainedEntitiesHash') then
 		verify('table', data)
 	else
 		error('ContainerComponent does not support property: %s', tostring(prop))
@@ -47,18 +49,34 @@ function ContainerComponent:receive(sender, msg, ...)
 	local continue = true
 
 	if     msg == message('ENTITIES_LOADED') then
-		local containedProp = property('ContainedEntities')
-		if self._properties
-			and self._properties[containedProp]
-		then
-			local contained = self._properties[containedProp]
-			self._properties[containedProp] = nil
-			for id,position in pairs(contained) do
-				-- backwards compatibility
-				if type(id) == 'number' then
-					id, position = position, nil
+		if self._properties then
+			local containedProp = property('ContainedEntities')
+			local containedHashProp = property('ContainedEntitiesHash')
+
+			local contained = self._properties[containedHashProp]
+			local count = 0
+
+			if contained then
+				for k in pairs(contained) do count = count + 1 end
+			end
+
+			if count == 0 then
+				contained = self._properties[containedProp]
+				if contained then count = #contained end
+			end
+
+			if contained and count > 0 then
+
+				self._properties[containedProp] = nil
+				self._properties[containedHashProp] = nil
+
+				for id,position in pairs(contained) do
+					-- backwards compatibility
+					if type(id) == 'number' then
+						id, position = position, nil
+					end
+					self:_insert(id, position)
 				end
-				self:_insert(id, position)
 			end
 		end
 	elseif msg == message('CONTAINER_INSERT') then
@@ -121,6 +139,9 @@ function ContainerComponent:getProperty(p, intermediate, ...)
 	if p == property('ContainedEntities') then
 		if intermediate then return intermediate end
 		return self._entities:getArray()
+	elseif p == property('ContainedEntitiesHash') then
+		if intermediate then return intermediate end
+		return self._entities:getHash()
 	else
 		return ModelComponent.getProperty(self, p, intermediate, ...)
 	end
@@ -133,7 +154,7 @@ function ContainerComponent:getState()
 	for k,v in pairs(self._properties) do
 		state[k] = v
 	end
-	state.ContainedEntities = self._entities:getHash()
+	state.ContainedEntitiesHash = self._entities:getHash()
 
 	return state
 end

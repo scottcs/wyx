@@ -109,7 +109,7 @@ function ControllerComponent:_attack(isHero, target)
 	end
 end
 
-function ControllerComponent:_doPickup(id)
+function ControllerComponent:_doPickup(id, slot)
 	local pIsContained = property('IsContained')
 	local pIsAttached = property('IsAttached')
 	local pPosition = property('Position')
@@ -119,7 +119,7 @@ function ControllerComponent:_doPickup(id)
 		local ipos = item:query(pPosition)
 		local mpos = self._mediator:query(pPosition)
 		if vec2_equal(ipos[1], ipos[2], mpos[1], mpos[2]) then
-			self:_sendCommand(PickupCommand(self._mediator, id))
+			self:_sendCommand(PickupCommand(self._mediator, id, slot))
 			return 1
 		end
 	end
@@ -248,8 +248,8 @@ function ControllerComponent:_printInventory()
 		found = true
 		for i,e in pairs(attached) do
 			local entity = EntityRegistry:get(e)
-			GameEvents:push(ConsoleEvent('   %d - {%08s} %s',
-				i, e, entity:getName()))
+			GameEvents:push(ConsoleEvent('   {%08s} %s',
+				e, entity:getName()))
 		end
 	end
 
