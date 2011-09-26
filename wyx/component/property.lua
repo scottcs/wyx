@@ -13,7 +13,13 @@ local get = function(prop)
 
 	if ret == nil then
 		if not isproperty(prop) then
-			warning('invalid component property: %q', prop)
+			if warning then
+				warning('invalid component property: %q', prop)
+			elseif Console then
+				Console:print('invalid component property: %q', prop)
+			else
+				print('invalid component property: %q', prop)
+			end
 		else
 			ret = prop
 			getcache[prop] = ret
