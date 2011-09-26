@@ -110,26 +110,6 @@ function Frame:setColor(r, g, b, a)
 end
 function Frame:getColor(color) return self._color end
 
-function Frame:_multColors(...)
-	local r, g, b, a = unpack(self._color)
-	a = a or 255
-	local num = select('#', ...)
-
-	for i=1,num do
-		local c = select(i, ...)
-		if c then
-			r = math_floor((r * c[1]) / 255)
-			g = math_floor((g * c[2]) / 255)
-			b = math_floor((b * c[3]) / 255)
-			if c[4] then
-				a = math_floor((a * c[4]) / 255)
-			end
-		end
-	end
-
-	return r, g, b, a
-end
-
 -- set the frame alpha
 function Frame:setAlpha(alpha)
 	self._color[4] = alpha or 255
@@ -637,7 +617,7 @@ function Frame:_drawLayer(layer, color)
 	if not l then return end
 
 	if l.color then
-		setColor(self:_multColors(color, l.color))
+		setColor(colors.multiply(self._color, color, l.color))
 
 		if l.image then
 			if l.quad then
