@@ -53,7 +53,13 @@ function ContainerComponent:receive(sender, msg, ...)
 		then
 			local contained = self._properties[containedProp]
 			self._properties[containedProp] = nil
-			self:_insert(unpack(contained))
+			for id,position in pairs(contained) do
+				-- backwards compatibility
+				if type(id) == 'number' then
+					id, position = position, nil
+				end
+				self:_insert(id, position)
+			end
 		end
 	elseif msg == message('CONTAINER_INSERT') then
 		self:_insert(...)
@@ -93,7 +99,7 @@ function ContainerComponent:_insert(id, position)
 				entity:send(msg, self)
 			end
 		else
-			warning('Invalid id %q when insterting into container.', id)
+			warning('Invalid id %q when insterting into container.', tostring(id))
 		end
 	end
 end
@@ -127,7 +133,7 @@ function ContainerComponent:getState()
 	for k,v in pairs(self._properties) do
 		state[k] = v
 	end
-	state.ContainedEntities = self._entities:getArray()
+	state.ContainedEntities = self._entities:getHash()
 
 	return state
 end
