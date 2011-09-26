@@ -123,6 +123,8 @@ property.TileCoords        = {default = {front = {1, 1}},
                                weight = 0.0}
 property.TileSize          = {default = 32,
                                weight = 0.0}
+property.Tint              = {default = nil,
+                               weight = 0.0}
 property.RenderDepth       = {default = depths.game,
                                weight = 0.0}
 property.Visibility        = {default = 0,

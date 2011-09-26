@@ -10,6 +10,7 @@ local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
 local drawq = love.graphics.drawq
 local colors = colors
+local cmult = colors.multiply
 local unpack = unpack
 
 -- Frame
@@ -617,7 +618,7 @@ function Frame:_drawLayer(layer, color)
 	if not l then return end
 
 	if l.color then
-		setColor(colors.multiply(self._color, color, l.color))
+		setColor(cmult(self._color, color, l.color))
 
 		if l.image then
 			if l.quad then

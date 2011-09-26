@@ -15,6 +15,7 @@ local ui = require 'ui.InGameUI'
 local vec2_equal = vec2.equal
 local math_floor = math.floor
 local format = string.format
+local cmult = colors.multiply
 local getMousePos = love.mouse.getPosition
 
 -- events
@@ -670,6 +671,7 @@ function InGameUI:_makeItemButton(item)
 
 		if coords then
 			local size = item:query(property('TileSize'))
+			local tint = item:query(property('Tint'))
 			if size then
 				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
 				local normalStyle = ui.itembutton.normalStyle:clone()
@@ -677,6 +679,15 @@ function InGameUI:_makeItemButton(item)
 
 				normalStyle:setBGQuad(x, y, size, size)
 				hoverStyle:setBGQuad(x, y, size, size)
+
+				if tint then
+					local c = normalStyle:getBGColor()
+					c[1], c[2], c[3], c[4] = cmult(c, tint)
+					normalStyle:setBGColor(c)
+					c = hoverStyle:getBGColor()
+					c[1], c[2], c[3], c[4] = cmult(c, tint)
+					hoverStyle:setBGColor(c)
+				end
 
 				btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
 				btn:setNormalStyle(normalStyle, true)
