@@ -4,7 +4,7 @@
 
 v0.2.0 Goals:
   d console improvements [logging, levels, commands]
-  o fix ELevel weights
+  d fix ELevel weights
 	o add some more items and enemies
   o Character select or gear select + name entry
   o comparison tooltips
@@ -45,7 +45,7 @@ Later Goals:
   d   Include MoveCost, AttackCost, etc
   d   Give player/hero ELevel
   d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
-  o ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
+  d ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
 	o add some more items and enemies
   o Character select or gear select + name entry
 	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
