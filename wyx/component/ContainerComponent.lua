@@ -80,41 +80,30 @@ function ContainerComponent:receive(sender, msg, ...)
 	ModelComponent.receive(self, sender, msg, ...)
 end
 
-function ContainerComponent:_insert(...)
-	local num = select('#', ...)
-	if num > 0 then
-		local msg = message('CONTAINER_INSERTED')
-		local size = self._entities:size()
-		local max = self._mediator:query(property('MaxContainerSize')) - size
-		local loop = max > num and num or max
+function ContainerComponent:_insert(id, position)
+	local msg = message('CONTAINER_INSERTED')
+	local size = self._entities:size()
+	local max = self._mediator:query(property('MaxContainerSize'))
 
-		for i=1,loop do
-			local id = select(i, ...)
-			id = EntityRegistry:getValidID(id)
-			if id then
-				if self._entities:add(id) then
-					local entity = EntityRegistry:get(id)
-					entity:send(msg, self)
-				end
-			else
-				warning('Invalid id %q when insterting into container.', id)
+	if max > size then
+		id = EntityRegistry:getValidID(id)
+		if id then
+			if self._entities:add(id, position) then
+				local entity = EntityRegistry:get(id)
+				entity:send(msg, self)
 			end
+		else
+			warning('Invalid id %q when insterting into container.', id)
 		end
 	end
 end
 
-function ContainerComponent:_remove(...)
-	local num = select('#', ...)
-	if num > 0 then
-		local msg = message('CONTAINER_REMOVED')
+function ContainerComponent:_remove(id)
+	local msg = message('CONTAINER_REMOVED')
 
-		for i=1,num do
-			local id = select(i, ...)
-			if self._entities:remove(id) then
-				local entity = EntityRegistry:get(id)
-				entity:send(msg, self)
-			end
-		end
+	if self._entities:remove(id) then
+		local entity = EntityRegistry:get(id)
+		entity:send(msg, self)
 	end
 end
 
