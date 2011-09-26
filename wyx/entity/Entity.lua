@@ -15,6 +15,7 @@ local Entity = Class{name = 'Entity',
 		verify('string', etype)
 		verify('table', info)
 
+		self._regkey = info.regkey
 		self._name = info.name
 		self._etype = etype
 		self._family = info.family
@@ -55,6 +56,7 @@ end
 function Entity:getID() return self._id end
 function Entity:setID(id) self._id = id end
 
+function Entity:getRegKey() return self._regkey end
 function Entity:getName() return self._name end
 function Entity:getEntityType() return self._etype end
 function Entity:getFamily() return self._family end
@@ -164,6 +166,7 @@ function Entity:getState()
 	local state = {}
 
 	state.name = self._name
+	state.regkey = self._regkey
 	state.etype = self._etype
 	state.family = self._family
 	state.kind = self._kind

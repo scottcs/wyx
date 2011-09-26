@@ -62,7 +62,10 @@ function EntityDB:clear()
 
 	for i=1,#self._byFamKV do self._byFamKV[i] = nil end
 
-	for i=1,#self._byName do self._byName[i] = nil end
+	for k,v in pairs(self._byName) do
+		for j in pairs(v) do v[j] = nil end
+		self._byName[k] = nil
+	end
 end
 
 -- load all entity files of self._etype
@@ -111,7 +114,6 @@ end
 
 function EntityDB:_addToDB(info)
 	self._byFilename[info.filename] = info
-	self._byName[info.name] = info
 
 	local size, key
 
@@ -142,8 +144,9 @@ function EntityDB:_processEntityInfo(info)
 	end
 
 	info.variation = info.variation or 1
-	info.name = info.name or format("%s %s %d",
-		info.family, info.kind, info.variation)
+	info.name = info.name or format('%s %s', info.family, info.kind)
+	info.regkey = format('%s-%s-%s-%d',
+		info.name, info.family, info.kind, info.variation)
 
 	return true
 end
@@ -235,6 +238,18 @@ function EntityDB:_postProcessEntityInfo(info)
 		self._byELevel[key] = self._byELevel[key] or setmetatable({}, _mt)
 		size = #(self._byELevel[key])
 		self._byELevel[key][size+1] = info
+	else
+		warning('Could not store entity %q by ELevel', tostring(info.name))
+	end
+
+	if info.name then
+		key = info.name
+		-- byName is the only non-weak table
+		self._byName[key] = self._byName[key] or {}
+		size = #(self._byName[key])
+		self._byName[key][size+1] = info
+	else
+		warning('Could not store entity %q by name', tostring(info.name))
 	end
 
 	return true
@@ -246,7 +261,7 @@ function EntityDB:_getPropertyWeights() return nil end
 
 -- calculate the elevel of this entity based on relevant properties.
 function EntityDB:_calculateELevel(info)
-	local elevel = 0
+	local elevel
 
 	if self._factory then
 		local id = self._factory:createEntity(info)
@@ -295,8 +310,6 @@ function EntityDB:getByFamily(family, kind, variation)
 	return self._byFam[family]
 end
 
--- get by property in range A..B (including default properties)
---   OR
 -- get by heuristic entity level (calculated from properties)
 function EntityDB:getByELevel(min, max)
 	if not max then return self._byELevel[min] end

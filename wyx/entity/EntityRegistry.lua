@@ -43,26 +43,27 @@ end
 local _id_inc = 0
 function EntityRegistry:register(entity)
 	verifyClass('wyx.entity.Entity', entity)
+	local regkey = entity:getRegKey()
 	local name = entity:getName()
 	local etype = entity:getEntityType()
-	verify('string', name, etype)
+	verify('string', name, regkey, etype)
 
 	-- not really necessary to wrap around like this in Lua, I guess.
 	-- but, just in case.
 	_id_inc = _id_inc < 100000000 and _id_inc + 1 or 1
-	local key = name..tostring(_id_inc)
+	local key = regkey..tostring(_id_inc)
 
 	local id = dec2hex(strhash(key))
 	entity:setID(id)
 
 	if nil ~= self._registry[id] then
-		warning('Entity registration overwitten: %s (%s)', name, id)
+		warning('Entity registration overwitten: %s (%s)', regkey, id)
 	end
 
 	self._registry[id] = entity
 
 	if debug then
-		Console:print('Registered Entity: {%08s} %s [%s]', id, name, etype)
+		Console:print('Registered Entity: {%08s} %s [%s]', id, regkey, etype)
 	end
 
 	self._byname[name] = self._byname[name] or {}
