@@ -111,6 +111,7 @@ function HealthComponent:receive(sender, msg, ...)
 	elseif msg == message('ENTITY_DEATH') and sender == self._mediator then
 		GameEvents:push(EntityDeathEvent(self._mediator, ...))
 	end
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function HealthComponent:getProperty(p, intermediate, ...)

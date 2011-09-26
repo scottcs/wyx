@@ -15,12 +15,13 @@ local Entity = Class{name = 'Entity',
 		verify('string', etype)
 		verify('table', info)
 
+		self._regkey = info.regkey
+		self._unique = info.unique
 		self._name = info.name
 		self._etype = etype
 		self._family = info.family
 		self._kind = info.kind
 		self._variation = info.variation
-		self._elevel = info.elevel
 		self._description = info.description
 		self._components = {}
 		self._componentCache = setmetatable({}, {__mode = 'kv'})
@@ -30,6 +31,8 @@ local Entity = Class{name = 'Entity',
 				self:addComponent(comp)
 			end
 		end
+
+		self:_calculateELevel()
 	end
 }
 
@@ -54,6 +57,7 @@ end
 function Entity:getID() return self._id end
 function Entity:setID(id) self._id = id end
 
+function Entity:getRegKey() return self._regkey end
 function Entity:getName() return self._name end
 function Entity:getEntityType() return self._etype end
 function Entity:getFamily() return self._family end
@@ -61,6 +65,7 @@ function Entity:getKind() return self._kind end
 function Entity:getVariation() return self._variation end
 function Entity:getELevel() return self._elevel end
 function Entity:getDescription() return self._description end
+function Entity:isUnique() return self._unique == true end
 
 function Entity:_clearComponentCache()
 	for k in pairs(self._componentCache) do self._componentCache[k] = nil end
@@ -101,6 +106,7 @@ function Entity:addComponent(component)
 	self._components[name] = component
 
 	self:_clearComponentCache()
+	self:_calculateELevel()
 end
 
 -- remove a component from the entity
@@ -124,6 +130,23 @@ function Entity:removeComponent(component)
 	end
 
 	self:_clearComponentCache()
+	self:_calculateELevel()
+end
+
+-- calculate this entity's EntityLevel
+function Entity:_calculateELevel()
+	self._elevel = 0
+
+	for k,comp in pairs(self._components) do
+		self._elevel = self._elevel + comp:getELevel()
+	end
+end
+
+-- override some ComponentMediator methods to ensure ELevel is always up to
+-- date.
+function Entity:rawsend(...)
+	ComponentMediator.rawsend(self, ...)
+	self:_calculateELevel()
 end
 
 -- query all components for a property, passing the intermediate result each
@@ -133,8 +156,8 @@ function Entity:query(prop, ...)
 end
 
 function Entity:rawquery(prop, intermediate, ...)
-	for k in pairs(self._components) do
-		intermediate = self._components[k]:getProperty(prop, intermediate, ...)
+	for k,comp in pairs(self._components) do
+		intermediate = comp:getProperty(prop, intermediate, ...)
 	end
 	return intermediate
 end
@@ -145,7 +168,9 @@ function Entity:getState()
 	local state = {}
 
 	state.name = self._name
+	state.regkey = self._regkey
 	state.etype = self._etype
+	state.unique = self._unique
 	state.family = self._family
 	state.kind = self._kind
 	state.variation = self._variation

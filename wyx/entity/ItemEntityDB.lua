@@ -2,6 +2,8 @@ local Class = require 'lib.hump.class'
 local EntityDB = getClass 'wyx.entity.EntityDB'
 local ItemEntityFactory = getClass 'wyx.entity.ItemEntityFactory'
 
+local format = string.format
+
 -- ItemEntityDB
 --
 local ItemEntityDB = Class{name='ItemEntityDB',
@@ -19,27 +21,24 @@ function ItemEntityDB:destroy()
 	EntityDB.destroy(self)
 end
 
-function ItemEntityDB:_getPropertyWeights()
-	local props = {
-		health     = {name = 'Health',         weight = 1.1},
-		healthB    = {name = 'HealthBonus',    weight = 1.1},
-		maxHealth  = {name = 'MaxHealth',      weight = 1.2},
-		maxHealthB = {name = 'MaxHealthBonus', weight = 1.2},
-		visibility = {name = 'Visibility',     weight = 1.3},
-		visibility = {name = 'VisibilityBonus',weight = 1.3},
-		damage     = {name = 'Damage',         weight = 0.9},
-		damageB    = {name = 'DamageBonus',    weight = 0.9},
-		defense    = {name = 'Defense',        weight = 0.9},
-		defenseB   = {name = 'DefenseBonus',   weight = 0.9},
-		attack     = {name = 'Attack',         weight = 0.9},
-		attackB    = {name = 'AttackBonus',    weight = 0.9},
-		speed      = {name = 'Speed',          weight = 0.14},
-		speedB     = {name = 'SpeedBonus',     weight = 0.14},
-	}
+function ItemEntityDB:_processEntityInfo(info)
+	local name = info.name
 
-	return props
+	if not name then
+		if info.family and info.kind then
+			if info.family == 'Ring' then
+				name = format('%s of %s', info.family, info.kind)
+			elseif info.family == 'Armor' then
+				name = format('%s %s', info.kind, info.family)
+			end
+		end
+	end
+
+	info.name = name or info.kind or 'UNKNOWN'
+
+	local ret = EntityDB._processEntityInfo(self, info)
+	return ret
 end
-
 
 -- the class
 return ItemEntityDB

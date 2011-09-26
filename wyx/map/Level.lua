@@ -32,6 +32,7 @@ local message = getClass 'wyx.component.message'
 local property = require 'wyx.component.property'
 
 local math_floor = math.floor
+local math_ceil = math.ceil
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
 local enumerate = love.filesystem.enumerate
@@ -323,23 +324,87 @@ function Level:createEntities()
 		-- TODO: get entities algorithmically
 		local enemyEntities = EnemyDB:getByELevel(1,1000)
 		if enemyEntities then
+			local numEnemies = 20
+			local maxFamily = math_ceil(numEnemies/4)
+			local families = {}
+			local unique = {}
+			local count = 0
 			local numEnemyEntities = #enemyEntities
-			for i=1,10 do
+
+			while count < numEnemies do
 				local which = enemyEntities[Random(numEnemyEntities)]
 				local entityID = self._enemyFactory:createEntity(which)
-				self._enemyFactory:registerEntity(entityID)
-				self._entities:add(entityID)
+				local entity = EntityRegistry:get(entityID)
+				local regkey = entity:getRegKey()
+				local fam = entity:getFamily()
+				local uniq = entity:isUnique()
+				local added = false
+
+				if uniq then
+					if not unique[regkey] then
+						unique[regkey] = true
+						self._enemyFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				else
+					if not families[fam] or families[fam] < maxFamily then
+						families[fam] = families[fam] and families[fam] + 1 or 1
+						self._enemyFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				end
+
+				if not added then
+					EntityRegistry:unregister(entityID)
+					entity:destroy()
+				end
 			end
 		end
 
 		local itemEntities = ItemDB:getByELevel(1,1000)
 		if itemEntities then
+			local numItems = 30
+			local maxFamily = math_ceil(numItems/3)
+			local families = {}
+			local unique = {}
+			local count = 0
 			local numItemEntities = #itemEntities
-			for i=1,20 do
+
+			while count < numItems do
 				local which = itemEntities[Random(numItemEntities)]
 				local entityID = self._itemFactory:createEntity(which)
-				self._itemFactory:registerEntity(entityID)
-				self._entities:add(entityID)
+				local entity = EntityRegistry:get(entityID)
+				local regkey = entity:getRegKey()
+				local fam = entity:getFamily()
+				local uniq = entity:isUnique()
+				local added = false
+
+				if uniq then
+					if not unique[regkey] then
+						unique[regkey] = true
+						self._itemFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				else
+					if not families[fam] or families[fam] < maxFamily then
+						families[fam] = families[fam] and families[fam] + 1 or 1
+						self._itemFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				end
+
+				if not added then
+					EntityRegistry:unregister(entityID)
+					entity:destroy()
+				end
 			end
 		end
 	end

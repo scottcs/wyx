@@ -10,6 +10,7 @@ local math_floor = math.floor
 local string_sub = string.sub
 local string_gmatch = string.gmatch
 local format = string.format
+local colors = colors
 
 -- Text
 -- A static text frame
@@ -359,7 +360,7 @@ function Text:_drawForeground(color)
 	if l then
 		if l.font then
 			setFont(l.font)
-			setColor(self:_multColors(color, l.color))
+			setColor(colors.multiply(self._color, color, l.color))
 
 			local num = #l.lines
 			for i=1,num do

@@ -175,6 +175,25 @@ colors.LIGHTPURPLE = {p100, p80, p100, p100}
 colors.DARKPURPLE = {p30, 0, p30, p100}
 
 function colors.clone(c) return {c[1], c[2], c[3], c[4]} end
+function colors.multiply(color, ...)
+	local r, g, b, a = unpack(color)
+	a = a or 255
+	local num = select('#', ...)
+
+	for i=1,num do
+		local c = select(i, ...)
+		if c then
+			r = floor((r * c[1]) / 255)
+			g = floor((g * c[2]) / 255)
+			b = floor((b * c[3]) / 255)
+			if c[4] then
+				a = floor((a * c[4]) / 255)
+			end
+		end
+	end
+
+	return r, g, b, a
+end
 
 
 -------------

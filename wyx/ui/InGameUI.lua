@@ -15,6 +15,7 @@ local ui = require 'ui.InGameUI'
 local vec2_equal = vec2.equal
 local math_floor = math.floor
 local format = string.format
+local cmult = colors.multiply
 local getMousePos = love.mouse.getPosition
 
 -- events
@@ -200,7 +201,7 @@ function InGameUI:_clearMouseSlot()
 end
 
 -- function to verify equipment is the correct family
-local _equipVerificationFunc = function(btn, which)
+local _equipVerificationFunc = function(btn, sID, which)
 	local id = btn:getEntityID()
 	local entity = EntityRegistry:get(id)
 	local family = entity:getFamily()
@@ -208,25 +209,26 @@ local _equipVerificationFunc = function(btn, which)
 end
 
 -- function to equip items when inserted into equip slot
-local _equipInsertFunc = function(btn, eID)
+local _equipInsertFunc = function(btn, sID, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('ATTACH_ENTITY'), iID, eID))
 end
 
 -- function to equip items when removed from equip slot
-local _equipRemoveFunc = function(btn, eID)
+local _equipRemoveFunc = function(btn, sID, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DETACH_ENTITY'), iID, eID))
 end
 
 -- function to pickup items when inserted into inventory slot
-local _inventoryInsertFunc = function(btn, eID)
+local _inventoryInsertFunc = function(btn, sID, eID)
 	local iID = btn:getEntityID()
-	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'), iID, eID))
+	InputEvents:notify(InputCommandEvent(command('PICKUP_ENTITY'),
+		iID, eID, sID))
 end
 
 -- function to drop items when removed from inventory slot
-local _inventoryRemoveFunc = function(btn, eID)
+local _inventoryRemoveFunc = function(btn, sID, eID)
 	local iID = btn:getEntityID()
 	InputEvents:notify(InputCommandEvent(command('DROP_ENTITY'), iID, eID))
 end
@@ -267,6 +269,7 @@ function InGameUI:_makeInventorySlots()
 
 	for i=1,10 do
 		local slot = Slot(x, y, ui.invslot.w, ui.invslot.h)
+		slot:setID(i)
 		slot:setNormalStyle(ui.invslot.normalStyle)
 		slot:setInsertCallback(_inventoryInsertFunc, self._primeEntity)
 		slot:setRemoveCallback(_inventoryRemoveFunc, self._primeEntity)
@@ -558,15 +561,30 @@ end
 function InGameUI:_updateInventorySlots()
 	local pIsAttached = property('IsAttached')
 	local primeEntity = EntityRegistry:get(self._primeEntity)
-	local contained = primeEntity:query(property('ContainedEntities'))
+	local contained = primeEntity:query(property('ContainedEntitiesHash'))
+
+	if not contained then
+		contained = primeEntity:query(property('ContainedEntities'))
+	end
+
 	if contained then
-		local num = #contained
-		for i=1,num do
-			local entityID = contained[i]
-			local entity = EntityRegistry:get(entityID)
+		for id,slotID in pairs(contained) do
+			-- if we didn't get the hash, adjust values
+			if type(id) == 'number' then
+				id, slotID = slotID, nil
+			end
+
+			local entity = EntityRegistry:get(id)
 			local isAttached = entity:query(pIsAttached)
 			if not isAttached then
-				local slot = self:_findEmptyInventorySlot()
+				local slot
+
+				if slotID then slot = self:_getSlotByID(slotID) end
+
+				if not (slot and slot:isEmpty()) then
+					slot = self:_findEmptyInventorySlot()
+				end
+
 				if slot then self:_addToSlot(entity, slot) end
 			end
 		end
@@ -579,6 +597,16 @@ function InGameUI:_findEmptyInventorySlot()
 	for i=1,num do
 		local slot = self._inventorySlots[i]
 		if slot:isEmpty() then return slot end
+	end
+end
+
+function InGameUI:_getSlotByID(id)
+	local num = #self._inventorySlots
+
+	for i=1,num do
+		local slot = self._inventorySlots[i]
+		local slotID = slot:getID()
+		if slotID == id then return slot end
 	end
 end
 
@@ -643,6 +671,7 @@ function InGameUI:_makeItemButton(item)
 
 		if coords then
 			local size = item:query(property('TileSize'))
+			local tint = item:query(property('Tint'))
 			if size then
 				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
 				local normalStyle = ui.itembutton.normalStyle:clone()
@@ -650,6 +679,15 @@ function InGameUI:_makeItemButton(item)
 
 				normalStyle:setBGQuad(x, y, size, size)
 				hoverStyle:setBGQuad(x, y, size, size)
+
+				if tint then
+					local c = normalStyle:getBGColor()
+					c[1], c[2], c[3], c[4] = cmult(c, tint)
+					normalStyle:setBGColor(c)
+					c = hoverStyle:getBGColor()
+					c[1], c[2], c[3], c[4] = cmult(c, tint)
+					hoverStyle:setBGColor(c)
+				end
 
 				btn = StickyButton(0, 0, ui.itembutton.w, ui.itembutton.h)
 				btn:setNormalStyle(normalStyle, true)

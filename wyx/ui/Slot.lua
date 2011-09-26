@@ -25,20 +25,27 @@ function Slot:destroy()
 	self._insertCallback = nil
 	self._removeCallback = nil
 	self._hideTooltips = nil
+	self._id = nil
 
 	Frame.destroy(self)
 end
+
+-- get/set an arbitrary id
+function Slot:setID(id) self._id = id end
+function Slot:getID() return self._id end
 
 -- verify that a button is allowed to be socketed in this Slot
 function Slot:verifyButton(button)
 	local verified = true
 
 	if self._verificationCallback then
+		local id = self:getID()
 		local args = self._verificationCallbackArgs
+
 		if args then
-			verified = self._verificationCallback(button, unpack(args))
+			verified = self._verificationCallback(button, id, unpack(args))
 		else
-			verified = self._verificationCallback(button)
+			verified = self._verificationCallback(button, id)
 		end
 	end
 
@@ -81,11 +88,13 @@ function Slot:insert(button, verified)
 			self._button:setCenter(self:getCenter())
 
 			if self._insertCallback then
+				local id = self:getID()
 				local args = self._insertCallbackArgs
+
 				if args then
-					self._insertCallback(button, unpack(args))
+					self._insertCallback(button, id, unpack(args))
 				else
-					self._insertCallback(button)
+					self._insertCallback(button, id)
 				end
 			end
 		end
@@ -104,11 +113,13 @@ function Slot:remove()
 		self._button = nil
 
 		if self._removeCallback then
+			local id = self:getID()
 			local args = self._removeCallbackArgs
+
 			if args then
-				self._removeCallback(oldButton, unpack(args))
+				self._removeCallback(oldButton, id, unpack(args))
 			else
-				self._removeCallback(oldButton)
+				self._removeCallback(oldButton, id)
 			end
 		end
 	end

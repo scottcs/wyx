@@ -1,6 +1,7 @@
 local Class = require 'lib.hump.class'
 
 local colors = colors
+local cclone = colors.clone
 
 -- Style
 -- Represents a style of graphics, color, and font elements for a Frame.
@@ -52,14 +53,14 @@ end
 function Style:getFontColor() return self._fontcolor end
 function Style:setFontColor(color)
 	verify('table', color)
-	self._fontcolor = color
+	self._fontcolor = cclone(color)
 end
 
 -- get/set border color
 function Style:getBorderColor() return self._bordercolor end
 function Style:setBorderColor(color)
 	verify('table', color)
-	self._bordercolor = color
+	self._bordercolor = cclone(color)
 end
 
 -- get/set border image
@@ -94,7 +95,7 @@ end
 function Style:getFGColor() return self._fgcolor end
 function Style:setFGColor(color)
 	verify('table', color)
-	self._fgcolor = color
+	self._fgcolor = cclone(color)
 end
 
 -- get/set foreground image
@@ -115,7 +116,7 @@ end
 function Style:getBGColor() return self._bgcolor end
 function Style:setBGColor(color)
 	verify('table', color)
-	self._bgcolor = color
+	self._bgcolor = cclone(color)
 end
 
 -- get/set background image
