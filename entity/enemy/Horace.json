@@ -8,6 +8,7 @@
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
+			"Tint": {255, 200, 225},
 			"TileCoords": {
 				"right": {8, 5},
 			},
