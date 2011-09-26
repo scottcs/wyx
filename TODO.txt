@@ -46,6 +46,9 @@ Later Goals:
   d   Give player/hero ELevel
   d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
   d ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
+	d fix entity names
+	d spread out entity creation by family
+	d allow unique entities
 	o add some more items and enemies
   o Character select or gear select + name entry
 	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
