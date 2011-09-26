@@ -224,8 +224,6 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 	local body
 	if description then
 		body = self:_makeText(description, width, descriptionStyle)
-	else
-		warning('makeEntityTooltip: missing description for entity %q', name)
 	end
 
 	if icon then tooltip:setIcon(icon) end
