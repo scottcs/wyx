@@ -1,0 +1,18 @@
+{
+	"family": "Weapon",
+	"kind": "Mace",
+	"variation": 1,
+	"description": "\"For the bashing of skulls and bones.\"",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {8, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=3d3+3",
+			"Damage": "!2d4+4",
+		},
+	}
+}
