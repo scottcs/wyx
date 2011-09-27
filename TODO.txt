@@ -54,6 +54,7 @@ Later Goals:
 	d add some more items and enemies
   o Character select or gear select + name entry
 	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+	o comparison tooltips
 
 :::::::::::::::
 :PENDING TASKS:
@@ -199,10 +200,11 @@ Interface:
       MainMenu -> Help
       MainMenu -> Shutdown
         Initialize -> LoadGame
-        Initialize -> Construct
+        Initialize -> CreateChar
         Options -> MainMenu
         Help -> MainMenu
           LoadGame -> Construct
+          CreateChar -> Construct
             Construct -> Play
               Play -> PlayMenu
                 PlayMenu -> Options
@@ -221,11 +223,12 @@ Interface:
       MAIN          --                              Intro
       Intro         MAIN                            MainMenu
       MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
-      Initialize    MainMenu                        Construct, LoadGame
+      Initialize    MainMenu                        CreateChar, LoadGame
       LoadGame      Initialize                      Construct
+      CreateChar    Initialize                      Construct
       Options       MainMenu, PlayMenu              MainMenu, PlayMenu
       Help          MainMenu, PlayMenu              MainMenu, PlayMenu
-      Construct     LoadGame, Initialize            Play
+      Construct     LoadGame, CreateChar            Play
       Play          Construct                       PlayMenu
       PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
       Save          PlayMenu                        Destroy, PlayMenu
@@ -235,9 +238,11 @@ Interface:
   Loops:
       MainMenu -> Help -> MainMenu
       MainMenu -> Options -> MainMenu
+      MainMenu -> LoadGame -> MainMenu
+      MainMenu -> CreateChar -> MainMenu
       Play -> PlayMenu -> Play
       PlayMenu -> Help -> PlayMenu
       PlayMenu -> Options -> PlayMenu
       PlayMenu -> Save -> PlayMenu
-      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+      MainMenu -> Initialize -> LoadGame/CreateChar -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
 
