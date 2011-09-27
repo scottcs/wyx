@@ -400,8 +400,8 @@ end
 function TooltipFactory:_makeDamageText(entity, width)
 	local pMin = property('_DamageMin')
 	local pMax = property('_DamageMax')
-	local min = entity:query(pMin)
-	local max = entity:query(pMax)
+	local min = entity:query(pMin) or 0
+	local max = entity:query(pMax) or 0
 	local text
 
 	if min ~= 0 and max ~= 0 or entity:getEntityType() ~= 'item' then

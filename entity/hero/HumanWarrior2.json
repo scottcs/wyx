@@ -1,0 +1,24 @@
+{
+	"family": "Human",
+	"kind": "Warrior",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {11, 2},
+				},
+			"Visibility": 6,
+		},
+		"TimeComponent": {
+			"Speed": 80,
+		},
+		"HealthComponent": {
+			"MaxHealth": 20,
+		},
+		"CombatComponent": {
+			"Attack": 8,
+			"Defense": 10,
+		},
+	}
+}

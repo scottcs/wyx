@@ -1,0 +1,26 @@
+{
+	"family": "Cyclops",
+	"kind": "Barbarian",
+	"variation": 1,
+	"description": "It's angry because it keeps bumping into things.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {6, 9},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d8+16",
+		},
+		"CombatComponent": {
+			"Attack": "=2d4+6",
+			"Defense": "=2d4",
+			"Damage": "!3d3",
+		},
+		"TimeComponent": {
+			"MoveCost": "!$Speed * 2.5",
+			"AttackCost": "=$MoveCost",
+		},
+	}
+}

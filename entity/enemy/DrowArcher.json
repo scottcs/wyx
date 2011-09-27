@@ -1,0 +1,22 @@
+{
+	"family": "Drow",
+	"kind": "Archer",
+	"variation": 1,
+	"description": "Drow are notoriously cranky.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {11, 4},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d6+10",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+4",
+			"Defense": "=2d4",
+			"Damage": "!4d2"
+		},
+	}
+}

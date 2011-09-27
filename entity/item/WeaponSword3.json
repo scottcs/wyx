@@ -1,0 +1,19 @@
+{
+	"name": "Magic Sword",
+	"family": "Weapon",
+	"kind": "Sword",
+	"variation": 3,
+	"description": "There is some kind of jewel encrusted in the hilt.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {5, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+5",
+			"Damage": "!1d3+4",
+		},
+	}
+}

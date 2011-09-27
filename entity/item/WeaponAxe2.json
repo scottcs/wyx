@@ -1,0 +1,18 @@
+{
+	"family": "Weapon",
+	"kind": "Axe",
+	"variation": 2,
+	"description": "\"C'mere. I got something to axe you.\"",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {2, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+3",
+			"Damage": "!1d3+4",
+		},
+	}
+}

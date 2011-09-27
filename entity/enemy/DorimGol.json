@@ -1,0 +1,24 @@
+{
+	"name": "Dorim Gol",
+	"family": "Mind Flayer",
+	"kind": "Mage",
+	"variation": 1,
+	"unique": true,
+	"description": "He hits hard!",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {6, 10},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d4+30",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+6",
+			"Defense": "=1d3+6",
+			"Damage": "!4d8",
+		},
+	}
+}

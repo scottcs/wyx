@@ -1,0 +1,20 @@
+{
+	"family": "Armor",
+	"kind": "Chain",
+	"variation": 1,
+	"description": "CLINK. CLINK. CLINK. (It's noisy.)",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {5, 2},
+			},
+		},
+		"TimeComponent": {
+			"MoveCost": 40,
+		},
+		"CombatComponent": {
+			"Defense": 4,
+		},
+	}
+}

@@ -1,12 +1,12 @@
 {
-	"family": "Human",
+	"family": "Elf",
 	"kind": "Archer",
-	"variation": 1,
+	"variation": 2,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 1},
+				"right": {1, 2},
 				},
 			"Visibility": 10,
 		},

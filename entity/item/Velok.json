@@ -1,0 +1,21 @@
+{
+	"name": "Velok",
+	"family": "Weapon",
+	"kind": "Magic Sword",
+	"variation": 1,
+	"unique": true,
+	"description": "\"Forged with love.\"",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"Tint": {200, 200, 200},
+			"TileCoords": {
+				"item": {5, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=4d2+5",
+			"Damage": "!4d3+4",
+		},
+	}
+}

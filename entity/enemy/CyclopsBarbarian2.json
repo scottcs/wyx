@@ -1,0 +1,26 @@
+{
+	"family": "Cyclops",
+	"kind": "Barbarian",
+	"variation": 2,
+	"description": "It's angry because it needs custom eyeware.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {8, 9},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d8+16",
+		},
+		"CombatComponent": {
+			"Attack": "=2d4+6",
+			"Defense": "=2d4",
+			"Damage": "!3d3",
+		},
+		"TimeComponent": {
+			"MoveCost": "!$Speed * 2.0",
+			"AttackCost": "=$MoveCost",
+		},
+	}
+}

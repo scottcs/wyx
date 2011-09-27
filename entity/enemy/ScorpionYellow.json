@@ -1,0 +1,23 @@
+{
+	"name": "Scorpion",
+	"family": "Scorpion",
+	"kind": "Yellow",
+	"variation": 1,
+	"description": "Apparently, you can eat these if you're starving.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {7, 13},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d4",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3",
+			"Defense": "=1d3",
+			"Damage": "!1d3",
+		},
+	}
+}

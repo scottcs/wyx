@@ -1,0 +1,17 @@
+{
+	"family": "Ring",
+	"kind": "Health",
+	"variation": 1,
+	"description": "You feel better just looking at it.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {7, 3},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d3",
+		},
+	}
+}

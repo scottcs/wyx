@@ -1,27 +1,27 @@
 {
-	"name": "Horace",
-	"family": "Deep Dwarf",
-	"kind": "Monk",
-	"variation": 2,
+	"name": "Death",
+	"family": "Ghost",
+	"kind": "Final",
+	"variation": 1,
 	"unique": true,
-	"description": "He is super fast!",
+	"description": "It's Death, dude! RUUUUN!",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
-			"Tint": {255, 200, 225},
 			"TileCoords": {
-				"right": {8, 5},
+				"right": {14, 7},
 			},
 		},
 		"HealthComponent": {
-			"MaxHealth": "=2d4+30",
+			"MaxHealth": "=2d4+40",
 		},
 		"CombatComponent": {
 			"Attack": "=1d3+6",
 			"Defense": "=1d3+6",
-			"Damage": "!2d8",
+			"Damage": "!4d8",
 		},
 		"TimeComponent": {
+			"Speed": 200,
 			"MoveCost": "!$Speed * 0.5",
 			"AttackCost": "=$MoveCost",
 		},

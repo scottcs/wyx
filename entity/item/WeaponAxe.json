@@ -1,0 +1,18 @@
+{
+	"family": "Weapon",
+	"kind": "Axe",
+	"variation": 1,
+	"description": "Careful with that thing!",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {1, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+2",
+			"Damage": "!1d3+3",
+		},
+	}
+}

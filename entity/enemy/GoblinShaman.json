@@ -1,0 +1,22 @@
+{
+	"family": "Goblin",
+	"kind": "Shaman",
+	"variation": 1,
+	"description": "Its eyes glow eerily!",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {4, 6},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d7+17",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+2",
+			"Defense": "=1d3+2",
+			"Damage": "!1d3+2",
+		},
+	}
+}

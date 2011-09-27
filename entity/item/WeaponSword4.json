@@ -1,7 +1,8 @@
 {
+	"name": "Magic Sword",
 	"family": "Weapon",
-	"kind": "Magic Sword",
-	"variation": 2,
+	"kind": "Sword",
+	"variation": 4,
 	"description": "There is some kind of jewel encrusted in the hilt. The blade glows softly.",
 	"components": {
 		"GraphicsComponent": {
