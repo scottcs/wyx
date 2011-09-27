@@ -325,7 +325,7 @@ function Level:createEntities()
 		local enemyEntities = EnemyDB:getByELevel(1,1000)
 		if enemyEntities then
 			local numEnemies = 20
-			local maxFamily = math_ceil(numEnemies/4)
+			local maxFamily = math_ceil(numEnemies/8)
 			local families = {}
 			local unique = {}
 			local count = 0
