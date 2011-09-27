@@ -1,0 +1,23 @@
+{
+	"name": "Skeleton",
+	"family": "Skeleton",
+	"kind": "Grunt",
+	"variation": 1,
+	"description": "It looks kind of pathetic.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {1, 7},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d2",
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+1",
+			"Defense": "=1d2+1",
+			"Damage": "!1d4",
+		},
+	}
+}

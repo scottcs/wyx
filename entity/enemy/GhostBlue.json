@@ -1,0 +1,26 @@
+{
+	"name": "Ghost",
+	"family": "Ghost",
+	"kind": "Blue",
+	"variation": 1,
+	"description": "Spoooooky.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {8, 8},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=3d2",
+		},
+		"CombatComponent": {
+			"Attack": "=3d2+1",
+			"Defense": "=3d2+1",
+			"Damage": "!3d4",
+		},
+		"TimeComponent": {
+			"MoveCost": "!$Speed * 0.9",
+		},
+	}
+}

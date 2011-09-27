@@ -1,22 +1,22 @@
 {
 	"family": "Deep Dwarf",
-	"kind": "Monk",
+	"kind": "Berserker",
 	"variation": 1,
-	"description": "He really likes beer.",
+	"description": "He looks upset.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {8, 5},
+				"right": {7, 5},
 			},
 		},
 		"HealthComponent": {
-			"MaxHealth": "=2d4+20",
+			"MaxHealth": "=2d4+16",
 		},
 		"CombatComponent": {
-			"Attack": "=1d3+5",
-			"Defense": "=1d3+5",
-			"Damage": "!2d4",
+			"Attack": "=1d3+9",
+			"Defense": "=2d3",
+			"Damage": "!1d12",
 		},
 	}
 }

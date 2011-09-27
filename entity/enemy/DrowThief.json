@@ -1,0 +1,22 @@
+{
+	"family": "Drow",
+	"kind": "Thief",
+	"variation": 1,
+	"description": "Keep an eye on your coinpurse.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {12, 4},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d6+10",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+4",
+			"Defense": "=2d4",
+			"Damage": "!4d2"
+		},
+	}
+}

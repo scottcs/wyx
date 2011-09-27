@@ -1,0 +1,22 @@
+{
+	"family": "Skeleton",
+	"kind": "Warrior",
+	"variation": 1,
+	"description": "It grinds its teeth.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {3, 7},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d3+18",
+		},
+		"CombatComponent": {
+			"Attack": "=2d3+1",
+			"Defense": "=2d3+1",
+			"Damage": "!2d3+4",
+		},
+	}
+}

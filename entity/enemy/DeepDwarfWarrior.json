@@ -1,22 +1,22 @@
 {
 	"family": "Deep Dwarf",
-	"kind": "Monk",
+	"kind": "Warrior",
 	"variation": 1,
-	"description": "He really likes beer.",
+	"description": "He is a hard worker.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {8, 5},
+				"right": {6, 5},
 			},
 		},
 		"HealthComponent": {
-			"MaxHealth": "=2d4+20",
+			"MaxHealth": "=2d6+20",
 		},
 		"CombatComponent": {
-			"Attack": "=1d3+5",
-			"Defense": "=1d3+5",
-			"Damage": "!2d4",
+			"Attack": "=1d3+4",
+			"Defense": "=1d3+6",
+			"Damage": "!1d8",
 		},
 	}
 }

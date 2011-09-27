@@ -1,0 +1,22 @@
+{
+	"family": "Drow",
+	"kind": "Archer",
+	"variation": 2,
+	"description": "She doesn't look very nice.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {14, 4},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d6+10",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+5",
+			"Defense": "=2d4-1",
+			"Damage": "!4d2-1"
+		},
+	}
+}

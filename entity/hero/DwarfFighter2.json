@@ -1,0 +1,24 @@
+{
+	"family": "Dwarf",
+	"kind": "Fighter",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {4, 2},
+				},
+			"Visibility": 7,
+		},
+		"TimeComponent": {
+			"AttackCost": "!$Speed * 1.3",
+		},
+		"HealthComponent": {
+			"MaxHealth": 18,
+		},
+		"CombatComponent": {
+			"Attack": 6,
+			"Defense": 14,
+		},
+	}
+}
