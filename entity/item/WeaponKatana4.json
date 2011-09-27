@@ -1,0 +1,19 @@
+{
+	"family": "Weapon",
+	"kind": "Katana",
+	"variation": 4,
+	"description": "It gleams silvery magenta in the dim light.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"Tint": {255, 220, 255},
+			"TileCoords": {
+				"item": {7, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+6",
+			"Damage": "!2d3+6",
+		},
+	}
+}

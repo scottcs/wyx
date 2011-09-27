@@ -1,0 +1,20 @@
+{
+	"family": "Armor",
+	"kind": "Plate",
+	"variation": 1,
+	"description": "Red with the blood of previous owners.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {7, 2},
+			},
+		},
+		"TimeComponent": {
+			"MoveCost": 50,
+		},
+		"CombatComponent": {
+			"Defense": 8,
+		},
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"family": "Armor",
+	"kind": "Scale",
+	"variation": 1,
+	"description": "Not very comfortable, but it might save your life.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {6, 2},
+			},
+		},
+		"TimeComponent": {
+			"MoveCost": 50,
+		},
+		"CombatComponent": {
+			"Defense": 6,
+		},
+	}
+}

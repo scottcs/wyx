@@ -1,7 +1,7 @@
 {
 	"family": "Ring",
-	"kind": "Protection",
-	"variation": 2,
+	"kind": "Sprinting",
+	"variation": 1,
 	"description": "It's a band made from some kind of metal. It looks like it would fit on one of your fingers.",
 	"components": {
 		"GraphicsComponent": {
@@ -10,8 +10,8 @@
 				"item": {2, 3},
 			},
 		},
-		"CombatComponent": {
-			"Defense": 2,
+		"TimeComponent": {
+			"MoveCost": "=-1d3*10",
 		},
 	}
 }
