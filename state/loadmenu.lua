@@ -43,6 +43,8 @@ function st:InputCommandEvent(e)
 	switch(cmd) {
 		-- run state
 		EXIT_MENU = function()
+			if State.initialize.destroy then State.initialize:destroy() end
+			rawset(State, 'initialize', nil)
 			RunState.switch(State.menu)
 		end,
 		DELETE_GAME = function()
