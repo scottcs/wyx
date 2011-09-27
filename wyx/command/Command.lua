@@ -69,7 +69,7 @@ end
 
 function Command:_getTargetString()
 	local t = self._target
-	local targstr = type(t) == 'str' and t or t:getID()
+	local targstr = type(t) == 'str' and t or (t and t:getID() or 'nil')
 	return targstr
 end
 
