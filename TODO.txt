@@ -6,7 +6,7 @@ v0.2.0 Goals:
   d console improvements [logging, levels, commands]
   d fix ELevel weights
   d add some more items and enemies
-  o Character select or gear select + name entry
+  d Character select or gear select + name entry
   o comparison tooltips
   o level templates
   o map objects
@@ -53,7 +53,7 @@ Later Goals:
   d dump regkey instead of name
   d add some more items and enemies
 	d move primeEntity to World from Level
-  o Character select or gear select + name entry
+  d Character select or gear select + name entry
   o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
   o comparison tooltips
 
