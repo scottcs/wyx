@@ -54,7 +54,6 @@ Later Goals:
   d add some more items and enemies
 	d move primeEntity to World from Level
   d Character select or gear select + name entry
-  o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
   o comparison tooltips
 
 :::::::::::::::
@@ -90,6 +89,7 @@ Console/Debug:
   d allow input and create some awesome commands
   - wizard mode
   x printing to Console while rendertarget is set to something else has strange implications
+  o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
 
 Level:
   o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
