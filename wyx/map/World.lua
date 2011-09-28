@@ -1,6 +1,11 @@
 local Class = require 'lib.hump.class'
 local Dungeon = getClass 'wyx.map.Dungeon'
-local EntityRegistry = getClass('wyx.entity.EntityRegistry')
+local EntityRegistry = getClass 'wyx.entity.EntityRegistry'
+local HeroEntityFactory = getClass 'wyx.entity.HeroEntityFactory'
+local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
+local message = getClass 'wyx.component.message'
+local enumerate = love.filesystem.enumerate
+local match = string.match
 
 -- World
 --
@@ -8,16 +13,22 @@ local World = Class{name='World',
 	function(self)
 		-- places can be dungeons, outdoor areas, towns, etc
 		self._places = {}
+		self._heroFactory = HeroEntityFactory()
 		self._eregistry = EntityRegistry()
 	end
 }
 
 -- destructor
 function World:destroy()
+	self._heroFactory:destroy()
+	self._heroFactory = nil
+
 	for k in pairs(self._places) do
 		self._places[k]:destroy()
 		self._places[k] = nil
 	end
+
+	self._primeEntity = nil
 	self._loadstate = nil
 	self._eregistry:destroy()
 	self._eregistry = nil
@@ -30,6 +41,8 @@ end
 function World:generate()
 	if self._loadstate then
 		self._eregistry:setState(self._loadstate.eregistry)
+
+		self:_loadHero()
 
 		for name,place in pairs(self._loadstate.places) do
 			if place.class == 'Dungeon' then
@@ -49,6 +62,63 @@ function World:generate()
 		dungeon:generateLevel(1)
 		self:addPlace(dungeon)
 	end
+
+	local place = self:getCurrentPlace()
+	local level = place:getCurrentLevel()
+	if self._primeEntity then
+		level:addEntity(self._primeEntity)
+		local x, y = level:getRandomPortalPosition()
+		local entity = self._eregistry:get(self._primeEntity)
+		entity:send(message('SET_POSITION'), x, y, x, y)
+	end
+	level:notifyEntitiesLoaded()
+end
+
+function World:_loadHero()
+	if self._loadstate then
+		local id = self._loadstate.primeEntity
+		info = self._eregistry:getEntityLoadState(id)
+		local newID = self._heroFactory:createEntity(info)
+
+		self._heroFactory:registerEntity(newID)
+		self._eregistry:setDuplicateID(id, newID)
+
+		self:setPrimeEntity(newID)
+	end
+end
+
+function World:createHero(info)
+	local hero = enumerate('entity/hero')
+	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
+	info = HeroDB:getByFilename(heroName)
+	local id = self._heroFactory:createEntity(info)
+	self._heroFactory:registerEntity(id)
+	self:setPrimeEntity(id)
+end
+
+function World:getPrimeEntity() return self._primeEntity end
+
+function World:setPrimeEntity(id)
+	local old = self._primeEntity
+	self._primeEntity = id
+
+	local PIC = getClass 'wyx.component.PlayerInputComponent'
+	local input = PIC()
+	self._heroFactory:setInputComponent(self._primeEntity, input)
+
+	local entity = self._eregistry:get(self._primeEntity)
+
+	local TimeComponent = getClass 'wyx.component.TimeComponent'
+	local timeComps = entity:getComponentsByClass(TimeComponent)
+	if timeComps and #timeComps > 0 then
+		TimeSystem:setFirst(timeComps[1])
+		entity:send(message('TIME_AUTO'), false)
+	end
+
+	entity:send(message('CONTAINER_RESIZE'), 10)
+
+	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
+	return old
 end
 
 function World:addPlace(place)
@@ -81,6 +151,7 @@ function World:getState()
 
 	state.curPlace = self._curPlace
 	state.lastPlace = self._lastPlace
+	state.primeEntity = self._primeEntity
 	state.eregistry = self._eregistry:getState()
 
 	for name, place in pairs(self._places) do

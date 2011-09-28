@@ -16,11 +16,10 @@ local warning, tostring = warning, tostring
 
 function st:init() end
 
-function st:enter(prevState, world)
-	self._world = world
+function st:enter(prevState)
 	self._loadStep = 0
 
-	local filename = world.FILENAME
+	local filename = World.FILENAME
 
 	if filename and love.filesystem.exists(filename) then
 		self._filename = filename
@@ -37,7 +36,6 @@ end
 function st:leave()
 	if self._file then self._file:close() end
 	self._state = nil
-	self._world = nil
 	self._file = nil
 	self._filename = nil
 	self._loadStep = nil
@@ -69,7 +67,7 @@ end
 
 function st:_setWorldState()
 	if self._state then
-		self._world:setState(self._state)
+		World:setState(self._state)
 	end
 end
 
@@ -87,7 +85,7 @@ function st:_load()
 		[2] = function() self:_setWorldState() end,
 		[3] = function()
 			local viewstate = self._state and self._state.view
-			RunState.switch(State.construct, self._world, viewstate)
+			RunState.switch(State.construct, viewstate)
 		end,
 		default = function() end,
 	}

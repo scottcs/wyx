@@ -16,8 +16,7 @@ local format = string.format
 
 function st:init() end
 
-function st:enter(prevState, world, view, nextState)
-	self._world = world
+function st:enter(prevState, view, nextState)
 	self._view = view
 	self:_chooseFile()
 	self:_removeFile()
@@ -27,7 +26,6 @@ end
 
 function st:leave()
 	if self._file then self._file:close() end
-	self._world = nil
 	self._view = nil
 	self._file = nil
 	self._filename = nil
@@ -37,9 +35,9 @@ end
 function st:destroy() end
 
 function st:_chooseFile()
-	local place = self._world:getCurrentPlace()
+	local place = World:getCurrentPlace()
 	local level = place:getCurrentLevel()
-	local peID = level:getPrimeEntity()
+	local peID = World:getPrimeEntity()
 	local pe = EntityRegistry:get(peID)
 	local name = pe:getName()
 
@@ -76,7 +74,7 @@ function st:_saveGame()
 		ok = false
 	end
 
-	local state = self._world:getState()
+	local state = World:getState()
 	state.view = self._view:getState()
 	state.GAMESEED = GAMESEED
 	state.VERSION = VERSION

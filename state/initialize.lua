@@ -10,8 +10,6 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.initialize' end}
 setmetatable(st, mt)
 
-local World = getClass 'wyx.map.World'
-
 function st:init()
 	-- entity databases
 	HeroDB = getClass('wyx.entity.HeroEntityDB')()
@@ -24,7 +22,7 @@ function st:init()
 	CollisionSystem = getClass('wyx.system.CollisionSystem')()
 
 	-- instantiate world
-	self._world = World()
+	World = getClass('wyx.map.World')()
 end
 
 function st:enter(prevState, nextState)
@@ -40,7 +38,7 @@ function st:leave()
 end
 
 function st:destroy()
-	self._world:destroy()
+	World:destroy()
 
 	EntityRegistry = nil
 
@@ -63,7 +61,7 @@ end
 
 function st:_makeEntityRegistry()
 	-- TODO: make this not global
-	EntityRegistry = self._world:getEntityRegistry()
+	EntityRegistry = World:getEntityRegistry()
 end
 
 -- make a ridiculous seed for the PRNG
@@ -98,7 +96,7 @@ function st:_load()
 		[3] = function() HeroDB:load() end,
 		[4] = function() EnemyDB:load() end,
 		[5] = function() ItemDB:load() end,
-		[6] = function() RunState.switch(State[self._nextState], self._world) end,
+		[6] = function() RunState.switch(State[self._nextState]) end,
 		default = function() end,
 	}
 
