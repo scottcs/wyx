@@ -10,16 +10,14 @@ local mt = {__tostring = function() return 'RunState.createchar' end}
 setmetatable(st, mt)
 
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
---local CreateCharUI = getClass 'wyx.ui.CreateCharUI'
+local CreateCharUI = getClass 'wyx.ui.CreateCharUI'
 
 function st:init() end
 
 function st:enter(prevState)
-	--InputEvents:register(self, InputCommandEvent)
+	InputEvents:register(self, InputCommandEvent)
 	if Console then Console:hide() end
-	World:createHero()
-	RunState.switch(State.construct)
-	--self._ui = CreateCharUI(UI.CreateChar)
+	self._ui = CreateCharUI(UI.CreateChar)
 end
 
 function st:leave()
@@ -51,7 +49,7 @@ function st:InputCommandEvent(e)
 			if self._ui then
 				local char = self._ui:getChar()
 				if char then
-					-- TODO: set world char
+					World:createHero(char)
 					RunState.switch(State.construct)
 				end
 			end

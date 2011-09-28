@@ -4,8 +4,6 @@ local EntityRegistry = getClass 'wyx.entity.EntityRegistry'
 local HeroEntityFactory = getClass 'wyx.entity.HeroEntityFactory'
 local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local message = getClass 'wyx.component.message'
-local enumerate = love.filesystem.enumerate
-local match = string.match
 
 -- World
 --
@@ -88,9 +86,6 @@ function World:_loadHero()
 end
 
 function World:createHero(info)
-	local hero = enumerate('entity/hero')
-	local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-	info = HeroDB:getByFilename(heroName)
 	local id = self._heroFactory:createEntity(info)
 	self._heroFactory:registerEntity(id)
 	self:setPrimeEntity(id)
