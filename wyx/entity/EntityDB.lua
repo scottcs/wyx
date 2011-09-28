@@ -20,7 +20,7 @@ local _mt = {__mode = 'v'}
 local EntityDB = Class{name='EntityDB',
 	function(self, etype)
 		self._etype = etype or "UNKNOWN"
-		self._byFilename = setmetatable({}, _mt)
+		self._byFilename = {}
 		self._byName = {}
 		self._byELevel = {}
 		self._byFam = {}
@@ -329,6 +329,9 @@ function EntityDB:getByELevel(min, max)
 
 	return results
 end
+
+-- iterate over every entity
+function EntityDB:iterate() return pairs(self._byFilename) end
 
 
 -- the class
