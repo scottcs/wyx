@@ -25,6 +25,7 @@ local Frame = Class{name='Frame',
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
+		self._hoverWithChildren = false
 		self._color = colors.clone(colors.WHITE)
 
 		self._needsUpdate = true
@@ -35,6 +36,7 @@ local Frame = Class{name='Frame',
 -- destructor
 function Frame:destroy()
 	self._needsUpdate = nil
+	self._hoverWithChildren = nil
 
 	if self._fadeInID then tween.stop(self._fadeInID) end
 	if self._fadeOutID then tween.stop(self._fadeOutID) end
@@ -217,6 +219,12 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 	return handled
 end
 
+-- hover when children are hovered
+function Frame:hoverWithChildren(yes)
+	if type(yes) ~= 'boolean' then yes = not self._hoverWithChildren end
+	self._hoverWithChildren = yes
+end
+
 -- add a child
 function Frame:addChild(frame, depth)
 	verifyClass(Frame, frame)
@@ -356,7 +364,9 @@ function Frame:onTick(dt, x, y, hovered)
 			end
 		end
 
-		if not hovered and self:containsPoint(x, y) then
+		if (not hovered or self._hoverWithChildren)
+			and self:containsPoint(x, y)
+		then
 			if not self._hovered then self:onHoverIn(x, y) end
 			self._hovered = true
 			hovered = true

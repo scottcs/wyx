@@ -1,23 +1,23 @@
 
          --[[--
-     LOAD MENU STATE
+    CREATECHAR STATE
           ----
-  Display the load menu.
+Create the player character.
          --]]--
 
 local st = RunState.new()
-local mt = {__tostring = function() return 'RunState.loadmenu' end}
+local mt = {__tostring = function() return 'RunState.createchar' end}
 setmetatable(st, mt)
 
 local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
-local LoadMenuUI = getClass 'wyx.ui.LoadMenuUI'
+local CreateCharUI = getClass 'wyx.ui.CreateCharUI'
 
 function st:init() end
 
 function st:enter(prevState)
 	InputEvents:register(self, InputCommandEvent)
 	if Console then Console:hide() end
-	self._ui = LoadMenuUI(UI.LoadMenu)
+	self._ui = CreateCharUI(UI.CreateChar)
 end
 
 function st:leave()
@@ -45,33 +45,12 @@ function st:InputCommandEvent(e)
 			rawset(State, 'initialize', nil)
 			RunState.switch(State.menu)
 		end,
-		DELETE_GAME = function()
+		CREATE_CHAR = function()
 			if self._ui then
-				local file, wyx = self._ui:getSelectedFile()
-
-				if file then
-					if not love.filesystem.remove(file) then
-						warning('Could not remove file: %q', file)
-					end
-				end
-
-				if wyx then
-					if love.filesystem.remove(wyx) then
-						self._ui:destroy()
-						self._ui = LoadMenuUI(UI.LoadMenu)
-					else
-						warning('Could not remove file: %q', wyx)
-					end
-				end
-			end
-		end,
-		LOAD_GAME = function()
-			if self._ui then
-				local file, wyx = self._ui:getSelectedFile()
-				if file then
-					World.FILENAME = file
-					World.WYXNAME = wyx
-					RunState.switch(State.loadgame)
+				local char = self._ui:getChar()
+				if char then
+					World:createHero(char)
+					RunState.switch(State.construct)
 				end
 			end
 		end,

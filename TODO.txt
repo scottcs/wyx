@@ -5,18 +5,18 @@
 v0.2.0 Goals:
   d console improvements [logging, levels, commands]
   d fix ELevel weights
-	d add some more items and enemies
-  o Character select or gear select + name entry
+  d add some more items and enemies
+  d Character select or gear select + name entry
   o comparison tooltips
   o level templates
   o map objects
-	o poisson disk sampling
+  o poisson disk sampling
   o make stairs/portals work - can go back and forth between levels
   o config file
   o key bindings
   o Options Menu
   o load menu tooltips
-	o better load menu information
+  o better load menu information
   o colored numbers in tooltips
 
 v0.3.0 Goals:
@@ -41,19 +41,20 @@ Later Goals:
 :::::::::::::::
 
   d Fix ELevel weights
-	d   add ELevel to entity debug tooltip
+  d   add ELevel to entity debug tooltip
   d   Include MoveCost, AttackCost, etc
   d   Give player/hero ELevel
   d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
   d ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
-	d fix entity names
-	d spread out entity creation by family
-	d allow unique entities
-	d add entity Tint
-	d dump regkey instead of name
-	d add some more items and enemies
-  o Character select or gear select + name entry
-	o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+  d fix entity names
+  d spread out entity creation by family
+  d allow unique entities
+  d add entity Tint
+  d dump regkey instead of name
+  d add some more items and enemies
+	d move primeEntity to World from Level
+  d Character select or gear select + name entry
+  o comparison tooltips
 
 :::::::::::::::
 :PENDING TASKS:
@@ -88,6 +89,7 @@ Console/Debug:
   d allow input and create some awesome commands
   - wizard mode
   x printing to Console while rendertarget is set to something else has strange implications
+  o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
 
 Level:
   o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
@@ -198,34 +200,38 @@ Interface:
       MainMenu -> Options
       MainMenu -> Help
       MainMenu -> Shutdown
-        Initialize -> LoadGame
-        Initialize -> Construct
+        Initialize -> LoadMenu
+        Initialize -> CreateChar
         Options -> MainMenu
         Help -> MainMenu
-          LoadGame -> Construct
-            Construct -> Play
-              Play -> PlayMenu
-                PlayMenu -> Options
-                PlayMenu -> Help
-                PlayMenu -> Save
-                PlayMenu -> Destroy (quit without saving)
-                  Options -> PlayMenu
-                  Help -> PlayMenu
-                  Save -> PlayMenu
-                  Save -> Destroy
-                  Destroy -> MainMenu
+          CreateChar -> Construct
+          LoadMenu -> LoadGame
+            LoadGame -> Construct
+              Construct -> Play
+                Play -> PlayMenu
+                  PlayMenu -> Options
+                  PlayMenu -> Help
+                  PlayMenu -> Save
+                  PlayMenu -> Destroy (quit without saving)
+                    Options -> PlayMenu
+                    Help -> PlayMenu
+                    Save -> PlayMenu
+                    Save -> Destroy
                     Destroy -> MainMenu
+                      Destroy -> MainMenu
 
   Individual States and their potential links:
       RunState:     From:                           To:
       MAIN          --                              Intro
       Intro         MAIN                            MainMenu
       MainMenu      Intro, Options, Help, Destroy   Initialize, Options, Help, Shutdown
-      Initialize    MainMenu                        Construct, LoadGame
-      LoadGame      Initialize                      Construct
+      Initialize    MainMenu                        CreateChar, LoadMenu
+      CreateChar    Initialize                      Construct
+      LoadMenu      Initialize                      LoadGame
+      LoadGame      LoadMenu                        Construct
       Options       MainMenu, PlayMenu              MainMenu, PlayMenu
       Help          MainMenu, PlayMenu              MainMenu, PlayMenu
-      Construct     LoadGame, Initialize            Play
+      Construct     LoadGame, CreateChar            Play
       Play          Construct                       PlayMenu
       PlayMenu      Play, Options, Help, Save       Options, Help, Save, Destroy
       Save          PlayMenu                        Destroy, PlayMenu
@@ -235,9 +241,12 @@ Interface:
   Loops:
       MainMenu -> Help -> MainMenu
       MainMenu -> Options -> MainMenu
+      MainMenu -> Initialize -> LoadMenu -> MainMenu
+      MainMenu -> Initialize -> CreateChar -> MainMenu
       Play -> PlayMenu -> Play
       PlayMenu -> Help -> PlayMenu
       PlayMenu -> Options -> PlayMenu
       PlayMenu -> Save -> PlayMenu
-      MainMenu -> Initialize -> (LoadGame ->) Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+      MainMenu -> Initialize -> LoadMenu -> LoadGame -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
+      MainMenu -> Initialize -> CreateChar -> Construct -> Play -> PlayMenu -> (Save ->) Destroy -> MainMenu
 

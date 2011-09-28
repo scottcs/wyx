@@ -21,8 +21,7 @@ function st:init()
 	self._ui = InGameUI()
 end
 
-function st:enter(prevState, world, viewstate)
-	self._world = world
+function st:enter(prevState, viewstate)
 	self._viewstate = viewstate
 	self._loadStep = 0
 	self._doLoadStep = true
@@ -31,7 +30,6 @@ end
 function st:leave()
 	self._doLoadStep = nil
 	self._loadStep = nil
-	self._world = nil
 	self._viewstate = nil
 	if Console then Console:hide() end
 end
@@ -46,8 +44,8 @@ function st:destroy()
 end
 
 function st:_generateWorld()
-	self._world:generate()
-	local place = self._world:getCurrentPlace()
+	World:generate()
+	local place = World:getCurrentPlace()
 	self._level = place:getCurrentLevel()
 end
 
@@ -77,7 +75,7 @@ function st:_createCamera()
 	local maxX, maxY = mapTileW - minX, mapTileH - minY
 	self._cam:setLimits(minX, minY, maxX, maxY)
 	self._cam:home()
-	self._cam:followTarget(self._level:getPrimeEntity())
+	self._cam:followTarget(World:getPrimeEntity())
 	self._view:setViewport(self._cam:getViewport())
 end
 
@@ -93,11 +91,10 @@ function st:_load()
 	switch(self._loadStep) {
 		[1] = function() self:_generateWorld() end,
 		[2] = function() CollisionSystem:setLevel(self._level) end,
-		[3] = function() self._level:setPlayerControlled() end,
-		[4] = function() self:_createMapView() end,
-		[5] = function() self:_createCamera() end,
-		[6] = function()
-			RunState.switch(State.play, self._world, self._view, self._cam)
+		[3] = function() self:_createMapView() end,
+		[4] = function() self:_createCamera() end,
+		[5] = function()
+			RunState.switch(State.play, self._view, self._cam)
 		end,
 		default = function() end,
 	}
