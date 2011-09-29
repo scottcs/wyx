@@ -659,6 +659,8 @@ function InGameUI:_findEmptyFloorSlot()
 end
 
 function InGameUI:_comparisonTooltipFunc(btn)
+	local tt = btn:getTooltip()
+
 	if not btn._comparisonTooltip then
 		local peID = World:getPrimeEntity()
 		local iID = btn:getEntityID()
@@ -683,6 +685,7 @@ function InGameUI:_comparisonTooltipFunc(btn)
 							if aFam == iFam then
 								btn._comparisonTooltip =
 									self._tooltipFactory:makeEntityTooltip(entity)
+								tt:addChild(btn._comparisonTooltip)
 								btn._comparisonTooltip:show()
 							end
 						end -- if aID ~= iID
@@ -693,20 +696,21 @@ function InGameUI:_comparisonTooltipFunc(btn)
 	end -- if not btn._comparisonTooltip
 
 	if btn._comparisonTooltip then
-		local tt = btn:getTooltip()
 		local x, y = tt:getScreenPosition()
 		local ttW = tt:getWidth()
 		local cW = btn._comparisonTooltip:getWidth()
 		local newX = x - (cW + 8)
 		if newX < 0 then newX = x + (ttW + 8) end
 
-		btn._comparisonTooltip:setPosition(newX, y)
+		btn._comparisonTooltip:setX(newX)
 	end
 end
 
 local _comparisonTooltipHide = function(btn)
 	if btn._comparisonTooltip then
 		btn._comparisonTooltip:hide()
+		local tt = btn:getTooltip()
+		tt:removeChild(btn._comparisonTooltip)
 		btn._comparisonTooltip:destroy()
 		btn._comparisonTooltip = nil
 	end

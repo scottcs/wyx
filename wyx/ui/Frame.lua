@@ -59,6 +59,7 @@ function Frame:destroy()
 	self:clear()
 	self._layers = nil
 	self._children = nil
+	self._parent = nil
 
 	self._curStyle = nil
 
@@ -255,7 +256,7 @@ function Frame:removeChild(frame)
 			count = count + 1
 			newChildren[count] = child
 		else
-			child:becomeIndependent(self)
+			child:becomeIndependent()
 		end
 		self._children[i] = nil
 	end
@@ -284,13 +285,13 @@ end
 function Frame:isRegisteredWithUISystem() return self._registered == true end
 
 -- perform necessary tasks to become an independent frame (no parent)
-function Frame:becomeIndependent(parent)
-	if parent then
-		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
+function Frame:becomeIndependent()
+	if self._parent then
+		local x = self._parent:getX() - self:getX()
+		local y = self._parent:getY() - self:getY()
+		self._parent = nil
 		self:setPosition(x, y)
 	end
-
-	self._parent = nil
 
 	self:_registerWithUISystem()
 end
