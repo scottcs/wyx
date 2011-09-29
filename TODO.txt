@@ -56,7 +56,7 @@ Later Goals:
   d Character select or gear select + name entry
   d comparison tooltips
 	d fix hero being moved to portal on load
-	o add health regen per tick
+	d add health regen per tick
 
 :::::::::::::::
 :PENDING TASKS:
