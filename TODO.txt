@@ -3,11 +3,6 @@
 ::::::::::
 
 v0.2.0 Goals:
-  d console improvements [logging, levels, commands]
-  d fix ELevel weights
-  d add some more items and enemies
-  d Character select or gear select + name entry
-  d comparison tooltips
   o level templates
   o map objects
   o poisson disk sampling
@@ -40,23 +35,8 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  d Fix ELevel weights
-  d   add ELevel to entity debug tooltip
-  d   Include MoveCost, AttackCost, etc
-  d   Give player/hero ELevel
-  d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
-  d ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
-  d fix entity names
-  d spread out entity creation by family
-  d allow unique entities
-  d add entity Tint
-  d dump regkey instead of name
-  d add some more items and enemies
-	d move primeEntity to World from Level
-  d Character select or gear select + name entry
-  d comparison tooltips
-	d fix hero being moved to portal on load
-	d add health regen per tick
+  o Level templates
+  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
 
 :::::::::::::::
 :PENDING TASKS:
@@ -97,8 +77,6 @@ Level:
   o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
   - change Level representation of enemy to be by position in a table for faster lookup
   o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
-  o Level templates
-  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
   o make stairs work [generate new map]
   + maps should be referenced by ID like entities [with portals, anyway]
   + item distribution needs some algorithms [ensure even spread of weapons, armor, etc]
