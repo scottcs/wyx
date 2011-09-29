@@ -24,7 +24,7 @@ end
 
 -- set the callback function and arguments
 -- this will be called when editing mode ends
-function TextEntry:setCallback(func, ...)
+function TextEntry:setEndEditCallback(func, ...)
 	self:setCallback('textentry', func, ...)
 end
 
