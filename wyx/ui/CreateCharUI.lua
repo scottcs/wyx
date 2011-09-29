@@ -249,7 +249,7 @@ function CreateCharUI:_makeNamePanel()
 	f:setJustifyLeft()
 	f:setAlignCenter()
 
-	f:setCallback(function()
+	f:setEndEditCallback(function()
 		local text = f:getText()
 		self._name = text and text[1]
 	end)

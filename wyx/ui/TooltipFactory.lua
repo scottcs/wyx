@@ -255,10 +255,10 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 end
 
 -- make a simple generic tooltip with text
-function TooltipFactory:makeVerySimpleTooltip(text, depth)
+function TooltipFactory:makeVerySimpleTooltip(text, depth, style)
 	verifyAny(text, 'string', 'function')
 
-	local body = self:_makeText(text)
+	local body = self:_makeText(text, nil, style)
 
 	local tooltip = Tooltip()
 	tooltip:setDepth(depth or self._defaultDepth)

@@ -12,6 +12,7 @@ local drawq = love.graphics.drawq
 local colors = colors
 local cmult = colors.multiply
 local unpack = unpack
+local table_maxn = table.maxn
 
 -- Frame
 -- Basic UI Element
@@ -22,6 +23,8 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 		self._layers = {}
+		self._callbacks = {}
+		self._callbackArgs = {}
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
@@ -38,6 +41,10 @@ function Frame:destroy()
 	self._needsUpdate = nil
 	self._hoverWithChildren = nil
 
+	for k in pairs(self._callbacks) do self:_clearCallback(k) end
+	self._callbacks = nil
+	self._callbackArgs = nil
+
 	if self._fadeInID then tween.stop(self._fadeInID) end
 	if self._fadeOutID then tween.stop(self._fadeOutID) end
 
@@ -52,6 +59,7 @@ function Frame:destroy()
 	self:clear()
 	self._layers = nil
 	self._children = nil
+	self._parent = nil
 
 	self._curStyle = nil
 
@@ -248,7 +256,7 @@ function Frame:removeChild(frame)
 			count = count + 1
 			newChildren[count] = child
 		else
-			child:becomeIndependent(self)
+			child:becomeIndependent()
 		end
 		self._children[i] = nil
 	end
@@ -277,9 +285,11 @@ end
 function Frame:isRegisteredWithUISystem() return self._registered == true end
 
 -- perform necessary tasks to become an independent frame (no parent)
-function Frame:becomeIndependent(parent)
-	if parent then
-		local x, y = parent:getX() - self:getX(), parent:getY() - self:getY()
+function Frame:becomeIndependent()
+	if self._parent then
+		local x = self._parent:getX() - self:getX()
+		local y = self._parent:getY() - self:getY()
+		self._parent = nil
 		self:setPosition(x, y)
 	end
 
@@ -291,10 +301,24 @@ function Frame:becomeChild(parent, depth)
 	if parent then
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
+		self._parent = parent
 	end
 
 	self:_unregisterWithUISystem()
 	if depth then self:setDepth(depth) end
+end
+
+-- get screen position, regardless of whether this frame is a child or not
+function Frame:getScreenPosition()
+	local x, y = self:getPosition()
+
+	if self._parent then
+		local parentX, parentY = self._parent:getScreenPosition()
+		x = x - parentX
+		y = y - parentY
+	end
+
+	return x, y
 end
 
 -- override Rect:setX() to send translation to children
@@ -473,6 +497,9 @@ function Frame:attachTooltip(tooltip)
 	verifyClass('wyx.ui.Tooltip', tooltip)
 	self._tooltip = tooltip
 end
+
+-- get the tooltip attached to this frame
+function Frame:getTooltip() return self._tooltip end
 
 -- set the position of the tooltip
 function Frame:_setTooltipPosition(x, y)
@@ -657,6 +684,14 @@ end
 -- draw the frame and all child frames
 function Frame:draw(color)
 	if self._show then
+		if self._tooltip then
+			if self._hovered then
+				self:_showTooltip()
+			else
+				self:_hideTooltip()
+			end
+		end
+
 		color = color or self._color
 
 		setColor(color)
@@ -667,16 +702,101 @@ function Frame:draw(color)
 			local child = self._children[i]
 			child:draw(self._color)
 		end
+	end
+end
 
-		if self._tooltip then
-			if self._hovered then
-				self._tooltip:show()
-			else
-				self._tooltip:hide()
-			end
+function Frame:_showTooltip()
+	self._tooltip:show()
+	self:_callTooltipCallback('tooltipshow')
+end
+
+function Frame:_hideTooltip()
+	self._tooltip:hide()
+	self:_callTooltipCallback('tooltiphide')
+end
+
+-- tooltip callback - called when tooltip is shown
+function Frame:setTooltipShowCallback(func, ...)
+	self:setCallback('tooltipshow', func, ...)
+end
+
+-- tooltip callback - called when tooltip is hidden
+function Frame:setTooltipHideCallback(func, ...)
+	self:setCallback('tooltiphide', func, ...)
+end
+
+function Frame:_callTooltipCallback(which)
+	if self._callbacks[which] then
+		local args = self._callbackArgs[which]
+		if args then
+			self._callbacks[which](unpack(args))
+		else
+			self._callbacks[which]()
 		end
 	end
 end
+
+-- set callback functions and arguments
+function Frame:setCallback(which, func, ...)
+	verify('string', which)
+	verify('function', func)
+	self:_clearCallback(which)
+
+	self._callbacks[which] = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._callbackArgs[which] = {...} end
+end
+
+-- clear the given callback
+function Frame:_clearCallback(which)
+	self._callbacks[which] = nil
+	if self._callbackArgs[which] then
+		for k,v in pairs(self._callbackArgs[which]) do
+			self._callbackArgs[which][k] = nil
+		end
+		self._callbackArgs[which] = nil
+	end
+end
+
+-- return true if the given callback exists
+function Frame:_callbackExists(which)
+	return self._callbacks[which] ~= nil
+end
+
+-- call the given callback
+function Frame:_callCallback(which, ...)
+	local cb = self._callbacks[which]
+	local cbArgs = self._callbackArgs[which]
+
+	if cb then
+		local args = {}
+		local count = 0
+		local num = select('#', ...)
+
+		if num > 0 then
+			for i=1,num do
+				count = count + 1
+				args[count] = select(i, ...)
+			end
+		end
+
+		if cbArgs then
+			num = table_maxn(cbArgs)
+			for i=1,num do
+				count = count + 1
+				args[count] = cbArgs[i]
+			end
+		end
+
+		if count > 0 then
+			return cb(unpack(args, 1, table_maxn(args)))
+		else
+			return cb()
+		end
+	end
+end
+
 
 function Frame:show() self._show = true end
 function Frame:hide()

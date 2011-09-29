@@ -19,29 +19,13 @@ local TextEntry = Class{name='TextEntry',
 function TextEntry:destroy()
 	self._isEnteringText = nil
 	self._defaultText = nil
-	self:_clearCallback()
 	Text.destroy(self)
-end
-
--- clear the callback
-function TextEntry:_clearCallback()
-	self._callback = nil
-	if self._callbackArgs then
-		for k,v in pairs(self._callbackArgs) do self._callbackArgs[k] = nil end
-		self._callbackArgs = nil
-	end
 end
 
 -- set the callback function and arguments
 -- this will be called when editing mode ends
-function TextEntry:setCallback(func, ...)
-	verify('function', func)
-	self:_clearCallback()
-
-	self._callback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._callbackArgs = {...} end
+function TextEntry:setEndEditCallback(func, ...)
+	self:setCallback('textentry', func, ...)
 end
 
 -- set a default text value
@@ -173,14 +157,7 @@ function TextEntry:onKey(key, unicode, unicodeValue, mods)
 				end
 			end
 
-			if self._callback then
-				local args = self._callbackArgs
-				if args then
-					self._callback(unpack(args))
-				else
-					self._callback()
-				end
-			end
+			self:_callCallback('textentry')
 		end
 	else
 		warning('Text is missing!')
