@@ -1,0 +1,24 @@
+{
+	"family": "Elf",
+	"kind": "Mage",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {5, 2},
+				},
+			"Visibility": 8,
+		},
+		"TimeComponent": {
+			"AttackCost": "!$Speed * 1.1",
+		},
+		"HealthComponent": {
+			"MaxHealth": 8,
+		},
+		"CombatComponent": {
+			"Attack": 4,
+			"Defense": 6,
+		},
+	}
+}

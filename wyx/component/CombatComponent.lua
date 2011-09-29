@@ -76,6 +76,7 @@ function CombatComponent:receive(sender, msg, ...)
 	if msg == message('ENTITY_CREATED') and sender == self._mediator then
 		self:_determineDamageMinMax()
 	end
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function CombatComponent:_determineDamageMinMax()

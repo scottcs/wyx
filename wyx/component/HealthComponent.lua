@@ -2,6 +2,7 @@ local Class = require 'lib.hump.class'
 local ModelComponent = getClass 'wyx.component.ModelComponent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
 local EntityMaxHealthEvent = getClass 'wyx.event.EntityMaxHealthEvent'
+local TimeSystemCycleEvent = getClass 'wyx.event.TimeSystemCycleEvent'
 local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
 
@@ -17,15 +18,29 @@ local HealthComponent = Class{name='HealthComponent',
 			'MaxHealth',
 			'HealthBonus',
 			'MaxHealthBonus',
+			'HealthRegen',
+			'HealthRegenBonus',
 		})
 		ModelComponent.construct(self, properties)
 		self:_addMessages('COMBAT_DAMAGE', 'ENTITY_DEATH')
+
+		GameEvents:register(self, TimeSystemCycleEvent)
 	end
 }
 
 -- destructor
 function HealthComponent:destroy()
+	GameEvents:unregisterAll(self)
 	ModelComponent.destroy(self)
+end
+
+-- regen health on timesystem tick
+function HealthComponent:TimeSystemCycleEvent(e)
+	if self._mediator then
+		local regen = self._mediator:query('HealthRegen')
+		regen = regen + self._mediator:query('HealthRegenBonus')
+		self:_modifyHealth(regen, 'Regeneration')
+	end
 end
 
 function HealthComponent:_setProperty(prop, data)
@@ -37,6 +52,8 @@ function HealthComponent:_setProperty(prop, data)
 		or prop == property('MaxHealth')
 		or prop == property('HealthBonus')
 		or prop == property('MaxHealthBonus')
+		or prop == property('HealthRegen')
+		or prop == property('HealthRegenBonus')
 	then
 		verifyAny(data, 'number', 'expression')
 	else
@@ -53,17 +70,17 @@ function HealthComponent:_sendDeathMessage(actor)
 	self._mediator:send(message('ENTITY_DEATH'), msg)
 end
 
--- XXX vvvv THIS CODE IS NEVER CALLED vvvv
-
 function HealthComponent:_modifyHealth(amount, actor)
 	local pHealth = property('Health')
 	local health = self:getProperty(pHealth)
 
-	health = health + amount
-	self:_setProperty(pHealth, health)
+	if health > 0 then
+		health = health + amount
+		self:_setProperty(pHealth, health)
 
-	self._mediator:send(message('HEALTH_UPDATE'))
-	self:_checkHealth(actor)
+		self._mediator:send(message('HEALTH_UPDATE'))
+		self:_checkHealth(actor)
+	end
 end
 
 function HealthComponent:_modifyMaxHealth(amount, actor)
@@ -78,8 +95,6 @@ function HealthComponent:_modifyMaxHealth(amount, actor)
 
 	GameEvents:push(EntityMaxHealthEvent(self._mediator:getID()))
 end
-
--- XXX  ^^^^ THIS CODE IS NEVER CALLED ^^^^
 
 function HealthComponent:_checkHealth(...)
 	local pHealth = property('Health')
@@ -111,6 +126,7 @@ function HealthComponent:receive(sender, msg, ...)
 	elseif msg == message('ENTITY_DEATH') and sender == self._mediator then
 		GameEvents:push(EntityDeathEvent(self._mediator, ...))
 	end
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 function HealthComponent:getProperty(p, intermediate, ...)
@@ -118,6 +134,8 @@ function HealthComponent:getProperty(p, intermediate, ...)
 		or p == property('MaxHealth')
 		or p == property('HealthBonus')
 		or p == property('MaxHealthBonus')
+		or p == property('HealthRegen')
+		or p == property('HealthRegenBonus')
 	then
 		local prop = self:_evaluate(p)
 		if not intermediate then return prop end

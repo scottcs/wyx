@@ -18,31 +18,26 @@ local Slot = Class{name='Slot',
 function Slot:destroy()
 	self._button = nil
 
-	self:_clearVerificationCallback()
-	self:_clearInsertCallback()
-	self:_clearRemoveCallback()
-	self._verificationCallback = nil
-	self._insertCallback = nil
-	self._removeCallback = nil
 	self._hideTooltips = nil
+	self._id = nil
 
 	Frame.destroy(self)
 end
+
+-- get/set an arbitrary id
+function Slot:setID(id) self._id = id end
+function Slot:getID() return self._id end
 
 -- verify that a button is allowed to be socketed in this Slot
 function Slot:verifyButton(button)
 	local verified = true
 
-	if self._verificationCallback then
-		local args = self._verificationCallbackArgs
-		if args then
-			verified = self._verificationCallback(button, unpack(args))
-		else
-			verified = self._verificationCallback(button)
-		end
+	if self:_callbackExists('verify') then
+		local id = self:getID()
+		verified = self:_callCallback('verify', button, id)
 	end
 
-	return verified
+	return verified == true
 end
 
 -- swap the given StickyButton with the current one
@@ -80,14 +75,8 @@ function Slot:insert(button, verified)
 			self._button:setSlot(self, self._hideTooltips)
 			self._button:setCenter(self:getCenter())
 
-			if self._insertCallback then
-				local args = self._insertCallbackArgs
-				if args then
-					self._insertCallback(button, unpack(args))
-				else
-					self._insertCallback(button)
-				end
-			end
+			local id = self:getID()
+			self:_callCallback('insert', button, id)
 		end
 	end
 
@@ -103,80 +92,23 @@ function Slot:remove()
 		oldButton = self._button
 		self._button = nil
 
-		if self._removeCallback then
-			local args = self._removeCallbackArgs
-			if args then
-				self._removeCallback(oldButton, unpack(args))
-			else
-				self._removeCallback(oldButton)
-			end
-		end
+		local id = self:getID()
+		self:_callCallback('remove', oldButton, id)
 	end
 
 	return oldButton
 end
 
 function Slot:setVerificationCallback(func, ...)
-	verify('function', func)
-	self:_clearVerificationCallback()
-
-	self._verificationCallback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._verificationCallbackArgs = {...} end
+	self:setCallback('verify', func, ...)
 end
 
 function Slot:setInsertCallback(func, ...)
-	verify('function', func)
-	self:_clearInsertCallback()
-
-	self._insertCallback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._insertCallbackArgs = {...} end
+	self:setCallback('insert', func, ...)
 end
 
 function Slot:setRemoveCallback(func, ...)
-	verify('function', func)
-	self:_clearRemoveCallback()
-
-	self._removeCallback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._removeCallbackArgs = {...} end
-end
-
--- clear the verification callback
-function Slot:_clearVerificationCallback()
-	self._verificationCallback = nil
-	if self._verificationCallbackArgs then
-		for k,v in pairs(self._verificationCallbackArgs) do
-			self._verificationCallbackArgs[k] = nil
-		end
-		self._verificationCallbackArgs = nil
-	end
-end
-
--- clear the insert callback
-function Slot:_clearInsertCallback()
-	self._insertCallback = nil
-	if self._insertCallbackArgs then
-		for k,v in pairs(self._insertCallbackArgs) do
-			self._insertCallbackArgs[k] = nil
-		end
-		self._insertCallbackArgs = nil
-	end
-end
-
--- clear the remove callback
-function Slot:_clearRemoveCallback()
-	self._removeCallback = nil
-	if self._removeCallbackArgs then
-		for k,v in pairs(self._removeCallbackArgs) do
-			self._removeCallbackArgs[k] = nil
-		end
-		self._removeCallbackArgs = nil
-	end
+	self:setCallback('remove', func, ...)
 end
 
 -- return true if the slot is empty

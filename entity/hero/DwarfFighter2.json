@@ -1,25 +1,24 @@
 {
-	"family": "Human",
-	"kind": "Archer",
+	"family": "Dwarf",
+	"kind": "Fighter",
 	"variation": 2,
-	"description": "You are pretty cool.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 2},
+				"right": {4, 2},
 				},
-			"Visibility": 10,
+			"Visibility": 7,
 		},
 		"TimeComponent": {
-			"Speed": 120,
+			"AttackCost": "!$Speed * 1.3",
 		},
 		"HealthComponent": {
-			"MaxHealth": 12,
+			"MaxHealth": 18,
 		},
 		"CombatComponent": {
-			"Attack": 5,
-			"Defense": 4,
+			"Attack": 6,
+			"Defense": 14,
 		},
 	}
 }

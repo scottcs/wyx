@@ -1,6 +1,6 @@
 {
 	"family": "Ring",
-	"kind": "of Protection",
+	"kind": "Protection",
 	"variation": 1,
 	"description": "It's a little grimey. Take it or leave it.",
 	"components": {
@@ -11,7 +11,7 @@
 			},
 		},
 		"CombatComponent": {
-			"Defense": 1,
+			"Defense": "=1d3",
 		},
 	}
 }

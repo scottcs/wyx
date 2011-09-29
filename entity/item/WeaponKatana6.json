@@ -1,0 +1,19 @@
+{
+	"family": "Weapon",
+	"kind": "Katana",
+	"variation": 6,
+	"description": "The craftsmanship is like nothing you've ever seen!",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"Tint": {255, 220, 255},
+			"TileCoords": {
+				"item": {8, 1},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+7",
+			"Damage": "!2d3+7",
+		},
+	}
+}

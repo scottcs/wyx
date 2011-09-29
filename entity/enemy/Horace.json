@@ -3,10 +3,12 @@
 	"family": "Deep Dwarf",
 	"kind": "Monk",
 	"variation": 2,
+	"unique": true,
 	"description": "He is super fast!",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
+			"Tint": {255, 200, 225},
 			"TileCoords": {
 				"right": {8, 5},
 			},

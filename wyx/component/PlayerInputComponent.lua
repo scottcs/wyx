@@ -54,10 +54,10 @@ function PlayerInputComponent:InputCommandEvent(e)
 		end,
 
 		PICKUP_ENTITY = function()
-			assert(args and #args == 2,
+			assert(args and #args == 3,
 				'Invalid args for InputCommand PICKUP_ENTITY')
-			local id, to = unpack(args)
-			if to == self._mediator:getID() then self:_doPickup(id) end
+			local id, to, slot = unpack(args)
+			if to == self._mediator:getID() then self:_doPickup(id, slot) end
 		end,
 
 		DROP_ENTITY = function()

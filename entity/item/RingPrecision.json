@@ -1,0 +1,17 @@
+{
+	"family": "Ring",
+	"kind": "Precision",
+	"variation": 1,
+	"description": "This thing will hit anything you throw it at!",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {3, 3},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d3",
+		},
+	}
+}

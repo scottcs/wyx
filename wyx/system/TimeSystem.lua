@@ -116,6 +116,7 @@ function TimeSystem:tick()
 			self._rotate = false
 		end
 
+		local startAP = ap[comp]
 		comp:onPreTick(ap[comp])
 
 		-- spend all action points
@@ -129,7 +130,9 @@ function TimeSystem:tick()
 				local command = queue:front()
 				if command and command:cost() == 0 then
 					queue:pop_front()
-					self:_executeCommand(command, comp)
+					if command ~= sentinel then
+						self:_executeCommand(command, comp)
+					end
 				else
 					queue:rotate_forward()
 				end
@@ -142,10 +145,10 @@ function TimeSystem:tick()
 					queue:pop_front()
 					self:_executeCommand(nextCommand, comp)
 				end
-			until nil == nextCommand or ap[comp] <= 0
+			until nil == nextCommand or ap[comp] <= 0 or ap[comp] == startAP
 		end
 
-		if ap[comp] <= 0 then
+		if ap[comp] <= 0 or ap[comp] == startAP then
 			self._commandQueues[comp]:clear()
 
 			-- rotate the deque so the next traveler gets a turn

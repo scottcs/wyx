@@ -253,7 +253,7 @@ function Console:_makeEntry()
 	self._commandline:setNormalStyle(ui.entry.normalStyle)
 	self._commandline:setAlignCenter()
 	self._commandline:setMargin(ui.entry.margin)
-	self._commandline:setCallback(_commandCB, self)
+	self._commandline:setEndEditCallback(_commandCB, self)
 	self:addChild(self._commandline)
 end
 

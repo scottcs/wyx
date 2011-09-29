@@ -116,9 +116,10 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 
 		if coords then
 			local size = entity:query(property('TileSize'))
+			local tint = entity:query(property('Tint'))
 			if size then
 				local x, y = (coords[1]-1) * size, (coords[2]-1) * size
-				icon = self:_makeIcon(image, x, y, size, size, size+8, size+8)
+				icon = self:_makeIcon(image, x, y, size, size, size+8, size+8, tint)
 			else
 				warning('makeEntityTooltip: bad TileSize property in entity %q', name)
 			end
@@ -156,10 +157,11 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 	local debugLine
 	if debugTooltips then
 		local pos = entity:query(property('Position'))
+		local elevel = entity:getELevel() or -1
 		local x, y = -1, -1
 		x = (pos and pos[1]) and pos[1] or x
 		y = (pos and pos[2]) and pos[2] or y
-		local string = format('{%08s} (%d,%d)', id, x, y)
+		local string = format('{%08s} p:(%d,%d) e:%d', id, x, y, elevel)
 		debugLine = self:_makeText(string, width, debugStyle)
 	end
 
@@ -196,6 +198,9 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 
 		f = self:_makeStatText('MaxHealth', entity, width, baseline)
 		if f then stats[#stats+1] = f end
+
+		f = self:_makeStatText('HealthRegen', entity, width, baseline)
+		if f then stats[#stats+1] = f end
 	end
 
 	local f = self:_makeStatText('Attack', entity, width, baseline)
@@ -223,8 +228,6 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 	local body
 	if description then
 		body = self:_makeText(description, width, descriptionStyle)
-	else
-		warning('makeEntityTooltip: missing description for entity %q', name)
 	end
 
 	if icon then tooltip:setIcon(icon) end
@@ -255,10 +258,10 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 end
 
 -- make a simple generic tooltip with text
-function TooltipFactory:makeVerySimpleTooltip(text, depth)
+function TooltipFactory:makeVerySimpleTooltip(text, depth, style)
 	verifyAny(text, 'string', 'function')
 
-	local body = self:_makeText(text)
+	local body = self:_makeText(text, nil, style)
 
 	local tooltip = Tooltip()
 	tooltip:setDepth(depth or self._defaultDepth)
@@ -290,9 +293,10 @@ function TooltipFactory:makeSimpleTooltip(header, text, depth)
 end
 
 -- make an icon frame
-function TooltipFactory:_makeIcon(image, x, y, w, h, fw, fh)
+function TooltipFactory:_makeIcon(image, x, y, w, h, fw, fh, tint)
 	local style = iconStyle:clone({fgimage = image})
 	style:setFGQuad(x, y, w, h)
+	if tint then style:setFGColor(tint) end
 
 	fw = fw or w
 	fh = fh or h
@@ -358,24 +362,42 @@ function TooltipFactory:_makeStatText(prop, entity, width, baseline)
 	local statB = pMax and entity:query(pMax) or nil
 	local text
 
-	if (stat and stat ~= baseline) or (statB and statB ~= 0) then
+	local etype = entity:getEntityType()
+	local name = entity:getName()
+
+	if (stat and stat ~= 0 and stat ~= baseline) or (statB and statB ~= 0) then
 		local func = function()
 			local s = entity:query(pMin)
 			local sB = pMax and entity:query(pMax) or nil
 
-			s = (s and s ~= baseline) and s or nil
+			s = (s and s ~= 0 and s ~= baseline) and s or nil
 			sB = (sB and sB ~= 0) and sB or nil
+			local string
 
 			if s and sB then
 				s = s + sB
-				return format('%d (%+d)', s, sB)
+				if (s > 0 and s < 1) or (s < 0 and s > -1) then
+					string = format('%.2f (%+.2f)', s, sB)
+				else
+					string = format('%d (%+d)', s, sB)
+				end
 			elseif sB then
-				return format('%+d', sB)
+				if (sB > 0 and sB < 1) or (sB < 0 and sB > -1) then
+					string = format('%+.2f', sB)
+				else
+					string = format('%+d', sB)
+				end
 			elseif s then
-				return format('%d', s)
+				if (s > 0 and s < 1) or (s < 0 and s > -1) then
+					string = format('%.2f', s)
+				else
+					string = format('%d', s)
+				end
 			else
-				return format('huh?')
+				string = format('huh?')
 			end
+
+			return string
 		end
 
 		local halfWidth = math_floor(width * 0.48)
@@ -399,8 +421,8 @@ end
 function TooltipFactory:_makeDamageText(entity, width)
 	local pMin = property('_DamageMin')
 	local pMax = property('_DamageMax')
-	local min = entity:query(pMin)
-	local max = entity:query(pMax)
+	local min = entity:query(pMin) or 0
+	local max = entity:query(pMax) or 0
 	local text
 
 	if min ~= 0 and max ~= 0 or entity:getEntityType() ~= 'item' then

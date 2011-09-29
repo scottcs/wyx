@@ -14,16 +14,14 @@ local LoadMenuUI = getClass 'wyx.ui.LoadMenuUI'
 
 function st:init() end
 
-function st:enter(prevState, world)
+function st:enter(prevState)
 	InputEvents:register(self, InputCommandEvent)
 	if Console then Console:hide() end
 	self._ui = LoadMenuUI(UI.LoadMenu)
-	self._world = world
 end
 
 function st:leave()
 	InputEvents:unregisterAll(self)
-	self._world = nil
 	if self._ui then
 		self._ui:destroy()
 		self._ui = nil
@@ -43,6 +41,8 @@ function st:InputCommandEvent(e)
 	switch(cmd) {
 		-- run state
 		EXIT_MENU = function()
+			if State.initialize.destroy then State.initialize:destroy() end
+			rawset(State, 'initialize', nil)
 			RunState.switch(State.menu)
 		end,
 		DELETE_GAME = function()
@@ -69,9 +69,9 @@ function st:InputCommandEvent(e)
 			if self._ui then
 				local file, wyx = self._ui:getSelectedFile()
 				if file then
-					self._world.FILENAME = file
-					self._world.WYXNAME = wyx
-					RunState.switch(State.loadgame, self._world)
+					World.FILENAME = file
+					World.WYXNAME = wyx
+					RunState.switch(State.loadgame)
 				end
 			end
 		end,

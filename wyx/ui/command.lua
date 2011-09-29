@@ -64,6 +64,7 @@ command.LOAD_GAME             = false
 command.DELETE_GAME           = false
 command.NEW_LEVEL             = false
 command.NEW_GAME              = false
+command.CREATE_CHAR           = false
 
 -- In-Game commands:
 command.QUIT_NOSAVE           = false

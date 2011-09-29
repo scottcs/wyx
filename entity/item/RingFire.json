@@ -1,0 +1,18 @@
+{
+	"family": "Ring",
+	"kind": "Fire",
+	"variation": 1,
+	"description": "It is hot to the touch.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"Tint": {255, 160, 160},
+			"TileCoords": {
+				"item": {6, 3},
+			},
+		},
+		"CombatComponent": {
+			"Damage": "!2d2",
+		},
+	}
+}

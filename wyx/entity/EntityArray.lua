@@ -21,13 +21,17 @@ function EntityArray:destroy()
 end
 
 -- add entities to the array
-function EntityArray:add(id)
+-- position is not enforced, so there may be more than one entity at the same
+-- position.
+function EntityArray:add(id, position)
 	verify('string', id)
+	position = position or self._count + 1
+	verify('number', position)
 
 	local success = false
 
 	if not self._entities[id] then
-		self._entities[id] = true
+		self._entities[id] = position
 		self._count = self._count + 1
 		success = true
 	end
@@ -48,23 +52,54 @@ function EntityArray:remove(id)
 	return success
 end
 
--- return the entity table as an unsorted array of IDs.
+-- return the entity table as an array of IDs sorted by position.
 -- if property is supplied, only entities with that property (non-nil) are
 -- returned.
 function EntityArray:getArray(prop)
 	local propStr = prop and property(prop) or nil
 	local array = {}
 	local count = 0
-	for k in pairs(self._entities) do
-		local ent = EntityRegistry:get(k)
+
+	for id in pairs(self._entities) do
+		local ent = EntityRegistry:get(id)
 		local p = not nil
 		if propStr then p = ent:query(propStr) end
 		if nil ~= p then
 			count = count + 1
-			array[count] = k
+			array[count] = id
 		end
 	end
+
+	local _byPosition = function(a, b)
+		if nil == a then return true end
+		if nil == b then return false end
+		return self._entities[a] < self._entities[b]
+	end
+
+	table_sort(array, _byPosition)
+
 	return count > 0 and array or nil
+end
+
+-- return the entity table as a hash of ids and positions
+-- if property is supplied, only entities with that property (non-nil) are
+-- returned.
+function EntityArray:getHash(prop)
+	local propStr = prop and property(prop) or nil
+	local hash = {}
+	local count = 0
+
+	for id,position in pairs(self._entities) do
+		local ent = EntityRegistry:get(id)
+		local p = not nil
+		if propStr then p = ent:query(propStr) end
+		if nil ~= p then
+			count = count + 1
+			hash[id] = position
+		end
+	end
+
+	return count > 0 and hash or nil
 end
 
 -- get an array of all the entities, sorted by property

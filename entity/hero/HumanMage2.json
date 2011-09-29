@@ -1,25 +1,24 @@
 {
 	"family": "Human",
-	"kind": "Archer",
-	"variation": 1,
-	"description": "You are pretty cool.",
+	"kind": "Mage",
+	"variation": 2,
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "char",
 			"TileCoords": {
-				"right": {1, 1},
+				"right": {3, 2},
 				},
-			"Visibility": 10,
+			"Visibility": 8,
 		},
 		"TimeComponent": {
-			"Speed": 120,
+			"AttackCost": "!$Speed * 1.1",
 		},
 		"HealthComponent": {
-			"MaxHealth": 12,
+			"MaxHealth": 8,
 		},
 		"CombatComponent": {
-			"Attack": 5,
-			"Defense": 4,
+			"Attack": 4,
+			"Defense": 6,
 		},
 	}
 }

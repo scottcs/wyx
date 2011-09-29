@@ -1,0 +1,23 @@
+{
+	"name": "Cobra",
+	"family": "Snake",
+	"kind": "Cobra",
+	"variation": 1,
+	"description": "It flicks its tongue.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {6, 13},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=1d4",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3",
+			"Defense": "=1d3",
+			"Damage": "!1d3",
+		},
+	}
+}

@@ -13,7 +13,13 @@ local get = function(prop)
 
 	if ret == nil then
 		if not isproperty(prop) then
-			warning('invalid component property: %q', prop)
+			if warning then
+				warning('invalid component property: %q', prop)
+			elseif Console then
+				Console:print('invalid component property: %q', prop)
+			else
+				print('invalid component property: %q', prop)
+			end
 		else
 			ret = prop
 			getcache[prop] = ret
@@ -34,7 +40,7 @@ local default = function(prop)
 		else
 			local Expression = getClass 'wyx.component.Expression'
 
-			ret = property[prop]
+			ret = property[prop].default
 			if Expression.isExpression(ret) then
 				ret = Expression.makeExpression(ret)
 			end
@@ -46,67 +52,131 @@ local default = function(prop)
 	return ret
 end
 
+-- get a property's ELevel weight
+local weightcache = setmetatable({}, {__mode = 'v'})
+local weight = function(prop)
+	local ret = weightcache[prop]
+
+	if ret == nil then
+		if not isproperty(prop) then
+			warning('invalid component property: %q', prop)
+		else
+			ret = property[prop].weight or 0
+			weightcache[prop] = ret
+		end
+	end
+
+	return ret
+end
+
+
 -------------------------------------------------
 -- the actual properties and sensible defaults --
 -------------------------------------------------
 
 -- combat properties
-property.Attack            = 0
-property.Defense           = 0
-property.Damage            = 0
-property.AttackBonus       = 0
-property.DefenseBonus      = 0
-property.DamageBonus       = 0
-property._DamageMin        = 0
-property._DamageMax        = 0
+property.Attack            = {default = 0,
+                               weight = 0.6}
+property.Defense           = {default = 0,
+                               weight = 1.2}
+property.Damage            = {default = 0,
+                               weight = 0.6}
+property.AttackBonus       = {default = 0,
+                               weight = 0.6}
+property.DefenseBonus      = {default = 0,
+                               weight = 1.2}
+property.DamageBonus       = {default = 0,
+                               weight = 0.6}
+property._DamageMin        = {default = 0,
+                               weight = 0.0}
+property._DamageMax        = {default = 0,
+                               weight = 0.0}
 
 -- health properties
-property.Health            = '=$MaxHealth'
-property.MaxHealth         = 0
-property.HealthBonus       = 0
-property.MaxHealthBonus    = 0
+property.Health            = {default = '=$MaxHealth',
+                               weight = 0.0}
+property.MaxHealth         = {default = 0,
+                               weight = 1.0}
+property.HealthRegen       = {default = '!1d3/9',
+                               weight = 1.0}
+property.HealthBonus       = {default = 0,
+                               weight = 0.5}
+property.MaxHealthBonus    = {default = 0,
+                               weight = 1.0}
+property.HealthRegenBonus  = {default = 0,
+                               weight = 1.5}
 
 -- motion properties
-property.Position          = {1, 1}
-property.CanMove           = true
-property.IsContained       = false
-property.IsAttached        = false
+property.Position          = {default = {1, 1},
+                               weight = 0.0}
+property.CanMove           = {default = true,
+                               weight = 10.0}
+property.IsContained       = {default = false,
+                               weight = 0.0}
+property.IsAttached        = {default = false,
+                               weight = 0.0}
 
 -- collision properties
-property.BlockedBy         = {Wall='ALL', Door='shut'}
+property.BlockedBy         = {default = {Wall='ALL', Door='shut'},
+                               weight = 0.0}
 
 -- graphics properties
-property.TileSet           = 'dungeon'
-property.TileCoords        = {front = {1, 1}}
-property.TileSize          = 32
-property.RenderDepth       = depths.game
-property.Visibility        = 0
-property.VisibilityBonus   = 0
+property.TileSet           = {default = 'dungeon',
+                               weight = 0.0}
+property.TileCoords        = {default = {front = {1, 1}},
+                               weight = 0.0}
+property.TileSize          = {default = 32,
+                               weight = 0.0}
+property.Tint              = {default = nil,
+                               weight = 0.0}
+property.RenderDepth       = {default = depths.game,
+                               weight = 0.0}
+property.Visibility        = {default = 0,
+                               weight = 1.0}
+property.VisibilityBonus   = {default = 0,
+                               weight = 1.0}
 
 -- controller properties
-property.CanOpenDoors      = false
+property.CanOpenDoors      = {default = false,
+                               weight = 10.0}
 
 -- time properties
-property.DefaultCost       = 0
-property.AttackCost        = 100
-property.AttackCostBonus   = 0
-property.MoveCost          = 100
-property.MoveCostBonus     = 0
-property.WaitCost          = '!$Speed'
-property.WaitCostBonus     = 0
-property.Speed             = 100
-property.SpeedBonus        = 0
-property.IsExhausted       = false
-property.DoTick            = true
+property.DefaultCost       = {default = 0,
+                               weight = 0.0}
+property.AttackCost        = {default = 100,
+                               weight = 0.01}
+property.AttackCostBonus   = {default = 0,
+                               weight = -0.01}
+property.MoveCost          = {default = 100,
+                               weight = 0.01}
+property.MoveCostBonus     = {default = 0,
+                               weight = -0.01}
+property.WaitCost          = {default = '!$Speed',
+                               weight = 0.0}
+property.WaitCostBonus     = {default = 0,
+                               weight = -0.0}
+property.Speed             = {default = 100,
+                               weight = 0.01}
+property.SpeedBonus        = {default = 0,
+                               weight = -0.01}
+property.IsExhausted       = {default = false,
+                               weight = 0.0}
+property.DoTick            = {default = true,
+                               weight = 0.0}
 
 -- container properties
-property.MaxContainerSize  = 0
-property.ContainedEntities = {}
+property.MaxContainerSize  = {default = 0,
+                               weight = 0.0}
+property.ContainedEntities = {default = {},
+                               weight = 0.0}
+property.ContainedEntitiesHash = {default = {},
+                               weight = 0.0}
 
 -- attachment properties
-property.AttachedEntities  = {}
+property.AttachedEntities  = {default = {},
+                               weight = 1.0}
 
 
 -- the structure of valid property
-return setmetatable({isproperty=isproperty, default=default},
+return setmetatable({isproperty=isproperty, default=default, weight=weight},
 	{__call = function(_, prop) return get(prop) end})

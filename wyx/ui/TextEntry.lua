@@ -4,6 +4,7 @@ local Text = getClass 'wyx.ui.Text'
 local string_len = string.len
 local string_sub = string.sub
 local format = string.format
+local match = string.match
 
 -- TextEntry
 -- A text frame that gathers keyboard input.
@@ -17,31 +18,23 @@ local TextEntry = Class{name='TextEntry',
 -- destructor
 function TextEntry:destroy()
 	self._isEnteringText = nil
-	self:_clearCallback()
+	self._defaultText = nil
 	Text.destroy(self)
-end
-
--- clear the callback
-function TextEntry:_clearCallback()
-	self._callback = nil
-	if self._callbackArgs then
-		for k,v in pairs(self._callbackArgs) do self._callbackArgs[k] = nil end
-		self._callbackArgs = nil
-	end
 end
 
 -- set the callback function and arguments
 -- this will be called when editing mode ends
-function TextEntry:setCallback(func, ...)
-	verify('function', func)
-	self:_clearCallback()
-
-	self._callback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._callbackArgs = {...} end
+function TextEntry:setEndEditCallback(func, ...)
+	self:setCallback('textentry', func, ...)
 end
 
+-- set a default text value
+function TextEntry:setDefaultText(text)
+	verify('string', text)
+	self._defaultText = text
+	local mytext = self:getText()
+	if #mytext == 0 then self:setText(self._defaultText) end
+end
 
 -- override Frame:onRelease()
 function TextEntry:onRelease(button, mods)
@@ -61,6 +54,12 @@ function TextEntry:toggleEnterMode(status)
 	end
 
 	if self._isEnteringText then
+		if self._defaultText then
+			local text = self:getText()
+			if text and #text > 0 and self._defaultText == text[1] then
+				self:clearText()
+			end
+		end
 		self:showCursor()
 	else
 		self:hideCursor()
@@ -151,14 +150,14 @@ function TextEntry:onKey(key, unicode, unicodeValue, mods)
 		self:setText(text)
 
 		if doCallback then
-			if self._callback then
-				local args = self._callbackArgs
-				if args then
-					self._callback(unpack(args))
-				else
-					self._callback()
+			if self._defaultText then
+				local text = self:getText()
+				if #text == 0 or nil == match(text[1], '%S') then
+					self:setText(self._defaultText)
 				end
 			end
+
+			self:_callCallback('textentry')
 		end
 	else
 		warning('Text is missing!')

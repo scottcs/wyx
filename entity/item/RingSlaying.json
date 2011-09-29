@@ -1,0 +1,17 @@
+{
+	"family": "Ring",
+	"kind": "Slaying",
+	"variation": 1,
+	"description": "It buzzes with anticipation.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {5, 3},
+			},
+		},
+		"TimeComponent": {
+			"AttackCost": "=-1d3*10",
+		},
+	}
+}

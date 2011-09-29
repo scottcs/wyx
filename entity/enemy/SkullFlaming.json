@@ -1,0 +1,26 @@
+{
+	"name": "Flaming Skull",
+	"family": "Skull",
+	"kind": "Flaming",
+	"variation": 1,
+	"description": "It's a floating skull, and it's on fire.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {6, 7},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=3d2",
+		},
+		"CombatComponent": {
+			"Attack": "=3d2+1",
+			"Defense": "=3d2+1",
+			"Damage": "!3d4",
+		},
+		"TimeComponent": {
+			"MoveCost": "!$Speed * 0.9",
+		},
+	}
+}

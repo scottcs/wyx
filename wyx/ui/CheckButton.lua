@@ -14,30 +14,14 @@ local CheckButton = Class{name='CheckButton',
 
 -- destructor
 function CheckButton:destroy()
-	self:_clearCheckedCallback()
 	self._checked = nil
 	Button.destroy(self)
-end
-
--- clear the callback
-function CheckButton:_clearCheckedCallback()
-	self._checkedCallback = nil
-	if self._checkedCallbackArgs then
-		for k,v in self._checkedCallbackArgs do self._checkedCallbackArgs[k] = nil end
-		self._checkedCallbackArgs = nil
-	end
 end
 
 -- set the checkedCallback function and arguments
 -- this will be called when the button is checked or unchecked
 function CheckButton:setCheckedCallback(func, ...)
-	verify('function', func)
-	self:_clearCheckedCallback()
-
-	self._checkedCallback = func
-
-	local numArgs = select('#', ...)
-	if numArgs > 0 then self._checkedCallbackArgs = {...} end
+	self:setCallback('checked', func, ...)
 end
 
 -- override Button:onRelease()
@@ -53,14 +37,7 @@ function CheckButton:_toggleCheck(on)
 	if nil == on then on = not self._checked end
 	self._checked = on
 
-	if self._checkedCallback then
-		local args = self._checkedCallbackArgs
-		if args then
-			self._checkedCallback(self._checked, unpack(args))
-		else
-			self._checkedCallback(self._checked)
-		end
-	end
+	self:_callCallback('checked', self._checked)
 
 	if not self._checked then self._hovered = true end
 	self._needsUpdate = true

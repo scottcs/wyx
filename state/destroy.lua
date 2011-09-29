@@ -22,6 +22,9 @@ function st:enter(prevState, nextState, ...)
 	if State.save.destroy then State.save:destroy() end
 	rawset(State, 'save', nil)
 
+	if State.playmenu.destroy then State.playmenu:destroy() end
+	rawset(State, 'playmenu', nil)
+
 	if State.play.destroy then State.play:destroy() end
 	rawset(State, 'play', nil)
 
@@ -30,6 +33,14 @@ function st:enter(prevState, nextState, ...)
 
 	if State.loadgame.destroy then State.loadgame:destroy() end
 	rawset(State, 'loadgame', nil)
+
+	if State.loadmenu.destroy then State.loadmenu:destroy() end
+	rawset(State, 'loadmenu', nil)
+
+	--[[
+	if State.createchar.destroy then State.createchar:destroy() end
+	rawset(State, 'createchar', nil)
+	]]--
 
 	if State.initialize.destroy then State.initialize:destroy() end
 	rawset(State, 'initialize', nil)

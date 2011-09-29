@@ -107,6 +107,7 @@ function TimeComponent:receive(sender, msg, ...)
 	if msg == message('TIME_AUTO') and sender == self._mediator then
 		self:_setProperty(property('DoTick'), select(1, ...))
 	end
+	ModelComponent.receive(self, sender, msg, ...)
 end
 
 

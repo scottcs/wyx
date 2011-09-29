@@ -1,0 +1,24 @@
+{
+	"family": "Halfling",
+	"kind": "Thief",
+	"variation": 1,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {2, 1},
+				},
+			"Visibility": 6,
+		},
+		"TimeComponent": {
+			"Speed": 80,
+		},
+		"HealthComponent": {
+			"MaxHealth": 20,
+		},
+		"CombatComponent": {
+			"Attack": 8,
+			"Defense": 10,
+		},
+	}
+}

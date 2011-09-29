@@ -20,7 +20,7 @@ local _mt = {__mode = 'v'}
 local EntityDB = Class{name='EntityDB',
 	function(self, etype)
 		self._etype = etype or "UNKNOWN"
-		self._byFilename = setmetatable({}, _mt)
+		self._byFilename = {}
 		self._byName = {}
 		self._byELevel = {}
 		self._byFam = {}
@@ -62,7 +62,10 @@ function EntityDB:clear()
 
 	for i=1,#self._byFamKV do self._byFamKV[i] = nil end
 
-	for i=1,#self._byName do self._byName[i] = nil end
+	for k,v in pairs(self._byName) do
+		for j in pairs(v) do v[j] = nil end
+		self._byName[k] = nil
+	end
 end
 
 -- load all entity files of self._etype
@@ -111,7 +114,6 @@ end
 
 function EntityDB:_addToDB(info)
 	self._byFilename[info.filename] = info
-	self._byName[info.name] = info
 
 	local size, key
 
@@ -142,8 +144,9 @@ function EntityDB:_processEntityInfo(info)
 	end
 
 	info.variation = info.variation or 1
-	info.name = info.name or format("%s %s %d",
-		info.family, info.kind, info.variation)
+	info.name = info.name or format('%s %s', info.family, info.kind)
+	info.regkey = format('%s-%s-%s-%d',
+		info.name, info.family, info.kind, info.variation)
 
 	return true
 end
@@ -198,7 +201,7 @@ function EntityDB:_postProcessEntityInfo(info)
 							props[bonus] = data
 							warned[bonus] = true
 						end
-						props[p] = nil
+						props[p] = 0
 					else
 						local normal = match(p, '(.*)Bonus')
 						if normal and not warned[p] then
@@ -222,7 +225,7 @@ function EntityDB:_postProcessEntityInfo(info)
 								p, normal, info.filename)
 							props[normal] = data
 						end
-						props[p] = nil
+						props[p] = 0
 					end -- if normal and ...
 				end -- if self._etype == 'item
 			end -- for p,data in props
@@ -235,6 +238,18 @@ function EntityDB:_postProcessEntityInfo(info)
 		self._byELevel[key] = self._byELevel[key] or setmetatable({}, _mt)
 		size = #(self._byELevel[key])
 		self._byELevel[key][size+1] = info
+	else
+		warning('Could not store entity %q by ELevel', tostring(info.name))
+	end
+
+	if info.name then
+		key = info.name
+		-- byName is the only non-weak table
+		self._byName[key] = self._byName[key] or {}
+		size = #(self._byName[key])
+		self._byName[key][size+1] = info
+	else
+		warning('Could not store entity %q by name', tostring(info.name))
 	end
 
 	return true
@@ -246,47 +261,17 @@ function EntityDB:_getPropertyWeights() return nil end
 
 -- calculate the elevel of this entity based on relevant properties.
 function EntityDB:_calculateELevel(info)
-	local props = self:_getPropertyWeights()
-	local found = {}
+	local elevel
 
-	if info.components and props then
-		for comp,cprops in pairs(info.components) do
-			for p,t in pairs(props) do
-				local prop = t.name
-				if cprops[prop] then
-					found[p] = {weight = t.weight, value = cprops[prop]}
-				end
-			end
-		end
-	end
-
-	local elevel = 0.1
-	local tempEntity
 	if self._factory then
 		local id = self._factory:createEntity(info)
-		tempEntity = EntityRegistry:get(id)
+		local tempEntity = EntityRegistry:get(id)
+		elevel = tempEntity:getELevel()
+		EntityRegistry:unregister(tempEntity:getID())
+		tempEntity:destroy()
 	end
 
-	for p,t in pairs(found) do
-		local weight, value = t.weight, t.value
-		if type(value) == 'boolean' then value = value and 1 or 0 end
-		if Expression.isCreatedExpression(value) then
-			if tempEntity then
-				local func = value.onCreate or value.onAccess
-				local sum = 0
-				for i=1,100 do sum = sum + func(tempEntity) end
-				value = sum/100
-			else
-				value = 0
-			end
-		end
-		elevel = elevel + (weight * value)
-	end
-
-	EntityRegistry:unregister(tempEntity:getID())
-	tempEntity:destroy()
-
-	return _round(elevel*10)
+	return elevel
 end
 
 -- get by filename
@@ -325,8 +310,6 @@ function EntityDB:getByFamily(family, kind, variation)
 	return self._byFam[family]
 end
 
--- get by property in range A..B (including default properties)
---   OR
 -- get by heuristic entity level (calculated from properties)
 function EntityDB:getByELevel(min, max)
 	if not max then return self._byELevel[min] end
@@ -346,6 +329,9 @@ function EntityDB:getByELevel(min, max)
 
 	return results
 end
+
+-- iterate over every entity
+function EntityDB:iterate() return pairs(self._byFilename) end
 
 
 -- the class

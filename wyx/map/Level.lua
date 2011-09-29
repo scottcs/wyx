@@ -19,12 +19,10 @@ local TimeSystemCycleEvent = getClass 'wyx.event.TimeSystemCycleEvent'
 local TurnCountEvent = getClass 'wyx.event.TurnCountEvent'
 local EntityPositionEvent = getClass 'wyx.event.EntityPositionEvent'
 local EntityDeathEvent = getClass 'wyx.event.EntityDeathEvent'
-local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local LightingStatusRequest = getClass 'wyx.event.LightingStatusRequest'
 local LightingUpdateRequest = getClass 'wyx.event.LightingUpdateRequest'
 
 -- entities
-local HeroEntityFactory = getClass 'wyx.entity.HeroEntityFactory'
 local EnemyEntityFactory = getClass 'wyx.entity.EnemyEntityFactory'
 local ItemEntityFactory = getClass 'wyx.entity.ItemEntityFactory'
 local EntityArray = getClass 'wyx.entity.EntityArray'
@@ -32,8 +30,10 @@ local message = getClass 'wyx.component.message'
 local property = require 'wyx.component.property'
 
 local math_floor = math.floor
+local math_ceil = math.ceil
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
+local format = string.format
 local enumerate = love.filesystem.enumerate
 local GameEvents = GameEvents
 
@@ -41,7 +41,6 @@ local GameEvents = GameEvents
 --
 local Level = Class{name='Level',
 	function(self)
-		self._heroFactory = HeroEntityFactory()
 		self._enemyFactory = EnemyEntityFactory()
 		self._itemFactory = ItemEntityFactory()
 
@@ -72,8 +71,6 @@ function Level:destroy()
 	self._map:destroy()
 	self._map = nil
 
-	self._heroFactory:destroy()
-	self._heroFactory = nil
 	self._enemyFactory:destroy()
 	self._enemyFactory = nil
 	self._itemFactory:destroy()
@@ -81,7 +78,6 @@ function Level:destroy()
 
 	self._entities:destroy()
 	self._entities = nil
-	self._primeEntity = nil
 
 	for k in pairs(self._lightColor) do self._lightColor[k] = nil end
 	self._lightColor = nil
@@ -162,12 +158,8 @@ function Level:_populateMap()
 			local pos = entity:query(position)
 			entity:send(setPosition, pos[1], pos[2], pos[1], pos[2])
 		else
-			if entityID == self._primeEntity then
-				local ups = {}
-				for _,name in ipairs(self._map:getPortalNames()) do
-					if match(name, "^up%d") then ups[#ups+1] = name end
-				end
-				local x, y = self._map:getPortal(ups[Random(#ups)])
+			if entityID == World:getPrimeEntity() then
+				local x, y = self:getRandomPortalPosition()
 				local entity = EntityRegistry:get(entityID)
 				entity:send(setPosition, x, y, x, y)
 			else
@@ -196,8 +188,17 @@ function Level:_populateMap()
 		self:removeEntity(remove[i])
 	end
 
-	self:_bakeLights(true)
+	self:_resetLights(true)
 	GameEvents:push(MapUpdateFinishedEvent(self._map))
+end
+
+function Level:getRandomPortalPosition()
+	local ups = {}
+	for _,name in ipairs(self._map:getPortalNames()) do
+		if match(name, "^up%d") then ups[#ups+1] = name end
+	end
+	local x, y = self._map:getPortal(ups[Random(#ups)])
+	return x, y
 end
 
 -- regenerate the level from a saved state
@@ -248,7 +249,7 @@ function Level:getEntitiesAtLocation(x, y, visibleOnly)
 			local ok = true
 
 			if visibleOnly then
-				local status = self._lightmap 
+				local status = self._lightmap
 					and self._lightmap[x] and self._lightmap[x][y]
 				ok = status == 'lit'
 			end
@@ -274,15 +275,7 @@ function Level:createEntities()
 
 				if info then
 					switch(info.etype) {
-						hero = function()
-							local newID = self._heroFactory:createEntity(info)
-							if id == self._loadstate.primeEntity then
-								self._primeEntity = newID
-							end
-							self._heroFactory:registerEntity(newID)
-							self._entities:add(newID)
-							EntityRegistry:setDuplicateID(id, newID)
-						end,
+						hero = function() end,
 						enemy = function()
 							local newID = self._enemyFactory:createEntity(info)
 							self._enemyFactory:registerEntity(newID)
@@ -301,47 +294,104 @@ function Level:createEntities()
 					}
 				end -- if info then
 			end -- for i=1,num do
-
-			-- iterate through the entities again and send a message that all
-			-- entities are loaded.
-			local message = message('ENTITIES_LOADED')
-			for i=1,num do
-				local id = self._loadstate.entities[i]
-				local entity = EntityRegistry:get(id)
-				entity:send(message)
-			end
 		end -- if self._loadstate.entities
 	else
-		-- TODO: choose hero from interface
-		local hero = enumerate('entity/hero')
-		local heroName = match(hero[Random(#hero)], "(%w+)%.json")
-		local which = HeroDB:getByFilename(heroName)
-		self._primeEntity = self._heroFactory:createEntity(which)
-		self._heroFactory:registerEntity(self._primeEntity)
-		self._entities:add(self._primeEntity)
-
 		-- TODO: get entities algorithmically
 		local enemyEntities = EnemyDB:getByELevel(1,1000)
 		if enemyEntities then
+			local numEnemies = 20
+			local maxFamily = math_ceil(numEnemies/8)
+			local families = {}
+			local unique = {}
+			local count = 0
 			local numEnemyEntities = #enemyEntities
-			for i=1,10 do
+
+			while count < numEnemies do
 				local which = enemyEntities[Random(numEnemyEntities)]
 				local entityID = self._enemyFactory:createEntity(which)
-				self._enemyFactory:registerEntity(entityID)
-				self._entities:add(entityID)
+				local entity = EntityRegistry:get(entityID)
+				local regkey = entity:getRegKey()
+				local fam = entity:getFamily()
+				local uniq = entity:isUnique()
+				local added = false
+
+				if uniq then
+					if not unique[regkey] then
+						unique[regkey] = true
+						self._enemyFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				else
+					if not families[fam] or families[fam] < maxFamily then
+						families[fam] = families[fam] and families[fam] + 1 or 1
+						self._enemyFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				end
+
+				if not added then
+					EntityRegistry:unregister(entityID)
+					entity:destroy()
+				end
 			end
 		end
 
 		local itemEntities = ItemDB:getByELevel(1,1000)
 		if itemEntities then
+			local numItems = 30
+			local maxFamily = math_ceil(numItems/3)
+			local families = {}
+			local unique = {}
+			local count = 0
 			local numItemEntities = #itemEntities
-			for i=1,20 do
+
+			while count < numItems do
 				local which = itemEntities[Random(numItemEntities)]
 				local entityID = self._itemFactory:createEntity(which)
-				self._itemFactory:registerEntity(entityID)
-				self._entities:add(entityID)
+				local entity = EntityRegistry:get(entityID)
+				local regkey = entity:getRegKey()
+				local fam = entity:getFamily()
+				local uniq = entity:isUnique()
+				local added = false
+
+				if uniq then
+					if not unique[regkey] then
+						unique[regkey] = true
+						self._itemFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				else
+					if not families[fam] or families[fam] < maxFamily then
+						families[fam] = families[fam] and families[fam] + 1 or 1
+						self._itemFactory:registerEntity(entityID)
+						self._entities:add(entityID)
+						count = count + 1
+						added = true
+					end
+				end
+
+				if not added then
+					EntityRegistry:unregister(entityID)
+					entity:destroy()
+				end
 			end
 		end
+	end
+end
+
+-- iterate through the entities again and send a message that all
+-- entities are loaded.
+function Level:notifyEntitiesLoaded()
+	local message = message('ENTITIES_LOADED')
+	for id in self._entities:iterate() do
+		local entity = EntityRegistry:get(id)
+		entity:send(message)
 	end
 end
 
@@ -365,36 +415,19 @@ function Level:removeEntity(entityID)
 	end
 end
 
-function Level:setPlayerControlled()
-	local PIC = getClass 'wyx.component.PlayerInputComponent'
-	local input = PIC()
-	self._heroFactory:setInputComponent(self._primeEntity, input)
-
-	local entity = EntityRegistry:get(self._primeEntity)
-
-	local TimeComponent = getClass 'wyx.component.TimeComponent'
-	local timeComps = entity:getComponentsByClass(TimeComponent)
-	if timeComps and #timeComps > 0 then
-		TimeSystem:setFirst(timeComps[1])
-		entity:send(message('TIME_AUTO'), false)
-	end
-
-	entity:send(message('CONTAINER_RESIZE'), 10)
-
-	GameEvents:push(PrimeEntityChangedEvent(self._primeEntity))
-end
+function Level:addEntity(entityID) self._entities:add(entityID) end
 
 function Level:EntityPositionEvent(e)
-	local entity = e:getEntity()
+	local entityID = e:getEntity()
 	local dX, dY = e:getDestination()
 	local oX, oY = e:getOrigin()
-	self:_triggerZones(entity, dX, dY, oX, oY)
+	self:_triggerZones(entityID, dX, dY, oX, oY)
 
-	if entity == self._primeEntity then
+	if entityID == World:getPrimeEntity() then
 		self:_bakeLights()
 		self._needViewUpdate = true
 	else
-		self:_notifyScreenStatus(entity)
+		self:_notifyScreenStatus(entityID)
 	end
 end
 
@@ -406,19 +439,19 @@ end
 
 function Level:EntityDeathEvent(e)
 	local entityID = e:getEntity()
-	local reason = e:getReason() or "unknown reason"
+	local reason = e:getReason() or "some unknown reason"
 
 	local entity = EntityRegistry:get(entityID)
 	local name = entity and entity:getName() or "unknown entity"
 	GameEvents:push(ConsoleEvent('Death: {%08s} %s [%s]',
 		entityID, name, reason))
 
-	if entityID == self._primeEntity then
-		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
+	if entityID == World:getPrimeEntity() then
+		GameEvents:push(DisplayPopupMessageEvent(format(
+			'GAME OVER (Killed by %s)', reason)))
 	else
 		self:removeEntity(entityID)
 	end
-
 end
 
 function Level:TimeSystemCycleEvent(e)
@@ -434,7 +467,6 @@ end
 function Level:MapNodeUpdateEvent(e) self:_updateLighting() end
 function Level:LightingUpdateRequest(e) self:_updateLighting() end
 
-function Level:getPrimeEntity() return self._primeEntity end
 function Level:getTurns() return self._turns end
 
 -- bake the lighting for the current prime entity position
@@ -460,36 +492,39 @@ function Level:_castLight(c, row, first, last, radius, x1, y1, x2, y2)
 
 			-- translate the dx, dy coordinates into map coordinates
 			local mpX, mpY = c[1] + dx * x1 + dy * y1,  c[2] + dx * x2 + dy * y2
-			-- lSlope and rSlope store the slopes of the left and right
-			-- extremeties of the square we're considering
-			local lSlope, rSlope = (dx-0.5)/(dy+0.5), (dx+0.5)/(dy-0.5)
 
-			if last > lSlope then break end
-			if not (first < rSlope) then
-				-- our light beam is touching this square; light it
-				if dx*dx + dy*dy < radiusSq then
-					self._lightmap[mpX][mpY] = 'lit'
-				end
+			if mpX > 0 and mpY > 0 then
+				-- lSlope and rSlope store the slopes of the left and right
+				-- extremeties of the square we're considering
+				local lSlope, rSlope = (dx-0.5)/(dy+0.5), (dx+0.5)/(dy-0.5)
 
-				local node = self._map:getLocation(mpX, mpY)
-				if blocked then
-					-- we're scanning a row of blocked squares
-					if not (self:isPointInMap(mpX, mpY) and node:isTransparent()) then
-						new_first = rSlope
-						-- Note: this would be a continue statement... make sure nothing
-						-- else is calculated after this
-					else
-						blocked = false
-						first = new_first
+				if last > lSlope then break end
+				if not (first < rSlope) then
+					-- our light beam is touching this square; light it
+					if dx*dx + dy*dy < radiusSq then
+						self._lightmap[mpX][mpY] = 'lit'
 					end
-				else
-					if not (self:isPointInMap(mpX, mpY) and node:isTransparent())
-						and j < radius
-					then
-						-- this is a blocking square, start a child scan
-						blocked = true
-						self:_castLight(c, j+1, first, lSlope, radius, x1, y1, x2, y2)
-						new_first = rSlope
+
+					local node = self._map:getLocation(mpX, mpY)
+					if blocked then
+						-- we're scanning a row of blocked squares
+						if not (self:isPointInMap(mpX, mpY) and node:isTransparent()) then
+							new_first = rSlope
+							-- Note: this would be a continue statement... make sure nothing
+							-- else is calculated after this
+						else
+							blocked = false
+							first = new_first
+						end
+					else
+						if not (self:isPointInMap(mpX, mpY) and node:isTransparent())
+							and j < radius
+						then
+							-- this is a blocking square, start a child scan
+							blocked = true
+							self:_castLight(c, j+1, first, lSlope, radius, x1, y1, x2, y2)
+							new_first = rSlope
+						end
 					end
 				end
 			end
@@ -517,7 +552,8 @@ end
 
 -- bake the lighting for quick lookup at a later time
 function Level:_bakeLights(blackout)
-	local primeEntity = EntityRegistry:get(self._primeEntity)
+	local primeID = World:getPrimeEntity()
+	local primeEntity = EntityRegistry:get(primeID)
 	local radius = primeEntity:query('Visibility')
 	radius = radius + primeEntity:query('VisibilityBonus')
 	local primePos = primeEntity:query('Position')
@@ -566,7 +602,6 @@ end
 function Level:getState()
 	local state = {}
 
-	state.primeEntity = self._primeEntity
 	state.lightColor = self._lightColor
 	state.lightmap = self._lightmap
 	state.turns = self._turns

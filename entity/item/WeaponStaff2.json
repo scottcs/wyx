@@ -1,0 +1,21 @@
+{
+	"family": "Weapon",
+	"kind": "Staff",
+	"variation": 2,
+	"description": "It's a long wooden pole. It has a jewel fastened to one end.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {6, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=2d2+2",
+			"Damage": "!2d3+2",
+		},
+		"HealthComponent": {
+			"HealthRegen": "=1d4/16",
+		},
+	}
+}

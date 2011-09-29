@@ -55,9 +55,8 @@ function st:init()
 	end
 end
 
-function st:enter(prevState, world, view, cam)
-	self._world = self._world or world
-	local place = self._world:getCurrentPlace()
+function st:enter(prevState, view, cam)
+	local place = World:getCurrentPlace()
 	self._level = self._level or place:getCurrentLevel()
 	self._view = self._view or view
 	self._cam = self._cam or cam
@@ -92,7 +91,6 @@ function st:destroy()
 
 	PAUSED = nil
 	self._level = nil
-	self._world = nil
 	self._view = nil
 	self._cam = nil
 	if self._debugHUD then self._debugHUD:destroy() end
@@ -100,7 +98,7 @@ function st:destroy()
 end
 
 function st:ZoneTriggerEvent(e)
-	if self._level:getPrimeEntity() == e:getEntity() then
+	if World:getPrimeEntity() == e:getEntity() then
 		local which = e:isLeaving() and '-' or '+'
 		local zone = e:getZone()
 		zone = zone and tostring(zone) or 'unknown zone'
@@ -157,13 +155,13 @@ function st:InputCommandEvent(e)
 			self._view:setViewport(self._cam:getViewport())
 		end,
 		CAMERA_FOLLOW = function()
-			self._cam:followTarget(self._level:getPrimeEntity())
+			self._cam:followTarget(World:getPrimeEntity())
 			self._view:setViewport(self._cam:getViewport())
 		end,
 
 		-- menu
 		MENU_PLAY = function()
-			RunState.switch(State.playmenu, self._world, self._view)
+			RunState.switch(State.playmenu, self._view)
 		end,
 		CONSOLE_CMD_QUIT = function()
 			RunState.switch(State.destroy)
@@ -171,7 +169,7 @@ function st:InputCommandEvent(e)
 
 		-- debug
 		NEW_LEVEL = function()
-			RunState.switch(State.destroy, 'initialize', 'construct')
+			RunState.switch(State.destroy, 'initialize', 'createchar')
 		end,
 		DISPLAY_MAPNAME = function()
 			local name = self._level:getMapName()

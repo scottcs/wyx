@@ -1,0 +1,22 @@
+{
+	"family": "Deep Dwarf",
+	"kind": "Berserker",
+	"variation": 1,
+	"description": "He looks upset.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {7, 5},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d4+16",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+9",
+			"Defense": "=2d3",
+			"Damage": "!1d12",
+		},
+	}
+}

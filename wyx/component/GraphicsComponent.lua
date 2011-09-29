@@ -8,6 +8,7 @@ local newQuad = love.graphics.newQuad
 local drawq = love.graphics.drawq
 local setColor = love.graphics.setColor
 local colors = colors
+local cmult = colors.multiply
 
 local verify, assert, tostring = verify, assert, tostring
 local vec2_equal = vec2.equal
@@ -25,6 +26,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'TileSize',
 			'TileCoords',
 			'RenderDepth',
+			'Tint',
 			'Visibility',
 			'VisibilityBonus',
 		})
@@ -73,6 +75,24 @@ function GraphicsComponent:_setProperty(prop, data)
 			assert(#v == 2, 'Invalid TileCoords: %s', tostring(v))
 			verify('number', v[1], v[2])
 		end
+	elseif prop == property('Tint') then
+		verifyAny(data, 'table', 'string', 'nil')
+
+		if type(data) == 'table' then
+			local num = #data
+			assert(num, 'Tint must be an array')
+
+			for i=1,num do
+				local d = data[i]
+				verify('number', d)
+				assert(d >= 0 and d <= 255, 'Invalid Tint value %d', d)
+			end
+
+			self._tint = data
+		elseif type(data) == 'string' then
+			assert(colors[data], 'No such color %q for Tint', data)
+			self._tint = colors[data]
+		end
 	elseif prop == property('TileSize')
 		or prop == property('RenderDepth') then
 		verify('number', data)
@@ -119,6 +139,8 @@ function GraphicsComponent:receive(sender, msg, ...)
 		and sender == self._mediator
 	then self._doDraw = true
 	end
+
+	ViewComponent.receive(self, sender, msg, ...)
 end
 
 function GraphicsComponent:getProperty(p, intermediate, ...)
@@ -218,7 +240,13 @@ end
 function GraphicsComponent:draw()
 	if self._mediator and self._lit == 'lit' and self._doDraw then
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
-		setColor(self._color)
+
+		if self._tint then
+			setColor(cmult(self._color, self._tint))
+		else
+			setColor(self._color)
+		end
+
 		drawq(self._tileset, frame, self._drawX, self._drawY)
 	end
 end

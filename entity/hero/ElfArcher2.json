@@ -1,0 +1,24 @@
+{
+	"family": "Elf",
+	"kind": "Archer",
+	"variation": 2,
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {1, 2},
+				},
+			"Visibility": 10,
+		},
+		"TimeComponent": {
+			"Speed": 120,
+		},
+		"HealthComponent": {
+			"MaxHealth": 12,
+		},
+		"CombatComponent": {
+			"Attack": 5,
+			"Defense": 4,
+		},
+	}
+}

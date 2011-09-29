@@ -1,0 +1,18 @@
+{
+	"family": "Ring",
+	"kind": "Regeneration",
+	"variation": 1,
+	"unique": true,
+	"description": "It is cold to the touch. It seems to be whispering to you.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {4, 3},
+			},
+		},
+		"HealthComponent": {
+			"HealthRegen": "=1d4/16",
+		},
+	}
+}

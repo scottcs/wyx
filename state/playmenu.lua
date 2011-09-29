@@ -14,16 +14,14 @@ local MenuUI = getClass 'wyx.ui.MenuUI'
 
 function st:init() end
 
-function st:enter(prevState, world, view)
+function st:enter(prevState, view)
 	InputEvents:register(self, InputCommandEvent)
 	self._ui = MenuUI(UI.PlayMenu)
-	self._world = world
 	self._view = view
 end
 
 function st:leave()
 	InputEvents:unregisterAll(self)
-	self._world = nil
 	self._view = nil
 	if self._ui then
 		self._ui:destroy()
@@ -47,8 +45,8 @@ function st:InputCommandEvent(e)
 			RunState.switch(State.play)
 		end,
 		DELETE_GAME = function()
-			local file = self._world.FILENAME
-			local wyx = self._world.WYXNAME
+			local file = World.FILENAME
+			local wyx = World.WYXNAME
 
 			if file then
 				if not love.filesystem.remove(file) then
@@ -65,10 +63,10 @@ function st:InputCommandEvent(e)
 			RunState.switch(State.destroy)
 		end,
 		MENU_MAIN = function()
-			RunState.switch(State.save, self._world, self._view, 'destroy')
+			RunState.switch(State.save, self._view, 'destroy')
 		end,
 		MENU_SAVE_GAME = function()
-			RunState.switch(State.save, self._world, self._view, 'play')
+			RunState.switch(State.save, self._view, 'play')
 		end,
 		MENU_OPTIONS = function()
 			--RunState.switch(State.options, 'menu')

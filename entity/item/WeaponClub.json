@@ -1,18 +1,18 @@
 {
 	"family": "Weapon",
-	"kind": "Magic Sword",
+	"kind": "Club",
 	"variation": 1,
-	"description": "There is some kind of jewel encrusted in the hilt.",
+	"description": "It's heavier at one end.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
 			"TileCoords": {
-				"item": {5, 1},
+				"item": {7, 6},
 			},
 		},
 		"CombatComponent": {
-			"Attack": "=1d2+5",
-			"Damage": "!1d3+4",
+			"Attack": "=2d2",
+			"Damage": "!2d3",
 		},
 	}
 }

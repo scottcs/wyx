@@ -1,0 +1,18 @@
+{
+	"family": "Weapon",
+	"kind": "Staff",
+	"variation": 1,
+	"description": "It's a long wooden pole.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {5, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=2d2+1",
+			"Damage": "!1d3+1",
+		},
+	}
+}

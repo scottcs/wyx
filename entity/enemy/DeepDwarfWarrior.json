@@ -1,0 +1,22 @@
+{
+	"family": "Deep Dwarf",
+	"kind": "Warrior",
+	"variation": 1,
+	"description": "He is a hard worker.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "char",
+			"TileCoords": {
+				"right": {6, 5},
+			},
+		},
+		"HealthComponent": {
+			"MaxHealth": "=2d6+20",
+		},
+		"CombatComponent": {
+			"Attack": "=1d3+4",
+			"Defense": "=1d3+6",
+			"Damage": "!1d8",
+		},
+	}
+}

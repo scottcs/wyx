@@ -14,7 +14,7 @@
 			"Defense": 1,
 		},
 		"HealthComponent": {
-			"MaxHealth": 2,
+			"HealthRegen": "=1d4/16",
 		},
 	}
 }

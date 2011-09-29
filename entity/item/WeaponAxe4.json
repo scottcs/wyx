@@ -1,0 +1,19 @@
+{
+	"name": "Magic Axe",
+	"family": "Weapon",
+	"kind": "Axe",
+	"variation": 4,
+	"description": "The jewel in its hilt glows brightly.",
+	"components": {
+		"GraphicsComponent": {
+			"TileSet": "item",
+			"TileCoords": {
+				"item": {4, 6},
+			},
+		},
+		"CombatComponent": {
+			"Attack": "=1d2+3",
+			"Damage": "!1d3+4",
+		},
+	}
+}

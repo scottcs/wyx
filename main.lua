@@ -57,6 +57,7 @@ end
 RunState = require 'lib.hump.gamestate'
 cron = require 'lib.cron'
 tween = require 'lib.tween'
+inspect = require 'lib.inspect'
 
 
          --[[--

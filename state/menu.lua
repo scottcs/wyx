@@ -45,7 +45,7 @@ function st:InputCommandEvent(e)
 		-- run state
 		QUIT_NOSAVE = function() RunState.switch(State.shutdown) end,
 		NEW_GAME = function()
-			RunState.switch(State.initialize, 'construct')
+			RunState.switch(State.initialize, 'createchar')
 		end,
 		MENU_LOAD_GAME = function()
 			RunState.switch(State.initialize, 'loadmenu')
