@@ -27,10 +27,12 @@ FORMAT
 ------
 An entity file has the following fields:
 {
-    "name": "Big Bad Something (THIS FIELD IS OPTIONAL)",
+    "name": "Big Bad Something (OPTIONAL)",
     "family": "Some Family",
     "kind": "Kind within the Family",
     "variation": 1,
+	"description": "Descriptive text here (OPTIONAL)",
+	"unique": true,
     "components": {
          ...
     }
@@ -41,7 +43,7 @@ supplied, then the entity is given a name composed of its family, kind, and
 variation values.
 
 
-NAME:
+NAME (OPTIONAL):
 This can be anything you want. For generic entities, it's probably better not
 to provide a name. For special entities (powerful enemies or hand-crafted
 items), it would be more appropriate to provide a name. Also, players will
@@ -64,6 +66,15 @@ from one another. For instance, a normal Zombie might be variation 1, but a
 slightly faster Zombie could use mostly the same properties as the first
 Zombie, and just modify the Speed property, and change the variation to 2. Now
 there are two Zombies, mostly identical but one is faster than the other.
+
+DESCRIPTION (OPTIONAL):
+This must be a string. If specified it will be shown whenever a description of
+the entity is asked for in the game, such as at the bottom of tooltips.
+
+UNIQUE (OPTIONAL):
+This must be either true or false. If specified and true, then only one copy
+of this entity is allowed to exist in the world at one time. It does not
+guarantee that the entity will exist, just that no more than one will exist.
 
 COMPONENTS:
 See Components.txt.
