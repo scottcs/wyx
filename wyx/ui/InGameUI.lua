@@ -787,8 +787,14 @@ function InGameUI:_hoverTooltip(entityID)
 		local f = self._hoverTooltips[entityID]
 		if not f then
 			local entity = EntityRegistry:get(entityID)
-			tooltip = self._tooltipFactory:makeEntityTooltip(entity,
-				depths.uitooltip)
+			local etype = entity:getEntityType()
+			if etype == 'item' then
+				tooltip = self._tooltipFactory:makeVerySimpleTooltip(entity:getName(),
+					depths.uitooltip, ui.name.normalStyle)
+			else
+				tooltip = self._tooltipFactory:makeEntityTooltip(entity,
+					depths.uitooltip)
+			end
 
 			if tooltip then
 				f = Frame(0, 0, 64, 64)
