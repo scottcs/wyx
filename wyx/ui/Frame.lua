@@ -12,6 +12,7 @@ local drawq = love.graphics.drawq
 local colors = colors
 local cmult = colors.multiply
 local unpack = unpack
+local table_maxn = table.maxn
 
 -- Frame
 -- Basic UI Element
@@ -703,9 +704,15 @@ function Frame:_clearCallback(which)
 	end
 end
 
+-- return true if the given callback exists
+function Frame:_callbackExists(which)
+	return self._callbacks[which] ~= nil
+end
+
 -- call the given callback
 function Frame:_callCallback(which, ...)
 	local cb = self._callbacks[which]
+	local cbArgs = self._callbackArgs[which]
 
 	if cb then
 		local args = {}
@@ -719,16 +726,16 @@ function Frame:_callCallback(which, ...)
 			end
 		end
 
-		if self._callbackArgs[which] then
-			num = #self._callbackArgs[which]
+		if cbArgs then
+			num = table_maxn(cbArgs)
 			for i=1,num do
 				count = count + 1
-				args[count] = self._callbackArgs[which]
+				args[count] = cbArgs[i]
 			end
 		end
 
-		if #args > 0 then
-			return cb(unpack(args))
+		if count > 0 then
+			return cb(unpack(args, 1, table_maxn(args)))
 		else
 			return cb()
 		end

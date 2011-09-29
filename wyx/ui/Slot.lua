@@ -30,8 +30,14 @@ function Slot:getID() return self._id end
 
 -- verify that a button is allowed to be socketed in this Slot
 function Slot:verifyButton(button)
-	local id = self:getID()
-	return self:_callCallback('verify', button, id)
+	local verified = true
+
+	if self:_callbackExists('verify') then
+		local id = self:getID()
+		verified = self:_callCallback('verify', button, id)
+	end
+
+	return verified == true
 end
 
 -- swap the given StickyButton with the current one
