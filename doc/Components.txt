@@ -136,6 +136,12 @@ Component Properties
                 "front": {4, 5},
             }
 
+    "Tint": {255, 255, 255, 255}
+        (Expressions not allowed.)
+
+        A color in red, green, blue, alpha values (from 0-255). This color
+        will be multiplied with the tile when it is drawn.
+
     "Visibility": 0
         This is the radius of visibility for the entity (i.e. how many tiles
         away from its position can it see). On item entities, this will be
@@ -151,6 +157,10 @@ Component Properties
     "MaxHealth": 0
         The maximum health value of the entity. On item entities, this will be
         added to the hero/enemy entity's value when equipped.
+
+    "HealthRegen": "!1d3/9"
+        The amount of health to regenerate per in-game tick. This default
+        value will generate between 0.1111 and 0.3333 health points per tick.
 
 * InputComponent
     This component handles input given to the entity. It is usually not
@@ -265,5 +275,6 @@ Item:
     MotionComponent
     CollisionComponent
     GraphicsComponent
+    ControllerComponent
 
 
