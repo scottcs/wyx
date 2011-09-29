@@ -680,10 +680,6 @@ function Frame:draw(color)
 			else
 				self._tooltip:hide()
 			end
-		end
-	end
-end
-
 -- set callback functions and arguments
 function Frame:setCallback(which, func, ...)
 	verify('string', which)
