@@ -696,7 +696,7 @@ end
 function Frame:_clearCallback(which)
 	self._callbacks[which] = nil
 	if self._callbackArgs[which] then
-		for k,v in self._callbackArgs[which] do
+		for k,v in pairs(self._callbackArgs[which]) do
 			self._callbackArgs[which][k] = nil
 		end
 		self._callbackArgs[which] = nil
