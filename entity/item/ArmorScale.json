@@ -16,5 +16,8 @@
 		"CombatComponent": {
 			"Defense": 6,
 		},
+		"HealthComponent": {
+			"MaxHealth": "=1d2+1",
+		},
 	}
 }
