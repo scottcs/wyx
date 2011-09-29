@@ -14,5 +14,8 @@
 			"Attack": "=2d2+2",
 			"Damage": "!2d3+2",
 		},
+		"HealthComponent": {
+			"HealthRegen": "=1d4/16",
+		},
 	}
 }

@@ -7,7 +7,7 @@
 		"GraphicsComponent": {
 			"TileSet": "item",
 			"TileCoords": {
-				"item": {4, 3},
+				"item": {5, 3},
 			},
 		},
 		"TimeComponent": {

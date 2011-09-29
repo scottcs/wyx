@@ -198,6 +198,9 @@ function TooltipFactory:makeEntityTooltip(id, depth)
 
 		f = self:_makeStatText('MaxHealth', entity, width, baseline)
 		if f then stats[#stats+1] = f end
+
+		f = self:_makeStatText('HealthRegen', entity, width, baseline)
+		if f then stats[#stats+1] = f end
 	end
 
 	local f = self:_makeStatText('Attack', entity, width, baseline)
@@ -359,24 +362,42 @@ function TooltipFactory:_makeStatText(prop, entity, width, baseline)
 	local statB = pMax and entity:query(pMax) or nil
 	local text
 
-	if (stat and stat ~= baseline) or (statB and statB ~= 0) then
+	local etype = entity:getEntityType()
+	local name = entity:getName()
+
+	if (stat and stat ~= 0 and stat ~= baseline) or (statB and statB ~= 0) then
 		local func = function()
 			local s = entity:query(pMin)
 			local sB = pMax and entity:query(pMax) or nil
 
-			s = (s and s ~= baseline) and s or nil
+			s = (s and s ~= 0 and s ~= baseline) and s or nil
 			sB = (sB and sB ~= 0) and sB or nil
+			local string
 
 			if s and sB then
 				s = s + sB
-				return format('%d (%+d)', s, sB)
+				if (s > 0 and s < 1) or (s < 0 and s > -1) then
+					string = format('%.2f (%+.2f)', s, sB)
+				else
+					string = format('%d (%+d)', s, sB)
+				end
 			elseif sB then
-				return format('%+d', sB)
+				if (sB > 0 and sB < 1) or (sB < 0 and sB > -1) then
+					string = format('%+.2f', sB)
+				else
+					string = format('%+d', sB)
+				end
 			elseif s then
-				return format('%d', s)
+				if (s > 0 and s < 1) or (s < 0 and s > -1) then
+					string = format('%.2f', s)
+				else
+					string = format('%d', s)
+				end
 			else
-				return format('huh?')
+				string = format('huh?')
 			end
+
+			return string
 		end
 
 		local halfWidth = math_floor(width * 0.48)

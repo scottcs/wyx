@@ -97,10 +97,14 @@ property.Health            = {default = '=$MaxHealth',
                                weight = 0.0}
 property.MaxHealth         = {default = 0,
                                weight = 1.0}
+property.HealthRegen       = {default = '!1d3/9',
+                               weight = 1.0}
 property.HealthBonus       = {default = 0,
                                weight = 0.5}
 property.MaxHealthBonus    = {default = 0,
                                weight = 1.0}
+property.HealthRegenBonus  = {default = 0,
+                               weight = 1.5}
 
 -- motion properties
 property.Position          = {default = {1, 1},

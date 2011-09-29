@@ -1,17 +1,15 @@
 {
-	"family": "Armor",
-	"kind": "Padded",
+	"family": "Ring",
+	"kind": "Regeneration",
 	"variation": 1,
-	"description": "Fashionable and practical!",
+	"unique": true,
+	"description": "It is cold to the touch. It seems to be whispering to you.",
 	"components": {
 		"GraphicsComponent": {
 			"TileSet": "item",
 			"TileCoords": {
-				"item": {2, 2},
+				"item": {4, 3},
 			},
-		},
-		"CombatComponent": {
-			"Defense": 1,
 		},
 		"HealthComponent": {
 			"HealthRegen": "=1d4/16",

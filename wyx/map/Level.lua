@@ -33,6 +33,7 @@ local math_floor = math.floor
 local math_ceil = math.ceil
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
+local format = string.format
 local enumerate = love.filesystem.enumerate
 local GameEvents = GameEvents
 
@@ -438,7 +439,7 @@ end
 
 function Level:EntityDeathEvent(e)
 	local entityID = e:getEntity()
-	local reason = e:getReason() or "unknown reason"
+	local reason = e:getReason() or "some unknown reason"
 
 	local entity = EntityRegistry:get(entityID)
 	local name = entity and entity:getName() or "unknown entity"
@@ -446,7 +447,8 @@ function Level:EntityDeathEvent(e)
 		entityID, name, reason))
 
 	if entityID == World:getPrimeEntity() then
-		GameEvents:push(DisplayPopupMessageEvent('GAME OVER - YOU DEAD'))
+		GameEvents:push(DisplayPopupMessageEvent(format(
+			'GAME OVER (Killed by %s)', reason)))
 	else
 		self:removeEntity(entityID)
 	end

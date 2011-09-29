@@ -111,6 +111,7 @@ function EntityFactory:createEntity(info)
 	local entity = Entity(self._etype, info, self:_getComponents(info))
 	EntityRegistry:register(entity)
 	self:_addMissingRequiredComponents(entity)
+	self:_postProcess(entity)
 	entity:send(message('ENTITY_CREATED'))
 	return entity:getID()
 end
@@ -121,6 +122,9 @@ function EntityFactory:registerEntity(id)
 	self:_registerWithCollisionSystem(entity)
 	self:_registerWithTimeSystem(entity)
 end
+
+function EntityFactory:_postProcess(entity) end
+
 
 -- the class
 return EntityFactory

@@ -201,7 +201,7 @@ function EntityDB:_postProcessEntityInfo(info)
 							props[bonus] = data
 							warned[bonus] = true
 						end
-						props[p] = nil
+						props[p] = 0
 					else
 						local normal = match(p, '(.*)Bonus')
 						if normal and not warned[p] then
@@ -225,7 +225,7 @@ function EntityDB:_postProcessEntityInfo(info)
 								p, normal, info.filename)
 							props[normal] = data
 						end
-						props[p] = nil
+						props[p] = 0
 					end -- if normal and ...
 				end -- if self._etype == 'item
 			end -- for p,data in props
