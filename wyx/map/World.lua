@@ -4,6 +4,7 @@ local EntityRegistry = getClass 'wyx.entity.EntityRegistry'
 local HeroEntityFactory = getClass 'wyx.entity.HeroEntityFactory'
 local PrimeEntityChangedEvent = getClass 'wyx.event.PrimeEntityChangedEvent'
 local message = getClass 'wyx.component.message'
+local property = require 'wyx.component.property'
 
 -- World
 --
@@ -53,8 +54,6 @@ function World:generate()
 
 		self._curPlace = self._loadstate.curPlace
 		self._lastPlace = self._loadstate.lastPlace
-
-		self._loadstate = nil
 	else
 		local dungeon = Dungeon('Lonely Dungeon')
 		dungeon:generateLevel(1)
@@ -63,13 +62,24 @@ function World:generate()
 
 	local place = self:getCurrentPlace()
 	local level = place:getCurrentLevel()
+
 	if self._primeEntity then
 		level:addEntity(self._primeEntity)
-		local x, y = level:getRandomPortalPosition()
 		local entity = self._eregistry:get(self._primeEntity)
+
+		local x, y
+		if self._loadstate then
+			local pos = entity:query(property('Position'))
+			x, y = pos[1], pos[2]
+		else
+			x, y = level:getRandomPortalPosition()
+		end
+
 		entity:send(message('SET_POSITION'), x, y, x, y)
 	end
+
 	level:notifyEntitiesLoaded()
+	self._loadstate = nil
 end
 
 function World:_loadHero()

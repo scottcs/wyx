@@ -7,7 +7,7 @@ v0.2.0 Goals:
   d fix ELevel weights
   d add some more items and enemies
   d Character select or gear select + name entry
-  o comparison tooltips
+  d comparison tooltips
   o level templates
   o map objects
   o poisson disk sampling
@@ -54,8 +54,8 @@ Later Goals:
   d add some more items and enemies
 	d move primeEntity to World from Level
   d Character select or gear select + name entry
-  o comparison tooltips
-	+ fix hero being moved to portal on load
+  d comparison tooltips
+	d fix hero being moved to portal on load
 
 :::::::::::::::
 :PENDING TASKS:
