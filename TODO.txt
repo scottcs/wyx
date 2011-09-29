@@ -55,7 +55,7 @@ Later Goals:
 	d move primeEntity to World from Level
   d Character select or gear select + name entry
   d comparison tooltips
-	+ fix hero being moved to portal on load
+	d fix hero being moved to portal on load
 
 :::::::::::::::
 :PENDING TASKS:
