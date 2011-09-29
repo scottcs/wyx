@@ -22,6 +22,8 @@ local Frame = Class{name='Frame',
 
 		self._children = {}
 		self._layers = {}
+		self._callbacks = {}
+		self._callbackArgs = {}
 		self._accum = 0
 		self._depth = depths.uidefault
 		self._show = true
@@ -37,6 +39,10 @@ local Frame = Class{name='Frame',
 function Frame:destroy()
 	self._needsUpdate = nil
 	self._hoverWithChildren = nil
+
+	for k in pairs(self._callbacks) do self:_clearCallback(k) end
+	self._callbacks = nil
+	self._callbackArgs = nil
 
 	if self._fadeInID then tween.stop(self._fadeInID) end
 	if self._fadeOutID then tween.stop(self._fadeOutID) end
@@ -677,6 +683,62 @@ function Frame:draw(color)
 		end
 	end
 end
+
+-- set callback functions and arguments
+function Frame:setCallback(which, func, ...)
+	verify('string', which)
+	verify('function', func)
+	self:_clearCallback(which)
+
+	self._callbacks[which] = func
+
+	local numArgs = select('#', ...)
+	if numArgs > 0 then self._callbackArgs[which] = {...} end
+end
+
+-- clear the given callback
+function Frame:_clearCallback(which)
+	self._callbacks[which] = nil
+	if self._callbackArgs[which] then
+		for k,v in self._callbackArgs[which] do
+			self._callbackArgs[which][k] = nil
+		end
+		self._callbackArgs[which] = nil
+	end
+end
+
+-- call the given callback
+function Frame:_callCallback(which, ...)
+	local cb = self._callbacks[which]
+
+	if cb then
+		local args = {}
+		local count = 0
+		local num = select('#', ...)
+
+		if num > 0 then
+			for i=1,num do
+				count = count + 1
+				args[count] = select(i, ...)
+			end
+		end
+
+		if self._callbackArgs[which] then
+			num = #self._callbackArgs[which]
+			for i=1,num do
+				count = count + 1
+				args[count] = self._callbackArgs[which]
+			end
+		end
+
+		if #args > 0 then
+			return cb(unpack(args))
+		else
+			return cb()
+		end
+	end
+end
+
 
 function Frame:show() self._show = true end
 function Frame:hide()
