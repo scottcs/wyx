@@ -290,6 +290,8 @@ function Frame:becomeIndependent(parent)
 		self:setPosition(x, y)
 	end
 
+	self._parent = nil
+
 	self:_registerWithUISystem()
 end
 
@@ -298,10 +300,24 @@ function Frame:becomeChild(parent, depth)
 	if parent then
 		local x, y = self:getX() + parent:getX(), self:getY() + parent:getY()
 		self:setPosition(x, y)
+		self._parent = parent
 	end
 
 	self:_unregisterWithUISystem()
 	if depth then self:setDepth(depth) end
+end
+
+-- get screen position, regardless of whether this frame is a child or not
+function Frame:getScreenPosition()
+	local x, y = self:getPosition()
+
+	if self._parent then
+		local parentX, parentY = self._parent:getScreenPosition()
+		x = x - parentX
+		y = y - parentY
+	end
+
+	return x, y
 end
 
 -- override Rect:setX() to send translation to children
@@ -480,6 +496,9 @@ function Frame:attachTooltip(tooltip)
 	verifyClass('wyx.ui.Tooltip', tooltip)
 	self._tooltip = tooltip
 end
+
+-- get the tooltip attached to this frame
+function Frame:getTooltip() return self._tooltip end
 
 -- set the position of the tooltip
 function Frame:_setTooltipPosition(x, y)
@@ -664,6 +683,14 @@ end
 -- draw the frame and all child frames
 function Frame:draw(color)
 	if self._show then
+		if self._tooltip then
+			if self._hovered then
+				self:_showTooltip()
+			else
+				self:_hideTooltip()
+			end
+		end
+
 		color = color or self._color
 
 		setColor(color)
@@ -674,13 +701,40 @@ function Frame:draw(color)
 			local child = self._children[i]
 			child:draw(self._color)
 		end
+	end
+end
 
-		if self._tooltip then
-			if self._hovered then
-				self._tooltip:show()
-			else
-				self._tooltip:hide()
-			end
+function Frame:_showTooltip()
+	self._tooltip:show()
+	self:_callTooltipCallback('tooltipshow')
+end
+
+function Frame:_hideTooltip()
+	self._tooltip:hide()
+	self:_callTooltipCallback('tooltiphide')
+end
+
+-- tooltip callback - called when tooltip is shown
+function Frame:setTooltipShowCallback(func, ...)
+	self:setCallback('tooltipshow', func, ...)
+end
+
+-- tooltip callback - called when tooltip is hidden
+function Frame:setTooltipHideCallback(func, ...)
+	self:setCallback('tooltiphide', func, ...)
+end
+
+function Frame:_callTooltipCallback(which)
+	if self._callbacks[which] then
+		local args = self._callbackArgs[which]
+		if args then
+			self._callbacks[which](unpack(args))
+		else
+			self._callbacks[which]()
+		end
+	end
+end
+
 -- set callback functions and arguments
 function Frame:setCallback(which, func, ...)
 	verify('string', which)

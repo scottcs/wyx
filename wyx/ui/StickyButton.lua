@@ -76,7 +76,7 @@ function StickyButton:setSlot(slot, hideTooltip)
 
 	if hideTooltip then
 		if self._tooltip then
-			self._tooltip:hide()
+			self:_hideTooltip()
 			self._hiddenTooltip = self._tooltip
 			self._tooltip = nil
 		end

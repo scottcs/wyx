@@ -658,6 +658,60 @@ function InGameUI:_findEmptyFloorSlot()
 	end
 end
 
+function InGameUI:_comparisonTooltipFunc(btn)
+	if not btn._comparisonTooltip then
+		local peID = World:getPrimeEntity()
+		local iID = btn:getEntityID()
+
+		if peID and iID then
+			local item = EntityRegistry:get(iID)
+			local primeEntity = EntityRegistry:get(peID)
+
+			if item and primeEntity then
+				local iFam = item:getFamily()
+				local attached = primeEntity:query(property('AttachedEntities'))
+
+				if attached and iFam then
+					local num = #attached
+					for n=1,num do
+						if nil ~= comparison then break end
+
+						local aID = attached[n]
+						if aID ~= iID then
+							local entity = EntityRegistry:get(aID)
+							local aFam = entity:getFamily()
+							if aFam == iFam then
+								btn._comparisonTooltip =
+									self._tooltipFactory:makeEntityTooltip(entity)
+								btn._comparisonTooltip:show()
+							end
+						end -- if aID ~= iID
+					end -- for i=1,num
+				end -- if attached and iFam
+			end -- if item and primeEntity
+		end -- if peID and iID
+	end -- if not btn._comparisonTooltip
+
+	if btn._comparisonTooltip then
+		local tt = btn:getTooltip()
+		local x, y = tt:getScreenPosition()
+		local ttW = tt:getWidth()
+		local cW = btn._comparisonTooltip:getWidth()
+		local newX = x - (cW + 8)
+		if newX < 0 then newX = x + (ttW + 8) end
+
+		btn._comparisonTooltip:setPosition(newX, y)
+	end
+end
+
+local _comparisonTooltipHide = function(btn)
+	if btn._comparisonTooltip then
+		btn._comparisonTooltip:hide()
+		btn._comparisonTooltip:destroy()
+		btn._comparisonTooltip = nil
+	end
+end
+
 function InGameUI:_makeItemButton(item)
 	local btn
 
@@ -696,6 +750,9 @@ function InGameUI:_makeItemButton(item)
 
 				local tooltip = self._tooltipFactory:makeEntityTooltip(item)
 				btn:attachTooltip(tooltip)
+
+				btn:setTooltipShowCallback(self._comparisonTooltipFunc, self, btn)
+				btn:setTooltipHideCallback(_comparisonTooltipHide, btn)
 			end -- if size
 		end -- if coords
 	end -- if tilecoords
