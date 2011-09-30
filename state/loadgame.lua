@@ -11,12 +11,17 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.loadgame' end}
 setmetatable(st, mt)
 
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
+
 require 'lib.serialize'
 local warning, tostring = warning, tostring
 
 function st:init() end
 
 function st:enter(prevState)
+	self._prevState = prevState
+	InputEvents:register(self, InputCommandEvent)
+
 	self._loadStep = 0
 
 	local filename = World.FILENAME
@@ -34,6 +39,7 @@ function st:enter(prevState)
 end
 
 function st:leave()
+	InputEvents:unregisterAll(self)
 	if self._file then self._file:close() end
 	self._state = nil
 	self._file = nil
@@ -42,7 +48,15 @@ function st:leave()
 	self._doLoadStep = nil
 end
 
-function st:destroy() end
+function st:destroy()
+	self._prevState = nil
+end
+
+function st:InputCommandEvent(e)
+	if self._prevState and self._prevState.InputCommandEvent then
+		self._prevState:InputCommandEvent(e)
+	end
+end
 
 function st:_loadFile()
 	local contents = love.filesystem.read(self._filename)

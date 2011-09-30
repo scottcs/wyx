@@ -10,6 +10,8 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.initialize' end}
 setmetatable(st, mt)
 
+local InputCommandEvent = getClass 'wyx.event.InputCommandEvent'
+
 function st:init()
 	-- entity databases
 	HeroDB = getClass('wyx.entity.HeroEntityDB')()
@@ -26,18 +28,22 @@ function st:init()
 end
 
 function st:enter(prevState, nextState)
+	InputEvents:register(self, InputCommandEvent)
 	if Console then Console:show() end
+	self._prevState = prevState
 	self._nextState = nextState
 	self._loadStep = 0
 	self._doLoadStep = true
 end
 
 function st:leave()
+	InputEvents:unregisterAll(self)
 	self._doLoadStep = nil
 	self._loadStep = nil
 end
 
 function st:destroy()
+	self._prevState = nil
 	World:destroy()
 
 	EntityRegistry = nil
@@ -57,6 +63,12 @@ function st:destroy()
 	HeroDB = nil
 	EnemyDB = nil
 	ItemDB = nil
+end
+
+function st:InputCommandEvent(e)
+	if self._prevState and self._prevState.InputCommandEvent then
+		self._prevState:InputCommandEvent(e)
+	end
 end
 
 function st:_makeEntityRegistry()

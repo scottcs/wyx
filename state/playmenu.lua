@@ -16,6 +16,7 @@ function st:init() end
 
 function st:enter(prevState, view)
 	InputEvents:register(self, InputCommandEvent)
+	self._prevState = self._prevState or prevState
 	self._ui = MenuUI(UI.PlayMenu)
 	self._view = view
 end
@@ -29,7 +30,9 @@ function st:leave()
 	end
 end
 
-function st:destroy() end
+function st:destroy()
+	self._prevState = nil
+end
 
 function st:update(dt) end
 
@@ -75,6 +78,11 @@ function st:InputCommandEvent(e)
 		MENU_HELP = function()
 			--RunState.switch(State.help, 'menu')
 			print('Help')
+		end,
+		default = function()
+			if self._prevState and self._prevState.InputCommandEvent then
+				self._prevState:InputCommandEvent(e)
+			end
 		end,
 	}
 end

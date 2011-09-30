@@ -58,6 +58,7 @@ end
 function st:enter(prevState, view, cam)
 	local place = World:getCurrentPlace()
 	self._level = self._level or place:getCurrentLevel()
+	self._prevState = self._prevState or prevState
 	self._view = self._view or view
 	self._cam = self._cam or cam
 
@@ -83,6 +84,8 @@ function st:leave()
 end
 
 function st:destroy()
+	self._prevState = nil
+
 	self:_killPopupMessage()
 	if self._popupMessage then
 		self._popupMessage:destroy()
@@ -175,6 +178,11 @@ function st:InputCommandEvent(e)
 			local name = self._level:getMapName()
 			local author = self._level:getMapAuthor()
 			self:_displayMessage('Map: "'..name..'" by '..author)
+		end,
+		default = function()
+			if self._prevState and self._prevState.InputCommandEvent then
+				self._prevState:InputCommandEvent(e)
+			end
 		end,
 	}
 end

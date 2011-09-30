@@ -22,6 +22,7 @@ function st:init()
 end
 
 function st:enter(prevState, viewstate)
+	self._prevState = prevState
 	self._viewstate = viewstate
 	self._loadStep = 0
 	self._doLoadStep = true
@@ -35,12 +36,19 @@ function st:leave()
 end
 
 function st:destroy()
+	self._prevState = nil
 	self._view:destroy()
 	self._view = nil
 	self._cam:destroy()
 	self._cam = nil
 	self._ui:destroy()
 	self._ui = nil
+end
+
+function st:InputCommandEvent(e)
+	if self._prevState and self._prevState.InputCommandEvent then
+		self._prevState:InputCommandEvent(e)
+	end
 end
 
 function st:_generateWorld()
