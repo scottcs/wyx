@@ -77,7 +77,7 @@ ALL items are useful!
     make choices about which to use and which to ignore.
 
     !!! AVOID having to juggle items too much (would get tedious). There
-    should be enuogh overlap that you don't have to swap them out too often.
+    should be enough overlap that you don't have to swap them out too often.
     !!! At the same time, you want to make sure there is SOMETHING interesting
     occasionally that you DO want to swap out.
 
