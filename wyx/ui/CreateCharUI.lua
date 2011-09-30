@@ -59,6 +59,7 @@ function CreateCharUI:destroy()
 	self._ui = nil
 	self._selectedChar = nil
 	self._name = nil
+	self._nameText = nil
 	Frame.destroy(self)
 end
 
@@ -249,10 +250,7 @@ function CreateCharUI:_makeNamePanel()
 	f:setJustifyLeft()
 	f:setAlignCenter()
 
-	f:setEndEditCallback(function()
-		local text = f:getText()
-		self._name = text and text[1]
-	end)
+	self._nameText = f
 
 	namePanel:addChild(f)
 
@@ -262,7 +260,13 @@ end
 -- return the currently selected character
 function CreateCharUI:getChar()
 	local info = self._selectedChar
-	if info then info.name = self._name end
+	if info then
+		if self._nameText then
+			local text = self._nameText:getText()
+			self._name = text and text[1] or self._name
+		end
+		info.name = self._name
+	end
 	return info
 end
 
