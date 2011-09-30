@@ -44,9 +44,7 @@ function st:InputCommandEvent(e)
 	switch(cmd) {
 		-- run state
 		EXIT_MENU = function()
-			if State.initialize.destroy then State.initialize:destroy() end
-			rawset(State, 'initialize', nil)
-			RunState.switch(State.menu)
+			RunState.switch(State.destroy)
 		end,
 		CREATE_CHAR = function()
 			if self._ui then

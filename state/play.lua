@@ -166,9 +166,6 @@ function st:InputCommandEvent(e)
 		MENU_PLAY = function()
 			RunState.switch(State.playmenu, self._view)
 		end,
-		CONSOLE_CMD_QUIT = function()
-			RunState.switch(State.destroy)
-		end,
 
 		-- debug
 		NEW_LEVEL = function()
@@ -179,6 +176,42 @@ function st:InputCommandEvent(e)
 			local author = self._level:getMapAuthor()
 			self:_displayMessage('Map: "'..name..'" by '..author)
 		end,
+
+		-- playmenu
+		DELETE_GAME = function()
+			local file = World.FILENAME
+			local wyx = World.WYXNAME
+
+			if file then
+				if not love.filesystem.remove(file) then
+					warning('Could not remove file: %q', file)
+				end
+			end
+
+			if wyx then
+				if not love.filesystem.remove(wyx) then
+					warning('Could not remove file: %q', wyx)
+				end
+			end
+
+			RunState.switch(State.destroy)
+		end,
+		MENU_MAIN = function()
+			RunState.switch(State.save, self._view, 'destroy')
+		end,
+		MENU_SAVE_GAME = function()
+			RunState.switch(State.save, self._view, 'play')
+		end,
+		MENU_OPTIONS = function()
+			--RunState.switch(State.options, 'menu')
+			print('Options')
+		end,
+		MENU_HELP = function()
+			--RunState.switch(State.help, 'menu')
+			print('Help')
+		end,
+		
+		-- pass it backward
 		default = function()
 			if self._prevState and self._prevState.InputCommandEvent then
 				self._prevState:InputCommandEvent(e)

@@ -39,43 +39,48 @@ function st:draw() end
 
 function st:InputCommandEvent(e)
 	local cmd = e:getCommand()
-	--local args = e:getCommandArgs()
+	local args = e:getCommandArgs()
 
 	switch(cmd) {
 		-- run state
 		EXIT_MENU = function()
-			if State.initialize.destroy then State.initialize:destroy() end
-			rawset(State, 'initialize', nil)
-			RunState.switch(State.menu)
+			RunState.switch(State.destroy)
 		end,
 		DELETE_GAME = function()
-			if self._ui then
-				local file, wyx = self._ui:getSelectedFile()
+			local file, wyx
+			if args then
+				file, wyx = args[1], args[2]
+			elseif self._ui then
+				file, wyx = self._ui:getSelectedFile()
+			end
 
-				if file then
-					if not love.filesystem.remove(file) then
-						warning('Could not remove file: %q', file)
-					end
+			if file then
+				if not love.filesystem.remove(file) then
+					warning('Could not remove file: %q', file)
 				end
+			end
 
-				if wyx then
-					if love.filesystem.remove(wyx) then
-						self._ui:destroy()
-						self._ui = LoadMenuUI(UI.LoadMenu)
-					else
-						warning('Could not remove file: %q', wyx)
-					end
+			if wyx then
+				if love.filesystem.remove(wyx) then
+					self._ui:destroy()
+					self._ui = LoadMenuUI(UI.LoadMenu)
+				else
+					warning('Could not remove file: %q', wyx)
 				end
 			end
 		end,
 		LOAD_GAME = function()
-			if self._ui then
-				local file, wyx = self._ui:getSelectedFile()
-				if file then
-					World.FILENAME = file
-					World.WYXNAME = wyx
-					RunState.switch(State.loadgame)
-				end
+			local file, wyx
+			if args then
+				file, wyx = args[1], args[2]
+			elseif self._ui then
+				file, wyx = self._ui:getSelectedFile()
+			end
+
+			if file and wyx then
+				World.FILENAME = file
+				World.WYXNAME = wyx
+				RunState.switch(State.loadgame)
 			end
 		end,
 		default = function()

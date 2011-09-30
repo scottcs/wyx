@@ -11,6 +11,7 @@ local depths = require 'wyx.system.renderDepths'
 local format, match = string.format, string.match
 local gmatch = string.gmatch
 local concat = table.concat
+local maxn = table.maxn
 local unpack = unpack
 local tostring = tostring
 local colors = colors
@@ -300,21 +301,33 @@ cmds = {
 		help = 'Quit the current game (without saving) and go to the Main Menu',
 		run = function(self, ...)
 			self:hide()
-			InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_QUIT')))
+			InputEvents:notify(InputCommandEvent(command('QUIT_NOSAVE')))
 		end,
 	},
-	--[[
 	['load'] = {
 		help = 'Quit the current game (without saving) and load the given file or go to the Load Menu',
 		run = function(self, ...)
-			self:hide()
-			if select('#', ...) > 0 then
-				InputEvents:notify(InputCommandEvent(command('CONSOLE_CMD_LOAD'), ...))
+			local numArgs = select('#', ...)
+			if numArgs > 1 then
+				self:print(colors.RED, 'Usage: load')
+				self:print(colors.RED, '        load <filename>')
+			elseif numArgs == 1 then
+				local file, wyx = self:_getFilenames(select(1, ...))
+
+				if file and wyx then
+					self:hide()
+					InputEvents:notify(InputCommandEvent(command('LOAD_GAME'), file, wyx))
+				else
+					self:print(colors.RED, 'Invalid filename: %q', tostring(file))
+				end
 			else
-				InputEvents:notify(InputCommandEvent(command('MENU_LOAD_GAME')))
+				self:hide()
+				InputEvents:push(InputCommandEvent(command('MENU_MAIN')))
+				InputEvents:push(InputCommandEvent(command('MENU_LOAD_GAME')))
 			end
 		end,
 	},
+	--[[
 	save = {
 		help = 'Save the current game to the given filename, or default filename if none is given',
 		run = function(self, ...)
@@ -363,10 +376,28 @@ function Console:_runCommand(command, args)
 	local a = args and concat(args, ', ') or 'no args'
 	local run = cmds[command].run
 	if run then
-		run(self, args and unpack(args))
+		if args then
+			run(self, unpack(args, 1, maxn(args)))
+		else
+			run(self)
+		end
 	else
 		self:print(colors.RED, 'Command %q has no run method defined!', command)
 	end
+end
+
+function Console:_getFilenames(file)
+	local wyx
+	local base = match(file, '(.*)%.sav$')
+
+	if base then
+		wyx = base..'.wyx'
+	else
+		wyx = file..'.wyx'
+		file = file..'.sav'
+	end
+
+	return file, wyx
 end
 
 

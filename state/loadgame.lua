@@ -34,7 +34,8 @@ function st:enter(prevState)
 			Console:print('Loading savegame: %q', self._filename)
 		end
 	else
-		RunState.switch(State.menu)
+		Console:print(colors.RED, 'Invalid savegame: %q', tostring(filename))
+		RunState.switch(State.destroy)
 	end
 end
 
