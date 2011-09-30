@@ -169,7 +169,7 @@ function st:InputCommandEvent(e)
 
 		-- debug
 		NEW_LEVEL = function()
-			RunState.switch(State.destroy, 'initialize', 'createchar')
+			RunState.switch(State.destroy, 'initialize', 'menu', 'createchar')
 		end,
 		DISPLAY_MAPNAME = function()
 			local name = self._level:getMapName()
@@ -201,6 +201,9 @@ function st:InputCommandEvent(e)
 		end,
 		MENU_SAVE_GAME = function()
 			RunState.switch(State.save, self._view, 'play')
+		end,
+		MENU_LOAD_GAME = function()
+			RunState.switch(State.destroy, 'initialize', 'menu', 'loadmenu')
 		end,
 		MENU_OPTIONS = function()
 			--RunState.switch(State.options, 'menu')

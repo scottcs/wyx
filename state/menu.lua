@@ -44,12 +44,16 @@ function st:InputCommandEvent(e)
 
 	switch(cmd) {
 		-- run state
-		QUIT_NOSAVE = function() RunState.switch(State.shutdown) end,
+		QUIT_NOSAVE = function() RunState.switch(State.destroy, 'shutdown') end,
 		NEW_GAME = function()
 			RunState.switch(State.createchar)
 		end,
 		MENU_LOAD_GAME = function()
-			RunState.switch(State.loadmenu)
+			if self._ui then
+				RunState.switch(State.loadmenu)
+			else
+				RunState.switch(State.destroy, 'initialize', 'menu', 'loadmenu')
+			end
 		end,
 		MENU_OPTIONS = function()
 			--RunState.switch(State.options, 'menu')

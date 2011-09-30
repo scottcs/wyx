@@ -322,7 +322,6 @@ cmds = {
 				end
 			else
 				self:hide()
-				InputEvents:push(InputCommandEvent(command('MENU_MAIN')))
 				InputEvents:push(InputCommandEvent(command('MENU_LOAD_GAME')))
 			end
 		end,
