@@ -209,6 +209,7 @@ end
 
 -- override Frame:show and hide to register/unregister keys
 function Console:show()
+	self._commandline:toggleEnterMode(true)
 	UISystem:registerKeys(ui.keysOnShowID, ui.keysOnShow)
 	Frame.show(self)
 end
