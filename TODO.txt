@@ -3,7 +3,7 @@
 ::::::::::
 
 v0.2.0 Goals:
-  + fix console commands being dependent on RunState
+  d fix console commands being dependent on RunState
   o config file
   o key bindings
   o level templates
@@ -46,7 +46,7 @@ v1.0.0 Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  + fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+  d fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
   o read in-game keybindings from a config file. [make a default config in the data dir]
   o Level templates
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
