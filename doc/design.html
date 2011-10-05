@@ -1,0 +1,424 @@
+<!DOCTYPE html>  
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>design</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+/* 
+ This document has been created with Marked.app <http://markedapp.com>, Copyright 2011 Brett Terpstra
+ Please leave this notice in place, along with any additional credits below.
+ ---------------------------------------------------------------
+ Antique.css by Brett Terpstra
+ */
+body { font: normal 0.8764em/1.5em Georgia,"Times New Roman",serif;margin:0 }
+html>body { font-size: 14px; } 
+p { margin: 1.3125em  0; font-size: 1.1429em; line-height: 1.3125em; }
+ul {list-style:square}
+ul ul {list-style:circle}
+li {
+  	font-size: 110%;
+}
+li li {
+  	font-size: 100%;
+}
+li p {
+    font-size: 100%;
+}
+h1 { margin: 0.6563em 0; font-size: 2.2857em; line-height: 1.6563em; }
+h2 { margin: 0.875em 0; font-size: 1.7143em; line-height: 0.875em; }
+h3 { margin: 1em 0; font-size: 1.5em; line-height: 1em; }
+h4 { margin: 1.1667em 0; font-size: 1.2857em; line-height: 1.1667em; }
+h5 { margin: 1.3125em 0; font-size: 1.1429em; line-height: 1.3125em; }
+h6 { margin: 1.5em 0; font-size: 1em; line-height: 1.5em; }
+h1,h2,h3 {
+  	font-weight: normal;
+  	border-bottom: solid 1px #ccc;
+  	padding-bottom: .4em;
+  	padding-top:1em;
+  	border-color: #b8b4a4;
+  	color: #514d3f;
+  	font-family:"Hoefler Text";
+    line-height:1.5em;
+}
+body,p,td,div {
+    color: #45462f;
+    word-wrap: break-word
+}
+a {
+    color: hsl(185, 33%, 33%);
+    text-decoration: none;
+    -webkit-transition: color .2s ease-in-out;
+}
+a:hover {
+    color: #7aa45c
+}
+strong {
+	font-weight: 600;
+	color: #605b4b;
+}
+h2 em {
+    color: #111;
+    text-shadow: 0 1px 0 #FFF;
+    padding-left: 10px
+}
+
+.footnote {
+    font-size: .8em;
+    vertical-align: super;
+    color: rgb(13,110,161)
+}
+#wrapper img {
+    max-width: 100%
+}
+dt {
+    font-weight: bold
+}
+dd {
+    margin-bottom: 1em
+}
+@media print {
+    body {
+        overflow: auto
+    }
+    #wrapper {
+        background: #fff;
+        position: relative
+        color: #303030;
+        text-indent: 0px;
+        padding: 10px;
+        font-size:85%;
+    }
+}
+@media screen {
+    body { height: 100%; background: #f3f3ee; }
+    .inverted, .inverted #wrapper { background:#111 !important }
+    .inverted p,.inverted td,.inverted li,.inverted h1,.inverted h2,
+    .inverted h3,.inverted h4, .inverted h5, .inverted h6, .inverted pre,
+    .inverted code,.inverted th {
+        color:#eee !important;
+    }
+    .inverted a { color:#fff;text-decoration:underline;border-bottom:none }
+    #wrapper {
+		color: #514d3f;
+        overflow: auto;
+        text-indent: 0px;
+        padding: 25px;
+		background-color: #f3f3ee;
+	}
+}
+li > p:first-child {
+    margin:0;
+}
+li p {
+    margin:.5em 0;
+}
+ul ul,ul ol {
+    margin-bottom: .4em
+}
+caption,col,colgroup,table,tbody,td,tfoot,th,thead,tr{
+    border-spacing:0;
+}
+table{
+    display:table;
+    table-layout:fixed;
+    border-collapse:collapse;
+    empty-cells:hide;
+    margin:0;padding:0;
+    margin-bottom:24px;
+    border:0;
+}
+caption{
+    display:table-caption;
+    font-weight:bold;
+}
+col{display:table-column;}
+colgroup{display:table-column-group;}
+tbody{display:table-row-group;}
+tfoot{display:table-footer-group;}
+thead{display:table-header-group;}
+td,th{display:table-cell;}
+th{font-weight:bold;}
+tr{display:table-row;}
+
+table{
+    margin-top:-1px;
+    margin-bottom:23px;
+    border:1px solid rgba(0,0,0,0.25);
+}
+table th,
+table td{
+    padding:0 1em;
+    font-size:1.1em;
+    line-height:23px;
+}
+table thead{
+    background-color:rgba(0,0,0,0.15);
+}
+table tbody{
+    background-color:rgba(0,0,0,0.05);
+}
+table tfoot{
+    background-color:rgba(0,0,0,0.15);
+}
+table tr:nth-child(odd){background-color:rgba(255,255,255,0.06);}
+table tr:nth-child(even){background-color:rgba(0,0,0,0.06);}
+table th:nth-child(odd),
+table td:nth-child(odd){background-color:rgba(255,255,255,0.06);}
+
+table td:nth-child(even){background-color:rgba(0,0,0,0.06);}
+
+table thead{
+    border:1px solid rgba(0,0,0,0.15);
+    border-bottom:1px solid rgba(0,0,0,0.2);
+}
+table tfoot{
+    border:1px solid rgba(0,0,0,0.15);
+    border-top:1px solid rgba(0,0,0,0.2);
+}
+figure {position:relative;display:inline-block;margin-bottom:2em}
+figcaption {text-align:center;position:absolute;background:rgba(0,0,0,.5);width:100%;left:0;bottom:-20px;color:rgba(255,255,255,.7);-webkit-transition:all .2s ease-in-out;
+}
+figure:hover {
+    cursor:pointer
+}
+figcaption:hover {background:rgba(0,0,0,.56);color:rgba(255,255,255,1);}
+
+.footnotes p {display:inline}
+</style>
+</head>
+<body>
+  <div id="wrapper">
+      <figure>
+<img src="image/wyx.png" alt="" /></figure>
+
+<ul>
+<li><a href="#gamedescription">Game Description</a></li>
+<li><a href="#combat">Combat</a></li>
+<li><a href="image/interface_mockup.png">Interface</a></li>
+<li><a href="#entities">Entities</a>
+
+<ul>
+<li><a href="#heroes">Heroes</a></li>
+<li><a href="#enemies">Enemies</a></li>
+<li><a href="#items">Items</a></li>
+</ul></li>
+<li><a href="#skillsandspells">Skills and Spells</a></li>
+</ul>
+
+<h1 id="gamedescription">Game Description</h1>
+
+<p>Wyx is a turn-based role playing game with emphasis on tactical combat
+and randomization. The player frequently makes meaningful and
+interesting choices that will determine the outcome of combat with AI
+controlled enemies. The player also explores tile-based maps, revealing
+enemies and treasure, as well as other features and hazards, and will
+have the ability to manipulate the battlefield to his advantage.</p>
+
+<p>All information about a battle is available to the player before the
+outcome of the battle is decided. This includes enemy strength and
+abilities, terrain details, and full descriptions of the player
+character&#8217;s equipment, skills and spells.</p>
+
+<h1 id="combat">Combat</h1>
+
+<p>Combat is one of the major apects of the game. Patterns in positioning,
+skills and spells, and weapons determine which entities are attacked.
+Choices of skills, spells, and equipment determine damage and defense,
+as well as other effects. </p>
+
+<p>Attempting to move into a square that is occupied by an enemy will
+attack it using the attacker&#8217;s currently equipped melee weapon (this is
+called <em>bumping</em>). The player has two weapon sets that can be swapped at
+any time (along with skills and spells), allowing for a variety of
+setups.</p>
+
+<p>Each weapon family (e.g. Axe, Sword, Mace) has a distinct attack
+pattern. The simplest attack pattern is just the single square that the
+enemy occupies. A more complex attack pattern might be the three squares
+currently &#8220;in front&#8221; of the attacker (determined by the direction of the
+bump), resembling a horizontal swiping attack.</p>
+
+<p><strong><em>Notes:</em></strong></p>
+
+<ul>
+<li><em>The <strong>only</strong> means of using melee weapons is by bumping.</em></li>
+<li><em>Ranged weapons (such as bows, crossbows, wands) are available, but
+are equipped in the Use slots and used manually, <strong>not</strong> by
+bumping.</em></li>
+</ul>
+
+<p>Example: Sword</p>
+
+<figure>
+<img src="image/sword_pattern1.png" alt="Sword bumping up" id="sword1" />
+<figcaption>Sword bumping up</figcaption></figure>
+
+
+
+<figure>
+<img src="image/sword_pattern2.png" alt="Sword bumping right" id="sword2" />
+<figcaption>Sword bumping right</figcaption></figure>
+
+
+
+
+<figure>
+<img src="image/sword_pattern3.png" alt="Sword bumping up-right" id="sword3" />
+<figcaption>Sword bumping up-right</figcaption></figure>
+
+
+
+
+
+<p>Example: Axe</p>
+
+<figure>
+<img src="image/axe_pattern1.png" alt="Axe bumping up" id="axe1" />
+<figcaption>Axe bumping up</figcaption></figure>
+
+
+
+<figure>
+<img src="image/axe_pattern2.png" alt="Axe bumping right" id="axe2" />
+<figcaption>Axe bumping right</figcaption></figure>
+
+
+
+
+<figure>
+<img src="image/axe_pattern3.png" alt="Axe bumping up-right" id="axe3" />
+<figcaption>Axe bumping up-right</figcaption></figure>
+
+
+
+
+
+<h1 id="interface">Interface</h1>
+
+<figure>
+<img src="image/interface_mockup.png" alt="Interface Mockup" id="interface" />
+<figcaption>Interface Mockup</figcaption></figure>
+
+
+
+<ol>
+<li><strong>Hero Info</strong></li>
+<li><strong>Number of available health potions</strong></li>
+<li><strong>Status effects (buffs and debuffs)</strong></li>
+<li><strong>Six Use Slots</strong></li>
+<li><strong>Melee Weapon, Armor, and Accessory (Equipment) Slots</strong></li>
+<li><strong>Swap between two sets of Equipment and Use slots</strong></li>
+<li><strong>Inventory Slots</strong></li>
+<li><strong>Floor Slots</strong></li>
+<li><strong>Scroll buttons</strong></li>
+</ol>
+
+<p><strong><em>Notes:</em></strong></p>
+
+<ul>
+<li><p><em>The actual number of Use slots, Inventory slots, and Floor slots is
+still to be determined.</em></p></li>
+<li><p><em>If there are more items on the floor than Floor slots, what
+happens?</em></p></li>
+<li><p><em>It might look better if Inventory was a toggleable window, perhaps
+in the center of the screen. The game would pause while it was
+active. This would save space in the main panel, and would make it
+easier to allow more inventory slots.</em></p></li>
+</ul>
+
+<h1 id="entities">Entities</h1>
+
+<h2 id="heroes">Heroes</h2>
+
+<p>The player can choose between a number of heroes, each with strengths
+and weaknesses, as well as preferences for certain tactics over others.</p>
+
+<h2 id="enemies">Enemies</h2>
+
+<p>There are a large variety of enemies to fight. Each family of enemy will
+have slightly different tactical tendencies. The different kinds of
+enemies within a family will also have different tactics.</p>
+
+<p>For example, a Skeleton Warrior will charge straight toward the player
+and attempt to bump head-on, while a Skeleton Mage will charge straight
+toward the player until it is within spell throwing range and attempt to
+bombard the player from maximum range. Neither will run when hurt.</p>
+
+<p>In contrast, a Goblin Warrior will attempt to take cover behind pillars
+while making forward progress toward the player, and a Goblin Mage will
+step out from behind barriers to cast spells, and then hide again. Both
+will run when below 10% health.</p>
+
+<h2 id="items">Items</h2>
+
+<h3 id="weapons">Weapons</h3>
+
+<p>Each weapon family has a distinct tactical attack pattern, whether melee
+or otherwise.</p>
+
+<h3 id="armor">Armor</h3>
+
+<p>Armor is primarily defensive in nature, although an armor item may have
+any number of triggered effects (triggered when the defending character
+is bumped) or passive effects (such as permanent buffs or debuffs while
+worn).</p>
+
+<h3 id="accessories">Accessories</h3>
+
+<p>Accessories can be either offensive or defensive in nature, or may even
+be strictly utilitarian. Rings, hats, cloaks, talismans &#8212; these are
+all considered Accessories.</p>
+
+<h3 id="consumables">Consumables</h3>
+
+<p>Health potions have a special slot in the interface, and don&#8217;t take up
+inventory space. They can be used by clicking or by hotkey.</p>
+
+<p>Other consumables must be placed in a Use slot before being used.</p>
+
+<h1 id="skillsandspells">Skills and Spells</h1>
+
+<p>Skills and Spells are found in the form of scrolls and books. These are
+placed in a Use slot before being used. They may add additional patterns
+to melee attacks, or may provide extra defenses. They may have ranged
+attacks, or may manipulate the terrain, or perform any number of other
+actions. They may buff the player character or debuff an enemy (or vice
+versa).</p>
+
+<p>Some examples:</p>
+
+<p><strong>Spin Attack:</strong></p>
+
+<figure>
+<img src="image/spin_attack1.png" alt="With a sword" id="spin1" />
+<figcaption>With a sword</figcaption></figure>
+
+
+
+<figure>
+<img src="image/spin_attack2.png" alt="With an axe" id="spin2" />
+<figcaption>With an axe</figcaption></figure>
+
+
+
+
+<figure>
+<img src="image/spin_attack3.png" alt="With a polearm" id="spin3" />
+<figcaption>With a polearm</figcaption></figure>
+
+
+
+
+
+<p><strong><em>Note:</em></strong></p>
+
+<ul>
+<li>Possibly, scrolls and books are consumable and stack, so that the
+ player has a stack in a Use slot, but a limited number of uses.</li>
+</ul>
+
+    </div>
+</body>
+</html>

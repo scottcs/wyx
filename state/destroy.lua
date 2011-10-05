@@ -19,37 +19,25 @@ function st:enter(prevState, nextState, ...)
 	CommandEvents:clear()
 
 	-- reset all game states
-	if State.save.destroy then State.save:destroy() end
-	rawset(State, 'save', nil)
-
-	if State.playmenu.destroy then State.playmenu:destroy() end
-	rawset(State, 'playmenu', nil)
-
-	if State.play.destroy then State.play:destroy() end
-	rawset(State, 'play', nil)
-
-	if State.construct.destroy then State.construct:destroy() end
-	rawset(State, 'construct', nil)
-
-	if State.loadgame.destroy then State.loadgame:destroy() end
-	rawset(State, 'loadgame', nil)
-
-	if State.loadmenu.destroy then State.loadmenu:destroy() end
-	rawset(State, 'loadmenu', nil)
-
-	--[[
-	if State.createchar.destroy then State.createchar:destroy() end
-	rawset(State, 'createchar', nil)
-	]]--
-
-	if State.initialize.destroy then State.initialize:destroy() end
-	rawset(State, 'initialize', nil)
+	for _,s in ipairs({'save', 'playmenu', 'play', 'construct', 'loadgame',
+		'loadmenu', 'createchar', 'initialize'})
+	do
+		local state = State[s]
+		if state then
+			if state.destroy and state.initHasRun then
+				state:destroy()
+			end
+			rawset(State, s, nil)
+		else
+			print('bad state: %q', tostring(s))
+		end
+	end
 
 	if nil ~= nextState then
 		RunState.switch(State[nextState], ...)
 	else
 		-- switch to the main menu
-		RunState.switch(State.menu)
+		RunState.switch(State.initialize, 'menu')
 	end
 end
 

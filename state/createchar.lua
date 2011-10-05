@@ -15,6 +15,7 @@ local CreateCharUI = getClass 'wyx.ui.CreateCharUI'
 function st:init() end
 
 function st:enter(prevState)
+	self._prevState = self._prevState or prevState
 	InputEvents:register(self, InputCommandEvent)
 	if Console then Console:hide() end
 	self._ui = CreateCharUI(UI.CreateChar)
@@ -28,7 +29,9 @@ function st:leave()
 	end
 end
 
-function st:destroy() end
+function st:destroy()
+	self._prevState = nil
+end
 
 function st:update(dt) end
 
@@ -41,9 +44,7 @@ function st:InputCommandEvent(e)
 	switch(cmd) {
 		-- run state
 		EXIT_MENU = function()
-			if State.initialize.destroy then State.initialize:destroy() end
-			rawset(State, 'initialize', nil)
-			RunState.switch(State.menu)
+			RunState.switch(State.destroy)
 		end,
 		CREATE_CHAR = function()
 			if self._ui then
@@ -52,6 +53,11 @@ function st:InputCommandEvent(e)
 					World:createHero(char)
 					RunState.switch(State.construct)
 				end
+			end
+		end,
+		default = function()
+			if self._prevState and self._prevState.InputCommandEvent then
+				self._prevState:InputCommandEvent(e)
 			end
 		end,
 	}

@@ -3,16 +3,16 @@
 ::::::::::
 
 v0.2.0 Goals:
-	+ fix console commands being dependent on RunState
+  d fix console commands being dependent on RunState
   o config file
   o key bindings
   o level templates
   o poisson disk sampling
   o map objects
-	o   placeable by hero [tactical combat]
+  o   placeable by hero [tactical combat]
   o map deformation
   o make stairs/portals work - can go back and forth between levels
-	o traps
+  o traps
 
 v0.3.0 Goals:
   o load menu tooltips
@@ -20,7 +20,7 @@ v0.3.0 Goals:
   o colored numbers in tooltips
   o better expressions
   o usable items [including potions]
-	o more in-game commands [close door, disarm trap, etc]
+  o more in-game commands [close door, disarm trap, etc]
   o experience
   o music
   o sounds
@@ -30,11 +30,11 @@ v0.4.0 Goals:
   o Options Menu
   o more level building algorithms
   o better AI including A*
-	o   enemies have goals
-	o   group AI
+  o   enemies have goals
+  o   group AI
 
 v0.5.0 Goals:
-	o "boss" enemies
+  o "boss" enemies
   o wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
   o Help screen
 
@@ -46,7 +46,7 @@ v1.0.0 Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  + fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+  d fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
   o read in-game keybindings from a config file. [make a default config in the data dir]
   o Level templates
   o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
@@ -88,6 +88,10 @@ Entities:
 Input/Events/Config:
   o Close Door command
 
+Combat:
+  o Attack patterns for different weapon families
+  o   Attack types: direct and indirect [or primary, secondary]
+
 Console/Debug:
   - wizard mode
 
@@ -103,6 +107,9 @@ Expressions:
       "Let me at em! Let me at em!",
       "Honk if you're horny!",
     },
+
+Level / Map:
+  o change line-of-sight to be square instead of circular
 
 Interface:
   TooltipFactory:

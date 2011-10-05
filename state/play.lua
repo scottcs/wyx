@@ -58,6 +58,7 @@ end
 function st:enter(prevState, view, cam)
 	local place = World:getCurrentPlace()
 	self._level = self._level or place:getCurrentLevel()
+	self._prevState = self._prevState or prevState
 	self._view = self._view or view
 	self._cam = self._cam or cam
 
@@ -83,6 +84,8 @@ function st:leave()
 end
 
 function st:destroy()
+	self._prevState = nil
+
 	self:_killPopupMessage()
 	if self._popupMessage then
 		self._popupMessage:destroy()
@@ -163,18 +166,59 @@ function st:InputCommandEvent(e)
 		MENU_PLAY = function()
 			RunState.switch(State.playmenu, self._view)
 		end,
-		CONSOLE_CMD_QUIT = function()
-			RunState.switch(State.destroy)
-		end,
 
 		-- debug
 		NEW_LEVEL = function()
-			RunState.switch(State.destroy, 'initialize', 'createchar')
+			RunState.switch(State.destroy, 'initialize', 'menu', 'createchar')
 		end,
 		DISPLAY_MAPNAME = function()
 			local name = self._level:getMapName()
 			local author = self._level:getMapAuthor()
 			self:_displayMessage('Map: "'..name..'" by '..author)
+		end,
+
+		-- playmenu
+		DELETE_GAME = function()
+			local file = World.FILENAME
+			local wyx = World.WYXNAME
+
+			if file then
+				if not love.filesystem.remove(file) then
+					warning('Could not remove file: %q', file)
+				end
+			end
+
+			if wyx then
+				if not love.filesystem.remove(wyx) then
+					warning('Could not remove file: %q', wyx)
+				end
+			end
+
+			RunState.switch(State.destroy)
+		end,
+		MENU_MAIN = function()
+			RunState.switch(State.save, self._view, 'destroy')
+		end,
+		MENU_SAVE_GAME = function()
+			RunState.switch(State.save, self._view, 'play')
+		end,
+		MENU_LOAD_GAME = function()
+			RunState.switch(State.destroy, 'initialize', 'menu', 'loadmenu')
+		end,
+		MENU_OPTIONS = function()
+			--RunState.switch(State.options, 'menu')
+			print('Options')
+		end,
+		MENU_HELP = function()
+			--RunState.switch(State.help, 'menu')
+			print('Help')
+		end,
+		
+		-- pass it backward
+		default = function()
+			if self._prevState and self._prevState.InputCommandEvent then
+				self._prevState:InputCommandEvent(e)
+			end
 		end,
 	}
 end
