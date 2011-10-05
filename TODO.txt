@@ -88,6 +88,10 @@ Entities:
 Input/Events/Config:
   o Close Door command
 
+Combat:
+  o Attack patterns for different weapon families
+  o   Attack types: direct and indirect [or primary, secondary]
+
 Console/Debug:
   - wizard mode
 
@@ -103,6 +107,9 @@ Expressions:
       "Let me at em! Let me at em!",
       "Honk if you're horny!",
     },
+
+Level / Map:
+  o change line-of-sight to be square instead of circular
 
 Interface:
   TooltipFactory:
