@@ -10,6 +10,8 @@ local st = RunState.new()
 local mt = {__tostring = function() return 'RunState.initialize' end}
 setmetatable(st, mt)
 
+local maxn = table.maxn
+
 function st:init()
 	-- entity databases
 	HeroDB = getClass('wyx.entity.HeroEntityDB')()
@@ -25,14 +27,21 @@ function st:init()
 	World = getClass('wyx.map.World')()
 end
 
-function st:enter(prevState, nextState)
+function st:enter(prevState, ...)
 	if Console then Console:show() end
-	self._nextState = nextState
+	self._nextStates = {...}
 	self._loadStep = 0
 	self._doLoadStep = true
 end
 
 function st:leave()
+	if self._nextStates then
+		for k in pairs(self._nextStates) do 
+			self._nextStates[k] = nil
+		end
+		self._nextStates = nil
+	end
+
 	self._doLoadStep = nil
 	self._loadStep = nil
 end
@@ -96,7 +105,17 @@ function st:_load()
 		[3] = function() HeroDB:load() end,
 		[4] = function() EnemyDB:load() end,
 		[5] = function() ItemDB:load() end,
-		[6] = function() RunState.switch(State[self._nextState]) end,
+		[6] = function()
+			local states = self._nextStates
+			if states then
+				local nextState = states[1]
+				if #states > 1 then
+					RunState.switch(State[nextState], unpack(states, 2, maxn(states)))
+				else
+					RunState.switch(State[nextState])
+				end
+			end
+		end,
 		default = function() end,
 	}
 

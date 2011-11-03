@@ -67,6 +67,7 @@ local function switch(to, ...)
 	local pre = current
 	to:init()
 	to.init = __NULL__
+	to.initHasRun = true
 	current = to
 	return current:enter(pre, ...)
 end

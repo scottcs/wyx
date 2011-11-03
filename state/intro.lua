@@ -13,7 +13,7 @@ setmetatable(st, mt)
 function st:init() end
 
 function st:enter(prevState)
-	RunState.switch(State.menu)
+	RunState.switch(State.initialize, 'menu')
 end
 
 function st:leave() end

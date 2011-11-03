@@ -3,36 +3,42 @@
 ::::::::::
 
 v0.2.0 Goals:
-  d console improvements [logging, levels, commands]
-  d fix ELevel weights
-  d add some more items and enemies
-  d Character select or gear select + name entry
-  d comparison tooltips
-  o level templates
-  o map objects
-  o poisson disk sampling
-  o make stairs/portals work - can go back and forth between levels
+  d fix console commands being dependent on RunState
   o config file
   o key bindings
-  o Options Menu
+  o level templates
+  o poisson disk sampling
+  o map objects
+  o   placeable by hero [tactical combat]
+  o map deformation
+  o make stairs/portals work - can go back and forth between levels
+  o traps
+
+v0.3.0 Goals:
   o load menu tooltips
   o better load menu information
   o colored numbers in tooltips
-
-v0.3.0 Goals:
+  o better expressions
+  o usable items [including potions]
+  o more in-game commands [close door, disarm trap, etc]
+  o experience
   o music
   o sounds
-  o wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
+  o skills/scrolls
+
+v0.4.0 Goals:
+  o Options Menu
   o more level building algorithms
   o better AI including A*
-  o experience
-  o better expressions
-  o usable items
-  o skills/scrolls
-  o map deformation
+  o   enemies have goals
+  o   group AI
 
-Later Goals:
+v0.5.0 Goals:
+  o "boss" enemies
+  o wizard mode [only allow console and commands when in wizard mode. set cheat flag.]
   o Help screen
+
+v1.0.0 Goals:
   o Localization
 
 
@@ -40,23 +46,23 @@ Later Goals:
 :CURRENT TASKS:
 :::::::::::::::
 
-  d Fix ELevel weights
-  d   add ELevel to entity debug tooltip
-  d   Include MoveCost, AttackCost, etc
-  d   Give player/hero ELevel
-  d   be able to compare ELevels between types [e.g. if sword elevel > average hero elevel then it's an upgrade]
-  d ContainerComponent needs to keep track of position of contained entities and restore them on load [inventory items should be in the same place when the game is loaded].
-  d fix entity names
-  d spread out entity creation by family
-  d allow unique entities
-  d add entity Tint
-  d dump regkey instead of name
-  d add some more items and enemies
-	d move primeEntity to World from Level
-  d Character select or gear select + name entry
-  d comparison tooltips
-	d fix hero being moved to portal on load
-	d add health regen per tick
+  d fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+  o read in-game keybindings from a config file. [make a default config in the data dir]
+  o Level templates
+  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
+  + item distribution needs some algorithms [ensure even spread of weapons, armor, etc]
+  o   poisson disk sampling for decoration/item/monster placement [map gen too?]
+  ? How to handle map deformation? Would like ability to mine/dig/etc.
+  - and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
+  ? maptypes as composites?
+  + map objects: map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
+  +   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
+  o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
+  o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
+  - change Level representation of enemy to be by position in a table for faster lookup
+  o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
+  o make stairs work [generate new map]
+  + maps should be referenced by ID like entities [with portals, anyway]
 
 :::::::::::::::
 :PENDING TASKS:
@@ -64,8 +70,6 @@ Later Goals:
 
 Save/Load:
   Event Queues:
-  x change cwmc to offer a getCurrentSeed() which can later be used to set the seed to the same state. Possible?
-  ? current state of queues? or just ignore?
   o sanity checking; if data is corrupt or invalid, warn the user and load default values instead.
   o silently skip sections that are not supported. (for version compatibility). Warn the player when this happens [errm... but that's not "silently"].
   o tooltips on load menu buttons with more information
@@ -82,26 +86,14 @@ Entities:
     o   UseCommand [call onUse(), potentially destroy entity]
 
 Input/Events/Config:
-  o read keybindings from a config file. [make a default config in the data dir]
   o Close Door command
 
-Console/Debug:
-  d log console to file
-  d maybe different levels of messages [only log certain lines?]
-  d allow input and create some awesome commands
-  - wizard mode
-  x printing to Console while rendertarget is set to something else has strange implications
-  o fix commands being dependant on which RunState we're in [e.g. MENU_LOAD_GAME should always go to the Load Game menu cleanly, without having to duplicate code in each RunState.]
+Combat:
+  o Attack patterns for different weapon families
+  o   Attack types: direct and indirect [or primary, secondary]
 
-Level:
-  o move stuff out from Level to Dungeon, Place or World [e.g. primeEntity, Turns, etc]
-  - change Level representation of enemy to be by position in a table for faster lookup
-  o dim area on screen should represent the hero's memory... entities and map objects should be drawn where they were last seen and in the state in which they were last seen. [no animation or updates]
-  o Level templates
-  o   Be able to specify type of level construction, maps to use, enemies to use (by elevel, family, kind, etc), items to use. For example: mausoleum maps with skeletons and bone weapons, monastary maps with monks (any family) and magic armor, etc.
-  o make stairs work [generate new map]
-  + maps should be referenced by ID like entities [with portals, anyway]
-  + item distribution needs some algorithms [ensure even spread of weapons, armor, etc]
+Console/Debug:
+  - wizard mode
 
 Expressions:
   ? how to implement scripting? Use a potion -> add x to health of containing mediator. Use a hammer -> knock back enemy. Sword occasionally sings?
@@ -116,35 +108,25 @@ Expressions:
       "Honk if you're horny!",
     },
 
+Level / Map:
+  o change line-of-sight to be square instead of circular
+
 Interface:
   TooltipFactory:
   +   Why does the numLines calculation sometimes come up short?
 
   ? Minimap  [or is zoom out good enough?]
-  x perhaps a push() and pop() for RunState? [useful for Play -> PlayMenu -> Options, etc]
-  x TooltipComponent... mouseover info panel thingy
-  x   property.DrawStrategy (mouse, fixedPosition, leftOrRightScreenHalf)
-  x   Add a description field to JSON files.
-  x   And a Portrait field.
   x Info bar [health bar, etc] [subclass Frame]
   x   optional Text as cur/max or as %
   x      can position text anywhere
   x   optional Text as label
   x      can position anywhere
   x   Dual-layer? background min/max/current as well? [could be used to show temporary gain/loss]
-  x When paused, allow movement keys to move camera around map
-  x When unpaused, camera follows primeEntity again
-  o comparison tooltips
+  x When paused, allow movement keys to move camera around map. When unpaused, camera follows primeEntity again.
   o colored numbers in tooltips
   x Tooltip line can be an InfoBar frame
   x custom mouse cursor
   x Quick Menu [post 0.1.0 probably... something to allow large inventory]
-
-  Play Menu:
-  d change Quit to Save and Quit [once we can quit without saving, from the console]
-
-  StickyButton:
-  x   Can watch a variable [for image it represents] -- is a "view" of an item
 
   Game viewport:
   ?   Context menu when right-click on entities/objects?
@@ -155,8 +137,7 @@ Interface:
 
 
 Graphics:
-  x make hero movement smoother [tweened... possibly only move camera when near edges?]
-  - support sprite batches if framebuffers are unsupported
+  x support sprite batches if framebuffers are unsupported
 
   fix wrong dungeon colors after load:
   +    styles should be set in model, not in view [or do away with random styles and assign meaning to the tiles]
@@ -174,19 +155,8 @@ Sound:
   o   player death
   o   open door
 
-Map:
-  x map as quad-tree [or something?]
-  ? maptypes as composites?
-  o poisson disk sampling for decoration/item/monster placement [map gen too?]
-  + map objects: map tiles like doors and stairs should be drawn above actual floor instead of incorporating floor into their tile [or should be objects rather than MapTypes]
-  +   they should be collidable and send an event on collision [e.g. door collision asks entity if it has CanOpenDoors property, if so, sends DoorOpenEvent. trap collision triggers one of various TrapEvents.]
-  ? How to handle map deformation? Would like ability to mine/dig/etc.
-  o Create another View that can show simple representation of map nodes for Minimap.
-  o and another View that can show some representation of nodes on a level beneath the current one [for pits, chasms, digging down, etc].
-  o TileMapNodeView should listen for messages from its MapNode to determine if the node's type changed (for update() and _resetKey())
-
 Other:
-  - fix tests
+  x fix tests
   ? make EntityRegistry not a global [it's in the World]
 
 
