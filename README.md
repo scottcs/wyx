@@ -109,5 +109,5 @@ the console to see them.
 Please see the LICENSE file.
 
 [1]: http://www.love2d.org "A 2D Game Framework for Lua"
-[2]: https://github.com/downloads/scottcs/wyx/Wyx-0.1.6-win.zip "Download for Windows"
-[3]: https://github.com/downloads/scottcs/wyx/Wyx-0.1.6-osx.zip "Download for OS X"
+[2]: https://dl.dropbox.com/u/635546/Wyx-0.1.6-win.zip "Download for Windows"
+[3]: https://dl.dropbox.com/u/635546/Wyx-0.1.6-osx.zip "Download for OS X"
