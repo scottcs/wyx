@@ -14,7 +14,7 @@ the repository and try to run it the hard way.
 ## Downloads
 
  * [Wyx 0.1.6 for Windows][2] (tested with Windows 7)
- * [Wyx 0.1.6 for Mac OS X][3] (tested with Snow Leopard and Lion)
+ * [Wyx 0.1.6 for Mac OS X][3] (tested with Snow Leopard and Lion, does not work on Yosemite+)
 
 ## How to run from source
 
