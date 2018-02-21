@@ -66,7 +66,8 @@ function Expression.makeExpression(expression)
 
 			-- substitute dice designations with dice rolls
 			--  e.g. "5d10+20" becomes "Random:dice_roll('5d10+20')"
-			expr = gsub(expr, '(%d+d%d+[%+%-]?%d*)', 'Random:dice_roll(\'%1\')')
+      --  TODO: Fix this (implement dice_roll() using love.math.random)
+			expr = gsub(expr, '(%d+d%d+[%+%-]?%d*)', 'love.math.random(10)')
 
 			-- create the function body
 			local string = [[

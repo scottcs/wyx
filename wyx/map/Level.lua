@@ -32,6 +32,7 @@ local property = require 'wyx.component.property'
 local math_floor = math.floor
 local math_ceil = math.ceil
 local math_round = function(x) return math_floor(x+0.5) end
+local math_random = love.math.random
 local match = string.match
 local format = string.format
 local enumerate = love.filesystem.getDirectoryItems
@@ -121,7 +122,7 @@ function Level:postViewUpdate() self._needViewUpdate = false end
 
 function Level:generateFileMap(file)
 	local maps = enumerate('map')
-	file = file or maps[Random(#maps)]
+	file = file or maps[math_random(#maps)]
 	local builder = FileMapBuilder('map/'..file)
 	self._generator = 'File'
 	self._generatorArgs = file
@@ -168,8 +169,8 @@ function Level:_populateMap()
 				local clear = false
 				local tries = mapW*mapH
 				repeat
-					x = Random(mapW)
-					y = Random(mapH)
+					x = math_random(mapW)
+					y = math_random(mapH)
 					local mt = self._map:getLocation(x, y):getMapType()
 					clear = mt:is_a(FloorMapType) and not self:getEntitiesAtLocation(x, y)
 					tries = tries - 1
@@ -197,7 +198,7 @@ function Level:getRandomPortalPosition()
 	for _,name in ipairs(self._map:getPortalNames()) do
 		if match(name, "^up%d") then ups[#ups+1] = name end
 	end
-	local x, y = self._map:getPortal(ups[Random(#ups)])
+	local x, y = self._map:getPortal(ups[math_random(#ups)])
 	return x, y
 end
 
@@ -307,7 +308,7 @@ function Level:createEntities()
 			local numEnemyEntities = #enemyEntities
 
 			while count < numEnemies do
-				local which = enemyEntities[Random(numEnemyEntities)]
+				local which = enemyEntities[math_random(numEnemyEntities)]
 				local entityID = self._enemyFactory:createEntity(which)
 				local entity = EntityRegistry:get(entityID)
 				local regkey = entity:getRegKey()
@@ -350,7 +351,7 @@ function Level:createEntities()
 			local numItemEntities = #itemEntities
 
 			while count < numItems do
-				local which = itemEntities[Random(numItemEntities)]
+				local which = itemEntities[math_random(numItemEntities)]
 				local entityID = self._itemFactory:createEntity(which)
 				local entity = EntityRegistry:get(entityID)
 				local regkey = entity:getRegKey()

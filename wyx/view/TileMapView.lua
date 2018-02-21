@@ -14,6 +14,7 @@ local AnimatedTile = getClass 'wyx.view.AnimatedTile'
 
 local math_floor = math.floor
 local math_min, math_max = math.min, math.max
+local math_random = love.math.random
 local table_remove, table_insert = table.remove, table.insert
 local tostring, tonumber = tostring, tonumber
 local setmetatable, pairs, ipairs = setmetatable, pairs, ipairs
@@ -51,19 +52,19 @@ local TileMapView = Class{name='TileMapView',
 		if state then self:setState(state) end
 
 		local styles = {1, 2, 3, 4}
-		local s = styles[Random(#styles)]
+		local s = styles[math_random(#styles)]
 		if     3 == s then table_remove(styles, 4)
 		elseif 4 == s then table_remove(styles, 3)
 		end
 		table_remove(styles, s)
 		self._wallStyle = self._wallStyle or tostring(s)
 
-		local s2 = styles[Random(#styles)]
+		local s2 = styles[math_random(#styles)]
 		table_remove(styles, s2)
 		self._floorStyle = self._floorStyle or tostring(s2)
 
 		table_insert(styles, s)
-		self._stairStyle = self._stairStyle or tostring(styles[Random(#styles)])
+		self._stairStyle = self._stairStyle or tostring(styles[math_random(#styles)])
 
 		self._tiles = {}
 		self._animatedTiles = {}
@@ -333,7 +334,7 @@ function TileMapView:_setupTiles()
 			self._flicker = nil
 			self:advance()
 		else
-			if Random(1,100) <= 3 then
+			if math_random(1,100) <= 3 then
 				self:advance()
 				self._flicker = true
 			end
@@ -361,7 +362,7 @@ function TileMapView:_setupTiles()
 					self._animatedTiles[#self._animatedTiles+1] = at
 
 				elseif isClass(TrapMapType, mapType) then
-					local style = Random(1,6)
+					local style = math_random(1,6)
 					trapA:getMapType():setStyle('A'..tostring(style))
 					trapB:getMapType():setStyle('B'..tostring(style))
 					local at = self:_createAnimatedTile(trapA, trapB, bgquad)

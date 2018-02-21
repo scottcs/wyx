@@ -1,7 +1,6 @@
 
 -- common utilities used throughout the program
 require 'wyx.util'
-require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
 GAMENAME = 'Wyx'

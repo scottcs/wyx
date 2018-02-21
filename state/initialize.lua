@@ -82,12 +82,9 @@ function st:_makeGameSeed()
 	local my = love.mouse.getY()
 	if time < ltime then time, ltime = ltime, time end
 	GAMESEED = (time - ltime) + mtime + mx + my
-	math.randomseed(GAMESEED) math.random() math.random() math.random()
-	local rand = math.floor(math.random() * 10000000)
+	local rand = math.floor(love.math.random() * 10000000)
 	GAMESEED = GAMESEED + rand
-
-	-- create the real global PRNG instance with this ridiculous seed
-	Random = random.new(GAMESEED)
+  love.math.setRandomSeed(GAMESEED)
 end
 
 function st:_nextLoadStep()

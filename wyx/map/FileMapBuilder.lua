@@ -9,6 +9,7 @@ local StairMapType = getClass 'wyx.map.StairMapType'
 local TrapMapType = getClass 'wyx.map.TrapMapType'
 local MapNode = getClass 'wyx.map.MapNode'
 
+local math_random = love.math.random
 local unpack = unpack
 
 -- FileMapBuilder
@@ -201,11 +202,11 @@ function FileMapBuilder:postProcessStep(node, x, y)
 
 	if self._mapdata.handleDetail then
 		if mapType:isType(FloorMapType('normal')) then
-			if Random(12) == 1 then node:setMapType(FloorMapType('worn')) end
+			if math_random(12) == 1 then node:setMapType(FloorMapType('worn')) end
 		elseif mapType:isType(WallMapType('normal')) then
-			if Random(12) == 1 then
+			if math_random(12) == 1 then
 				node:setMapType(WallMapType('worn'))
-			elseif Random(12) == 1 then
+			elseif math_random(12) == 1 then
 				node:setMapType(WallMapType('torch'))
 			else
 				node:setMapType(WallMapType('normal'))

@@ -22,7 +22,7 @@ function RandomBag:_refill()
 
 	-- randomly swap each number in the bag
 	for i=#self._bag,1,-1 do
-		local k = Random(i)
+		local k = love.math.random(i)
 		self._bag[i],self._bag[k] = self._bag[k],self._bag[i]
 	end
 end
