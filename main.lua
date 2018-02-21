@@ -301,16 +301,17 @@ function love.run()
 		-- Process events.
 		if event then
       event.pump()
-			for e,a,b,c in event.poll() do
-				if e == "q" then
+			for name, a,b,c,d,e,f in event.poll() do
+        io.write(name..'\n')
+				if name == "quit" then
 					if not love.quit or not love.quit() then
 						if audio then
 							audiostop()
 						end
-						return
+						return a
 					end
 				end
-				handlers[e](a,b,c)
+				handlers[name](a,b,c,d,e,f)
 			end
 		end
 

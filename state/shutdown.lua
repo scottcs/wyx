@@ -14,7 +14,7 @@ setmetatable(st, mt)
 function st:init() end
 
 function st:enter(prevState)
-	love.event.push('q')
+	love.event.push('quit')
 end
 
 function st:leave() end
