@@ -66,7 +66,7 @@ inspect = require 'lib.inspect'
 
 
 local function _makeADir(dir)
-	if not love.filesystem.mkdir(dir) then
+	if not love.filesystem.createDirectory(dir) then
 		local savedir = love.filesystem.getSaveDirectory()
 		error('Could not create directory: '..savedir..'/'..tostring(dir))
 	end
