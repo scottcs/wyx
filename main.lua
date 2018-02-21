@@ -11,11 +11,11 @@ LOAD_DELAY = 0.025
      DEBUG/PROFILING
          --]]--
 
---debug = nil
-debugGameEvents = debug and nil
-debugCommandEvents = debug and nil
-debugInputEvents = debug and nil
-debugTooltips = debug and true
+debug = true
+debugGameEvents = debug and 5
+debugCommandEvents = debug and 5
+debugInputEvents = debug and 5
+debugTooltips = debug and 1
 doProfile = false
 local doGlobalProfile = doProfile and false
 
@@ -302,7 +302,6 @@ function love.run()
 		if event then
       event.pump()
 			for name, a,b,c,d,e,f in event.poll() do
-        io.write(name..'\n')
 				if name == "quit" then
 					if not love.quit or not love.quit() then
 						if audio then

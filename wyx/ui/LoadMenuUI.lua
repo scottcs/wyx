@@ -219,7 +219,7 @@ function LoadMenuUI:_makeButtons()
 		btn:setHoverStyle(ui.button.hoverStyle)
 		btn:setActiveStyle(ui.button.activeStyle)
 		btn:setText(info[1])
-		btn:setCallback('l', function()
+		btn:setCallback('1', function()
 			InputEvents:notify(InputCommandEvent(info[2]))
 		end)
 

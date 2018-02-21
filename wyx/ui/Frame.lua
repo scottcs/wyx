@@ -725,6 +725,7 @@ function Frame:setTooltipHideCallback(func, ...)
 end
 
 function Frame:_callTooltipCallback(which)
+  which = tostring(which)
 	if self._callbacks[which] then
 		local args = self._callbackArgs[which]
 		if args then
@@ -749,6 +750,7 @@ end
 
 -- clear the given callback
 function Frame:_clearCallback(which)
+  which = tostring(which)
 	self._callbacks[which] = nil
 	if self._callbackArgs[which] then
 		for k,v in pairs(self._callbackArgs[which]) do
@@ -760,11 +762,13 @@ end
 
 -- return true if the given callback exists
 function Frame:_callbackExists(which)
+  which = tostring(which)
 	return self._callbacks[which] ~= nil
 end
 
 -- call the given callback
 function Frame:_callCallback(which, ...)
+  which = tostring(which)
 	local cb = self._callbacks[which]
 	local cbArgs = self._callbackArgs[which]
 

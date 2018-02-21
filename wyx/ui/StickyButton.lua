@@ -35,7 +35,7 @@ end
 
 -- left click callback - attach to the nearest Slot, if found.
 function StickyButton:_setLeftClickCallback()
-	self._callbacks['l'] = function()
+	self._callbacks['1'] = function()
 		local slot = self:_findSlot()
 		if slot then slot:swap(self) end
 	end
