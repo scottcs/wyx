@@ -280,48 +280,30 @@ function love.quit()
 	if doGlobalProfile then globalProfiler.stop() end
 end
 
-local collectgarbage = collectgarbage
 local getTime = love.timer.getTime
 local sleep = love.timer.sleep
 local event = love.event
-local poll = love.event.poll
 local audio = love.audio
 local audiostop = love.audio.stop
 local handlers = love.handlers
 local clear = love.graphics.clear
 local present = love.graphics.present
 
-local function rungb(maxTime)
-	local start = getTime()
-	local time = 0
-	while time < maxTime do
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-		time = getTime() - start
-	end
-end
-
 function love.run()
 	if love.load then love.load(arg) end
 
-	local Hz60 = 1/60
-	local dt = Hz60/4
-	local currentTime = getTime()
-	local accumulator = 0.0
-	local gbcount = 0
+  if love.timer then love.timer.step() end
 
-	-- disable automatic garbage collector
-	collectgarbage('stop')
+  local dt = 0
 
 	-- Main loop time.
 	while true do
 		-- Process events.
 		if event then
-			for e,a,b,c in poll() do
+      event.pump()
+			for e,a,b,c in event.poll() do
 				if e == "q" then
 					if not love.quit or not love.quit() then
-						-- restart garbage collector
-						collectgarbage('restart')
 						if audio then
 							audiostop()
 						end
@@ -332,30 +314,12 @@ function love.run()
 			end
 		end
 
-		local newTime = getTime()
-		local frameTime = newTime - currentTime
-		frameTime = frameTime > 0.25 and 0.25 or frameTime
-		currentTime = newTime
+    if love.timer then
+      love.timer.step()
+      dt = love.timer.getDelta()
+    end
 
-		accumulator = accumulator + frameTime
-
-		if frameTime < Hz60 then
-			gbcount = gbcount + 1
-			local idletime = (Hz60 - frameTime) * 0.99
-
-			-- every once in a while, collect some garbage instead of sleeping
-			if gbcount > 10 then
-				rungb(idletime)
-				gbcount = 0
-			else
-				sleep(idletime)
-			end
-		end
-
-		while accumulator >= dt do
-			if love.update then love.update(dt) end
-			accumulator = accumulator - dt
-		end
+    if love.update then love.update(dt) end
 
 		clear()
 		if love.draw then
@@ -364,4 +328,6 @@ function love.run()
 		end
 		present()
 	end
+
+  if love.timer then love.timer.sleep(0.001) end
 end
