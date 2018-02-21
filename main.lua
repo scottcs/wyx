@@ -124,7 +124,7 @@ function love.load()
 	love.window.setTitle(GAMENAME..' v'..VERSION)
 
 	-- set key repeat
-	love.keyboard.setKeyRepeat(100, 200)
+	love.keyboard.setKeyRepeat(true)
 
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
