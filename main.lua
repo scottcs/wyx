@@ -121,7 +121,7 @@ function love.load()
 	_setIcon()
 
 	-- set window title
-	love.graphics.setCaption(GAMENAME..' v'..VERSION)
+	love.window.setTitle(GAMENAME..' v'..VERSION)
 
 	-- set key repeat
 	love.keyboard.setKeyRepeat(100, 200)
