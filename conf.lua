@@ -4,11 +4,11 @@ function love.conf(t)
 	t.identity = "wyx"
 	t.release = true
 	t.version = "0.10.2"
-	t.screen.width = 1024
-	t.screen.height = 768
-	t.screen.fullscreen = false
-	t.screen.vsync = false
-	t.screen.fsaa = 0
+	t.window.width = 1024
+	t.window.height = 768
+	t.window.fullscreen = false
+	t.window.vsync = false
+	t.window.fsaa = 0
 	t.modules.joystick = false
 	t.modules.audio = true
 	t.modules.keyboard = true
