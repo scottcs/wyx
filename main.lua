@@ -92,7 +92,7 @@ end
 
 local function _setIcon()
 	local icon = love.graphics.newImage('icon.png')
-	love.graphics.setIcon(icon)
+	love.window.setIcon(icon)
 end
 
 function love.load()

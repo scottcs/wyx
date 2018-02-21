@@ -345,7 +345,7 @@ function resizeScreen(width, height)
 	local curW, curH = love.graphics.getWidth(), love.graphics.getHeight()
 
 	if width ~= curW or height ~= curH then
-		local modes = love.graphics.getModes()
+		local modes = love.window.getFullscreenModes()
 
 		local w, h
 		for i=1,#modes do
@@ -355,7 +355,7 @@ function resizeScreen(width, height)
 		end
 
 		if w ~= curW or h ~= curH then
-			assert(love.graphics.setMode(w, h))
+			assert(love.window.setMode(w, h))
 			if Console then
 				Console:print('Graphics mode changed to %dx%d', w, h)
 			end
