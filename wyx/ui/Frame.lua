@@ -8,7 +8,6 @@ local getMousePosition = love.mouse.getPosition
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
-local drawq = love.graphics.drawq
 local colors = colors
 local cmult = colors.multiply
 local unpack = unpack
@@ -659,7 +658,7 @@ function Frame:_drawLayer(layer, color)
 
 		if l.image then
 			if l.quad then
-				drawq(l.image, l.quad, l.x, l.y)
+				draw(l.image, l.quad, l.x, l.y)
 			else
 				draw(l.image, l.x, l.y)
 			end

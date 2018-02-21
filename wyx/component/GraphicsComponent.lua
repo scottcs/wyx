@@ -5,7 +5,7 @@ local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
 
 local newQuad = love.graphics.newQuad
-local drawq = love.graphics.drawq
+local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local colors = colors
 local cmult = colors.multiply
@@ -247,7 +247,7 @@ function GraphicsComponent:draw()
 			setColor(self._color)
 		end
 
-		drawq(self._tileset, frame, self._drawX, self._drawY)
+		draw(self._tileset, frame, self._drawX, self._drawY)
 	end
 end
 
