@@ -347,7 +347,7 @@ function love.run()
 				rungb(idletime)
 				gbcount = 0
 			else
-				sleep(idletime*1000)
+				sleep(idletime)
 			end
 		end
 
