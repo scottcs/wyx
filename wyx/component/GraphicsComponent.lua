@@ -168,6 +168,7 @@ function GraphicsComponent:_newQuad(frame, coords)
 		x, y,
 		self._size, self._size,
 		tilesetW, tilesetH)
+  self._frames[frame].flipX = false
 end
 
 function GraphicsComponent:_makeQuads()
@@ -181,26 +182,26 @@ function GraphicsComponent:_makeQuads()
 
 	if self._frames.right and not self._frames.left then
 		self:_newQuad('left', tileCoords.right)
-		self._frames.left:flip(true)
+		self._frames.left.flipX = true
 	elseif self._frames.left and not self._frames.right then
 		self:_newQuad('right', tileCoords.left)
-		self._frames.right:flip(true)
+		self._frames.right.flipX = true
 	end
 
 	if self._frames.frontright and not self._frames.frontleft then
 		self:_newQuad('frontleft', tileCoords.frontright)
-		self._frames.frontleft:flip(true)
+		self._frames.frontleft.flipX = true
 	elseif self._frames.frontleft and not self._frames.frontright then
 		self:_newQuad('frontright', tileCoords.frontleft)
-		self._frames.frontright:flip(true)
+		self._frames.frontright.flipX = true
 	end
 
 	if self._frames.backright and not self._frames.backleft then
 		self:_newQuad('backleft', tileCoords.backright)
-		self._frames.backleft:flip(true)
+		self._frames.backleft.flipX = true
 	elseif self._frames.backleft and not self._frames.backright then
 		self:_newQuad('backright', tileCoords.backleft)
-		self._frames.backright:flip(true)
+		self._frames.backright.flipX = true
 	end
 end
 
@@ -247,7 +248,7 @@ function GraphicsComponent:draw()
 			setColor(self._color)
 		end
 
-		draw(self._tileset, frame, self._drawX, self._drawY)
+		draw(self._tileset, frame, self._drawX, self._drawY, 0, (frame.flipX and -1 or 1))
 	end
 end
 
