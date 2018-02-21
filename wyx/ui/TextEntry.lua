@@ -39,7 +39,7 @@ end
 -- override Frame:onRelease()
 function TextEntry:onRelease(button, mods)
 	if self._pressed then
-		if 'l' == button then self:toggleEnterMode() end
+		if button == 1 then self:toggleEnterMode() end
 	else
 		self:toggleEnterMode(false)
 	end
@@ -91,7 +91,7 @@ function TextEntry:switchToHoverStyle()
 end
 
 -- capture text input if in editing mode
-function TextEntry:onKey(key, unicode, unicodeValue, mods)
+function TextEntry:onKey(key, scancode, isrepeat, mods)
 	if not self._isEnteringText then return end
 
 	if self._text then
@@ -99,7 +99,7 @@ function TextEntry:onKey(key, unicode, unicodeValue, mods)
 		local text = {}
 		local numLines = #self._text
 		for i=1,numLines do text[i] = self._text[i] end
-		
+
 		local lineNum = numLines
 
 		if lineNum < 1 then lineNum = 1 end
@@ -140,8 +140,8 @@ function TextEntry:onKey(key, unicode, unicodeValue, mods)
 			escape = _stopEntering,
 
 			default = function()
-				if unicode then
-					line = format('%s%s', line, unicode)
+				if scancode then
+					line = format('%s%s', line, scancode)
 				end
 			end,
 		}

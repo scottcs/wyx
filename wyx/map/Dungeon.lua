@@ -30,7 +30,7 @@ function Dungeon:generateLevel(which)
 	local numHow = #how
 
 	-- randomly pick a method of generating the level
-	level[how[Random(numHow)]](level)
+	level[how[love.math.random(numHow)]](level)
 
 	self:setLevel(which, level)
 end

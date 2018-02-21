@@ -3,7 +3,7 @@ local MapNodeView = getClass 'wyx.view.MapNodeView'
 local math_max = math.max
 
 local newQuad = love.graphics.newQuad
-local drawq = love.graphics.drawq
+local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local colors = colors
 
@@ -68,9 +68,9 @@ end
 function TileMapNodeView:draw()
 	if self._set and self._quad then
 		if self._bgquad then
-			drawq(self._set, self._bgquad, self._drawX, self._drawY)
+			draw(self._set, self._bgquad, self._drawX, self._drawY)
 		end
-		drawq(self._set, self._quad, self._drawX, self._drawY)
+		draw(self._set, self._quad, self._drawX, self._drawY)
 	end
 end
 

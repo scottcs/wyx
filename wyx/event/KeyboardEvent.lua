@@ -7,40 +7,39 @@ local string_char = string.char
 --
 local KeyboardEvent = Class{name='KeyboardEvent',
 	inherits=InputEvent,
-	function(self, key, unicode, modifiers)
+	function(self, key, scancode, isrepeat, modifiers)
 		InputEvent.construct(self, 'Keyboard Event', modifiers)
 		self._key = key
-		self._unicode = unicode
+		self._scancode = scancode
+    self._isrepeat = isrepeat
 	end
 }
 
 -- destructor
 function KeyboardEvent:destroy()
 	self._key = nil
-	self._unicode = nil
+	self._scancode = nil
 	InputEvent.destroy(self)
 end
 
 -- get the key pressed
 function KeyboardEvent:getKey() return self._key end
 
--- get the unicode value of the key pressed
-function KeyboardEvent:getUnicodeValue() return self._unicode end
+-- get the scancode value of the key pressed as a string
+function KeyboardEvent:getScancode()
+	return self._scancode
+end
 
--- get the unicode value of the key pressed as a string
-function KeyboardEvent:getUnicode()
-	local c = nil
-	if self._unicode and self._unicode ~= 0 and self._unicode < 1000 then
-		c = string_char(self._unicode)
-	end
-	return c
+-- get the repeat value
+function KeyboardEvent:getIsRepeat()
+	return self._isrepeat
 end
 
 function KeyboardEvent:__tostring()
 	local modstr = self:_getModString()
-	local unicode = tostring(self:getUnicode())
-	return self:_msg('k: %s, u: %s, v: %s, m: {%s}',
-		tostring(self._key), unicode, tostring(self._unicode), modstr)
+	local scancode = self:getScancode()
+	return self:_msg('k: %s, s: %s, m: {%s}',
+		tostring(self._key), scancode, modstr)
 end
 
 

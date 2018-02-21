@@ -36,7 +36,7 @@ function AIInputComponent:_determineNextAction(ap)
 	if ap >= moveCost then
 		local allowed = self:_getAllowedDirections()
 		if allowed then
-			local dir = allowed[Random(#allowed)]
+			local dir = allowed[love.math.random(#allowed)]
 			local x, y = _x[dir], _y[dir]
 
 			self:_attemptMove(x, y)

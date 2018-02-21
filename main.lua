@@ -1,7 +1,6 @@
 
 -- common utilities used throughout the program
 require 'wyx.util'
-require 'random'
 local versionFile = love.filesystem.read('VERSION')
 VERSION = string.match(versionFile, '.*VERSION=([%d%.]+)') or "UNKNOWN"
 GAMENAME = 'Wyx'
@@ -12,11 +11,11 @@ LOAD_DELAY = 0.025
      DEBUG/PROFILING
          --]]--
 
---debug = nil
-debugGameEvents = debug and nil
-debugCommandEvents = debug and nil
-debugInputEvents = debug and nil
-debugTooltips = debug and true
+debug = true
+debugGameEvents = debug and 5
+debugCommandEvents = debug and 5
+debugInputEvents = debug and 5
+debugTooltips = debug and 1
 doProfile = false
 local doGlobalProfile = doProfile and false
 
@@ -66,7 +65,7 @@ inspect = require 'lib.inspect'
 
 
 local function _makeADir(dir)
-	if not love.filesystem.mkdir(dir) then
+	if not love.filesystem.createDirectory(dir) then
 		local savedir = love.filesystem.getSaveDirectory()
 		error('Could not create directory: '..savedir..'/'..tostring(dir))
 	end
@@ -92,7 +91,7 @@ end
 
 local function _setIcon()
 	local icon = love.graphics.newImage('icon.png')
-	love.graphics.setIcon(icon)
+	love.window.setIcon(icon:getData())
 end
 
 function love.load()
@@ -121,10 +120,10 @@ function love.load()
 	_setIcon()
 
 	-- set window title
-	love.graphics.setCaption(GAMENAME..' v'..VERSION)
+	love.window.setTitle(GAMENAME..' v'..VERSION)
 
 	-- set key repeat
-	love.keyboard.setKeyRepeat(100, 200)
+	love.keyboard.setKeyRepeat(true)
 
 	-- save number of music and sound files as global
 	NUM_MUSIC = 8
@@ -236,33 +235,35 @@ end
 
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 
-function love.keypressed(key, unicode)
+function love.keypressed(key, scancode, isrepeat)
 	local mods = _getModifiers()
 
 	-- shift-F1 for debug mode
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:notify(KeyboardEvent(key, unicode, mods))
+		InputEvents:notify(KeyboardEvent(key, scancode, isrepeat, mods))
 	end
 end
 
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button, istouch)
 	local mods = _getModifiers()
 	InputEvents:notify(MousePressedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
+    istouch,
 		mods))
 end
 
-function love.mousereleased(x, y, button)
+function love.mousereleased(x, y, button, istouch)
 	local mods = _getModifiers()
 	InputEvents:notify(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
+    istouch,
 		mods))
 end
 
@@ -279,82 +280,46 @@ function love.quit()
 	if doGlobalProfile then globalProfiler.stop() end
 end
 
-local collectgarbage = collectgarbage
-local getMicroTime = love.timer.getMicroTime
+local getTime = love.timer.getTime
 local sleep = love.timer.sleep
 local event = love.event
-local poll = love.event.poll
 local audio = love.audio
 local audiostop = love.audio.stop
 local handlers = love.handlers
 local clear = love.graphics.clear
 local present = love.graphics.present
 
-local function rungb(maxTime)
-	local start = getMicroTime()
-	local time = 0
-	while time < maxTime do
-		collectgarbage('step', 0)
-		collectgarbage('stop')
-		time = getMicroTime() - start
-	end
-end
-
 function love.run()
 	if love.load then love.load(arg) end
 
-	local Hz60 = 1/60
-	local dt = Hz60/4
-	local currentTime = getMicroTime()
-	local accumulator = 0.0
-	local gbcount = 0
+  if love.timer then love.timer.step() end
 
-	-- disable automatic garbage collector
-	collectgarbage('stop')
+  local dt = 0
 
 	-- Main loop time.
 	while true do
 		-- Process events.
 		if event then
-			for e,a,b,c in poll() do
-				if e == "q" then
+      event.pump()
+			for name, a,b,c,d,e,f in event.poll() do
+				if name == "quit" then
 					if not love.quit or not love.quit() then
-						-- restart garbage collector
-						collectgarbage('restart')
 						if audio then
 							audiostop()
 						end
-						return
+						return a
 					end
 				end
-				handlers[e](a,b,c)
+				handlers[name](a,b,c,d,e,f)
 			end
 		end
 
-		local newTime = getMicroTime()
-		local frameTime = newTime - currentTime
-		frameTime = frameTime > 0.25 and 0.25 or frameTime
-		currentTime = newTime
+    if love.timer then
+      love.timer.step()
+      dt = love.timer.getDelta()
+    end
 
-		accumulator = accumulator + frameTime
-
-		if frameTime < Hz60 then
-			gbcount = gbcount + 1
-			local idletime = (Hz60 - frameTime) * 0.99
-
-			-- every once in a while, collect some garbage instead of sleeping
-			if gbcount > 10 then
-				rungb(idletime)
-				gbcount = 0
-			else
-				sleep(idletime*1000)
-			end
-		end
-
-		while accumulator >= dt do
-			if love.update then love.update(dt) end
-			accumulator = accumulator - dt
-		end
+    if love.update then love.update(dt) end
 
 		clear()
 		if love.draw then
@@ -363,4 +328,6 @@ function love.run()
 		end
 		present()
 	end
+
+  if love.timer then love.timer.sleep(0.001) end
 end

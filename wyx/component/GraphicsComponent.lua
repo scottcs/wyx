@@ -5,7 +5,7 @@ local property = require 'wyx.component.property'
 local message = require 'wyx.component.message'
 
 local newQuad = love.graphics.newQuad
-local drawq = love.graphics.drawq
+local draw = love.graphics.draw
 local setColor = love.graphics.setColor
 local colors = colors
 local cmult = colors.multiply
@@ -41,6 +41,7 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 			'ATTACHMENT_DETACHED',
 			'TIME_POSTTICK')
 		self._frames = {}
+    self._flipX = {}
 		self._curFrame = 'right'
 		self._lit = 'black'
 		self._doDraw = true
@@ -52,6 +53,8 @@ local GraphicsComponent = Class{name='GraphicsComponent',
 function GraphicsComponent:destroy()
 	for k in pairs(self._frames) do self._frames[k] = nil end
 	self._frames = nil
+	for k in pairs(self._flipX) do self._flipX[k] = nil end
+	self._flipX = nil
 	self._curFrame = nil
 	self._topFrame = nil
 	self._tileset = nil
@@ -168,6 +171,7 @@ function GraphicsComponent:_newQuad(frame, coords)
 		x, y,
 		self._size, self._size,
 		tilesetW, tilesetH)
+  self._flipX[frame] = false
 end
 
 function GraphicsComponent:_makeQuads()
@@ -181,26 +185,26 @@ function GraphicsComponent:_makeQuads()
 
 	if self._frames.right and not self._frames.left then
 		self:_newQuad('left', tileCoords.right)
-		self._frames.left:flip(true)
+		self._flipX.left = true
 	elseif self._frames.left and not self._frames.right then
 		self:_newQuad('right', tileCoords.left)
-		self._frames.right:flip(true)
+		self._flipX.right = true
 	end
 
 	if self._frames.frontright and not self._frames.frontleft then
 		self:_newQuad('frontleft', tileCoords.frontright)
-		self._frames.frontleft:flip(true)
+		self._flipX.frontleft = true
 	elseif self._frames.frontleft and not self._frames.frontright then
 		self:_newQuad('frontright', tileCoords.frontleft)
-		self._frames.frontright:flip(true)
+		self._flipX.frontright = true
 	end
 
 	if self._frames.backright and not self._frames.backleft then
 		self:_newQuad('backleft', tileCoords.backright)
-		self._frames.backleft:flip(true)
+		self._flipX.backleft = true
 	elseif self._frames.backleft and not self._frames.backright then
 		self:_newQuad('backright', tileCoords.backleft)
-		self._frames.backright:flip(true)
+		self._flipX.backright = true
 	end
 end
 
@@ -240,6 +244,7 @@ end
 function GraphicsComponent:draw()
 	if self._mediator and self._lit == 'lit' and self._doDraw then
 		local frame = self._frames[self._curFrame] or self._frames[self._topFrame]
+		local flipX = self._flipX[self._curFrame] or self._flipX[self._topFrame]
 
 		if self._tint then
 			setColor(cmult(self._color, self._tint))
@@ -247,7 +252,7 @@ function GraphicsComponent:draw()
 			setColor(self._color)
 		end
 
-		drawq(self._tileset, frame, self._drawX, self._drawY)
+		draw(self._tileset, frame, self._drawX, self._drawY, 0, (flipX and -1 or 1))
 	end
 end
 

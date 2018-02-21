@@ -1,7 +1,7 @@
 local Class = require 'lib.hump.class'
 local Rect = getClass 'wyx.kit.Rect'
 
-local drawq = love.graphics.drawq
+local draw = love.graphics.draw
 local colors = colors
 
 local error, assert, pairs, type, unpack = error, assert, pairs, type, unpack
@@ -71,8 +71,8 @@ end
 function AnimatedTile:draw()
 	local f = self._frames[self._curFrame]
 	if self._numFrames > 0 and f and f.tileset then
-		if f.bgquad then drawq(f.tileset, f.bgquad, self._drawX, self._drawY) end
-		drawq(f.tileset, f.quad, self._drawX, self._drawY)
+		if f.bgquad then draw(f.tileset, f.bgquad, self._drawX, self._drawY) end
+		draw(f.tileset, f.quad, self._drawX, self._drawY)
 	end
 end
 

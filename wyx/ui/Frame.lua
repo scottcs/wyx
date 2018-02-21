@@ -8,7 +8,6 @@ local getMousePosition = love.mouse.getPosition
 local setColor = love.graphics.setColor
 local rectangle = love.graphics.rectangle
 local draw = love.graphics.draw
-local drawq = love.graphics.drawq
 local colors = colors
 local cmult = colors.multiply
 local unpack = unpack
@@ -207,7 +206,7 @@ function Frame:handleMouseRelease(x, y, button, mods)
 end
 
 -- handle keyboard events
-function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
+function Frame:handleKeyboard(key, scancode, isrepeat, mods)
 	local handled = false
 
 	local num = #self._children
@@ -216,11 +215,11 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 	while not handled and i < num do
 		i = i + 1
 		local child = self._children[i]
-		handled = child:handleKeyboard(key, unicode, unicodeValue, mods)
+		handled = child:handleKeyboard(key, scancode, isrepeat, mods)
 	end
 
 	if not handled then
-		handled = self:onKey(key, unicode, unicodeValue, mods)
+		handled = self:onKey(key, scancode, isrepeat, mods)
 	end
 
 	self._needsUpdate = true
@@ -429,7 +428,7 @@ end
 function Frame:onRelease(button, mods) end
 
 -- onKey - called when a key is pressed
-function Frame:onKey(key, unicode, unicodeValue, mods) end
+function Frame:onKey(key, scancode, isrepeat, mods) end
 
 -- set the given style
 function Frame:_setStyle(which, style)
@@ -659,7 +658,7 @@ function Frame:_drawLayer(layer, color)
 
 		if l.image then
 			if l.quad then
-				drawq(l.image, l.quad, l.x, l.y)
+				draw(l.image, l.quad, l.x, l.y)
 			else
 				draw(l.image, l.x, l.y)
 			end
@@ -726,6 +725,7 @@ function Frame:setTooltipHideCallback(func, ...)
 end
 
 function Frame:_callTooltipCallback(which)
+  which = tostring(which)
 	if self._callbacks[which] then
 		local args = self._callbackArgs[which]
 		if args then
@@ -750,6 +750,7 @@ end
 
 -- clear the given callback
 function Frame:_clearCallback(which)
+  which = tostring(which)
 	self._callbacks[which] = nil
 	if self._callbackArgs[which] then
 		for k,v in pairs(self._callbackArgs[which]) do
@@ -761,11 +762,13 @@ end
 
 -- return true if the given callback exists
 function Frame:_callbackExists(which)
+  which = tostring(which)
 	return self._callbacks[which] ~= nil
 end
 
 -- call the given callback
 function Frame:_callCallback(which, ...)
+  which = tostring(which)
 	local cb = self._callbacks[which]
 	local cbArgs = self._callbackArgs[which]
 

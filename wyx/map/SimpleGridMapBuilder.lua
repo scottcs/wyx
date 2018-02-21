@@ -10,6 +10,7 @@ local TrapMapType = getClass 'wyx.map.TrapMapType'
 local Rect = getClass 'wyx.kit.Rect'
 
 local math_floor = math.floor
+local math_random = love.math.random
 
 --------------
 -- DEFAULTS --
@@ -79,9 +80,9 @@ function SimpleGridMapBuilder:init(w, h, cellW, cellH, minRooms, maxRooms, seed)
 	if t.seed then
 		self._seed = t.seed
 	else
-		self._seed = Random()
+		self._seed = math_random(1, 10000000)
 	end
-	self._random = Random.new(self._seed)
+	self._random = math_random
 
 	t.w, t.h = t.w or MAPW, t.h or MAPH
 	MapBuilder.init(self, t.w, t.h)
@@ -190,7 +191,7 @@ function SimpleGridMapBuilder:_populateMap()
 	for i=1,self._numRooms do
 		local room = self._rooms[i]
 		local x1, y1, x2, y2 = room:getBBox()
-		
+
 		-- iterate over the bounding box of the room and add nodes
 		for x=x1,x2 do
 			for y=y1,y2 do

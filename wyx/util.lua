@@ -345,7 +345,7 @@ function resizeScreen(width, height)
 	local curW, curH = love.graphics.getWidth(), love.graphics.getHeight()
 
 	if width ~= curW or height ~= curH then
-		local modes = love.graphics.getModes()
+		local modes = love.window.getFullscreenModes()
 
 		local w, h
 		for i=1,#modes do
@@ -355,7 +355,7 @@ function resizeScreen(width, height)
 		end
 
 		if w ~= curW or h ~= curH then
-			assert(love.graphics.setMode(w, h))
+			assert(love.window.setMode(w, h))
 			if Console then
 				Console:print('Graphics mode changed to %dx%d', w, h)
 			end
@@ -430,31 +430,3 @@ do
 		sources[src] = nil
 	end
 end
-
---[[--
-local Deque = getClass 'wyx.kit.Deque'
-local rendercache = Deque()
-local _setRenderTarget = love.graphics.setRenderTarget
-function love.graphics.setRenderTarget(target, ...)
-	if nil == target then
-		rendercache:pop_back()
-	else
-		rendercache:push_back(target)
-	end
-	if rendercache:size() > 1 then
-		warning('setRenderTarget set to new target without unsetting old target')
-	end
-
-	_setRenderTarget(target, ...)
-end
---]]--
-
---[[--
-local numFramebuffers = 0
-local _newFramebuffer = love.graphics.newFramebuffer
-love.graphics.newFramebuffer = function(...)
-	numFramebuffers = numFramebuffers + 1
-	print(format('framebuffer count: %d', numFramebuffers))
-	return _newFramebuffer(...)
-end
---]]--

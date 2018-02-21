@@ -36,7 +36,7 @@ end
 
 function st:leave()
 	if self._nextStates then
-		for k in pairs(self._nextStates) do 
+		for k in pairs(self._nextStates) do
 			self._nextStates[k] = nil
 		end
 		self._nextStates = nil
@@ -77,17 +77,14 @@ end
 function st:_makeGameSeed()
 	local time = os.time()
 	local ltime = math.floor(love.timer.getTime() * 10000000)
-	local mtime = math.floor(love.timer.getMicroTime() * 1000)
+	local mtime = math.floor(love.timer.getTime() * 1000)
 	local mx = love.mouse.getX()
 	local my = love.mouse.getY()
 	if time < ltime then time, ltime = ltime, time end
 	GAMESEED = (time - ltime) + mtime + mx + my
-	math.randomseed(GAMESEED) math.random() math.random() math.random()
-	local rand = math.floor(math.random() * 10000000)
+	local rand = math.floor(love.math.random() * 10000000)
 	GAMESEED = GAMESEED + rand
-
-	-- create the real global PRNG instance with this ridiculous seed
-	Random = random.new(GAMESEED)
+  love.math.setRandomSeed(GAMESEED)
 end
 
 function st:_nextLoadStep()
@@ -128,6 +125,6 @@ end
 
 function st:draw() end
 
-function st:keypressed(key, unicode) end
+function st:keypressed(key, scancode, isrepeat) end
 
 return st

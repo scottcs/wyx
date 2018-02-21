@@ -69,7 +69,7 @@ function st:_loadFile()
 
 			if self._state.GAMESEED then
 				GAMESEED = self._state.GAMESEED
-				Random = random.new(GAMESEED)
+        love.math.setRandomSeed(GAMESEED)
 			end
 		end
 	end
@@ -114,6 +114,6 @@ end
 
 function st:draw() end
 
-function st:keypressed(key, unicode) end
+function st:keypressed(key, scancode, isrepeat) end
 
 return st

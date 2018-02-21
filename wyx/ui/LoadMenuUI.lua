@@ -160,7 +160,7 @@ function LoadMenuUI:_makeIcon(info)
 end
 
 function LoadMenuUI:_loadFileTable()
-	local files = love.filesystem.enumerate('save')
+	local files = love.filesystem.getDirectoryItems('save')
 	if files then
 		self._fileTable = {}
 		local num = #files
@@ -219,7 +219,7 @@ function LoadMenuUI:_makeButtons()
 		btn:setHoverStyle(ui.button.hoverStyle)
 		btn:setActiveStyle(ui.button.activeStyle)
 		btn:setText(info[1])
-		btn:setCallback('l', function()
+		btn:setCallback('1', function()
 			InputEvents:notify(InputCommandEvent(info[2]))
 		end)
 
