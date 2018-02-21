@@ -39,7 +39,7 @@ end
 -- override Frame:onRelease()
 function TextEntry:onRelease(button, mods)
 	if self._pressed then
-		if 'l' == button then self:toggleEnterMode() end
+		if button == 1 then self:toggleEnterMode() end
 	else
 		self:toggleEnterMode(false)
 	end

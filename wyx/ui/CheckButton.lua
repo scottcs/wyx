@@ -26,7 +26,7 @@ end
 
 -- override Button:onRelease()
 function CheckButton:onRelease(button, mods)
-	if button == 'l' then self:_toggleCheck() end
+	if button == 1 then self:_toggleCheck() end
 	Button.onRelease(button, mods)
 end
 

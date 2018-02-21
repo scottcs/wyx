@@ -250,19 +250,21 @@ end
 local MousePressedEvent = getClass 'wyx.event.MousePressedEvent'
 local MouseReleasedEvent = getClass 'wyx.event.MouseReleasedEvent'
 
-function love.mousepressed(x, y, button)
+function love.mousepressed(x, y, button, istouch)
 	local mods = _getModifiers()
 	InputEvents:notify(MousePressedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
+    istouch,
 		mods))
 end
 
-function love.mousereleased(x, y, button)
+function love.mousereleased(x, y, button, istouch)
 	local mods = _getModifiers()
 	InputEvents:notify(MouseReleasedEvent(x, y, button,
 		love.mouse.isGrabbed(),
 		love.mouse.isVisible(),
+    istouch,
 		mods))
 end
 

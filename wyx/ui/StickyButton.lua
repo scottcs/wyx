@@ -29,7 +29,7 @@ end
 -- override Button:setCallback() so that left clicking always checks for a
 -- slot to attach to.
 function StickyButton:setCallback(button, func, ...)
-	if button and button == 'l' then return end
+	if button and button == 1 then return end
 	Button.setCallback(self, button, func, ...)
 end
 
