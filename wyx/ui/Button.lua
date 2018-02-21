@@ -20,7 +20,7 @@ end
 
 -- override Frame onRelease
 function Button:onRelease(button, mods)
-	if self._pressed then self:_callCallback(button, mods) end
+  if self._pressed then self:_callCallback(button, mods) end
 end
 
 

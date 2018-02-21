@@ -27,7 +27,7 @@ end
 -- override Button:onRelease()
 function CheckButton:onRelease(button, mods)
 	if button == 1 then self:_toggleCheck() end
-	Button.onRelease(button, mods)
+	Button.onRelease(self, button, mods)
 end
 
 function CheckButton:check() self:_toggleCheck(true) end
