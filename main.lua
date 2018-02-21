@@ -280,7 +280,7 @@ function love.quit()
 end
 
 local collectgarbage = collectgarbage
-local getMicroTime = love.timer.getMicroTime
+local getTime = love.timer.getTime
 local sleep = love.timer.sleep
 local event = love.event
 local poll = love.event.poll
@@ -291,12 +291,12 @@ local clear = love.graphics.clear
 local present = love.graphics.present
 
 local function rungb(maxTime)
-	local start = getMicroTime()
+	local start = getTime()
 	local time = 0
 	while time < maxTime do
 		collectgarbage('step', 0)
 		collectgarbage('stop')
-		time = getMicroTime() - start
+		time = getTime() - start
 	end
 end
 
@@ -305,7 +305,7 @@ function love.run()
 
 	local Hz60 = 1/60
 	local dt = Hz60/4
-	local currentTime = getMicroTime()
+	local currentTime = getTime()
 	local accumulator = 0.0
 	local gbcount = 0
 
@@ -331,7 +331,7 @@ function love.run()
 			end
 		end
 
-		local newTime = getMicroTime()
+		local newTime = getTime()
 		local frameTime = newTime - currentTime
 		frameTime = frameTime > 0.25 and 0.25 or frameTime
 		currentTime = newTime
