@@ -160,7 +160,7 @@ function LoadMenuUI:_makeIcon(info)
 end
 
 function LoadMenuUI:_loadFileTable()
-	local files = love.filesystem.enumerate('save')
+	local files = love.filesystem.getDirectoryItems('save')
 	if files then
 		self._fileTable = {}
 		local num = #files

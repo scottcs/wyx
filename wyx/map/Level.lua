@@ -34,7 +34,7 @@ local math_ceil = math.ceil
 local math_round = function(x) return math_floor(x+0.5) end
 local match = string.match
 local format = string.format
-local enumerate = love.filesystem.enumerate
+local enumerate = love.filesystem.getDirectoryItems
 local GameEvents = GameEvents
 
 -- Level

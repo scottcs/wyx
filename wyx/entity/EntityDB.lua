@@ -10,7 +10,7 @@ local warning, error, pairs, verify = warning, error, pairs, verify
 local setmetatable = setmetatable
 local math_floor = math.floor
 local _round = function(x) return math_floor(x+0.5) end
-local enumerate = love.filesystem.enumerate
+local enumerate = love.filesystem.getDirectoryItems
 local read = love.filesystem.read
 
 local _mt = {__mode = 'v'}
