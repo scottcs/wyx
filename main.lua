@@ -242,7 +242,7 @@ function love.keypressed(key, scancode, isrepeat)
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:notify(KeyboardEvent(key, scancode, mods))
+		InputEvents:notify(KeyboardEvent(key, scancode, isrepeat, mods))
 	end
 end
 
