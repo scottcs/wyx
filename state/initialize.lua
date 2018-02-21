@@ -36,7 +36,7 @@ end
 
 function st:leave()
 	if self._nextStates then
-		for k in pairs(self._nextStates) do 
+		for k in pairs(self._nextStates) do
 			self._nextStates[k] = nil
 		end
 		self._nextStates = nil
@@ -128,6 +128,6 @@ end
 
 function st:draw() end
 
-function st:keypressed(key, unicode) end
+function st:keypressed(key, scancode, isrepeat) end
 
 return st

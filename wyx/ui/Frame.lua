@@ -207,7 +207,7 @@ function Frame:handleMouseRelease(x, y, button, mods)
 end
 
 -- handle keyboard events
-function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
+function Frame:handleKeyboard(key, scancode, isrepeat, mods)
 	local handled = false
 
 	local num = #self._children
@@ -216,11 +216,11 @@ function Frame:handleKeyboard(key, unicode, unicodeValue, mods)
 	while not handled and i < num do
 		i = i + 1
 		local child = self._children[i]
-		handled = child:handleKeyboard(key, unicode, unicodeValue, mods)
+		handled = child:handleKeyboard(key, scancode, isrepeat, mods)
 	end
 
 	if not handled then
-		handled = self:onKey(key, unicode, unicodeValue, mods)
+		handled = self:onKey(key, scancode, isrepeat, mods)
 	end
 
 	self._needsUpdate = true
@@ -429,7 +429,7 @@ end
 function Frame:onRelease(button, mods) end
 
 -- onKey - called when a key is pressed
-function Frame:onKey(key, unicode, unicodeValue, mods) end
+function Frame:onKey(key, scancode, isrepeat, mods) end
 
 -- set the given style
 function Frame:_setStyle(which, style)

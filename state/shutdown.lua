@@ -25,6 +25,6 @@ function st:update(dt) end
 
 function st:draw() end
 
-function st:keypressed(key, unicode) end
+function st:keypressed(key, scancode, isrepeat) end
 
 return st

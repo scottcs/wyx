@@ -236,14 +236,14 @@ end
 
 local KeyboardEvent = getClass 'wyx.event.KeyboardEvent'
 
-function love.keypressed(key, unicode)
+function love.keypressed(key, scancode, isrepeat)
 	local mods = _getModifiers()
 
 	-- shift-F1 for debug mode
 	if debug and 'f1' == key and mods['shift'] then
 		debug.debug()
 	else
-		InputEvents:notify(KeyboardEvent(key, unicode, mods))
+		InputEvents:notify(KeyboardEvent(key, scancode, mods))
 	end
 end
 

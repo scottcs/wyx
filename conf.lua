@@ -3,7 +3,7 @@ function love.conf(t)
 	t.author = "SCx Games"
 	t.identity = "wyx"
 	t.release = true
-	t.version = "0.8.0"
+	t.version = "0.10.2"
 	t.screen.width = 1024
 	t.screen.height = 768
 	t.screen.fullscreen = false

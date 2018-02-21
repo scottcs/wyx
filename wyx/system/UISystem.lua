@@ -122,7 +122,8 @@ end
 function UISystem:KeyboardEvent(e)
 	local mods = e:getModifiers()
 	local key = e:getKey()
-	local unicode, unicodeValue = e:getUnicode(), e:getUnicodeValue()
+	local scancode = e:getScancode()
+  local isrepeat = e:getIsRepeat()
 	local steal
 	local numDepths = #self._depths
 
@@ -133,13 +134,13 @@ function UISystem:KeyboardEvent(e)
 		for frame in self._registered[depth]:listeners() do
 			if steal then break end
 			if frame and frame:isRegisteredWithUISystem() then
-				steal = frame:handleKeyboard(key, unicode, unicodeValue, mods)
+				steal = frame:handleKeyboard(key, scancode, isrepeat, mods)
 			end
 		end
 	end
 
 	if not steal then
-		self:_sendInputCommand(key, unicode, unicodeValue, mods)
+		self:_sendInputCommand(key, scancode, isrepeat, mods)
 	end
 end
 
@@ -160,10 +161,9 @@ function UISystem:MouseIntersectResponse(e)
 end
 
 -- send an InputCommand if a key has been registered
-function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
+function UISystem:_sendInputCommand(key, scancode, isrepeat, mods)
 	if self._keybindings then
 		local found
-		unicodeValue = unicodeValue and format('%05d', unicodeValue) or -1
 		local num = #self._keybindings
 
 		for i=num,1,-1 do
@@ -175,7 +175,7 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 			if mods then
 				for mod in pairs(mods) do
 					mod = mod..'-'
-					cmd = unicode and keybindings[mod..unicode] or nil
+					cmd = scancode and keybindings[mod..scancode] or nil
 					if cmd then break end
 
 					cmd = key and keybindings[mod..key] or nil
@@ -183,8 +183,7 @@ function UISystem:_sendInputCommand(key, unicode, unicodeValue, mods)
 				end
 			end
 
-			if not cmd then cmd = keybindings[unicodeValue] end
-			if not cmd then cmd = unicode and keybindings[unicode] or nil end
+			if not cmd then cmd = scancode and keybindings[scancode] or nil end
 			if not cmd then cmd = key and keybindings[key] or nil end
 
 			if cmd then
@@ -200,7 +199,7 @@ end
 function UISystem:registerKeys(id, keytable)
 	verify('string', id)
 	verify('table', keytable)
-	
+
 	self._keybindings = self._keybindings or {}
 	local num = #self._keybindings
 
