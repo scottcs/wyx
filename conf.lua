@@ -8,7 +8,7 @@ function love.conf(t)
 	t.window.height = 768
 	t.window.fullscreen = false
 	t.window.vsync = false
-	t.window.fsaa = 0
+	t.window.msaa = 0
 	t.modules.joystick = false
 	t.modules.audio = true
 	t.modules.keyboard = true
