@@ -24,7 +24,7 @@ local GameEvents = GameEvents
 local newCanvas = love.graphics.newCanvas
 local newQuad = love.graphics.newQuad
 local draw = love.graphics.draw
-local setRenderTarget = love.graphics.setRenderTarget
+local setCanvas = love.graphics.setCanvas
 local setColor = love.graphics.setColor
 local colors = colors
 local nearestPO2 = nearestPO2
@@ -434,7 +434,7 @@ end
 -- draw to the framebuffer
 function TileMapView:_drawFB()
 	if self._backfb and self._set and self._level and self._mapViewport then
-		setRenderTarget(self._backfb)
+		setCanvas(self._backfb)
 
 		local numTiles = #self._drawTiles
 		for i=1,numTiles do
@@ -450,7 +450,7 @@ function TileMapView:_drawFB()
 			t.tile:draw()
 		end
 
-		setRenderTarget()
+		setCanvas()
 
 		-- flip back and front frame buffers
 		self._frontfb, self._backfb = self._backfb, self._frontfb
