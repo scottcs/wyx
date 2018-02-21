@@ -448,13 +448,3 @@ function love.graphics.setRenderTarget(target, ...)
 	_setRenderTarget(target, ...)
 end
 --]]--
-
---[[--
-local numFramebuffers = 0
-local _newFramebuffer = love.graphics.newFramebuffer
-love.graphics.newFramebuffer = function(...)
-	numFramebuffers = numFramebuffers + 1
-	print(format('framebuffer count: %d', numFramebuffers))
-	return _newFramebuffer(...)
-end
---]]--

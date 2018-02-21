@@ -21,7 +21,7 @@ local warning = warning
 local isClass, verifyClass, verify = isClass, verifyClass, verify
 
 local GameEvents = GameEvents
-local newFramebuffer = love.graphics.newFramebuffer
+local newCanvas = love.graphics.newCanvas
 local newQuad = love.graphics.newQuad
 local draw = love.graphics.draw
 local setRenderTarget = love.graphics.setRenderTarget
@@ -45,8 +45,8 @@ local TileMapView = Class{name='TileMapView',
 		self._set = Image.dungeon
 
 		local size = nearestPO2(math_max(mapW * self._tileW, mapH * self._tileH))
-		self._frontfb = newFramebuffer(size, size)
-		self._backfb = newFramebuffer(size, size)
+		self._frontfb = newCanvas(size, size)
+		self._backfb = newCanvas(size, size)
 
 		if state then self:setState(state) end
 
@@ -327,7 +327,7 @@ function TileMapView:_setupTiles()
 	local trapB = MapNode(TrapMapType())
 
 	local floorquad = self:getFloorQuad()
-	
+
 	local torchUpdate = function(self)
 		if self._flicker then
 			self._flicker = nil
@@ -442,7 +442,7 @@ function TileMapView:_drawFB()
 			setColor(t.color)
 			t.tile:draw()
 		end
-		
+
 		local numTiles = #self._animatedDrawTiles
 		for i=1,numTiles do
 			local t = self._animatedDrawTiles[i]
